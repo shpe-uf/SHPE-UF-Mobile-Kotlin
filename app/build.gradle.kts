@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.shpe_uf_mobile_kotlin"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.shpe_uf_mobile_kotlin"
