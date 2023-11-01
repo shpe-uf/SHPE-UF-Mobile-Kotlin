@@ -25,11 +25,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+
+
+import androidx.compose.material.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
+
+
+
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun RegistrationPage() {
@@ -78,7 +92,108 @@ fun RegistrationPage() {
 
                     //TODO Add registration input fields
 
+                    GradientRegistrationHeaderLabel(
+                        nameButton = "First Name",
+                        RoundedCornerShape(topStart = 10.dp, bottomEnd = 10.dp)
+                    )
+
+
+                    var firstName by remember { mutableStateOf("") }
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier,
+                            value = firstName,
+                            onValueChange = { firstName = it },
+                            label = {
+                                Text(
+                                    text = "Enter your First Name...",
+                                    fontSize = 11.sp,
+                                )
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    GradientRegistrationHeaderLabel(
+                        nameButton = "Last Name",
+                        RoundedCornerShape(topStart = 10.dp, bottomEnd = 10.dp)
+                    )
+
+
+                    var lastName by remember { mutableStateOf("") }
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier,
+                            value = lastName,
+                            onValueChange = { lastName = it },
+                            label = {
+                                Text(
+                                    text = "Enter your Last Name...",
+                                    fontSize = 11.sp,
+                                )
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    GradientRegistrationHeaderLabel(
+                        nameButton = "Email",
+                        RoundedCornerShape(topStart = 10.dp, bottomEnd = 10.dp)
+                    )
+
+                    var email by remember { mutableStateOf("") }
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier,
+                            value = email,
+                            onValueChange = { email = it },
+                            label = {
+                                Text(
+                                    text = "Enter your Email...",
+                                    fontSize = 11.sp,
+                                )
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    GradientRegistrationHeaderLabel(
+                        nameButton = "Password",
+                        RoundedCornerShape(topStart = 10.dp, bottomEnd = 10.dp)
+                    )
+
+                    var password by remember { mutableStateOf("") }
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier,
+                            value = password,
+                            onValueChange = { password = it },
+                            label = {
+                                Text(
+                                    text = "Enter your Password...",
+                                    fontSize = 11.sp,
+                                )
+                            }
+                        )
+                    }
+
                 }
+
 
                 Column (
                     modifier = Modifier
@@ -155,3 +270,44 @@ private fun GradientButton(
     }
 }
 
+
+@Composable
+private fun GradientRegistrationHeaderLabel(
+    nameButton: String,
+    roundedCornerShape: RoundedCornerShape
+){
+    val gradientColors = listOf(Color(0xFFD23C20), Color(0xFFF1652F))
+    val cornerRadius = 10.dp
+
+
+    Button(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 32.dp, end = 32.dp),
+        onClick = {
+            // TODO leave empty as the button is for appearances and to hold first name
+        },
+        contentPadding = PaddingValues(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent
+        ), shape = RoundedCornerShape(cornerRadius)
+    ) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.horizontalGradient(colors = gradientColors),
+                    shape = roundedCornerShape
+                )
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text = nameButton,
+                fontSize = 17.sp,
+                color = Color.White
+            )
+        }
+    }
+}
