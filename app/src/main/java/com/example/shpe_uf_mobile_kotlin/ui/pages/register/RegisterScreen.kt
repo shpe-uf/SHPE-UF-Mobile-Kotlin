@@ -31,11 +31,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -50,133 +53,91 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 @Composable
 fun RegistrationPage() {
     SHPEUFMobileKotlinTheme {
-        Box(
+        Column(
             modifier = Modifier
+                .padding(horizontal = 15.dp, vertical = 30.dp)
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .background(
-                    color = Color.Transparent,
-                )
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(50.dp)
         ) {
-            Column(
+
+            Column {
+                Image(
+                    painter = painterResource(id = R.drawable.shpe_logo_full_color),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .height(150.dp)
+                        .fillMaxSize()
+                )
+
+                Text(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .fillMaxWidth(),
+                    text = "Register Your SHPE-UF Account",
+                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.labelLarge,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Column (
                 modifier = Modifier
-                    .padding(horizontal = 15.dp, vertical = 30.dp)
-                    .fillMaxWidth()
                     .fillMaxHeight()
-                    .verticalScroll(rememberScrollState()),
+                    .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(75.dp)
+                verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
 
-                Column {
-                    Image(
-                        painter = painterResource(id = R.drawable.shpe_logo_full_color),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .height(150.dp)
-                            .fillMaxSize()
-                    )
+                RegisterFirstName()
 
-                    Text(
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .fillMaxWidth(),
-                        text = "Register Your SHPE-UF Account",
-                        fontSize = 20.sp,
-                        style = MaterialTheme.typography.labelLarge,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                RegisterLastName()
 
-                Column (
+                RegisterEmail()
+
+                RegisterPassword()
+
+            }
+
+
+            Column (
+                modifier = Modifier
+                    .fillMaxWidth(),
+            ){
+
+                GradientButton(
+                    nameButton = "Create Account",
+                )
+
+                Row(
                     modifier = Modifier
-                        .fillMaxHeight()
                         .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(15.dp)
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-
-                    RegisterFirstName()
-
-                    //TODO Change these two components to function calls to keep the main component simple and divide each composable
-
-                    var lastName by remember { mutableStateOf("") }
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        OutlinedTextField(
-                            modifier = Modifier,
-                            value = lastName,
-                            onValueChange = { lastName = it },
-                            label = {
-                                Text(
-                                    text = "Enter your Last Name...",
-                                    fontSize = 11.sp,
-                                )
-                            }
-                        )
-                    }
-
-                    var email by remember { mutableStateOf("") }
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        OutlinedTextField(
-                            modifier = Modifier,
-                            value = email,
-                            onValueChange = { email = it },
-                            label = {
-                                Text(
-                                    text = "Enter your Email...",
-                                    fontSize = 11.sp,
-                                )
-                            }
-                        )
-                    }
-
-                    RegisterPassword()
-
-                }
-
-
-                Column (
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                ){
-
-                    GradientButton(
-                        nameButton = "Create Account",
+                    Text(
+                        text = "Already have an account?",
+                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.labelLarge
                     )
+                    TextButton(onClick = {
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
+                        //TODO Navigate to the sign-in page for users that already have an account
+
+                    }) {
                         Text(
-                            text = "Already have an account?",
+                            text = "Sign In",
                             fontSize = 18.sp,
                             style = MaterialTheme.typography.labelLarge
                         )
-                        TextButton(onClick = {
-
-                            //TODO Navigate to the sign-in page for users that already have an account
-
-                        }) {
-                            Text(
-                                text = "Sign In",
-                                fontSize = 18.sp,
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                        }
                     }
                 }
             }
         }
+
     }
 }
 
@@ -222,7 +183,6 @@ private fun RegisterFirstName() {
 
     OutlinedTextField(
         modifier = Modifier
-            .height(60.dp)
             .fillMaxWidth(0.8f),
         value = firstName,
         onValueChange = {firstName = it},
@@ -249,16 +209,80 @@ private fun RegisterFirstName() {
 @Composable
 private fun RegisterLastName() {
 
-    //TODO Replicate from first name outlineTextField
+    var lastName by remember { mutableStateOf("") }
 
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth(0.8f),
+        value = lastName,
+        onValueChange = {lastName = it},
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Filled.AccountCircle,
+                contentDescription = null)
+        },
+        shape = RoundedCornerShape(12.dp),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text
+        ),
+        label = {
+            Text(
+                text = "Last Name",
+                fontSize = 20.sp
+            )
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RegisterEmail() {
+    var email by rememberSaveable { mutableStateOf("") }
+    var isError by rememberSaveable { mutableStateOf(false) }
 
-    //TODO Create OutlineTextBox and same email to state
+    fun validateEmail(text: String) {
+        val regex = "^[a-zA-Z0-9]*@ufl.edu$".toRegex()
+        isError = !text.matches(regex)
+    }
 
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth(0.8f),
+        value = email,
+        onValueChange = {
+            email = it
+            validateEmail(email)
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Filled.AccountCircle,
+                contentDescription = null)
+        },
+        shape = RoundedCornerShape(12.dp),
+        singleLine = true,
+        isError = isError,
+        supportingText = {
+            if (isError) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Please enter a   @ufl.edu email.",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
+        trailingIcon = {
+            if (isError)
+                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
+        },
+        keyboardActions = KeyboardActions { validateEmail(email) },
+        label = {
+            Text(
+                text = "Email",
+                fontSize = 20.sp
+            )
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -268,46 +292,40 @@ private fun RegisterPassword() {
     var password by remember { mutableStateOf("") }
     var passwordHidden by remember { mutableStateOf(true) }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        OutlinedTextField(
-            modifier = Modifier
-                .height(60.dp)
-                .fillMaxWidth(0.8f),
-            value = password,
-            onValueChange = {password = it},
-            leadingIcon = {
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth(0.8f),
+        value = password,
+        onValueChange = {password = it},
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Filled.Lock,
+                contentDescription = null)
+        },
+        visualTransformation =
+        if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
+        trailingIcon = {
+            IconButton(onClick = { passwordHidden = !passwordHidden }) {
+                val visibilityIcon =
+                    if (passwordHidden) Icons.Filled.Visibility
+                    else  Icons.Filled.VisibilityOff
+                val description = if (passwordHidden) "Show password" else "Hide password"
                 Icon(
-                    imageVector = Icons.Filled.Lock,
-                    contentDescription = null)
-            },
-            visualTransformation =
-            if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
-            trailingIcon = {
-                IconButton(onClick = { passwordHidden = !passwordHidden }) {
-                    val visibilityIcon =
-                        if (passwordHidden) Icons.Filled.Visibility
-                        else  Icons.Filled.VisibilityOff
-                    val description = if (passwordHidden) "Show password" else "Hide password"
-                    Icon(
-                        imageVector = visibilityIcon,
-                        contentDescription = description
-                    )
-                }
-            },
-            shape = RoundedCornerShape(12.dp),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text
-            ),
-            label = {
-                Text(
-                    text = "Password",
-                    fontSize = 20.sp
+                    imageVector = visibilityIcon,
+                    contentDescription = description
                 )
             }
-        )
-    }
+        },
+        shape = RoundedCornerShape(12.dp),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text
+        ),
+        label = {
+            Text(
+                text = "Password",
+                fontSize = 20.sp
+            )
+        }
+    )
 }
