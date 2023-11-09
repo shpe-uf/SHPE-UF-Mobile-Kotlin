@@ -256,7 +256,7 @@ private fun RegisterEmail() {
         },
         leadingIcon = {
             Icon(
-                imageVector = Icons.Filled.AccountCircle,
+                imageVector = Icons.Filled.Email,
                 contentDescription = null)
         },
         shape = RoundedCornerShape(12.dp),
