@@ -24,19 +24,49 @@ class MainActivity : ComponentActivity() {
         setContent {
             SHPEUFMobileKotlinTheme  {
                 // Replace this with your card data
-                CardView(title = "Card Title", content = "Card Content")
+                CardFeed(sampleCardItems)
             }
         }
     }
 }
 
+// cardItem item holder data class and can view data in CardFeed View
+data class CardItem(val title: String, val content: String)
+val sampleCardItems = listOf(
+    // for loop calling the DB to
+    CardItem("Title 1", "Content 1"),
+    CardItem("Title 2", "Content 2"),
+    // ... more items
+    CardItem("Title 2", "Content 2"),
+    CardItem("Title 2", "Content 2"),
+    CardItem("Title 2", "Content 2"),
+    CardItem("Daniela Vergara", "Today I will be assassinating everyone!"),
+)
+
+// The CardFeed is placed within the LazyColumn
+@Composable
+fun CardFeed(cardItems: List<CardItem>) {
+    LazyColumn {
+        items(cardItems) { item ->
+            CardView(title = item.title, content = item.content)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CardFeedPreview() {
+    SHPEUFMobileKotlinTheme {
+        CardFeed(sampleCardItems)
+    }
+}
 
 @Composable
 fun CardView(title: String, content: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(8.dp),
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
