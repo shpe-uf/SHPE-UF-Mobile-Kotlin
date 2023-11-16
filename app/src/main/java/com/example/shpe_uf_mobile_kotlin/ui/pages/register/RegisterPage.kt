@@ -27,32 +27,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.*
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
-
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
-fun RegistrationPage() {
+fun RegistrationPagePreview() {
+    val viewModel = RegisterViewModel()
+    RegistrationPage(viewModel)
+}
+
+@Composable
+fun RegistrationPage(registerViewModel: RegisterViewModel) {
     SHPEUFMobileKotlinTheme {
+
+        val uiState by registerViewModel.uiState.collectAsState()
+
         Column(
             modifier = Modifier
                 .padding(horizontal = 15.dp, vertical = 30.dp)
@@ -89,16 +89,47 @@ fun RegistrationPage() {
                     .fillMaxHeight()
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(15.dp)
+                verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
 
-                RegisterFirstName()
+                RegisterFirstName(
+                    value = uiState.firstName ?: "",
+                    isError = uiState.firstNameErrorMessage != null,
+                    errorMessage = uiState.firstNameErrorMessage ?: "",
+                    onValueChange = { registerViewModel.onFirstNameChanged(it) }
+                )
 
-                RegisterLastName()
+                RegisterLastName(
+                    value = uiState.lastName ?: "",
+                    isError = uiState.lastNameErrorMessage != null,
+                    errorMessage = uiState.lastNameErrorMessage ?: "",
+                    onValueChange = { registerViewModel.onLastNameChanged(it) }
+                )
 
-                RegisterEmail()
+                RegisterEmail(
+                    value = uiState.email ?: "",
+                    isError = uiState.emailErrorMessage != null,
+                    errorMessage = uiState.emailErrorMessage ?: "",
+                    onValueChange = { registerViewModel.onEmailChanged(it) }
+                )
 
-                RegisterPassword()
+                RegisterPassword(
+                    value = uiState.password ?: "",
+                    isPasswordVisible = uiState.isPasswordVisible,
+                    isError = uiState.passwordErrorMessage != null,
+                    errorMessage = uiState.passwordErrorMessage ?: "",
+                    onValueChange = { registerViewModel.onPasswordChanged(it) },
+                    onTogglePasswordVisibility = { registerViewModel.togglePasswordVisibility() }
+                )
+
+                RegisterConfirmPassword(
+                    value = uiState.confirmPassword ?: "",
+                    isConfirmPasswordVisible = uiState.isConfirmPasswordVisible,
+                    isError = uiState.confirmPasswordErrorMessage != null,
+                    errorMessage = uiState.confirmPasswordErrorMessage ?: "",
+                    onValueChange = { registerViewModel.onConfirmPasswordChanged(it) },
+                    onToggleConfirmPasswordVisibility = { registerViewModel.toggleConfirmPasswordVisibility() }
+                )
 
             }
 
@@ -109,7 +140,7 @@ fun RegistrationPage() {
             ){
 
                 GradientButton(
-                    nameButton = "Create Account",
+                    onClick = { registerViewModel.validateAndRegisterUser() }
                 )
 
                 Row(
@@ -139,11 +170,12 @@ fun RegistrationPage() {
         }
 
     }
+
 }
 
 @Composable
 private fun GradientButton(
-    nameButton: String,
+    onClick: () -> Unit
 ) {
     val gradientColors = listOf(Color(0xFFD23C20), Color(0xFFF1652F))
 
@@ -151,7 +183,7 @@ private fun GradientButton(
         modifier = Modifier
             .fillMaxWidth(),
         onClick = {
-            //TODO Handle user registration
+            onClick()
         },
         contentPadding = PaddingValues(),
         colors = ButtonDefaults.buttonColors(
@@ -164,11 +196,11 @@ private fun GradientButton(
                 .background(
                     brush = Brush.horizontalGradient(colors = gradientColors),
                 )
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 20.dp, vertical = 10.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = nameButton,
+                text = "Create Account",
                 fontSize = 20.sp,
                 color = Color.White
             )
@@ -178,14 +210,18 @@ private fun GradientButton(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RegisterFirstName() {
-    var firstName by remember { mutableStateOf("") }
-
+private fun RegisterFirstName(
+    value: String,
+    isError: Boolean,
+    errorMessage: String,
+    onValueChange: (String) -> Unit
+) {
     OutlinedTextField(
         modifier = Modifier
             .fillMaxWidth(0.8f),
-        value = firstName,
-        onValueChange = {firstName = it},
+        value = value,
+        onValueChange = {onValueChange(it)},
+        isError = isError,
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.AccountCircle,
@@ -196,26 +232,42 @@ private fun RegisterFirstName() {
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text
         ),
+        supportingText = {
+            if (isError) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
         label = {
             Text(
                 text = "First Name",
-                fontSize = 20.sp
+                fontSize = 18.sp
             )
+        },
+        trailingIcon = {
+            if (isError)
+                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
         }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RegisterLastName() {
-
-    var lastName by remember { mutableStateOf("") }
-
+private fun RegisterLastName(
+    value: String,
+    isError: Boolean,
+    errorMessage: String,
+    onValueChange: (String) -> Unit
+) {
     OutlinedTextField(
         modifier = Modifier
             .fillMaxWidth(0.8f),
-        value = lastName,
-        onValueChange = {lastName = it},
+        value = value,
+        onValueChange = {onValueChange(it)},
+        isError = isError,
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.AccountCircle,
@@ -226,34 +278,42 @@ private fun RegisterLastName() {
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text
         ),
+        supportingText = {
+            if (isError) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
         label = {
             Text(
                 text = "Last Name",
-                fontSize = 20.sp
+                fontSize = 18.sp
             )
+        },
+        trailingIcon = {
+            if (isError)
+                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
         }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RegisterEmail() {
-    var email by rememberSaveable { mutableStateOf("") }
-    var isError by rememberSaveable { mutableStateOf(false) }
-
-    fun validateEmail(text: String) {
-        val regex = "^[a-zA-Z0-9]*@ufl.edu$".toRegex()
-        isError = !text.matches(regex)
-    }
-
+private fun RegisterEmail(
+    value: String,
+    isError: Boolean,
+    errorMessage: String,
+    onValueChange: (String) -> Unit
+) {
     OutlinedTextField(
         modifier = Modifier
             .fillMaxWidth(0.8f),
-        value = email,
-        onValueChange = {
-            email = it
-            validateEmail(email)
-        },
+        value = value,
+        onValueChange = {onValueChange(it)},
+        isError = isError,
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Email,
@@ -261,55 +321,61 @@ private fun RegisterEmail() {
         },
         shape = RoundedCornerShape(12.dp),
         singleLine = true,
-        isError = isError,
         supportingText = {
             if (isError) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = "Please enter a   @ufl.edu email.",
+                    text = errorMessage,
                     color = MaterialTheme.colorScheme.error
                 )
             }
         },
-        trailingIcon = {
-            if (isError)
-                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
-        },
-        keyboardActions = KeyboardActions { validateEmail(email) },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text
+        ),
         label = {
             Text(
                 text = "Email",
-                fontSize = 20.sp
+                fontSize = 18.sp
             )
+        },
+        trailingIcon = {
+            if (isError)
+                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
         }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RegisterPassword() {
-
-    var password by remember { mutableStateOf("") }
-    var passwordHidden by remember { mutableStateOf(true) }
-
+private fun RegisterPassword(
+    value: String,
+    isPasswordVisible: Boolean,
+    isError: Boolean,
+    errorMessage: String,
+    onValueChange: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit
+) {
     OutlinedTextField(
         modifier = Modifier
             .fillMaxWidth(0.8f),
-        value = password,
-        onValueChange = {password = it},
+        value = value,
+        onValueChange = { onValueChange(it) },
+        isError = isError,
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Lock,
-                contentDescription = null)
+                contentDescription = null
+            )
         },
         visualTransformation =
-        if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
+            if (isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None,
         trailingIcon = {
-            IconButton(onClick = { passwordHidden = !passwordHidden }) {
+            IconButton(onClick = { onTogglePasswordVisibility() }) {
                 val visibilityIcon =
-                    if (passwordHidden) Icons.Filled.Visibility
-                    else  Icons.Filled.VisibilityOff
-                val description = if (passwordHidden) "Show password" else "Hide password"
+                    if (isPasswordVisible) Icons.Filled.Visibility
+                    else Icons.Filled.VisibilityOff
+                val description = if (isPasswordVisible) "Hide Password" else "Show Password"
                 Icon(
                     imageVector = visibilityIcon,
                     contentDescription = description
@@ -321,11 +387,82 @@ private fun RegisterPassword() {
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text
         ),
+        supportingText = {
+            if (isError) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
         label = {
             Text(
                 text = "Password",
-                fontSize = 20.sp
+                fontSize = 18.sp
             )
         }
     )
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RegisterConfirmPassword(
+    value: String,
+    isConfirmPasswordVisible: Boolean,
+    isError: Boolean,
+    errorMessage: String,
+    onValueChange: (String) -> Unit,
+    onToggleConfirmPasswordVisibility: () -> Unit
+) {
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth(0.8f),
+        value = value,
+        onValueChange = { onValueChange(it) },
+        isError = isError,
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Filled.Lock,
+                contentDescription = null
+            )
+        },
+        visualTransformation =
+            if (isConfirmPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+        trailingIcon = {
+            IconButton(onClick = { onToggleConfirmPasswordVisibility() }) {
+                val visibilityIcon =
+                    if (isConfirmPasswordVisible) Icons.Filled.Visibility
+                    else Icons.Filled.VisibilityOff
+                val description = if (isConfirmPasswordVisible) "Hide Password" else "Show Password"
+                Icon(
+                    imageVector = visibilityIcon,
+                    contentDescription = description
+                )
+            }
+        },
+        shape = RoundedCornerShape(12.dp),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text
+        ),
+        supportingText = {
+            if (isError) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
+        label = {
+            Text(
+                text = "Confirm Password",
+                fontSize = 18.sp
+            )
+        }
+    )
+}
+
+
