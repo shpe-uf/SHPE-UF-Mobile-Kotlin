@@ -4,7 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,15 +17,28 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.TextStyle
+import java.time.temporal.TemporalAdjusters
+import java.util.Locale
 
 
 class MainActivity : ComponentActivity() {
@@ -166,21 +182,128 @@ HomeViewModel.Event(
 // Google Calendar API Portion
 // Here we need to call the google calendar API to get events, send them to view model, and display them
 // this could be in a form of a list in addition to a calendar view
+@Composable
+fun CalendarView(currentDate: LocalDate = LocalDate.now(), onDateClicked: (LocalDate) -> Unit) {
+    Column {
+        CalendarWeekDays()
+        getDaysInMonthArray(currentDate).chunked(7).forEach { week ->
+            CalendarWeekRow(week, onDateClicked)
+        }
+    }
+}
+
+@Composable
+fun CalendarWeekDays() {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        // Reorder the days to start from Sunday
+        val daysOfWeek = listOf(DayOfWeek.SUNDAY) + DayOfWeek.values().filter { it != DayOfWeek.SUNDAY }
+
+        daysOfWeek.forEach { dayOfWeek ->
+            Text(
+                text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).toUpperCase(Locale.getDefault()),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp),
+                textAlign = TextAlign.Center,
+                fontSize = 16.sp
+            )
+        }
+    }
+}
+@Composable
+fun CalendarWeekRow(week: List<LocalDate?>, onDateClicked: (LocalDate) -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        week.forEach { date ->
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(4.dp)
+                    .clickable { date?.let(onDateClicked) },
+                // Rest of the card properties
+            ) {
+                Text(
+                    text = date?.dayOfMonth?.toString() ?: "",
+                    textAlign = TextAlign.Center,
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+        }
+    }
+}
+
+fun getDaysInMonthArray(date: LocalDate): List<LocalDate?> {
+    val yearMonth = YearMonth.from(date)
+    val totalDays = yearMonth.lengthOfMonth()
+
+    val firstOfMonth = date.with(TemporalAdjusters.firstDayOfMonth())
+    val dayOfWeek = firstOfMonth.dayOfWeek  // DayOfWeek enum
+
+    val daysInMonthArray = mutableListOf<LocalDate?>()
+
+    // For a Sunday-start calendar, Sunday has an offset of 0
+    var offset = dayOfWeek.value % DayOfWeek.SUNDAY.value
+
+    // Fill in nulls for padding before the first day of the month
+    for (i in 1..offset) {
+        daysInMonthArray.add(null)
+    }
+
+    // Add actual days of the month
+    for (i in 1..totalDays) {
+        daysInMonthArray.add(LocalDate.of(date.year, date.month, i))
+    }
+
+    // Add nulls for padding after the last day of the month to complete the week
+    while (daysInMonthArray.size % 7 != 0) {
+        daysInMonthArray.add(null)
+    }
+
+    return daysInMonthArray
+}
+
+// STOPS HERE
+
 
 // This class will be used to handle all the logic for the home screen
 // get items from homeViewModel and display them, code:
 @Composable
-fun HomeScreen()   {
-    // gets events that are displayed in cards from the view model
-    val viewModel = HomeViewModel()
-    val events = viewModel.events.value
-    // Add a logo at the top of the screen
+fun HomeScreen() {
+    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
+
     Column {
         CircularLogoPlaceholder()
-        // Add a card feed
+        CalendarView(LocalDate.now(), onDateClicked = { date ->
+            selectedDate = date
+        })
+
+        selectedDate?.let { date ->
+            Card(
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Column {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth().padding(8.dp)
+                    ) {
+                        Text("Selected date: $date", modifier = Modifier.weight(1f))
+                        Text(
+                            "Close",
+                            modifier = Modifier
+                                .clickable { selectedDate = null }
+                                .padding(8.dp),
+                            color = Color.Red
+                        )
+                    }
+                    // Include any additional information or components here
+                }
+            }
+        }
         CardFeed(cardItems = sampleCardItems)
     }
-    // This will call the fetchCalendarEvents function in the view model
 }
 
 // preview for HomeScreen
