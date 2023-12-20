@@ -1,20 +1,14 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Path
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 
 //   I need to call the google calendar API to get events
 // This class will be used to handle all the logic for the home screen
@@ -25,10 +19,135 @@ import retrofit2.http.Path
 
 
 class HomeViewModel : ViewModel() {
-    // This function will be called to get the events from the google calendar API
-    data class CalendarEventsResponse(
-        val items: List<Event>
-    )
+    private val _events = MutableLiveData<List<Event>>()
+    val events: LiveData<List<Event>> = _events
+
+    private val _currentWeek = MutableLiveData<List<LocalDate>>()
+    val currentWeek: LiveData<List<LocalDate>> = _currentWeek
+
+    init {
+        fetchCalendarEvents()
+        setCurrentWeekDates(LocalDate.now())
+    }
+
+    fun setCurrentWeekDates(date: LocalDate) {
+        _currentWeek.value = (0..6).map { date.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY)).plusDays(it.toLong()) }
+    }
+
+    private fun fetchCalendarEvents() {
+
+        // api
+
+
+        val mockEvents = listOf(
+            Event(
+                id = "1",
+                summary = "SHPE UF General Body Meeting",
+                description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                location = "https://ufl.zoom.us/j/95895737986",
+                start = EventDateTime(
+                    dateTime = "2023-12-19T18:00:00-04:00",
+                    timeZone = "America/New_York"
+                ),
+                end = EventDateTime(
+                    dateTime = "2023-12-19T19:00:00-04:00",
+                    timeZone = "America/New_York"
+                ),
+                colorResId = 0
+            ),
+            Event(
+                id = "2",
+                summary = "SHPE UF General Body Meeting",
+                description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                location = "https://ufl.zoom.us/j/95895737986",
+                start = EventDateTime(
+                    dateTime = "2023-12-19T18:00:00-04:00",
+                    timeZone = "America/New_York"
+                ),
+                end = EventDateTime(
+                    dateTime = "2023-12-19T19:00:00-04:00",
+                    timeZone = "America/New_York"
+                ),
+                colorResId = 0
+            ),
+            Event(
+                id = "3",
+                summary = "SHPE UF General Body Meeting",
+                description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                location = "https://ufl.zoom.us/j/95895737986",
+                start = EventDateTime(
+                    dateTime = "2023-12-19T18:00:00-04:00",
+                    timeZone = "America/New_York"
+                ),
+                end = EventDateTime(
+                    dateTime = "2023-12-19T19:00:00-04:00",
+                    timeZone = "America/New_York"),
+                colorResId = 0
+            ),
+        )
+        _events.value = mockEvents
+    }
+
+    fun saveEvent(event: Event) {
+        // Implement the logic to save the event
+        // This could involve database operations or other state changes
+    };
+
+    fun loadEvents() {
+        val events = listOf(
+            Event(
+                id = "1",
+                summary = "SHPE UF General Body Meeting",
+                description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                location = "https://ufl.zoom.us/j/95895737986",
+                start = EventDateTime(
+                    dateTime = "2023-12-19T18:00:00-04:00",
+                    timeZone = "America/New_York"
+                ),
+                end = EventDateTime(
+                    dateTime = "2023-12-19T19:00:00-04:00",
+                    timeZone = "America/New_York"
+                ),
+                colorResId = 0
+            ),
+            Event(
+                id = "2",
+                summary = "SHPE UF General Body Meeting",
+                description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                location = "https://ufl.zoom.us/j/95895737986",
+                start = EventDateTime(
+                    dateTime = "2023-12-19T18:00:00-04:00",
+                    timeZone = "America/New_York"
+                ),
+                end = EventDateTime(
+                    dateTime = "2023-12-19T19:00:00-04:00",
+                    timeZone = "America/New_York"
+                ),
+                colorResId = 0
+            ),
+            Event(
+                id = "3",
+                summary = "SHPE UF General Body Meeting",
+                description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                location = "https://ufl.zoom.us/j/95895737986",
+                start = EventDateTime(
+                    dateTime = "2023-12-19T18:00:00-04:00",
+                    timeZone = "America/New_York"
+                ),
+                end = EventDateTime(
+                    dateTime = "2023-12-19T19:00:00-04:00",
+                    timeZone = "America/New_York"),
+                colorResId = 0
+            ),
+            )
+    }
+
+    fun navigateWeeks(isNext: Boolean) {
+        val current = _currentWeek.value?.first() ?: return
+        val offset = if (isNext) 7 else -7
+        setCurrentWeekDates(current.plusDays(offset.toLong()))
+    }
+
 
     data class Event(
         val id: String,
@@ -37,37 +156,21 @@ class HomeViewModel : ViewModel() {
         val location: String?,
         val start: EventDateTime,
         val end: EventDateTime,
-    )
+        val colorResId: Int,
 
-    data class EventDateTime(
-        val dateTime: String?,
-        val timeZone: String?
-    )
-
-    interface GoogleCalendarApi {
-        @GET("calendars/{calendarId}/events")
-        fun getCalendarEvents(
-            @Path("calendarId") calendarId: String,
-            @Header("Authorization") authHeader: String
-        ): Call<CalendarEventsResponse>
+    ) {
+        fun matchesDate(date: LocalDate): Boolean {
+            return this.start.toLocalDate() == date
+        }
     }
 
-    private val _events = MutableLiveData<List<Event>>()
-    val events: LiveData<List<Event>> = _events
-
-    fun fetchCalendarEvents(calendarId: String, accessToken: String) {
-        viewModelScope.launch {
-            try {
-                val response = withContext(Dispatchers.IO) {
-                    googleCalendarApi.getCalendarEvents(calendarId, "Bearer $accessToken").execute()
-                }
-                if (response.isSuccessful) {
-                    _events.postValue(response.body()?.items ?: listOf())
-                } else {
-                    // Handle errors
-                }
-            } catch (e: Exception) {
-                // Handle exceptions
+    data class EventDateTime(
+        val dateTime: String,
+        val timeZone: String
+    ) {
+        fun toLocalDate(): LocalDate? {
+            return dateTime?.let {
+                LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME).toLocalDate()
             }
         }
     }
@@ -76,7 +179,5 @@ class HomeViewModel : ViewModel() {
         .baseUrl("https://www.googleapis.com/calendar/v3/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-
-    val googleCalendarApi = retrofit.create(GoogleCalendarApi::class.java)
 }
 

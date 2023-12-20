@@ -1,5 +1,4 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,10 +13,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,13 +73,14 @@ val sampleCardItems = listOf(
         description = "This is event 1",
         location = "Location 1",
         start = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T10:00:00-04:00",
+            dateTime = "2023-12-19T10:00:00-04:00",
             timeZone = "America/New_York"
         ),
         end = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T11:00:00-04:00",
+            dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
-        )
+        ),
+        colorResId = 0
     ),
     HomeViewModel.Event(
         id = "2",
@@ -85,13 +88,14 @@ val sampleCardItems = listOf(
         description = "This is event 2",
         location = "Location 2",
         start = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T10:00:00-04:00",
+            dateTime = "2023-12-19T10:00:00-04:00",
             timeZone = "America/New_York"
         ),
         end = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T11:00:00-04:00",
+            dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
-        )
+        ),
+        colorResId = 0
     ),
     HomeViewModel.Event(
         id = "3",
@@ -99,13 +103,14 @@ val sampleCardItems = listOf(
         description = "This is event 3",
         location = "Location 3",
         start = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T10:00:00-04:00",
+            dateTime = "2023-12-19T10:00:00-04:00",
             timeZone = "America/New_York"
         ),
         end = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T11:00:00-04:00",
+            dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
-        )
+        ),
+        colorResId = 0
     ),
     HomeViewModel.Event(
         id = "4",
@@ -113,13 +118,14 @@ val sampleCardItems = listOf(
         description = "This is event 4",
         location = "Location 4",
         start = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T10:00:00-04:00",
+            dateTime = "2023-12-19T10:00:00-04:00",
             timeZone = "America/New_York"
         ),
         end = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T11:00:00-04:00",
+            dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
-        )
+        ),
+        colorResId = 0
     ),
     HomeViewModel.Event(
         id = "5",
@@ -127,13 +133,14 @@ val sampleCardItems = listOf(
         description = "This is event 5",
         location = "Location 5",
         start = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T10:00:00-04:00",
+            dateTime = "2023-12-19T10:00:00-04:00",
             timeZone = "America/New_York"
         ),
         end = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T11:00:00-04:00",
+            dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
-        )
+        ),
+        colorResId = 0
     ),
 HomeViewModel.Event(
         id = "6",
@@ -141,13 +148,14 @@ HomeViewModel.Event(
         description = "This is event 6",
         location = "Location 6",
         start = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T10:00:00-04:00",
+            dateTime = "2023-12-19T10:00:00-04:00",
             timeZone = "America/New_York"
         ),
         end = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T11:00:00-04:00",
+            dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
-        )
+        ),
+    colorResId = 0
     ),
     HomeViewModel.Event(
         id = "7",
@@ -155,13 +163,14 @@ HomeViewModel.Event(
         description = "This is event 7",
         location = "Location 7",
         start = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T10:00:00-04:00",
+            dateTime = "2023-12-19T10:00:00-04:00",
             timeZone = "America/New_York"
         ),
         end = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T11:00:00-04:00",
+            dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
-        )
+        ),
+        colorResId = 0
     ),
     HomeViewModel.Event(
         id = "8",
@@ -169,13 +178,14 @@ HomeViewModel.Event(
         description = "This is event 8",
         location = "Location 8",
         start = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T10:00:00-04:00",
+            dateTime = "2023-12-19T10:00:00-04:00",
             timeZone = "America/New_York"
         ),
         end = HomeViewModel.EventDateTime(
-            dateTime = "2021-10-10T11:00:00-04:00",
+            dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
-        )
+        ),
+        colorResId = 0
     )
 )
 
@@ -183,12 +193,18 @@ HomeViewModel.Event(
 // Here we need to call the google calendar API to get events, send them to view model, and display them
 // this could be in a form of a list in addition to a calendar view
 @Composable
-fun CalendarView(currentDate: LocalDate = LocalDate.now(), onDateClicked: (LocalDate) -> Unit) {
+fun CalendarView(
+    weekDates: List<LocalDate>,
+    events: List<HomeViewModel.Event>,
+    onDateClicked: (LocalDate) -> Unit
+) {
     Column {
         CalendarWeekDays()
-        getDaysInMonthArray(currentDate).chunked(7).forEach { week ->
-            CalendarWeekRow(week, onDateClicked)
-        }
+        CalendarWeekRow(weekDates, events, onDateClicked)
+
+//        getDaysInMonthArray(currentDate).chunked(7).forEach { week ->
+//            CalendarWeekRow(week, onDateClicked)
+//        }
     }
 }
 
@@ -200,7 +216,7 @@ fun CalendarWeekDays() {
 
         daysOfWeek.forEach { dayOfWeek ->
             Text(
-                text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).toUpperCase(Locale.getDefault()),
+                text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).uppercase(Locale.getDefault()),
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 8.dp),
@@ -211,28 +227,42 @@ fun CalendarWeekDays() {
     }
 }
 @Composable
-fun CalendarWeekRow(week: List<LocalDate?>, onDateClicked: (LocalDate) -> Unit) {
+fun CalendarWeekRow(
+    week: List<LocalDate>,
+    events: List<HomeViewModel.Event>,
+    onDateClicked: (LocalDate) -> Unit
+) {
     Row(modifier = Modifier.fillMaxWidth()) {
         week.forEach { date ->
+
             Card(
                 modifier = Modifier
                     .weight(1f)
                     .padding(4.dp)
-                    .clickable { date?.let(onDateClicked) },
-                // Rest of the card properties
+                    .clickable { date.let(onDateClicked) }
             ) {
-                Text(
-                    text = date?.dayOfMonth?.toString() ?: "",
-                    textAlign = TextAlign.Center,
-                    fontSize = 16.sp,
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    Text(text = date.dayOfMonth.toString(), fontSize = 16.sp)
+                    events.take(2).forEach { event ->
+                        Text(
+                            text = event.summary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            fontSize = 12.sp
+                        )
+                    }
+                    if (events.size > 2) {
+                        Text("+${events.size - 2}", fontSize = 12.sp)
+                    }
+                }
             }
         }
     }
 }
+
 
 fun getDaysInMonthArray(date: LocalDate): List<LocalDate?> {
     val yearMonth = YearMonth.from(date)
@@ -244,7 +274,7 @@ fun getDaysInMonthArray(date: LocalDate): List<LocalDate?> {
     val daysInMonthArray = mutableListOf<LocalDate?>()
 
     // For a Sunday-start calendar, Sunday has an offset of 0
-    var offset = dayOfWeek.value % DayOfWeek.SUNDAY.value
+    val offset = dayOfWeek.value % DayOfWeek.SUNDAY.value
 
     // Fill in nulls for padding before the first day of the month
     for (i in 1..offset) {
@@ -264,30 +294,48 @@ fun getDaysInMonthArray(date: LocalDate): List<LocalDate?> {
     return daysInMonthArray
 }
 
+fun getDatesOfWeek(date: LocalDate): List<LocalDate> {
+    val firstDayOfWeek = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
+    return (0..6).map { firstDayOfWeek.plusDays(it.toLong()) }
+}
+
+
 // STOPS HERE
 
 
-// This class will be used to handle all the logic for the home screen
 // get items from homeViewModel and display them, code:
 @Composable
 fun HomeScreen() {
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
+    val currentDate = LocalDate.now()
+    val weekDates = getDatesOfWeek(currentDate)
+
+    val viewModel = HomeViewModel()
+    val events = viewModel.events.observeAsState(initial = listOf()) // might need to change to update based on refresh or initial load
+
 
     Column {
         CircularLogoPlaceholder()
-        CalendarView(LocalDate.now(), onDateClicked = { date ->
+        CalendarView(
+            weekDates = weekDates,
+            events = events.value
+        ) { date ->
             selectedDate = date
-        })
+        }
 
+        // here, when a data is selected, we should display the events for that day, and allow the user to save them
         selectedDate?.let { date ->
             Card(
                 modifier = Modifier.padding(8.dp)
             ) {
                 Column {
+                    // option to close
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth().padding(8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
                     ) {
                         Text("Selected date: $date", modifier = Modifier.weight(1f))
                         Text(
@@ -298,11 +346,51 @@ fun HomeScreen() {
                             color = Color.Red
                         )
                     }
-                    // Include any additional information or components here
+
+                    // events for the day
+                    DayEventFeed(
+                        date = date,
+                        events = events.value,
+                        onSaveEvent = { event ->
+                            // Handle save event action
+                            viewModel.saveEvent(event)
+                        }
+                    )
                 }
             }
         }
+
+        // This will be updated to be the posts feed rather than card feed.
         CardFeed(cardItems = sampleCardItems)
+    }
+}
+
+@Composable
+fun DayEventFeed(
+    date: LocalDate,
+    events: List<HomeViewModel.Event>,
+    onSaveEvent: (HomeViewModel.Event) -> Unit
+) {
+    val dayEvents = events.filter { it.matchesDate(date) }
+    LazyColumn {
+        items(dayEvents) { event ->
+            EventItem(event, onSaveEvent)
+        }
+    }
+}
+
+@Composable
+fun EventItem(event: HomeViewModel.Event, onSaveEvent: (HomeViewModel.Event) -> Unit) {
+    Card(modifier = Modifier.padding(8.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Event: ${event.summary}")
+            Text("Time: ${event.start.dateTime}")
+            // ... other event details ...
+
+            Button(onClick = { onSaveEvent(event) }) {
+                Text("Save Event")
+            }
+        }
     }
 }
 
@@ -385,7 +473,8 @@ fun CardViewPreview() {
             end = HomeViewModel.EventDateTime(
                 dateTime = "2021-10-10T11:00:00-04:00",
                 timeZone = "America/New_York"
-            )
+            ),
+            colorResId = 0
         ))
     }
 }
