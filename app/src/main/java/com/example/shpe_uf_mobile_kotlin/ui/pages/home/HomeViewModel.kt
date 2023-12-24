@@ -19,6 +19,31 @@ import java.time.temporal.TemporalAdjusters
 
 
 class HomeViewModel : ViewModel() {
+
+    private val _selectedDateEvents = MutableLiveData<List<Event>>(listOf())
+    val selectedDateEvents: LiveData<List<Event>> = _selectedDateEvents
+
+    fun fetchEventsForDate(date: LocalDate) {
+        // Fetch events for the selected date and post them to _selectedDateEvents
+        // This is where you filter the _events list for the selected date
+        _selectedDateEvents.value = _events.value?.filter { it.occursOnDate(date) }
+    }
+
+
+    private val _currentWeekDates = MutableLiveData<List<LocalDate>>()
+    val currentWeekDates: LiveData<List<LocalDate>> = _currentWeekDates
+
+    init {
+        updateWeekDatesFor(LocalDate.now())  // Set initial week dates
+    }
+
+    // Call this method to update the week's dates
+    fun updateWeekDatesFor(date: LocalDate) {
+        _currentWeekDates.value = getDatesOfWeek(date)
+    }
+
+
+
     private val _events = MutableLiveData<List<Event>>()
     val events: LiveData<List<Event>> = _events
 
@@ -161,6 +186,12 @@ class HomeViewModel : ViewModel() {
     ) {
         fun matchesDate(date: LocalDate): Boolean {
             return this.start.toLocalDate() == date
+        }
+
+        fun occursOnDate(date: LocalDate): Boolean {
+            val eventStartDate = LocalDate.parse(start.dateTime, DateTimeFormatter.ISO_DATE_TIME)
+            val eventEndDate = LocalDate.parse(end.dateTime, DateTimeFormatter.ISO_DATE_TIME)
+            return !date.isBefore(eventStartDate) && !date.isAfter(eventEndDate)
         }
     }
 
