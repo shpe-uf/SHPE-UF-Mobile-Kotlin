@@ -6,15 +6,29 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,6 +55,7 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.time.temporal.TemporalAdjusters
 import java.util.Locale
+
 
 
 class MainActivity : ComponentActivity() {
@@ -192,135 +207,465 @@ HomeViewModel.Event(
 // Google Calendar API Portion
 // Here we need to call the google calendar API to get events, send them to view model, and display them
 // this could be in a form of a list in addition to a calendar view
-@Composable
-fun CalendarView(
-    weekDates: List<LocalDate>,
-    events: List<HomeViewModel.Event>,
-    onDateClicked: (LocalDate) -> Unit
-) {
-    Column {
-        CalendarWeekDays()
-        CalendarWeekRow(weekDates, events, onDateClicked)
+fun getDatesOfWeek(date: LocalDate): List<LocalDate> {
+    val firstDayOfWeek = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
+    return (0..6).map { firstDayOfWeek.plusDays(it.toLong()) }
+}
+// STOPS HERE
 
-//        getDaysInMonthArray(currentDate).chunked(7).forEach { week ->
-//            CalendarWeekRow(week, onDateClicked)
-//        }
+// New Method to render calendar
+@Composable
+fun DayCard(
+    date: LocalDate,
+    events: List<HomeViewModel.Event>,
+    isWeekView: Boolean,
+) {
+    Column (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(2.dp)
+            .wrapContentWidth()
+            .height(75.dp)
+            .fillMaxWidth()
+    ) {
+        // Display the day of the month
+        Text(
+            text = date.dayOfMonth.toString(),
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        EventDisplay(events, isWeekView)
     }
 }
 
 @Composable
-fun CalendarWeekDays() {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        // Reorder the days to start from Sunday
-        val daysOfWeek = listOf(DayOfWeek.SUNDAY) + DayOfWeek.values().filter { it != DayOfWeek.SUNDAY }
-
-        daysOfWeek.forEach { dayOfWeek ->
+fun DayLabelsRow() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        DayOfWeek.values().forEach { dayOfWeek ->
             Text(
-                text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).uppercase(Locale.getDefault()),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp),
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp
+                text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center
             )
         }
     }
 }
+
 @Composable
-fun CalendarWeekRow(
-    week: List<LocalDate>,
+fun EventDisplay(events: List<HomeViewModel.Event>, isWeekView: Boolean) {
+    if (isWeekView) {
+        events.take(2).forEach { event ->
+            EventSummary(event = event)
+        }
+        if (events.isEmpty()) {
+            Text(
+                text = "No SHPE :(",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+        if (events.size > 2) {
+            Text(
+                text = "+${events.size - 2}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+@Composable
+fun WeekView(
+    weekDates: List<LocalDate>,
     events: List<HomeViewModel.Event>,
-    onDateClicked: (LocalDate) -> Unit
+    onDaySelected: (LocalDate) -> Unit
 ) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        week.forEach { date ->
+    // Wrap each DayCard in a Box with weight to ensure equal spacing
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly // Optional, for spacing between days
+    ) {
+        weekDates.forEach { date ->
+            // Filter events for this particular day
+            val dayEvents = events.filter { it.occursOnDate(date) }
 
             Card(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(4.dp)
-                    .clickable { date.let(onDateClicked) }
+                    .padding(2.dp)
+                    .wrapContentWidth()
+                    .height(75.dp)
+                    .fillMaxWidth()
+                    .clickable { onDaySelected(date) }
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(4.dp)
-                ) {
-                    Text(text = date.dayOfMonth.toString(), fontSize = 16.sp)
-                    events.take(2).forEach { event ->
-                        Text(
-                            text = event.summary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            fontSize = 12.sp
-                        )
-                    }
-                    if (events.size > 2) {
-                        Text("+${events.size - 2}", fontSize = 12.sp)
-                    }
-                }
+                DayCard(
+                    date = date,
+                    events = dayEvents,
+                    isWeekView = true,
+                )
             }
         }
     }
 }
 
+@Composable
+fun MonthDayCard(
+    date: LocalDate,
+    events: List<HomeViewModel.Event>,
+    onDaySelected: (LocalDate) -> Unit,
+    isEventDay: Boolean // Assuming you have a way to determine if the day has events
+) {
+    // Define the background color based on whether the day has events
+    val backgroundColor = if (isEventDay) {
+        MaterialTheme.colorScheme.primary // Color for days with events
+    } else {
+        MaterialTheme.colorScheme.surface // Default color for days without events
+    }
 
-fun getDaysInMonthArray(date: LocalDate): List<LocalDate?> {
-    val yearMonth = YearMonth.from(date)
-    val totalDays = yearMonth.lengthOfMonth()
+    Card(
+        modifier = Modifier
+            .padding(4.dp)
+            .clickable { onDaySelected(date) },
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Display the day of the month
+            Text(
+                text = date.dayOfMonth.toString(),
+                style = MaterialTheme.typography.titleMedium
+            )
 
-    val firstOfMonth = date.with(TemporalAdjusters.firstDayOfMonth())
-    val dayOfWeek = firstOfMonth.dayOfWeek  // DayOfWeek enum
+        }
+    }
+}
 
-    val daysInMonthArray = mutableListOf<LocalDate?>()
 
-    // For a Sunday-start calendar, Sunday has an offset of 0
-    val offset = dayOfWeek.value % DayOfWeek.SUNDAY.value
+@Composable
+fun MonthView(
+    yearMonth: YearMonth,  // The year and month to display
+    events: List<HomeViewModel.Event>,  // All events for the month
+    onDaySelected: (LocalDate) -> Unit  // Callback when a day is selected
+) {
+    // Generate the days to display in the month view
+    val daysInMonth = getDaysInMonthArray(yearMonth)
 
-    // Fill in nulls for padding before the first day of the month
-    for (i in 1..offset) {
-        daysInMonthArray.add(null)
+    // Define the number of columns in the grid (7 for a week)
+    val columns = GridCells.Fixed(7)
+
+    LazyVerticalGrid(
+        columns = columns,
+        contentPadding = PaddingValues(8.dp),
+        content = {
+            items(daysInMonth) { day ->
+                if (day != null) {
+                    // Determine if the day has events
+                    val isEventDay = events.any { it.occursOnDate(day) }
+
+                    MonthDayCard(
+                        date = day,
+                        events = events.filter { it.occursOnDate(day) },
+                        isEventDay = isEventDay,
+                        onDaySelected = onDaySelected
+                    )
+                } else {
+                    // Empty placeholder for alignment
+                    Spacer(modifier = Modifier.padding(4.dp))
+                }
+            }
+        }
+    )
+}
+
+@Preview (showBackground = true)
+@Composable
+fun MonthViewPreview() {
+    SHPEUFMobileKotlinTheme {
+        MonthView(
+            yearMonth = YearMonth.now(),
+            events = listOf(
+                HomeViewModel.Event(
+                    id = "1",
+                    summary = "SHPE UF General Body Meeting",
+                    description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                    location = "https://ufl.zoom.us/j/95895737986",
+                    start = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T18:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    end = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T19:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    colorResId = 0
+                ),
+                HomeViewModel.Event(
+                    id = "2",
+                    summary = "SHPE UF General Body Meeting",
+                    description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                    location = "https://ufl.zoom.us/j/95895737986",
+                    start = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T18:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    end = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T19:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    colorResId = 0
+                ),
+                HomeViewModel.Event(
+                    id = "3",
+                    summary = "SHPE UF General Body Meeting",
+                    description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                    location = "https://ufl.zoom.us/j/95895737986",
+                    start = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T18:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    end = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T19:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    colorResId = 0
+                ),
+            ),
+            onDaySelected = { }
+        )
+    }
+}
+
+
+fun getDaysInMonthArray(yearMonth: YearMonth): List<LocalDate?> {
+    val daysInMonth = mutableListOf<LocalDate?>()
+
+    // Calculate the offset to align the start of the month with the correct day of the week
+    val firstOfMonth = yearMonth.atDay(1)
+    val dayOfWeekOffset = firstOfMonth.dayOfWeek.value % 7
+
+    // Add nulls to create offset
+    for (i in 0 until dayOfWeekOffset) {
+        daysInMonth.add(null)
     }
 
     // Add actual days of the month
-    for (i in 1..totalDays) {
-        daysInMonthArray.add(LocalDate.of(date.year, date.month, i))
+    for (day in 1..yearMonth.lengthOfMonth()) {
+        daysInMonth.add(yearMonth.atDay(day))
     }
 
-    // Add nulls for padding after the last day of the month to complete the week
-    while (daysInMonthArray.size % 7 != 0) {
-        daysInMonthArray.add(null)
+    return daysInMonth
+}
+
+enum class CalendarViewMode {
+    WEEK,
+    MONTH
+}
+
+@Preview (showBackground = true)
+@Composable
+fun WeekViewPreview() {
+    SHPEUFMobileKotlinTheme {
+        WeekView(
+            weekDates = getDatesOfWeek(LocalDate.now()),
+            events = listOf(
+                HomeViewModel.Event(
+                    id = "1",
+                    summary = "SHPE UF General Body Meeting",
+                    description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                    location = "https://ufl.zoom.us/j/95895737986",
+                    start = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T18:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    end = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T19:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    colorResId = 0
+                ),
+                HomeViewModel.Event(
+                    id = "2",
+                    summary = "SHPE UF General Body Meeting",
+                    description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                    location = "https://ufl.zoom.us/j/95895737986",
+                    start = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T18:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    end = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T19:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    colorResId = 0
+                ),
+                HomeViewModel.Event(
+                    id = "3",
+                    summary = "SHPE UF General Body Meeting",
+                    description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                    location = "https://ufl.zoom.us/j/95895737986",
+                    start = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T18:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    end = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T19:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    colorResId = 0
+                ),
+            ),
+            onDaySelected = { }
+        )
     }
-
-    return daysInMonthArray
-}
-
-fun getDatesOfWeek(date: LocalDate): List<LocalDate> {
-    val firstDayOfWeek = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
-    return (0..6).map { firstDayOfWeek.plusDays(it.toLong()) }
 }
 
 
-// STOPS HERE
+@Composable
+fun EventSummary(event: HomeViewModel.Event) {
+    // Basic representation of an event, you can expand this based on your Event data class
+    Text(
+        text = event.summary,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        style = MaterialTheme.typography.bodySmall
+    )
+}
+
+// This is to display events under calendar
+@Composable
+fun EventCard(event: HomeViewModel.Event, onSaveClicked: () -> Unit) {
+    Card(modifier = Modifier.padding(8.dp)) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text(text = event.summary, style = MaterialTheme.typography.titleMedium)
+                Text(text = "${event.description}", style = MaterialTheme.typography.bodyMedium)
+                Text(text = event.start.dateTime, style = MaterialTheme.typography.bodyMedium)
+
+            }
+            IconButton(onClick = onSaveClicked) {
+                Icon(imageVector = Icons.Default.Save, contentDescription = "Save")
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EventCardPreview() {
+    SHPEUFMobileKotlinTheme {
+        EventCard(
+            event = HomeViewModel.Event(
+                id = "1",
+                summary = "SHPE UF General Body Meeting",
+                description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                location = "https://ufl.zoom.us/j/95895737986",
+                start = HomeViewModel.EventDateTime(
+                    dateTime = "2023-12-19T18:00:00-04:00",
+                    timeZone = "America/New_York"
+                ),
+                end = HomeViewModel.EventDateTime(
+                    dateTime = "2023-12-19T19:00:00-04:00",
+                    timeZone = "America/New_York"
+                ),
+                colorResId = 0
+            )
+        ) {}
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DayCardPreview() {
+    SHPEUFMobileKotlinTheme {
+        DayCard(
+            date = LocalDate.now(),
+            events = listOf(
+                HomeViewModel.Event(
+                    id = "1",
+                    summary = "SHPE UF General Body Meeting",
+                    description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                    location = "https://ufl.zoom.us/j/95895737986",
+                    start = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T18:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    end = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T19:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    colorResId = 0
+                ),
+                HomeViewModel.Event(
+                    id = "2",
+                    summary = "SHPE UF General Body Meeting",
+                    description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                    location = "https://ufl.zoom.us/j/95895737986",
+                    start = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T18:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    end = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T19:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    colorResId = 0
+                ),
+                HomeViewModel.Event(
+                    id = "3",
+                    summary = "SHPE UF General Body Meeting",
+                    description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                    location = "https://ufl.zoom.us/j/95895737986",
+                    start = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T18:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    end = HomeViewModel.EventDateTime(
+                        dateTime = "2023-12-19T19:00:00-04:00",
+                        timeZone = "America/New_York"
+                    ),
+                    colorResId = 0
+                ),
+            ),
+            isWeekView = true,
+        )
+    }
+}
 
 
 // get items from homeViewModel and display them, code:
 @Composable
-fun HomeScreen() {
+fun HomeScreen(viewModel: HomeViewModel = HomeViewModel()) {
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
-    val currentDate = LocalDate.now()
-    val weekDates = getDatesOfWeek(currentDate)
 
     val viewModel = HomeViewModel()
-    val events = viewModel.events.observeAsState(initial = listOf()) // might need to change to update based on refresh or initial load
+    val events by viewModel.events.observeAsState(initial = listOf())// might need to change to update based on refresh or initial load
 
+    var viewMode by remember { mutableStateOf(CalendarViewMode.WEEK) }
+    val weekDates by viewModel.currentWeekDates.observeAsState(initial = emptyList())  // Example: List<LocalDate> representing the week
+
+    val onDaySelected: (LocalDate) -> Unit = { date ->
+        selectedDate = date
+    }
 
     Column {
         CircularLogoPlaceholder()
-        CalendarView(
-            weekDates = weekDates,
-            events = events.value
-        ) { date ->
-            selectedDate = date
+
+        // Toggle Button to switch views
+        ToggleViewButton(viewMode = viewMode) {
+            viewMode = if (it == CalendarViewMode.WEEK) CalendarViewMode.MONTH else CalendarViewMode.WEEK
+        }
+
+        DayLabelsRow()
+
+        // Conditional rendering based on the view mode
+        if (viewMode == CalendarViewMode.WEEK) {
+            WeekView(weekDates, events, onDaySelected)
+        } else {
+            MonthView(YearMonth.now(), events, onDaySelected)
         }
 
         // here, when a data is selected, we should display the events for that day, and allow the user to save them
@@ -347,21 +692,35 @@ fun HomeScreen() {
                         )
                     }
 
-                    // events for the day
-                    DayEventFeed(
-                        date = date,
-                        events = events.value,
-                        onSaveEvent = { event ->
-                            // Handle save event action
-                            viewModel.saveEvent(event)
-                        }
-                    )
+
+                    selectedDate?.let { date ->
+                        viewModel.fetchEventsForDate(date)
+
+                        DayEventFeed(
+                            date = date,
+                            events = events,
+                            onSaveEvent = { event ->
+                                // Handle save event action
+                                viewModel.saveEvent(event)
+                            }
+                        )
+                    }
                 }
             }
         }
 
         // This will be updated to be the posts feed rather than card feed.
         CardFeed(cardItems = sampleCardItems)
+    }
+}
+
+@Composable
+fun ToggleViewButton(viewMode: CalendarViewMode, onToggle: (CalendarViewMode) -> Unit) {
+    Button(
+        onClick = { onToggle(viewMode) },
+        modifier = Modifier.padding(8.dp)
+    ) {
+        Text(text = if (viewMode == CalendarViewMode.WEEK) "Switch to Month View" else "Switch to Week View")
     }
 }
 
@@ -407,7 +766,7 @@ fun HomeScreenPreview() {
 @Composable
 fun CircularLogoPlaceholder() {
     Image(
-        painter = painterResource(id = R.drawable.logo_placeholder), // Replace with your placeholder image
+        painter = painterResource(id = R.drawable.shpe_logo_full_color), // Replace with your placeholder image
         contentDescription = "Logo Placeholder",
         modifier = Modifier
             .size(50.dp)
