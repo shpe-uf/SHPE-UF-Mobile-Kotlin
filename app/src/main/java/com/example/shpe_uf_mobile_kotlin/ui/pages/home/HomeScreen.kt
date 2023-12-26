@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -46,7 +45,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import java.time.DayOfWeek
@@ -55,6 +53,8 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.time.temporal.TemporalAdjusters
 import java.util.Locale
+import androidx.lifecycle.ViewModel
+
 
 
 
@@ -339,7 +339,6 @@ fun MonthDayCard(
                 text = date.dayOfMonth.toString(),
                 style = MaterialTheme.typography.titleMedium
             )
-
         }
     }
 }
@@ -359,7 +358,7 @@ fun MonthView(
 
     LazyVerticalGrid(
         columns = columns,
-        contentPadding = PaddingValues(8.dp),
+        contentPadding = PaddingValues(4.dp),
         content = {
             items(daysInMonth) { day ->
                 if (day != null) {
@@ -640,32 +639,38 @@ fun DayCardPreview() {
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = HomeViewModel()) {
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
+    val currentDate by viewModel.currentDate.observeAsState(initial = LocalDate.now())
 
-    val viewModel = HomeViewModel()
-    val events by viewModel.events.observeAsState(initial = listOf())// might need to change to update based on refresh or initial load
-
+    val events by viewModel.events.observeAsState(initial = listOf())
     var viewMode by remember { mutableStateOf(CalendarViewMode.WEEK) }
-    val weekDates by viewModel.currentWeekDates.observeAsState(initial = emptyList())  // Example: List<LocalDate> representing the week
+
+
 
     val onDaySelected: (LocalDate) -> Unit = { date ->
         selectedDate = date
     }
 
     Column {
+
         CircularLogoPlaceholder()
 
-        // Toggle Button to switch views
-        ToggleViewButton(viewMode = viewMode) {
-            viewMode = if (it == CalendarViewMode.WEEK) CalendarViewMode.MONTH else CalendarViewMode.WEEK
+        Row {
+            NavigationButtons(viewModel, viewMode)
+
+            // Toggle Button to switch views
+            ToggleViewButton(viewMode = viewMode) {
+                viewMode =
+                    if (it == CalendarViewMode.WEEK) CalendarViewMode.MONTH else CalendarViewMode.WEEK
+            }
         }
 
         DayLabelsRow()
 
         // Conditional rendering based on the view mode
         if (viewMode == CalendarViewMode.WEEK) {
-            WeekView(weekDates, events, onDaySelected)
+            WeekView(weekDates = getDatesOfWeek(currentDate), events, onDaySelected)
         } else {
-            MonthView(YearMonth.now(), events, onDaySelected)
+            MonthView(yearMonth = YearMonth.from(currentDate), events, onDaySelected)
         }
 
         // here, when a data is selected, we should display the events for that day, and allow the user to save them
@@ -691,20 +696,16 @@ fun HomeScreen(viewModel: HomeViewModel = HomeViewModel()) {
                             color = Color.Red
                         )
                     }
+                    viewModel.fetchEventsForDate(date)
 
-
-                    selectedDate?.let { date ->
-                        viewModel.fetchEventsForDate(date)
-
-                        DayEventFeed(
-                            date = date,
-                            events = events,
-                            onSaveEvent = { event ->
+                    DayEventFeed(
+                        date = date,
+                        events = events,
+                        onSaveEvent = { event ->
                                 // Handle save event action
-                                viewModel.saveEvent(event)
-                            }
-                        )
-                    }
+                            viewModel.saveEvent(event)
+                        }
+                    )
                 }
             }
         }
@@ -715,12 +716,30 @@ fun HomeScreen(viewModel: HomeViewModel = HomeViewModel()) {
 }
 
 @Composable
+fun NavigationButtons(viewModel: HomeViewModel, viewMode: CalendarViewMode) {
+    Row {
+        Button(onClick = {
+            if (viewMode == CalendarViewMode.WEEK) viewModel.previousWeek()
+            else viewModel.previousMonth()
+        }) {
+            Text("<")
+        }
+        Button(onClick = {
+            if (viewMode == CalendarViewMode.WEEK) viewModel.nextWeek()
+            else viewModel.nextMonth()
+        }) {
+            Text(">")
+        }
+    }
+}
+
+
+@Composable
 fun ToggleViewButton(viewMode: CalendarViewMode, onToggle: (CalendarViewMode) -> Unit) {
     Button(
         onClick = { onToggle(viewMode) },
-        modifier = Modifier.padding(8.dp)
     ) {
-        Text(text = if (viewMode == CalendarViewMode.WEEK) "Switch to Month View" else "Switch to Week View")
+        Text(text = if (viewMode == CalendarViewMode.WEEK) "Week View" else "Month View")
     }
 }
 
