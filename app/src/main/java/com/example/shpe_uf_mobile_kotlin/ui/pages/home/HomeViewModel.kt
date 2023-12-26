@@ -19,6 +19,26 @@ import java.time.temporal.TemporalAdjusters
 
 
 class HomeViewModel : ViewModel() {
+    // Property to store the current date
+    private val _currentDate = MutableLiveData(LocalDate.now())
+    val currentDate: LiveData<LocalDate> = _currentDate
+
+    fun nextWeek() {
+        _currentDate.value = _currentDate.value?.plusWeeks(1)
+    }
+
+    fun previousWeek() {
+        _currentDate.value = _currentDate.value?.minusWeeks(1)
+    }
+
+    fun nextMonth() {
+        _currentDate.value = _currentDate.value?.plusMonths(1)
+    }
+
+    fun previousMonth() {
+        _currentDate.value = _currentDate.value?.minusMonths(1)
+    }
+
 
     private val _selectedDateEvents = MutableLiveData<List<Event>>(listOf())
     val selectedDateEvents: LiveData<List<Event>> = _selectedDateEvents
@@ -30,40 +50,11 @@ class HomeViewModel : ViewModel() {
     }
 
 
-    private val _currentWeekDates = MutableLiveData<List<LocalDate>>()
-    val currentWeekDates: LiveData<List<LocalDate>> = _currentWeekDates
-
-    init {
-        updateWeekDatesFor(LocalDate.now())  // Set initial week dates
-    }
-
-    // Call this method to update the week's dates
-    fun updateWeekDatesFor(date: LocalDate) {
-        _currentWeekDates.value = getDatesOfWeek(date)
-    }
-
-
-
     private val _events = MutableLiveData<List<Event>>()
     val events: LiveData<List<Event>> = _events
 
-    private val _currentWeek = MutableLiveData<List<LocalDate>>()
-    val currentWeek: LiveData<List<LocalDate>> = _currentWeek
-
-    init {
-        fetchCalendarEvents()
-        setCurrentWeekDates(LocalDate.now())
-    }
-
-    fun setCurrentWeekDates(date: LocalDate) {
-        _currentWeek.value = (0..6).map { date.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY)).plusDays(it.toLong()) }
-    }
 
     private fun fetchCalendarEvents() {
-
-        // api
-
-
         val mockEvents = listOf(
             Event(
                 id = "1",
@@ -167,13 +158,6 @@ class HomeViewModel : ViewModel() {
             )
     }
 
-    fun navigateWeeks(isNext: Boolean) {
-        val current = _currentWeek.value?.first() ?: return
-        val offset = if (isNext) 7 else -7
-        setCurrentWeekDates(current.plusDays(offset.toLong()))
-    }
-
-
     data class Event(
         val id: String,
         val summary: String,
@@ -200,7 +184,7 @@ class HomeViewModel : ViewModel() {
         val timeZone: String
     ) {
         fun toLocalDate(): LocalDate? {
-            return dateTime?.let {
+            return dateTime.let {
                 LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME).toLocalDate()
             }
         }
