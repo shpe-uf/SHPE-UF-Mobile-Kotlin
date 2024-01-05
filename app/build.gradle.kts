@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -14,6 +17,16 @@ android {
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
+
+        val localPropertiesFile = rootProject.file("local.properties")
+        val localProperties = Properties()
+
+        if (localPropertiesFile.exists()) {
+            localProperties.load(FileInputStream(localPropertiesFile))
+        }
+
+        buildConfigField("String", "CALENDAR_ID", "\"${localProperties["calendar_id"]}\"")
+        buildConfigField("String", "API_KEY", "\"${localProperties["api_key"]}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -38,6 +51,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
