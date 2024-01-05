@@ -53,7 +53,7 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.time.temporal.TemporalAdjusters
 import java.util.Locale
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 
@@ -637,7 +637,7 @@ fun DayCardPreview() {
 
 // get items from homeViewModel and display them, code:
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = HomeViewModel()) {
+fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     val currentDate by viewModel.currentDate.observeAsState(initial = LocalDate.now())
 
@@ -645,22 +645,27 @@ fun HomeScreen(viewModel: HomeViewModel = HomeViewModel()) {
     var viewMode by remember { mutableStateOf(CalendarViewMode.WEEK) }
 
 
-
     val onDaySelected: (LocalDate) -> Unit = { date ->
         selectedDate = date
     }
 
     Column {
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ){
+            CircularLogoPlaceholder()
 
-        CircularLogoPlaceholder()
+            Row {
+                // Toggle Button to switch views
+                ToggleViewButton(viewMode = viewMode) {
+                    viewMode =
+                        if (it == CalendarViewMode.WEEK) CalendarViewMode.MONTH else CalendarViewMode.WEEK
+                }
 
-        Row {
-            NavigationButtons(viewModel, viewMode)
-
-            // Toggle Button to switch views
-            ToggleViewButton(viewMode = viewMode) {
-                viewMode =
-                    if (it == CalendarViewMode.WEEK) CalendarViewMode.MONTH else CalendarViewMode.WEEK
+                NavigationButtons(viewModel, viewMode)
             }
         }
 
