@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -240,11 +241,14 @@ fun DayCard(
 
 @Composable
 fun DayLabelsRow() {
+    val daysOfWeek = DayOfWeek.values().toList()
+    val reorderedDaysOfWeek = listOf(daysOfWeek.last()) + daysOfWeek.dropLast(1)  // Start with Sunday
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        DayOfWeek.values().forEach { dayOfWeek ->
+        reorderedDaysOfWeek.forEach { dayOfWeek ->
             Text(
                 text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
                 modifier = Modifier.weight(1f),
@@ -253,6 +257,7 @@ fun DayLabelsRow() {
         }
     }
 }
+
 
 @Composable
 fun EventDisplay(events: List<HomeViewModel.Event>, isWeekView: Boolean) {
@@ -650,13 +655,23 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     }
 
     Column {
+        CircularLogoPlaceholder()
+
         Row (
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ){
-            CircularLogoPlaceholder()
+
+            // display month together "Month Year"
+            Text(
+                text = "${currentDate.month} ${currentDate.year}",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
+                    .align(Alignment.CenterVertically)
+            )
+
 
             Row {
                 // Toggle Button to switch views
@@ -768,7 +783,7 @@ fun EventItem(event: HomeViewModel.Event, onSaveEvent: (HomeViewModel.Event) -> 
         Column(modifier = Modifier.padding(16.dp)) {
             Text("Event: ${event.summary}")
             Text("Time: ${event.start.dateTime}")
-            // ... other event details ...
+            Text("Location: ${event.location}")
 
             Button(onClick = { onSaveEvent(event) }) {
                 Text("Save Event")
