@@ -30,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -37,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -649,6 +649,12 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     val events by viewModel.events.observeAsState(initial = listOf())
     var viewMode by remember { mutableStateOf(CalendarViewMode.WEEK) }
 
+    LaunchedEffect(currentDate, viewMode) {
+        when (viewMode) {
+            CalendarViewMode.WEEK -> viewModel.fetchEventsForWeek(currentDate)
+            CalendarViewMode.MONTH -> viewModel.fetchEventsForMonth(YearMonth.from(currentDate))
+        }
+    }
 
     val onDaySelected: (LocalDate) -> Unit = { date ->
         selectedDate = date
