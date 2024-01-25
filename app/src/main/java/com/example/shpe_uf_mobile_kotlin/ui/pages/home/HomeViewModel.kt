@@ -3,8 +3,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import retrofit2.Call
-import retrofit2.Callback
+import androidx.lifecycle.viewModelScope
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -17,6 +16,14 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 import com.example.shpe_uf_mobile_kotlin.BuildConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.HttpException
+import java.time.LocalTime
+import java.time.YearMonth
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 //   I need to call the google calendar API to get events
 // This class will be used to handle all the logic for the home screen
@@ -34,16 +41,13 @@ class HomeViewModel : ViewModel() {
     private val calendarId = BuildConfig.CALENDAR_ID
     private val apiKey = BuildConfig.API_KEY
 
-    // update to make dynamic, better performance
-    private val timeMin = "2023-09-01T00:00:00-04:00"
-    private val timeMax = "2024-12-01T00:00:00-04:00"
 
     init {
         // Load events when the ViewModel is created
-        Log.d("HomeViewModel", "calendarId: $calendarId")
-        Log.d("HomeViewModel", "timeMin: $timeMin")
-        Log.d("HomeViewModel", "timeMax: $timeMax")
-        Log.d("HomeViewModel", "apiKey: $apiKey")
+//        Log.d("HomeViewModel", "calendarId: $calendarId")
+//        Log.d("HomeViewModel", "timeMin: $timeMin")
+//        Log.d("HomeViewModel", "timeMax: $timeMax")
+//        Log.d("HomeViewModel", "apiKey: $apiKey")
 
         loadEvents()
     }
@@ -75,11 +79,33 @@ class HomeViewModel : ViewModel() {
     }
 
 
+    fun fetchEventsForWeek(date: LocalDate) {
+        val zoneId = ZoneId.of("America/New_York")
+        val weekStart = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val weekEnd = weekStart.plusDays(6)
+
+        val timeMin = ZonedDateTime.of(weekStart, LocalTime.MIN, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        val timeMax = ZonedDateTime.of(weekEnd, LocalTime.MAX, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+
+        fetchCalendarEvents(timeMin, timeMax)
+    }
+
+    fun fetchEventsForMonth(yearMonth: YearMonth) {
+        val zoneId = ZoneId.of("America/New_York")
+        val monthStart = yearMonth.atDay(1)
+        val monthEnd = yearMonth.atEndOfMonth()
+
+        val timeMin = ZonedDateTime.of(monthStart, LocalTime.MIN, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        val timeMax = ZonedDateTime.of(monthEnd, LocalTime.MAX, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+
+        fetchCalendarEvents(timeMin, timeMax)
+    }
+
     private val _events = MutableLiveData<List<Event>>()
     val events: LiveData<List<Event>> = _events
 
 
-    private fun fetchCalendarEvents() {
+    private fun fetchCalendarEvents(timeMin: String, timeMax: String) {
         // Check if any of the required parameters are null or empty and log an error if they are
         if (calendarId.isNullOrEmpty() || timeMin.isNullOrEmpty() || timeMax.isNullOrEmpty() || apiKey.isNullOrEmpty()) {
             Log.d("HomeViewModel", "calendarId: $calendarId")
@@ -90,27 +116,24 @@ class HomeViewModel : ViewModel() {
             return
         }
 
-        // Initialize Retrofit
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://www.googleapis.com/calendar/v3/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+        Log.d("HomeViewModel", "calendarId: $calendarId")
+        Log.d("HomeViewModel", "timeMin: $timeMin")
+        Log.d("HomeViewModel", "timeMax: $timeMax")
+        Log.d("HomeViewModel", "apiKey: $apiKey")
+        Log.e("HomeViewModel", "Invalid API parameters")
 
-        // Create an instance of the API service
-        val service = retrofit.create(GoogleCalendarService::class.java)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Create a Retrofit builder object
+                val retrofit = Retrofit.Builder()
+                    .baseUrl("https://www.googleapis.com/calendar/v3/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
 
-        // Make the network call
-        val call = service.getCalendarEvents(calendarId, timeMin, timeMax, apiKey)
-
-        call.enqueue(object : Callback<CalendarEventsResponse> {
-            override fun onResponse(
-                call: Call<CalendarEventsResponse>,
-                response: Response<CalendarEventsResponse>
-            ) {
-                // Log request and response details for debugging
-                Log.d("HomeViewModel", "Request URL: ${call.request().url()}")
-                Log.d("HomeViewModel", "Response Code: ${response.code()}")
-                Log.d("HomeViewModel", "Response Body: ${response.body()}")
+                // Create an instance of the API service
+                val service = retrofit.create(GoogleCalendarService::class.java)
+                // Make the network call
+                val response = service.getCalendarEvents(calendarId, timeMin, timeMax, apiKey)
 
                 // Check if the response is successful
                 if (response.isSuccessful) {
@@ -132,18 +155,21 @@ class HomeViewModel : ViewModel() {
                         )
                     }
                     // Update the LiveData with the new list of events
-                    _events.postValue(events)
+                    withContext(Dispatchers.Main) {
+                        _events.postValue(events)
+                    }
                 } else {
                     // Log an error if the response is not successful
                     Log.e("HomeViewModel", "Failed to fetch calendar events: ${response.errorBody()?.string()}")
                 }
             }
-
-            override fun onFailure(call: Call<CalendarEventsResponse>, t: Throwable) {
-                // Log an error if the call fails
-                Log.e("HomeViewModel", "Network call failed", t)
+            catch (e: HttpException) {
+                Log.e("HomeViewModel", "HttpException in fetchCalendarEvents", e)
             }
-        })
+            catch (e: Throwable) {
+                Log.e("HomeViewModel", "Failure in fetchCalendarEvents", e)
+            }
+        }
     }
 
     fun saveEvent(event: Event) {
@@ -152,8 +178,12 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun loadEvents() {
-        fetchCalendarEvents()
+        val now = LocalDateTime.now()
+        val monthStart = YearMonth.from(now).atDay(1).toString()
+        val monthEnd = YearMonth.from(now).atEndOfMonth().toString()
+        fetchCalendarEvents(monthStart, monthEnd)
     }
+
 
     data class Event(
         val id: String,
@@ -191,12 +221,12 @@ class HomeViewModel : ViewModel() {
 
     interface GoogleCalendarService {
         @GET("calendars/{calendarId}/events")
-        fun getCalendarEvents(
+        suspend fun getCalendarEvents(
             @Path("calendarId") calendarId: String,
             @Query("timeMin") timeMin: String,
             @Query("timeMax") timeMax: String,
             @Query("key") apiKey: String
-        ): Call<CalendarEventsResponse>
+        ): Response<CalendarEventsResponse>
     }
     data class CalendarEventsResponse(
         val items: List<Event>
