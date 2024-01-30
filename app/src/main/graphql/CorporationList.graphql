@@ -1,0 +1,8 @@
+
+# to find the query u need to look at what u called the query in this case "ExampleQuery"
+query ExampleQuery {
+
+    getAlumnis {
+        firstName
+    }
+}
