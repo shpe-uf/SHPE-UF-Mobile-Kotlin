@@ -25,8 +25,9 @@ android {
             localProperties.load(FileInputStream(localPropertiesFile))
         }
 
+
         buildConfigField("String", "CALENDAR_ID", "\"${localProperties["calendar_id"]}\"")
-        buildConfigField("String", "API_KEY", "\"${localProperties["api_key"]}\"")
+        buildConfigField("String", "REACT_APP_API_KEY", "\"${localProperties["REACT_APP_API_KEY"]}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
