@@ -39,7 +39,7 @@ class HomeViewModel : ViewModel() {
     val currentDate: LiveData<LocalDate> = _currentDate
 
     private val calendarId = BuildConfig.CALENDAR_ID
-    private val apiKey = BuildConfig.API_KEY
+    private val apiKey = BuildConfig.REACT_APP_API_KEY
 
 
     init {
@@ -147,12 +147,14 @@ class HomeViewModel : ViewModel() {
                             start = calendarEvent.start,
                             end = calendarEvent.end,
                             colorResId = when (calendarEvent.summary) {
-                                "SHPE GBM" -> android.R.color.holo_blue_light
-                                "SHPE Social" -> android.R.color.holo_green_light
-                                "SHPE Study Session" -> android.R.color.holo_orange_light
-                                else -> android.R.color.holo_red_light
-                            }
-                        )
+                            colorResId = android.R.color.holo_blue_light
+                            //when (calendarEvent.summary) {
+//                                "SHPE GBM" -> android.R.color.holo_blue_light
+//                                "SHPE Social" -> android.R.color.holo_green_light
+//                                "SHPE Study Session" -> android.R.color.holo_orange_light
+//                                else -> android.R.color.holo_red_light
+//                            }
+                       )
                     }
                     // Update the LiveData with the new list of events
                     withContext(Dispatchers.Main) {
@@ -178,10 +180,8 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun loadEvents() {
-        val now = LocalDateTime.now()
-        val monthStart = YearMonth.from(now).atDay(1).toString()
-        val monthEnd = YearMonth.from(now).atEndOfMonth().toString()
-        fetchCalendarEvents(monthStart, monthEnd)
+        // Fetch events for the current date when the ViewModel is create
+        fetchEventsForMonth(YearMonth.now())
     }
 
 
