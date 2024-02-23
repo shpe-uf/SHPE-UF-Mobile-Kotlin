@@ -6,10 +6,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -24,9 +26,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
@@ -35,6 +39,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,6 +61,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import java.time.DayOfWeek
@@ -90,11 +97,11 @@ val sampleCardItems = listOf(
         description = "This is event 1",
         location = "Location 1",
         start = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-19T10:00:00-04:00",
+            dateTime = "2024-02-16T10:00:00-04:00",
             timeZone = "America/New_York"
         ),
         end = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-19T11:00:00-04:00",
+            dateTime = "2024-02-16T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
         colorResId = R.color.teal_200
@@ -105,11 +112,11 @@ val sampleCardItems = listOf(
         description = "This is event 2",
         location = "Location 2",
         start = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-19T10:00:00-04:00",
+            dateTime = "2024-02-16T10:00:00-04:00",
             timeZone = "America/New_York"
         ),
         end = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-19T11:00:00-04:00",
+            dateTime = "2024-02-16T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
         colorResId = R.color.teal_200
@@ -120,11 +127,11 @@ val sampleCardItems = listOf(
         description = "This is event 3",
         location = "Location 3",
         start = HomeViewModel.EventDateTime(
-            dateTime = "2023-11-19T10:00:00-04:00",
+            dateTime = "2024-02-17T10:00:00-04:00",
             timeZone = "America/New_York"
         ),
         end = HomeViewModel.EventDateTime(
-            dateTime = "2023-11-19T11:00:00-04:00",
+            dateTime = "2024-02-17T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
         colorResId = R.color.teal_700
@@ -135,11 +142,11 @@ val sampleCardItems = listOf(
         description = "This is event 4",
         location = "Location 4",
         start = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-12T10:00:00-04:00",
+            dateTime = "2024-02-17T10:00:00-04:00",
             timeZone = "America/New_York"
         ),
         end = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-19T12:00:00-04:00",
+            dateTime = "2024-02-17T12:00:00-04:00",
             timeZone = "America/New_York"
         ),
         colorResId = R.color.purple_700
@@ -504,38 +511,244 @@ fun TopHeaderPreview() {
 
 // This is to display events under calendar
 @Composable
-fun EventCard(event: HomeViewModel.Event){
-    Card(modifier = Modifier
-        .fillMaxWidth()
-        .padding(10.dp),
+fun EventCard(event: HomeViewModel.Event) {
+    // state for pop up visibility
+    var showPopUp by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+            .clickable { showPopUp = true },
         shape = RoundedCornerShape(size = 25.dp),
     ) {
-            Column(modifier = Modifier.padding(15.dp)) {
-                Row {
-                    Text(text = event.summary, style = MaterialTheme.typography.titleLarge)
-                    // Insert people together icon
-                    // current placeholder for the icon, can replace with the actual image we need,
-                    Icon(imageVector = Icons.Default.People, contentDescription = "People")
-                }
-                Row (modifier = Modifier
+        Column(modifier = Modifier.padding(15.dp)) {
+            Row {
+                Text(text = event.summary, style = MaterialTheme.typography.titleLarge)
+                // Insert people together icon
+                // current placeholder for the icon, can replace with the actual image we need,
+                Icon(imageVector = Icons.Default.People, contentDescription = "People")
+            }
+            Row(
+                modifier = Modifier
                     .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Row {
-                        Icon(imageVector = Icons.Default.People, contentDescription = "People")
-                        Text(text = formatDate(event.start), style = MaterialTheme.typography.bodyMedium)
-                    }
-                    Row  {
-                        Icon(imageVector = Icons.Default.Timer, contentDescription = null)
-                        Text(text = formatEventTime(event), style = MaterialTheme.typography.bodyMedium)
-                    }
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row {
+                    Icon(imageVector = Icons.Default.People, contentDescription = "People")
+                    Text(
+                        text = formatDate(event.start),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
+                Row {
+                    Icon(imageVector = Icons.Default.Timer, contentDescription = null)
+                    Text(text = formatEventTime(event), style = MaterialTheme.typography.bodyMedium)
+                }
+            }
 
 //            IconButton(onClick = onSaveClicked) {
 //                Icon(imageVector = Icons.Default.Save, contentDescription = "Save")
 //            }
         }
     }
+
+    if (showPopUp) {
+        EventPopUp(event, showPopUp, onDismissRequest = { showPopUp = false })
+        //EventPopUpTwo(event, showPopUp, onDismissRequest = { showPopUp = false })
+    }
+}
+
+@Composable
+fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest: () -> Unit ) {
+// Pop up for the event
+    Dialog(onDismissRequest = onDismissRequest,
+        DialogProperties(dismissOnBackPress = true,
+        dismissOnClickOutside = true,
+        usePlatformDefaultWidth = false
+        )
+    ) {
+        // Customize the layout of the dialog
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(1.2f)
+                .fillMaxHeight(),
+            ) {
+
+            Column(modifier = Modifier
+                .fillMaxWidth()
+            ) {
+
+                // image and close button container, could be made into own composable to be used later
+                Box(contentAlignment = Alignment.TopStart) {
+                    Image(
+                        painter = painterResource(id = R.drawable.shpe_logo_full_color),
+                        contentDescription = "Event Image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                    IconButton(onClick = onDismissRequest,
+                        modifier = Modifier
+                            .background(Color.Black.copy(alpha = 0.1f), shape = CircleShape)
+                    ) {
+                        Icon(
+                            Icons.Default.ArrowBackIosNew,
+                            contentDescription = "Dismiss",
+                            tint = Color.White
+                        )
+                    }
+                }
+
+                // Event details card to have the rounded corner style be there
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(size = 25.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF011F35)),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .padding(60.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Placeholder for the picture at the top
+                        // This is the date, time and location
+                        Column {
+                            Row (
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = event.summary,
+                                    style = androidx.compose.ui.text.TextStyle(
+                                        fontSize = 32.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFFD25917),
+                                    )
+                                )
+                                // current placeholder for the icon, can replace with the actual image we need,
+                                Icon(
+                                    imageVector = Icons.Default.People,
+                                    contentDescription = "People",
+                                    tint = Color(0xFFD25917),
+                                    modifier = Modifier.
+                                    size(45.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(82.dp))
+
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.CalendarMonth,
+                                    contentDescription = "Date",
+                                    tint = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Text(
+                                    text = formatDate(event.start),
+                                    style = androidx.compose.ui.text.TextStyle (
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight(400),
+                                            color = Color(0xFFFFFFFF),
+                                        )
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Row {
+                                Icon(imageVector = Icons.Default.Timer,
+                                    contentDescription = null,
+                                    tint = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Text(
+                                    text = formatEventTime(event),
+                                    style = androidx.compose.ui.text.TextStyle (
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(400),
+                                        color = Color(0xFFFFFFFF),
+                                    )
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = "Location",
+                                    tint = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Text(
+                                    text = event.location ?: ("TBD"),
+                                    style = androidx.compose.ui.text.TextStyle (
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(400),
+                                        color = Color(0xFFFFFFFF),
+                                    )
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(82.dp))
+
+                            Text(text = "Description",
+                                style = androidx.compose.ui.text.TextStyle (
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFFFFFFF),
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Text(
+                                text = event.description
+                                    ?: ("This is basic placeholder of data. In order for this to work" +
+                                            "properly, we need to make sure that in the google calendar these events are updated." +
+                                            "Otherwise we would need a specific functions to update these on later."),
+                                style = androidx.compose.ui.text.TextStyle (
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFFFFFFF),
+                                )
+                            )
+                        }
+                        // maybe have the save event be here:
+
+                    }
+                }
+            }
+        }
+    }
+}
+
+// preview for popup
+@Preview (showBackground = true)
+@Composable
+fun EventPopUpPreview() {
+    EventPopUp(
+        event = HomeViewModel.Event(
+            id = "1",
+            summary = "SHPE GBM #1",
+            description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+            location = "https://ufl.zoom.us/j/95895737986",
+            start = HomeViewModel.EventDateTime(
+                dateTime = "2023-12-19T18:00:00-04:00",
+                timeZone = "America/New_York"
+            ),
+            end = HomeViewModel.EventDateTime(
+                dateTime = "2023-12-19T19:00:00-04:00",
+                timeZone = "America/New_York"
+            ),
+            colorResId = android.R.color.holo_red_light
+        ),
+        showPopup = true,
+        onDismissRequest = { }
+    )
 }
 
 @Composable
@@ -550,12 +763,6 @@ fun EventCardFeed(events: List<HomeViewModel.Event>) {
                 val dayEvents = events.filter { it.occursOnDate(day) }
                 if (dayEvents.isNotEmpty()) {
                     DayContainer(date = day, events = dayEvents)
-                    // line at bottom
-                    Spacer(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(Color.LightGray)
-                    )
                 }
             }
         }
@@ -568,22 +775,45 @@ fun DayContainer(
     events: List<HomeViewModel.Event>,
 ) {
 
+    val dayOfWeek = DateTimeFormatter.ofPattern("EEE").format(date)
+
     // Display the day of the month on the left and then all the events of that day on the right in a coloumn
-    Row {
+    Row (
+        horizontalArrangement = Arrangement.SpaceBetween
+    ){
         Column(modifier = Modifier
             .padding(8.dp)
         ) {
             Text(
+                text = dayOfWeek,
+                style = androidx.compose.ui.text.TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFB7B7B7),
+                    textAlign = TextAlign.Center,
+                ),
+            )
+            Text(
                 text = date.dayOfMonth.toString(),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
+                style  = androidx.compose.ui.text.TextStyle(
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFB7B7B7),
+                    textAlign = TextAlign.Center,
+                ),
             )
         }
 
-        Column () {
+        Column {
             events.forEach { event ->
                 EventCard(event)
             }
+            // dotted spacer
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(Color.LightGray)
+            )
         }
 
     }
@@ -593,7 +823,8 @@ fun DayContainer(
 @Composable
 fun DayContainerPreview() {
     DayContainer(
-        date = LocalDate.now(),
+        // pass february 16, 2024
+        date = LocalDate.of(2024, 2, 16),
         events = sampleCardItems
     )
 }

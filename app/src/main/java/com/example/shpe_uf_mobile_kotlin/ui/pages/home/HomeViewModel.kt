@@ -146,7 +146,6 @@ class HomeViewModel : ViewModel() {
                             location = calendarEvent.location,
                             start = calendarEvent.start,
                             end = calendarEvent.end,
-                            colorResId = when (calendarEvent.summary) {
                             colorResId = android.R.color.holo_blue_light
                             //when (calendarEvent.summary) {
 //                                "SHPE GBM" -> android.R.color.holo_blue_light
