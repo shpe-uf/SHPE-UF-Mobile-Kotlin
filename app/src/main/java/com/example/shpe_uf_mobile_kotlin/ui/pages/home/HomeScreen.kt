@@ -429,6 +429,9 @@ fun EventSummary(event: HomeViewModel.Event) {
     )
 }
 
+
+// New HomeScreen Things
+
 @Composable
 fun TopHeader(
     viewModel: HomeViewModel = viewModel()
@@ -500,6 +503,7 @@ fun TopHeader(
 
 object Variables {
     val orange = Color(0xFFD25917)
+    val blue = Color(0xFF011F35)
 }
 
 
@@ -604,7 +608,7 @@ fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest:
                     modifier = Modifier
                         .fillMaxWidth(),
                     shape = RoundedCornerShape(size = 25.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF011F35)),
+                    colors = CardDefaults.cardColors(containerColor = Variables.blue),
                 ) {
                     Column(
                         modifier = Modifier
@@ -756,7 +760,10 @@ fun EventCardFeed(events: List<HomeViewModel.Event>) {
     val daysInMonth = getDaysInMonthArray(YearMonth.now())
 
     LazyColumn(
-        contentPadding = PaddingValues(8.dp)
+        contentPadding = PaddingValues(8.dp),
+        modifier = Modifier
+            .background(Variables.blue)
+
     ) {
         items(daysInMonth) { day ->
             if (day != null) {
@@ -777,13 +784,18 @@ fun DayContainer(
 
     val dayOfWeek = DateTimeFormatter.ofPattern("EEE").format(date)
 
-    // Display the day of the month on the left and then all the events of that day on the right in a coloumn
+    // Display the day of the month on the left and then all the events of that day on the right in a column
     Row (
-        horizontalArrangement = Arrangement.SpaceBetween
+        modifier = Modifier
+            .padding(10.dp)
     ){
-        Column(modifier = Modifier
-            .padding(8.dp)
-        ) {
+
+        // This is used to show the date
+        Column (
+            modifier = Modifier
+                .weight(0.1f)
+        )
+        {
             Text(
                 text = dayOfWeek,
                 style = androidx.compose.ui.text.TextStyle(
@@ -804,7 +816,11 @@ fun DayContainer(
             )
         }
 
-        Column {
+        // This is used to show the events
+        Column (
+            modifier = Modifier
+                .weight(1f)
+        ) {
             events.forEach { event ->
                 EventCard(event)
             }
@@ -815,7 +831,6 @@ fun DayContainer(
                 .background(Color.LightGray)
             )
         }
-
     }
 }
 
