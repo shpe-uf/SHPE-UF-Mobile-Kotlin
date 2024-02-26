@@ -1,5 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -24,6 +25,10 @@ import java.time.LocalTime
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
 
 //   I need to call the google calendar API to get events
 // This class will be used to handle all the logic for the home screen
@@ -40,6 +45,21 @@ class HomeViewModel : ViewModel() {
 
     private val calendarId = BuildConfig.CALENDAR_ID
     private val apiKey = BuildConfig.REACT_APP_API_KEY
+
+    private val _isEventDetailsVisible = mutableStateOf(false)
+    val isEventDetailsVisible: State<Boolean> = _isEventDetailsVisible
+
+    private val _selectedEvent = mutableStateOf<Event?>(null)
+    val selectedEvent: State<Event?> = _selectedEvent
+
+    fun selectEvent(event: Event?) {
+        _selectedEvent.value = event
+        _isEventDetailsVisible.value = true
+    }
+
+    fun hideEventDetails() {
+        _isEventDetailsVisible.value = false
+    }
 
 
     init {
@@ -157,7 +177,7 @@ class HomeViewModel : ViewModel() {
                     }
                     // Update the LiveData with the new list of events
                     withContext(Dispatchers.Main) {
-                        _events.postValue(events)
+                        _events.postValue(events!!)
                     }
                 } else {
                     // Log an error if the response is not successful

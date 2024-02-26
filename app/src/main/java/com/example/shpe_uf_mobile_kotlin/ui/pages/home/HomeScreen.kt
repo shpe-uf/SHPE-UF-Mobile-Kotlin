@@ -1,19 +1,38 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOut
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,6 +44,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -33,6 +55,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -47,18 +70,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -72,6 +100,7 @@ import java.time.format.TextStyle
 import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -506,6 +535,183 @@ object Variables {
     val blue = Color(0xFF011F35)
 }
 
+@Composable
+fun SlidingEventWindow(viewModel: HomeViewModel) {
+    val isVisible = viewModel.isEventDetailsVisible.value
+    val event = viewModel.selectedEvent.value
+
+    // Dynamically calculate screen width
+    val screenWidth = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
+
+    if (isVisible) {
+        BackHandler {
+            viewModel.hideEventDetails()
+        }
+    }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = slideInHorizontally(initialOffsetX = { screenWidth.toInt() }),
+        exit = slideOutHorizontally(targetOffsetX = { screenWidth.toInt() })
+    ) {
+
+        // Event Details
+        Surface (
+            modifier = Modifier
+                .fillMaxWidth(1f)
+                .fillMaxHeight(),
+        ) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+            ) {
+
+                // image and close button container, could be made into own composable to be used later
+                Box(contentAlignment = Alignment.TopStart) {
+                    Image(
+                        painter = painterResource(id = R.drawable.shpe_logo_full_color),
+                        contentDescription = "Event Image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                    IconButton(onClick = { viewModel.hideEventDetails() },
+                        modifier = Modifier
+                            .background(Color.Black.copy(alpha = 0.1f), shape = CircleShape)
+                    ) {
+                        Icon(
+                            Icons.Default.ArrowBackIosNew,
+                            contentDescription = "Dismiss",
+                            tint = Color.White
+                        )
+                    }
+                }
+
+                // Event details card to have the rounded corner style be there
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(size = 25.dp),
+                    colors = CardDefaults.cardColors(containerColor = Variables.blue),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .padding(60.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+
+                        // This is the date, time and location
+                        Column {
+                            Row (
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = event!!.summary,
+                                    style = androidx.compose.ui.text.TextStyle(
+                                        fontSize = 32.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFFD25917),
+                                    )
+                                )
+                                // current placeholder for the icon, can replace with the actual image we need,
+                                Icon(
+                                    imageVector = Icons.Default.People,
+                                    contentDescription = "People",
+                                    tint = Color(0xFFD25917),
+                                    modifier = Modifier.
+                                    size(45.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(82.dp))
+
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.CalendarMonth,
+                                    contentDescription = "Date",
+                                    tint = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Text(
+                                    text = formatDate(event!!.start),
+                                    style = androidx.compose.ui.text.TextStyle (
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(400),
+                                        color = Color(0xFFFFFFFF),
+                                    )
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Row {
+                                Icon(imageVector = Icons.Default.Timer,
+                                    contentDescription = null,
+                                    tint = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Text(
+                                    text = formatEventTime(event!!),
+                                    style = androidx.compose.ui.text.TextStyle (
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(400),
+                                        color = Color(0xFFFFFFFF),
+                                    )
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = "Location",
+                                    tint = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Text(
+                                    text = event!!.location ?: ("TBD"),
+                                    style = androidx.compose.ui.text.TextStyle (
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(400),
+                                        color = Color(0xFFFFFFFF),
+                                    )
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(82.dp))
+
+                            Text(text = "Description",
+                                style = androidx.compose.ui.text.TextStyle (
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFFFFFFF),
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Text(
+                                text = event!!.description
+                                    ?: ("This is basic placeholder of data. In order for this to work" +
+                                            "properly, we need to make sure that in the google calendar these events are updated." +
+                                            "Otherwise we would need a specific functions to update these on later."),
+                                style = androidx.compose.ui.text.TextStyle (
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFFFFFFF),
+                                )
+                            )
+                        }
+                        // maybe have the save event be here:
+
+                    }
+                }
+            }
+        }
+
+    }
+}
 
 @Preview (showBackground = true)
 @Composable
@@ -515,15 +721,16 @@ fun TopHeaderPreview() {
 
 // This is to display events under calendar
 @Composable
-fun EventCard(event: HomeViewModel.Event) {
+fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()) {
     // state for pop up visibility
     var showPopUp by remember { mutableStateOf(false) }
 
+    // not sure about padding for now
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp)
-            .clickable { showPopUp = true },
+            .padding(start = 10.dp, top = 10.dp, end = 5.dp, bottom = 10.dp)
+            .clickable { viewModel.selectEvent(event) },
         shape = RoundedCornerShape(size = 25.dp),
     ) {
         Column(modifier = Modifier.padding(15.dp)) {
@@ -559,7 +766,6 @@ fun EventCard(event: HomeViewModel.Event) {
 
     if (showPopUp) {
         EventPopUp(event, showPopUp, onDismissRequest = { showPopUp = false })
-        //EventPopUpTwo(event, showPopUp, onDismissRequest = { showPopUp = false })
     }
 }
 
@@ -575,7 +781,7 @@ fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest:
         // Customize the layout of the dialog
         Surface(
             modifier = Modifier
-                .fillMaxWidth(1.2f)
+                .fillMaxWidth(1f)
                 .fillMaxHeight(),
             ) {
 
@@ -760,7 +966,7 @@ fun EventCardFeed(events: List<HomeViewModel.Event>) {
     val daysInMonth = getDaysInMonthArray(YearMonth.now())
 
     LazyColumn(
-        contentPadding = PaddingValues(8.dp),
+        contentPadding = PaddingValues(10.dp),
         modifier = Modifier
             .background(Variables.blue)
 
@@ -785,15 +991,13 @@ fun DayContainer(
     val dayOfWeek = DateTimeFormatter.ofPattern("EEE").format(date)
 
     // Display the day of the month on the left and then all the events of that day on the right in a column
-    Row (
-        modifier = Modifier
-            .padding(10.dp)
-    ){
-
+    Row {
         // This is used to show the date
         Column (
             modifier = Modifier
                 .weight(0.1f)
+                .padding(top = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         )
         {
             Text(
@@ -850,13 +1054,6 @@ fun EventCardFeedPreview() {
     SHPEUFMobileKotlinTheme {
         EventCardFeed(events = sampleCardItems)
     }
-}
-
-@Composable
-fun colorResource(id: Int): Color {
-    val context = LocalContext.current
-    val resolvedColor = context.getColor(id) // Use ContextCompat.getColor(context, id) for compatibility
-    return Color(resolvedColor)
 }
 
 // used to make the time formatted properly
@@ -1108,12 +1305,15 @@ fun NewHomeScreen(viewModel: HomeViewModel = viewModel()) {
     }
 
 
+
     Column {
+
+
         TopHeader()
         EventCardFeed(events = events)
     }
 
-
+    SlidingEventWindow(viewModel = viewModel)
 
     val onDaySelected: (LocalDate) -> Unit = { date ->
         selectedDate = date
