@@ -46,6 +46,8 @@ class HomeViewModel : ViewModel() {
     private val calendarId = BuildConfig.CALENDAR_ID
     private val apiKey = BuildConfig.REACT_APP_API_KEY
 
+
+    // Event Window State
     private val _isEventDetailsVisible = mutableStateOf(false)
     val isEventDetailsVisible: State<Boolean> = _isEventDetailsVisible
 
@@ -60,6 +62,25 @@ class HomeViewModel : ViewModel() {
     fun hideEventDetails() {
         _isEventDetailsVisible.value = false
     }
+
+
+    // Notification Window State
+    private val _isNotificationWindowVisible = mutableStateOf(false)
+    val isNotificationWindowVisible: State<Boolean> = _isNotificationWindowVisible
+
+    private val _selectedNotification = mutableStateOf<Event?>(null)
+    val selectedNotification: State<Event?> = _selectedNotification
+
+    fun openNotificationWindow() {
+        _isNotificationWindowVisible.value = true
+    }
+
+    fun hideNotificationWindow() {
+        _isNotificationWindowVisible.value = false
+    }
+
+
+
 
 
     init {
@@ -166,7 +187,9 @@ class HomeViewModel : ViewModel() {
                             location = calendarEvent.location,
                             start = calendarEvent.start,
                             end = calendarEvent.end,
-                            colorResId = android.R.color.holo_blue_light
+                            colorResId = android.R.color.holo_blue_light,
+                            eventType = calendarEvent.eventType,
+                            etag = calendarEvent.etag
                             //when (calendarEvent.summary) {
 //                                "SHPE GBM" -> android.R.color.holo_blue_light
 //                                "SHPE Social" -> android.R.color.holo_green_light
@@ -179,6 +202,17 @@ class HomeViewModel : ViewModel() {
                     withContext(Dispatchers.Main) {
                         _events.postValue(events!!)
                     }
+
+                    // display all event infor
+                    for (event in events!!) {
+                        Log.d("HomeViewModel", "Event: ${event.summary} ${event.start.dateTime} - ${event.end.dateTime}")
+                        Log.d("HomeViewModel", "EventId: ${event.id}")
+                        Log.d("HomeViewModel", "EventDescription: ${event.description}")
+                        Log.d("HomeViewModel", "EventLocation: ${event.location}")
+                        Log.d("HomeViewModel", "EventType: ${event.eventType}")
+                        Log.d("HomeViewModel", "EventEtag: ${event.etag}")
+                    }
+
                 } else {
                     // Log an error if the response is not successful
                     Log.e("HomeViewModel", "Failed to fetch calendar events: ${response.errorBody()?.string()}")
@@ -205,13 +239,15 @@ class HomeViewModel : ViewModel() {
 
 
     data class Event(
-        val id: String,
+        val id: String?,
         val summary: String,
         val description: String?,
         val location: String?,
         val start: EventDateTime,
         val end: EventDateTime,
         val colorResId: Int,
+        val eventType: String,
+        val etag : String? = null
 
     ) {
         fun matchesDate(date: LocalDate): Boolean {
@@ -244,7 +280,7 @@ class HomeViewModel : ViewModel() {
             @Path("calendarId") calendarId: String,
             @Query("timeMin") timeMin: String,
             @Query("timeMax") timeMax: String,
-            @Query("key") apiKey: String
+            @Query("key") apiKey: String,
         ): Response<CalendarEventsResponse>
     }
     data class CalendarEventsResponse(
