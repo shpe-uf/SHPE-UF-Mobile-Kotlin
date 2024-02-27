@@ -148,12 +148,12 @@ class HomeViewModel : ViewModel() {
 
     private fun fetchCalendarEvents(timeMin: String, timeMax: String) {
         // Check if any of the required parameters are null or empty and log an error if they are
-        if (calendarId.isNullOrEmpty() || timeMin.isNullOrEmpty() || timeMax.isNullOrEmpty() || apiKey.isNullOrEmpty()) {
+        if (calendarId.isEmpty() || timeMin.isEmpty() || timeMax.isEmpty() || apiKey.isEmpty()) {
             Log.d("HomeViewModel", "calendarId: $calendarId")
             Log.d("HomeViewModel", "timeMin: $timeMin")
             Log.d("HomeViewModel", "timeMax: $timeMax")
             Log.d("HomeViewModel", "apiKey: $apiKey")
-            Log.e("HomeViewModel", "Invalid API parameters")
+            //Log.e("HomeViewModel", "Invalid API parameters")
             return
         }
 
@@ -161,7 +161,7 @@ class HomeViewModel : ViewModel() {
         Log.d("HomeViewModel", "timeMin: $timeMin")
         Log.d("HomeViewModel", "timeMax: $timeMax")
         Log.d("HomeViewModel", "apiKey: $apiKey")
-        Log.e("HomeViewModel", "Invalid API parameters")
+        //Log.e("HomeViewModel", "Invalid API parameters")
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -187,9 +187,10 @@ class HomeViewModel : ViewModel() {
                             location = calendarEvent.location,
                             start = calendarEvent.start,
                             end = calendarEvent.end,
+                            // event type, if it says default, return what the value from determineEventType
+                            eventType = if (calendarEvent.eventType == "default") determineEventType(calendarEvent.summary) else calendarEvent.eventType,
+                            etag = calendarEvent.etag,
                             colorResId = android.R.color.holo_blue_light,
-                            eventType = calendarEvent.eventType,
-                            etag = calendarEvent.etag
                             //when (calendarEvent.summary) {
 //                                "SHPE GBM" -> android.R.color.holo_blue_light
 //                                "SHPE Social" -> android.R.color.holo_green_light
@@ -203,7 +204,7 @@ class HomeViewModel : ViewModel() {
                         _events.postValue(events!!)
                     }
 
-                    // display all event infor
+                    // display all event information
                     for (event in events!!) {
                         Log.d("HomeViewModel", "Event: ${event.summary} ${event.start.dateTime} - ${event.end.dateTime}")
                         Log.d("HomeViewModel", "EventId: ${event.id}")
@@ -224,6 +225,43 @@ class HomeViewModel : ViewModel() {
             catch (e: Throwable) {
                 Log.e("HomeViewModel", "Failure in fetchCalendarEvents", e)
             }
+        }
+    }
+
+    private fun determineEventType(summary: String): String {
+        return when {
+            summary.contains(
+                "GBM",
+                ignoreCase = true
+            ) -> "GBM"
+
+            summary.contains(
+                "Social",
+                ignoreCase = true
+            ) -> "Social"
+
+            summary.contains(
+                "Bootcamp",
+                ignoreCase = true
+            ) -> "Workshop"
+
+            summary.contains(
+                "Workshop",
+                ignoreCase = true
+            ) -> "Workshop"
+
+            summary.contains(
+                "Study Session",
+                ignoreCase = true
+            ) -> "Social"
+
+            summary.contains(
+                "Info Session",
+                ignoreCase = true
+            ) -> "Info Session"
+
+            // Add more conditions as needed
+            else -> "DefaultType" // Default eventType if no keywords found
         }
     }
 
