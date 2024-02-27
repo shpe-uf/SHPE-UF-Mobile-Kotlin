@@ -59,6 +59,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -109,7 +110,7 @@ val sampleCardItems = listOf(
             dateTime = "2024-02-16T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = R.color.teal_200,
+        colorResId = Color.White,
         eventType = "GBM"
     ),
     HomeViewModel.Event(
@@ -125,7 +126,7 @@ val sampleCardItems = listOf(
             dateTime = "2024-02-16T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = R.color.teal_200,
+        colorResId = Color.White,
         eventType = "GBM"
     ),
     HomeViewModel.Event(
@@ -141,7 +142,7 @@ val sampleCardItems = listOf(
             dateTime = "2024-02-17T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = R.color.teal_700,
+        colorResId = Color.White,
         eventType = "GBM"
     ),
     HomeViewModel.Event(
@@ -157,7 +158,7 @@ val sampleCardItems = listOf(
             dateTime = "2024-02-17T12:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = R.color.purple_700,
+        colorResId = Color.White,
         eventType = "GBM"
     ),
     HomeViewModel.Event(
@@ -173,7 +174,7 @@ val sampleCardItems = listOf(
             dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = android.R.color.holo_red_light,
+        colorResId = Color.White,
         eventType = "GBM",
     ),
 HomeViewModel.Event(
@@ -189,7 +190,7 @@ HomeViewModel.Event(
             dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-    colorResId = androidx.core.R.color.androidx_core_secondary_text_default_material_light,
+    colorResId = Color.White,
     eventType = "GBM"
     ),
     HomeViewModel.Event(
@@ -205,7 +206,7 @@ HomeViewModel.Event(
             dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = android.R.color.holo_blue_light,
+        colorResId = Color.White,
         eventType = "GBM"
     ),
     HomeViewModel.Event(
@@ -221,7 +222,7 @@ HomeViewModel.Event(
             dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = android.R.color.system_accent1_500,
+        colorResId = Color.White,
         eventType = "GBM"
     )
 )
@@ -767,6 +768,7 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
             .fillMaxWidth()
             .padding(start = 10.dp, top = 10.dp, end = 5.dp, bottom = 10.dp)
             .clickable { viewModel.selectEvent(event) },
+        colors = CardDefaults.cardColors(containerColor = event.colorResId),
         shape = RoundedCornerShape(size = 25.dp),
     ) {
         Column(modifier = Modifier.padding(15.dp)) {
@@ -990,7 +992,7 @@ fun EventPopUpPreview() {
                 dateTime = "2023-12-19T19:00:00-04:00",
                 timeZone = "America/New_York"
             ),
-            colorResId = android.R.color.holo_red_light,
+            colorResId = Color.White,
             eventType = "GBM"
         ),
         showPopup = true,
@@ -1154,7 +1156,7 @@ fun EventCardPreview() {
                     dateTime = "2023-12-19T19:00:00-04:00",
                     timeZone = "America/New_York"
                 ),
-                colorResId = android.R.color.holo_red_light,
+                colorResId = Color.White,
                 eventType = "GBM"
             )
         )
