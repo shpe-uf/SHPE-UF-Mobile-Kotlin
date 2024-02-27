@@ -521,12 +521,12 @@ fun SlidingNotificationWindow(viewModel: HomeViewModel) {
         enter = slideInHorizontally(initialOffsetX = { screenWidth.toInt() }),
         exit = slideOutHorizontally(targetOffsetX = { screenWidth.toInt() })
     ) {
-        SlidingNotificationSettings(viewModel = viewModel)
+        NotificationSettingsContent(viewModel = viewModel)
     }
 }
 
 @Composable
-fun SlidingNotificationSettings(viewModel: HomeViewModel) {
+fun NotificationSettingsContent(viewModel: HomeViewModel) {
     // Notification Details
     Surface (
         modifier = Modifier
@@ -704,7 +704,7 @@ fun SlidingNotificationSettings(viewModel: HomeViewModel) {
                                 .height(32.dp)
                         )
                         Text(
-                            text = "Workshops",
+                            text = "Volunteering",
                             style = androidx.compose.ui.text.TextStyle(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight(400),
@@ -727,7 +727,7 @@ fun SlidingNotificationSettings(viewModel: HomeViewModel) {
                                 .height(32.dp)
                         )
                         Text(
-                            text = "Workshops",
+                            text = "Socials",
                             style = androidx.compose.ui.text.TextStyle(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight(400),
@@ -746,7 +746,7 @@ fun SlidingNotificationSettings(viewModel: HomeViewModel) {
 @Preview (showBackground = true)
 @Composable
 fun NotificationSettingsPreview() {
-    SlidingNotificationSettings(viewModel = viewModel())
+    NotificationSettingsContent(viewModel = viewModel())
 }
 
 @Preview (showBackground = true)
