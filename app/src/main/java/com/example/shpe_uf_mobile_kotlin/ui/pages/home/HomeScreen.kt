@@ -4,35 +4,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOut
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -44,9 +29,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -55,7 +37,6 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -70,7 +51,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,15 +58,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -100,7 +79,6 @@ import java.time.format.TextStyle
 import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -133,7 +111,8 @@ val sampleCardItems = listOf(
             dateTime = "2024-02-16T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = R.color.teal_200
+        colorResId = R.color.teal_200,
+        eventType = "GBM"
     ),
     HomeViewModel.Event(
         id = "2",
@@ -148,7 +127,8 @@ val sampleCardItems = listOf(
             dateTime = "2024-02-16T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = R.color.teal_200
+        colorResId = R.color.teal_200,
+        eventType = "GBM"
     ),
     HomeViewModel.Event(
         id = "3",
@@ -163,7 +143,8 @@ val sampleCardItems = listOf(
             dateTime = "2024-02-17T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = R.color.teal_700
+        colorResId = R.color.teal_700,
+        eventType = "GBM"
     ),
     HomeViewModel.Event(
         id = "4",
@@ -178,7 +159,8 @@ val sampleCardItems = listOf(
             dateTime = "2024-02-17T12:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = R.color.purple_700
+        colorResId = R.color.purple_700,
+        eventType = "GBM"
     ),
     HomeViewModel.Event(
         id = "5",
@@ -193,7 +175,8 @@ val sampleCardItems = listOf(
             dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = android.R.color.holo_red_light
+        colorResId = android.R.color.holo_red_light,
+        eventType = "GBM",
     ),
 HomeViewModel.Event(
         id = "6",
@@ -208,7 +191,8 @@ HomeViewModel.Event(
             dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-    colorResId = androidx.core.R.color.androidx_core_secondary_text_default_material_light
+    colorResId = androidx.core.R.color.androidx_core_secondary_text_default_material_light,
+    eventType = "GBM"
     ),
     HomeViewModel.Event(
         id = "7",
@@ -223,7 +207,8 @@ HomeViewModel.Event(
             dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = android.R.color.holo_blue_light
+        colorResId = android.R.color.holo_blue_light,
+        eventType = "GBM"
     ),
     HomeViewModel.Event(
         id = "8",
@@ -238,7 +223,8 @@ HomeViewModel.Event(
             dateTime = "2023-12-19T11:00:00-04:00",
             timeZone = "America/New_York"
         ),
-        colorResId = android.R.color.system_accent1_500
+        colorResId = android.R.color.system_accent1_500,
+        eventType = "GBM"
     )
 )
 
@@ -523,7 +509,8 @@ fun TopHeader(
                 .size(35.dp)
                 .align(Alignment.Bottom)
                 .width(33.dp)
-                .height(32.dp),
+                .height(32.dp)
+                .clickable { viewModel.openNotificationWindow() },
             tint = Color.White
         )
 
@@ -713,6 +700,254 @@ fun SlidingEventWindow(viewModel: HomeViewModel) {
     }
 }
 
+@Composable
+fun SlidingNotificationWindow(viewModel: HomeViewModel) {
+    val isVisible = viewModel.isNotificationWindowVisible.value
+    val notification = viewModel.selectedNotification.value
+
+    // Dynamically calculate screen width
+    val screenWidth =
+        with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
+
+    if (isVisible) {
+        BackHandler {
+            viewModel.hideNotificationWindow()
+        }
+    }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = slideInHorizontally(initialOffsetX = { screenWidth.toInt() }),
+        exit = slideOutHorizontally(targetOffsetX = { screenWidth.toInt() })
+    ) {
+        SlidingNotificationSettings(viewModel = viewModel)
+    }
+}
+
+@Composable
+fun SlidingNotificationSettings(viewModel: HomeViewModel) {
+    // Notification Details
+    Surface (
+        modifier = Modifier
+            .fillMaxWidth(1f)
+            .fillMaxHeight(),
+        color = Variables.blue
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            // image and close button container, could be made into own composable to be used later
+            Box(contentAlignment = Alignment.TopStart) {
+
+                // Header for notification window
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(93.dp)
+                        .background(color = Variables.orange)
+                        .padding(10.dp),
+
+                    ) {
+                    // Used to Exit the notification window
+                    IconButton(
+                        onClick = { viewModel.hideNotificationWindow() },
+                        modifier = Modifier
+                            .align(Alignment.Bottom)
+                            .height(35.dp)
+                            .width(35.dp)
+                        ,
+                    ) {
+                        Icon(
+                            Icons.Default.ArrowBackIosNew,
+                            contentDescription = "Dismiss",
+                            tint = Color.White
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Text(
+                        text = "Notifications Settings",
+                        style = androidx.compose.ui.text.TextStyle(
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color.White,
+                        modifier = Modifier
+                            .weight(1f)
+                            .align(Alignment.Bottom)
+                            .width(107.dp)
+                            .height(31.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(120.dp))
+
+            Text(
+                text = "Tap which type of event you want" +
+                        "\nnotifications for",
+                style = androidx.compose.ui.text.TextStyle(
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFFFFFFF),
+
+                    textAlign = TextAlign.Center,
+                ),
+                color = Color.White,
+            )
+            Spacer(modifier = Modifier.height(120.dp))
+
+            // Rest of tHE Content in the screen
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .padding(start = 20.dp, end = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+
+                    Column (horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .weight(1f)) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notifications",
+                            modifier = Modifier
+                                .size(35.dp)
+                                .width(33.dp)
+                                .height(32.dp)
+                        )
+                        Text(
+                            text = "GBMs",
+                            style = androidx.compose.ui.text.TextStyle(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight(400),
+                                color = Color(0xFFFFFFFF),
+
+                                textAlign = TextAlign.Center,
+                            )
+                        )
+                    }
+
+                    Column (horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notifications",
+                            modifier = Modifier
+                                .size(35.dp)
+                                .width(33.dp)
+                                .height(32.dp)
+                        )
+                        Text(
+                            text = "Info\nSessions",
+                            style = androidx.compose.ui.text.TextStyle(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight(400),
+                                color = Color(0xFFFFFFFF),
+
+                                textAlign = TextAlign.Center,
+                            )
+
+                        )
+                    }
+
+                    Column (horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .weight(1f)){
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notifications",
+                            modifier = Modifier
+                                .size(35.dp)
+                                .width(33.dp)
+                                .height(32.dp)
+                        )
+                        Text(
+                            text = "Workshops",
+                            style = androidx.compose.ui.text.TextStyle(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight(400),
+                                color = Color(0xFFFFFFFF),
+
+                                textAlign = TextAlign.Center,
+                            )
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(60.dp))
+
+
+                Row() {
+                    Column (horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .weight(1f)){
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notifications",
+                            modifier = Modifier
+                                .size(35.dp)
+                                .width(33.dp)
+                                .height(32.dp)
+                        )
+                        Text(
+                            text = "Workshops",
+                            style = androidx.compose.ui.text.TextStyle(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight(400),
+                                color = Color(0xFFFFFFFF),
+
+                                textAlign = TextAlign.Center,
+                            )
+                        )
+                    }
+
+                    Column (horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .weight(1f)){
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notifications",
+                            modifier = Modifier
+                                .size(35.dp)
+                                .width(33.dp)
+                                .height(32.dp)
+                        )
+                        Text(
+                            text = "Workshops",
+                            style = androidx.compose.ui.text.TextStyle(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight(400),
+                                color = Color(0xFFFFFFFF),
+
+                                textAlign = TextAlign.Center,
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview (showBackground = true)
+@Composable
+fun NotificationSettingsPreview() {
+    SlidingNotificationSettings(viewModel = viewModel())
+}
+
 @Preview (showBackground = true)
 @Composable
 fun TopHeaderPreview() {
@@ -764,9 +999,9 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
         }
     }
 
-    if (showPopUp) {
-        EventPopUp(event, showPopUp, onDismissRequest = { showPopUp = false })
-    }
+//    if (showPopUp) {
+//        EventPopUp(event, showPopUp, onDismissRequest = { showPopUp = false })
+//    }
 }
 
 @Composable
@@ -954,7 +1189,8 @@ fun EventPopUpPreview() {
                 dateTime = "2023-12-19T19:00:00-04:00",
                 timeZone = "America/New_York"
             ),
-            colorResId = android.R.color.holo_red_light
+            colorResId = android.R.color.holo_red_light,
+            eventType = "GBM"
         ),
         showPopup = true,
         onDismissRequest = { }
@@ -1117,7 +1353,8 @@ fun EventCardPreview() {
                     dateTime = "2023-12-19T19:00:00-04:00",
                     timeZone = "America/New_York"
                 ),
-                colorResId = android.R.color.holo_red_light
+                colorResId = android.R.color.holo_red_light,
+                eventType = "GBM"
             )
         )
     }
@@ -1143,7 +1380,8 @@ fun DayCardPreview() {
                         dateTime = "2023-12-19T19:00:00-04:00",
                         timeZone = "America/New_York"
                     ),
-                    colorResId = 0
+                    colorResId = 0,
+                    eventType = "GBM"
                 ),
                 HomeViewModel.Event(
                     id = "2",
@@ -1158,7 +1396,8 @@ fun DayCardPreview() {
                         dateTime = "2023-12-19T19:00:00-04:00",
                         timeZone = "America/New_York"
                     ),
-                    colorResId = 0
+                    colorResId = 0,
+                    eventType = "GBM"
                 ),
                 HomeViewModel.Event(
                     id = "3",
@@ -1173,7 +1412,8 @@ fun DayCardPreview() {
                         dateTime = "2023-12-19T19:00:00-04:00",
                         timeZone = "America/New_York"
                     ),
-                    colorResId = 0
+                    colorResId = 0,
+                    eventType = "Workshop"
                 ),
             ),
             isWeekView = true,
@@ -1314,6 +1554,7 @@ fun NewHomeScreen(viewModel: HomeViewModel = viewModel()) {
     }
 
     SlidingEventWindow(viewModel = viewModel)
+    SlidingNotificationWindow(viewModel = viewModel)
 
     val onDaySelected: (LocalDate) -> Unit = { date ->
         selectedDate = date
