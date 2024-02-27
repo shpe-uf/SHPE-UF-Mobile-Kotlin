@@ -26,8 +26,8 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import com.example.shpe_uf_mobile_kotlin.ui.theme.*
 
 
 //   I need to call the google calendar API to get events
@@ -180,6 +180,17 @@ class HomeViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     // Parse the response body
                     val events = response.body()?.items?.map { calendarEvent ->
+                        val eventTypeDetermined = if (calendarEvent.eventType == "default") determineEventType(calendarEvent.summary) else calendarEvent.eventType
+
+                        val determinedColor = when (eventTypeDetermined) {
+                            "GBM" -> GBMColor
+                            "Social" -> SocialColor
+                            "Workshop" -> WorkshopColor
+                            "Info Session" -> InfoSessionColor
+                            "Volunteering" -> VolunteeringColor
+                            else -> GBMColor
+                        }
+
                         Event(
                             id = calendarEvent.id,
                             summary = calendarEvent.summary,
@@ -187,16 +198,9 @@ class HomeViewModel : ViewModel() {
                             location = calendarEvent.location,
                             start = calendarEvent.start,
                             end = calendarEvent.end,
-                            // event type, if it says default, return what the value from determineEventType
-                            eventType = if (calendarEvent.eventType == "default") determineEventType(calendarEvent.summary) else calendarEvent.eventType,
+                            eventType = eventTypeDetermined,
                             etag = calendarEvent.etag,
-                            colorResId = android.R.color.holo_blue_light,
-                            //when (calendarEvent.summary) {
-//                                "SHPE GBM" -> android.R.color.holo_blue_light
-//                                "SHPE Social" -> android.R.color.holo_green_light
-//                                "SHPE Study Session" -> android.R.color.holo_orange_light
-//                                else -> android.R.color.holo_red_light
-//                            }
+                            colorResId = determinedColor
                        )
                     }
                     // Update the LiveData with the new list of events
@@ -212,6 +216,7 @@ class HomeViewModel : ViewModel() {
                         Log.d("HomeViewModel", "EventLocation: ${event.location}")
                         Log.d("HomeViewModel", "EventType: ${event.eventType}")
                         Log.d("HomeViewModel", "EventEtag: ${event.etag}")
+                        Log.d("HomeViewModel", "EventColorResId: ${event.colorResId}")
                     }
 
                 } else {
@@ -246,7 +251,7 @@ class HomeViewModel : ViewModel() {
             ) -> "Workshop"
 
             summary.contains(
-                "Workshop",
+                "Work",
                 ignoreCase = true
             ) -> "Workshop"
 
@@ -256,12 +261,17 @@ class HomeViewModel : ViewModel() {
             ) -> "Social"
 
             summary.contains(
-                "Info Session",
+                "Info",
                 ignoreCase = true
             ) -> "Info Session"
 
+            summary.contains(
+                "Volunteer",
+                ignoreCase = true
+            ) -> "Volunteering"
+
             // Add more conditions as needed
-            else -> "DefaultType" // Default eventType if no keywords found
+            else -> "default" // Default eventType if no keywords found
         }
     }
 
@@ -283,7 +293,7 @@ class HomeViewModel : ViewModel() {
         val location: String?,
         val start: EventDateTime,
         val end: EventDateTime,
-        val colorResId: Int,
+        val colorResId: Color,
         val eventType: String,
         val etag : String? = null
 
