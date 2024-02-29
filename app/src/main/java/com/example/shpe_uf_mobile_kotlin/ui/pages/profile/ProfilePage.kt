@@ -8,3 +8,7 @@ import androidx.compose.runtime.Composable
 fun ProfilePicture(){
 
 }
+
+fun ProfileMajor() {
+    // TEST-RUN: Commit :)
+}
