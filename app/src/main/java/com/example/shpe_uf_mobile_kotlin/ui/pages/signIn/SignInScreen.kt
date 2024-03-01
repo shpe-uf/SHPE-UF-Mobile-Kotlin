@@ -14,8 +14,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,8 +45,9 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 @Preview
 @Composable
 fun SignInUIPreview(){
-    SignInBackground()
     SignInLayout()
+    SignInBackground()
+    EmailTextField()
 }
 
 @Composable
@@ -58,6 +66,13 @@ fun SignInBackground(modifier: Modifier = Modifier) {
                 .height(orangeHeight)
                 .background(OrangeSHPE)
         )
+        Image(
+            painter = painterResource(id = R.drawable.gatorshpe),
+            contentDescription = "SHPE GATOR",
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset(y = -20.dp)
+        )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -66,21 +81,9 @@ fun SignInBackground(modifier: Modifier = Modifier) {
                 .background(WhiteSHPE)
         )
     }
-
-    Column(
-        modifier = modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.gatorshpe),
-            contentDescription = "SHPE GATOR",
-            modifier = Modifier
-                .offset(y=-10.dp)
-        )
-    }
 }
 
+@Preview
 @Composable
 fun SignInLayout(modifier: Modifier = Modifier){
     Column {
@@ -88,7 +91,6 @@ fun SignInLayout(modifier: Modifier = Modifier){
             text = "SIGN IN",
             style = TextStyle(
                 fontSize = 50.sp,
-                fontFamily = FontFamily.Cursive,
                 fontWeight = FontWeight(400),
                 color = OrangeSHPE,
             ),
@@ -96,5 +98,21 @@ fun SignInLayout(modifier: Modifier = Modifier){
                 .width(180.dp)
                 .height(42.dp)
         )
+        EmailTextField()
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EmailTextField(modifier: Modifier = Modifier){
+    var text by remember { mutableStateOf("ursuandrei@ufl.edu") }
+
+    TextField(
+        value = text,
+        onValueChange = {text=it},
+        textStyle = TextStyle(fontSize = 10.sp),
+        modifier = Modifier
+            .width(310.dp)
+            .height(38.dp)
+    )
 }
