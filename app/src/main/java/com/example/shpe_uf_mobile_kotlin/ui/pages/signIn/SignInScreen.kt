@@ -42,18 +42,17 @@ import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun SignInUIPreview(){
     SignInLayout()
-    SignInBackground()
-    EmailTextField()
+    //SignInBackground()
 }
 
 @Composable
 fun SignIn(){
-    SignInLayout()
-    SignInBackground()
+    //SignInLayout()
+    //SignInBackground()
     EmailTextField()
 }
 
@@ -90,36 +89,46 @@ fun SignInBackground(modifier: Modifier = Modifier) {
     }
 }
 
-@Preview
 @Composable
 fun SignInLayout(modifier: Modifier = Modifier){
-    Column {
-        Text(
-            text = "SIGN IN",
-            style = TextStyle(
-                fontSize = 50.sp,
-                fontWeight = FontWeight(400),
-                color = OrangeSHPE,
-            ),
-            modifier = Modifier
-                .width(180.dp)
-                .height(42.dp)
-        )
+    Column(
+        Modifier.padding(25.dp)
+            .fillMaxWidth()) {
+//        Text(
+//            text = "SIGN IN",
+//            style = TextStyle(
+//                fontSize = 50.sp,
+//                fontWeight = FontWeight(400),
+//                color = OrangeSHPE,
+//            ),
+//            modifier = Modifier
+//                .width(180.dp)
+//                .height(42.dp)
+//        )
         EmailTextField()
+        PasswordTextField()
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmailTextField(modifier: Modifier = Modifier){
-    var text by remember { mutableStateOf("ursuandrei@ufl.edu") }
+    var text by remember { mutableStateOf("shpeito@ufl.edu") }
 
     TextField(
         value = text,
         onValueChange = {text=it},
-        textStyle = TextStyle(fontSize = 10.sp),
-        modifier = Modifier
-            .width(310.dp)
-            .height(38.dp)
+        textStyle = TextStyle(fontSize = 25.sp)
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PasswordTextField(modifier: Modifier = Modifier){
+    var password by remember { mutableStateOf("") }
+
+    TextField(
+        value = password,
+        onValueChange = {password=it}
     )
 }
