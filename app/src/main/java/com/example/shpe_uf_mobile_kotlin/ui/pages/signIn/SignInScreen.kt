@@ -51,6 +51,13 @@ fun SignInUIPreview(){
 }
 
 @Composable
+fun SignIn(){
+    SignInLayout()
+    SignInBackground()
+    EmailTextField()
+}
+
+@Composable
 fun SignInBackground(modifier: Modifier = Modifier) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val orangeHeight = screenHeight * (1.01f / 11f)
