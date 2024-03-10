@@ -45,15 +45,22 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 @Preview(showBackground = true)
 @Composable
 fun SignInUIPreview(){
-    SignInLayout()
+    //SignInLayout()
     //SignInBackground()
 }
 
 @Composable
 fun SignIn(){
-    //SignInLayout()
-    //SignInBackground()
+    SignInLayout()
+    SignInBackground()
     EmailTextField()
+}
+
+@Preview
+@Composable
+fun TextFieldsAndButton(){
+    EmailTextField()
+    PasswordTextField()
 }
 
 @Composable
@@ -92,7 +99,8 @@ fun SignInBackground(modifier: Modifier = Modifier) {
 @Composable
 fun SignInLayout(modifier: Modifier = Modifier){
     Column(
-        Modifier.padding(25.dp)
+        Modifier
+            .padding(25.dp)
             .fillMaxWidth()) {
 //        Text(
 //            text = "SIGN IN",
