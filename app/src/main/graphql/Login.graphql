@@ -3,9 +3,3 @@ mutation Login($username: String!, $password: String!, $remember: String!) {
         id
     }
 }
-
-query GetUsers {
-    getUsers {
-        country
-    }
-}
