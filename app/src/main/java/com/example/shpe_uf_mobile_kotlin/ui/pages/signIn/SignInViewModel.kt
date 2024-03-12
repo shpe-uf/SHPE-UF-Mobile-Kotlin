@@ -56,7 +56,9 @@ class SignInViewModel: ViewModel() {
 
             if(!response.hasErrors()){
                 val id = response.data?.login?.id
+                Log.d("GraphQL", "${id}")
             }
+            else Log.w("GraphQL", "Could not login.")
         }
 
     }
