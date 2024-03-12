@@ -16,17 +16,17 @@ class SignInViewModel: ViewModel() {
         val currentState = _uiState.value
 
         // Validate user input fields.
-        val isValidEmail = validateEmail(currentState.email ?: "")
+        val isValidUsername = validateUsername(currentState.username ?: "")
         val isValidPassword = validatePassword(currentState.password ?: "")
 
         // Update state with error messages.
         _uiState.value = currentState.copy(
-            emailErrorMessage = isValidEmail,
+            usernameErrorMessage = isValidUsername,
             passwordErrorMessage = isValidPassword
         )
 
         // Login user if validations passed.
-        if(currentState.emailErrorMessage == null && currentState.passwordErrorMessage == null)
+        if(currentState.usernameErrorMessage == null && currentState.passwordErrorMessage == null)
             loginUser()
     }
 
@@ -38,16 +38,8 @@ class SignInViewModel: ViewModel() {
 
 // Validates user inputs.
 
-    private fun validateEmail(email: String): String? {
-        if(email.isBlank()) return "Email is required."
-
-        val emailValidator = "^([0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\\w]*[0-9a-zA-Z]\\.)+[a-zA-Z]{2,12})\$".toRegex()
-
-        if(!email.matches(emailValidator)) return "Invalid email address."
-
-        val domains = listOf("@ufl.edu", "@sfcollege.edu")
-
-        return if (domains.contains("@${email.substringAfterLast('@')}")) null else "University of Florida or Santa Fe College email required."
+    private fun validateUsername(username: String) : String?{
+        return if(username.isBlank()) "Username is required." else null
     }
 
     private fun validatePassword(password: String): String?{
@@ -59,8 +51,8 @@ class SignInViewModel: ViewModel() {
     }
 
     // Functions to update the state for each input field.
-    fun onEmailChanged(email: String){
-        _uiState.value = _uiState.value.copy(email = email)
+    fun onUsernameChanged(username: String){
+        _uiState.value = _uiState.value.copy(username = username)
     }
 
     fun onPasswordChanged(password: String){
@@ -71,4 +63,3 @@ class SignInViewModel: ViewModel() {
         _uiState.value = _uiState.value.copy(isPasswordVisible = !_uiState.value.isPasswordVisible)
     }
 }
-
