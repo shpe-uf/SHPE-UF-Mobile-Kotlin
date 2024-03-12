@@ -176,7 +176,6 @@ fun PasswordTextField(
         label = {Text("Password")},
         visualTransformation =
         if(isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None
-
     )
 }
 
