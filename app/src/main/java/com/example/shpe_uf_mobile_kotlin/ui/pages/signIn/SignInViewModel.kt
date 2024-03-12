@@ -1,9 +1,21 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import apolloClient
+import com.apollographql.apollo3.exception.ApolloException
+import com.example.shpe_uf_mobile_kotlin.LoginMutation
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class SignInViewModel: ViewModel() {
 
@@ -26,28 +38,36 @@ class SignInViewModel: ViewModel() {
         )
 
         // Login user if validations passed.
-        if(currentState.usernameErrorMessage == null && currentState.passwordErrorMessage == null)
-            loginUser()
+        if(currentState.usernameErrorMessage == null && currentState.passwordErrorMessage == null){
+            Log.d("Validating", currentState.username.toString() + " | " + currentState.password.toString())
+            loginUser(currentState.username.toString(),currentState.password.toString())
+        }
+        else
+            Log.d("Validating", "Failure!")
     }
 
     // Handles user login using graphQL.
+    private fun loginUser(username: String, password: String){
 
-    private fun loginUser(){
-        // TODO: Handle user login with a GraphQL query. Check among the database to ensure the user's email and hashed password exists.
+        // Creates a coroutine.
+        viewModelScope.launch {
+            // Mutation for logging in, returns the user's id on success.
+            val response = apolloClient.mutation(LoginMutation(username,password,"true")).execute()
+
+            if(!response.hasErrors()){
+                val id = response.data?.login?.id
+            }
+        }
+
     }
 
-// Validates user inputs.
-
+    // Validates user inputs.
     private fun validateUsername(username: String) : String?{
         return if(username.isBlank()) "Username is required." else null
     }
 
     private fun validatePassword(password: String): String?{
-        if(password.isBlank()) return "Password is required."
-
-        val passwordValidator = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@\$%^&*-.]).{8,}$".toRegex()
-
-        return if (password.matches(passwordValidator)) null else "Password must be at least 8 characters, include one lowercase, one uppercase, one number, and one special character."
+        return if(password.isBlank()) "Password is required." else null
     }
 
     // Functions to update the state for each input field.
