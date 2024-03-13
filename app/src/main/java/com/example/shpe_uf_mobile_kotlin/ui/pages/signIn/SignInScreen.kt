@@ -71,9 +71,12 @@ fun TextFieldsAndButton(signInViewModel: SignInViewModel = SignInViewModel()){
             Submit(
                 onClick = { signInViewModel.validateAndLoginUser() }
             )
+
+            Text_(
+                value = uiState.loginErrorMessage ?: ""
+            )
         }
     }
-
 
 }
 
@@ -176,4 +179,9 @@ fun Submit(onClick: () -> Unit){
     }){
         Text("Submit")
     }
+}
+
+@Composable
+fun Text_(value: String){
+    Text(value)
 }
