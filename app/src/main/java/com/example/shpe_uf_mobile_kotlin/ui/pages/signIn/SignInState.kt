@@ -6,6 +6,7 @@ data class SignInState(
 
     val usernameErrorMessage: String? = null,
     val passwordErrorMessage: String? = null,
+    val loginErrorMessage: String? = null,
 
     val isPasswordVisible: Boolean = true
 )
