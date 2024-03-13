@@ -1,6 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SignInViewModel: ViewModel() {
 
@@ -40,26 +42,45 @@ class SignInViewModel: ViewModel() {
         // Login user if validations passed.
         if(currentState.usernameErrorMessage == null && currentState.passwordErrorMessage == null){
             Log.d("Validating", currentState.username.toString() + " | " + currentState.password.toString())
-            loginUser(currentState.username.toString(),currentState.password.toString())
+            performLogin(currentState.username.toString(),currentState.password.toString())
         }
         else
             Log.d("Validating", "Failure!")
     }
 
-    // Handles user login using graphQL.
-    private fun loginUser(username: String, password: String){
 
-        // Creates a coroutine.
+
+    private fun performLogin(username: String, password: String){
         viewModelScope.launch {
+            val loginSuccess = loginUser(username,password)
+
+            if(!loginSuccess) updateErrorMessage("Could not login.") else updateErrorMessage("Logged in.")
+
+        }
+    }
+
+    // Handles user login using graphQL.
+    private suspend fun loginUser(username: String, password: String): Boolean{
             // Mutation for logging in, returns the user's id on success.
             val response = apolloClient.mutation(LoginMutation(username,password,"true")).execute()
 
             if(!response.hasErrors()){
                 val id = response.data?.login?.id
                 Log.d("GraphQL", "${id}")
+                return true
             }
-            else Log.w("GraphQL", "Could not login.")
-        }
+            else{
+                Log.w("GraphQL", "Could not login.")
+                return false
+            }
+    }
+
+    private fun updateErrorMessage(message: String){
+        val currentState = _uiState.value
+
+        _uiState.value = currentState.copy(
+            loginErrorMessage = message
+        )
 
     }
 
