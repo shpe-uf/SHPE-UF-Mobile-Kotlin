@@ -23,9 +23,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,7 +34,6 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -47,8 +43,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,11 +55,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,11 +65,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.TextStyle
-import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.time.ZoneId
@@ -253,7 +244,8 @@ fun getDaysInMonthArray(yearMonth: YearMonth): List<LocalDate?> {
 fun TopHeader(
     viewModel: HomeViewModel = viewModel()
 ) {
-    val currentDate by viewModel.currentDate.observeAsState(initial = LocalDate.now())
+    val homeState by viewModel.homeState.collectAsState()
+    val currentDate = homeState.currentDate
 
     // Take the date from the current viewModel date and display the month
     // then in the same row we will display a search icon and notification icon
@@ -326,8 +318,9 @@ object Variables {
 
 @Composable
 fun SlidingEventWindow(viewModel: HomeViewModel) {
-    val isVisible = viewModel.isEventDetailsVisible.value
-    val event = viewModel.selectedEvent.value
+    val homeState = viewModel.homeState.collectAsState()
+    val isVisible = homeState.value.isEventDetailsVisible
+    val event = homeState.value.selectedEvent
 
     // Dynamically calculate screen width
     val screenWidth = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
@@ -343,148 +336,97 @@ fun SlidingEventWindow(viewModel: HomeViewModel) {
         enter = slideInHorizontally(initialOffsetX = { screenWidth.toInt() }),
         exit = slideOutHorizontally(targetOffsetX = { screenWidth.toInt() })
     ) {
+        EventDetails(event, viewModel)
+    }
+}
 
-        // Event Details
-        Surface (
-            modifier = Modifier
-                .fillMaxWidth(1f)
-                .fillMaxHeight(),
+@Composable
+fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewModel()) {
+    // Event Details
+    Surface (
+        modifier = Modifier
+            .fillMaxWidth(1f)
+            .fillMaxHeight(),
+    ) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
         ) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-            ) {
 
-                // image and close button container, could be made into own composable to be used later
-                Box(contentAlignment = Alignment.TopStart) {
-                    Image(
-                        painter = painterResource(id = R.drawable.shpe_logo_full_color),
-                        contentDescription = "Event Image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                    IconButton(onClick = { viewModel.hideEventDetails() },
-                        modifier = Modifier
-                            .background(Color.Black.copy(alpha = 0.1f), shape = CircleShape)
-                    ) {
-                        Icon(
-                            Icons.Default.ArrowBackIosNew,
-                            contentDescription = "Dismiss",
-                            tint = Color.White
-                        )
-                    }
-                }
-
-                // Event details card to have the rounded corner style be there
-                Card(
+            // image and close button container, could be made into own composable to be used later
+            Box(contentAlignment = Alignment.TopStart) {
+                Image(
+                    painter = painterResource(id = R.drawable.shpe_logo_full_color),
+                    contentDescription = "Event Image",
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(size = 25.dp),
-                    colors = CardDefaults.cardColors(containerColor = Variables.blue),
+                        .fillMaxWidth()
+                )
+                IconButton(onClick = { viewModel.hideEventDetails() },
+                    modifier = Modifier
+                        .background(Color.Black.copy(alpha = 0.1f), shape = CircleShape)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .padding(60.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                    Icon(
+                        Icons.Default.ArrowBackIosNew,
+                        contentDescription = "Dismiss",
+                        tint = Color.White
+                    )
+                }
+            }
 
-                        // This is the date, time and location
-                        Column {
-                            Row (
+            // Event details card to have the rounded corner style be there
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(size = 25.dp),
+                colors = CardDefaults.cardColors(containerColor = Variables.blue),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .padding(60.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    // This is the date, time and location
+                    Column {
+                        Row (
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
                                 modifier = Modifier
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = event!!.summary,
-                                    style = androidx.compose.ui.text.TextStyle(
-                                        fontSize = 32.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color(0xFFD25917),
-                                    )
-                                )
-                                // current placeholder for the icon, can replace with the actual image we need,
-                                Icon(
-                                    imageVector = Icons.Default.People,
-                                    contentDescription = "People",
-                                    tint = Color(0xFFD25917),
-                                    modifier = Modifier.
-                                    size(45.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(82.dp))
-
-                            Row {
-                                Icon(
-                                    imageVector = Icons.Default.CalendarMonth,
-                                    contentDescription = "Date",
-                                    tint = Color.White
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Text(
-                                    text = formatDate(event!!.start),
-                                    style = androidx.compose.ui.text.TextStyle (
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight(400),
-                                        color = Color(0xFFFFFFFF),
-                                    )
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Row {
-                                Icon(imageVector = Icons.Default.Timer,
-                                    contentDescription = null,
-                                    tint = Color.White
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Text(
-                                    text = formatEventTime(event!!),
-                                    style = androidx.compose.ui.text.TextStyle (
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight(400),
-                                        color = Color(0xFFFFFFFF),
-                                    )
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Row {
-                                Icon(
-                                    imageVector = Icons.Default.LocationOn,
-                                    contentDescription = "Location",
-                                    tint = Color.White
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Text(
-                                    text = event!!.location ?: ("TBD"),
-                                    style = androidx.compose.ui.text.TextStyle (
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight(400),
-                                        color = Color(0xFFFFFFFF),
-                                    )
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(82.dp))
-
-                            Text(text = "Description",
-                                style = androidx.compose.ui.text.TextStyle (
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight(400),
-                                    color = Color(0xFFFFFFFF),
+                                    .weight(0.9f),
+                                text = event!!.summary,
+                                style = androidx.compose.ui.text.TextStyle(
+                                    fontSize = 32.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFFD25917),
                                 )
                             )
-                            Spacer(modifier = Modifier.height(10.dp))
+                            // current placeholder for the icon, can replace with the actual image we need,
+                            Icon(
+                                imageVector = Icons.Default.People,
+                                contentDescription = "People",
+                                tint = Color(0xFFD25917),
+                                modifier = Modifier
+                                    .size(45.dp)
+                                    .weight(0.1f)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(82.dp))
+
+                        Row {
+                            Icon(
+                                imageVector = Icons.Default.CalendarMonth,
+                                contentDescription = "Date",
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
 
                             Text(
-                                text = event!!.description
-                                    ?: ("This is basic placeholder of data. In order for this to work" +
-                                            "properly, we need to make sure that in the google calendar these events are updated." +
-                                            "Otherwise we would need a specific functions to update these on later."),
+                                text = formatDate(event!!.start),
                                 style = androidx.compose.ui.text.TextStyle (
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight(400),
@@ -492,20 +434,101 @@ fun SlidingEventWindow(viewModel: HomeViewModel) {
                                 )
                             )
                         }
-                        // maybe have the save event be here:
+                        Spacer(modifier = Modifier.height(10.dp))
 
+                        Row {
+                            Icon(imageVector = Icons.Default.Timer,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+
+                            Text(
+                                text = formatEventTime(event!!),
+                                style = androidx.compose.ui.text.TextStyle (
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFFFFFFF),
+                                )
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Row {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = "Location",
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+
+                            Text(
+                                text = event!!.location ?: ("TBD"),
+                                style = androidx.compose.ui.text.TextStyle (
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFFFFFFF),
+                                )
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(82.dp))
+
+                        Text(text = "Description",
+                            style = androidx.compose.ui.text.TextStyle (
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight(400),
+                                color = Color(0xFFFFFFFF),
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Text(
+                            text = event!!.description
+                                ?: ("This is basic placeholder of data. In order for this to work" +
+                                        "properly, we need to make sure that in the google calendar these events are updated." +
+                                        "Otherwise we would need a specific functions to update these on later."),
+                            style = androidx.compose.ui.text.TextStyle (
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight(400),
+                                color = Color(0xFFFFFFFF),
+                            )
+                        )
                     }
+                    // maybe have the save event be here:
+
                 }
             }
         }
-
     }
+}
+
+@Preview (showBackground = true)
+@Composable
+fun EventDetailsPreview() {
+    EventDetails(
+        event = HomeViewModel.Event(
+            id = "1",
+            summary = "SHPE GBM #1",
+            description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+            location = "https://ufl.zoom.us/j/95895737986",
+            start = HomeViewModel.EventDateTime(
+                dateTime = "2023-12-19T18:00:00-04:00",
+                timeZone = "America/New_York"
+            ),
+            end = HomeViewModel.EventDateTime(
+                dateTime = "2023-12-19T19:00:00-04:00",
+                timeZone = "America/New_York"
+            ),
+            colorResId = Color.White,
+            eventType = "GBM"
+        )
+    )
 }
 
 @Composable
 fun SlidingNotificationWindow(viewModel: HomeViewModel) {
-    val isVisible = viewModel.isNotificationWindowVisible.value
-    val notification = viewModel.selectedNotification.value
+    val homeState = viewModel.homeState.collectAsState()
+    val isVisible = homeState.value.isNotificationWindowVisible
 
     // Dynamically calculate screen width
     val screenWidth =
@@ -692,7 +715,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                 Spacer(modifier = Modifier.height(60.dp))
 
 
-                Row() {
+                Row {
                     Column (horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .weight(1f)){
@@ -759,9 +782,6 @@ fun TopHeaderPreview() {
 // This is to display events under calendar
 @Composable
 fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()) {
-    // state for pop up visibility
-    var showPopUp by remember { mutableStateOf(false) }
-
     // not sure about padding for now
     Card(
         modifier = Modifier
@@ -807,6 +827,7 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
 //    }
 }
 
+// Not being used for good for reference
 @Composable
 fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest: () -> Unit ) {
 // Pop up for the event
@@ -867,9 +888,15 @@ fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest:
                             Row (
                                 modifier = Modifier
                                     .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
+                                Text (
+                                    modifier = Modifier
+                                        .wrapContentWidth()
+                                        .weight(0.9f),
+                                    textAlign = TextAlign.Center,
+
                                     text = event.summary,
                                     style = androidx.compose.ui.text.TextStyle(
                                         fontSize = 32.sp,
@@ -882,8 +909,9 @@ fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest:
                                     imageVector = Icons.Default.People,
                                     contentDescription = "People",
                                     tint = Color(0xFFD25917),
-                                    modifier = Modifier.
-                                    size(45.dp)
+                                    modifier = Modifier
+                                        .size(45.dp)
+                                        .weight(0.1f)
                                 )
                             }
                             Spacer(modifier = Modifier.height(82.dp))
@@ -1165,10 +1193,12 @@ fun EventCardPreview() {
 
 @Composable
 fun NewHomeScreen(viewModel: HomeViewModel = viewModel()) {
-    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
-    val currentDate by viewModel.currentDate.observeAsState(initial = LocalDate.now())
+    val homeState = viewModel.homeState.collectAsState()
+    val currentDate = homeState.value.currentDate
+    val events = homeState.value.events
 
-    val events by viewModel.events.observeAsState(initial = listOf())
+    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
+
 
 
     LaunchedEffect(currentDate) {
