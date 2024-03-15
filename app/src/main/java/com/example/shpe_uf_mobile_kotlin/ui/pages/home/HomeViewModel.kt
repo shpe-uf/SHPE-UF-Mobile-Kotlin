@@ -25,7 +25,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-
+import java.time.format.DateTimeParseException
 
 class HomeViewModel : ViewModel() {
     // API Keys
@@ -36,6 +36,12 @@ class HomeViewModel : ViewModel() {
     private val _homeUIState = MutableStateFlow(HomeScreenState())
     val homeState: StateFlow<HomeScreenState> = _homeUIState.asStateFlow()
 
+    // Event Type
+    enum class EventType {
+        Default, GBM, Social, Workshop, InfoSession, Volunteering
+    }
+
+    // Window Visibility
     fun selectEvent(event: Event?) {
         _homeUIState.value = _homeUIState.value.copy(selectedEvent = event)
         _homeUIState.value = _homeUIState.value.copy(isEventDetailsVisible = true)
@@ -53,6 +59,23 @@ class HomeViewModel : ViewModel() {
         _homeUIState.value = _homeUIState.value.copy(isNotificationWindowVisible = false)
     }
 
+    // Notification Settings
+    fun toggleNotificationSettings(type: EventType, isEnabled: Boolean) {
+        val currentSettings = _homeUIState.value.notificationSettings
+        val updatedSettings = when (type) {
+            EventType.GBM -> currentSettings.copy(gbmNotification = isEnabled)
+            EventType.Social -> currentSettings.copy(socialNotification = isEnabled)
+            EventType.Workshop -> currentSettings.copy(workshopNotification = isEnabled)
+            EventType.InfoSession -> currentSettings.copy(infoSessionNotification = isEnabled)
+            EventType.Volunteering -> currentSettings.copy(volunteeringNotification = isEnabled)
+            else -> {
+                currentSettings
+            }
+        }
+        _homeUIState.value = _homeUIState.value.copy(notificationSettings = updatedSettings)
+    }
+
+    // Init Might Not Need to do this
     init {
         loadEvents()
     }
@@ -98,15 +121,23 @@ class HomeViewModel : ViewModel() {
 
                 // Check if the response is successful
                 if (response.isSuccessful) {
+
+
+                    // display all the events in the log in an organized manner
+                    response.body()?.items?.forEach { calendarEvent ->
+                        Log.d("HomeViewModel", "CalendarEvent: $calendarEvent")
+                        Log.d("HomeViewModel", "-----------------------------------")
+                    }
+
                     // Parse the response body
                     val events = response.body()?.items?.map { calendarEvent ->
-                        val eventTypeDetermined = if (calendarEvent.eventType == "default") determineEventType(calendarEvent.summary) else calendarEvent.eventType
+                        val eventTypeDetermined = determineEventType(calendarEvent.summary)
                         val determinedColor = when (eventTypeDetermined) {
-                            "GBM" -> GBMColor
-                            "Social" -> SocialColor
-                            "Workshop" -> WorkshopColor
-                            "Info Session" -> InfoSessionColor
-                            "Volunteering" -> VolunteeringColor
+                            EventType.GBM -> GBMColor
+                            EventType.Social -> SocialColor
+                            EventType.Workshop -> WorkshopColor
+                            EventType.InfoSession -> InfoSessionColor
+                            EventType.Volunteering -> VolunteeringColor
                             else -> GBMColor
                         }
 
@@ -139,45 +170,45 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    private fun determineEventType(summary: String): String {
+    private fun determineEventType(summary: String): EventType {
         return when {
             summary.contains(
                 "GBM",
                 ignoreCase = true
-            ) -> "GBM"
+            ) -> EventType.GBM
 
             summary.contains(
                 "Social",
                 ignoreCase = true
-            ) -> "Social"
+            ) -> EventType.Social
 
             summary.contains(
                 "Bootcamp",
                 ignoreCase = true
-            ) -> "Workshop"
+            ) -> EventType.Workshop
 
             summary.contains(
                 "Work",
                 ignoreCase = true
-            ) -> "Workshop"
+            ) -> EventType.Workshop
 
             summary.contains(
                 "Study Session",
                 ignoreCase = true
-            ) -> "Social"
+            ) -> EventType.Workshop
 
             summary.contains(
                 "Info",
                 ignoreCase = true
-            ) -> "Info Session"
+            ) -> EventType.InfoSession
 
             summary.contains(
                 "Volunteer",
                 ignoreCase = true
-            ) -> "Volunteering"
+            ) -> EventType.Volunteering
 
-            // Add more conditions as needed
-            else -> "default" // Default eventType if no keywords found
+            // Return default event type if no keywords matched
+            else -> EventType.Default
         }
     }
 
@@ -186,6 +217,7 @@ class HomeViewModel : ViewModel() {
         // This could involve database operations or other state changes
     }
 
+    // update this and
     data class Event(
         val id: String?,
         val summary: String,
@@ -194,31 +226,52 @@ class HomeViewModel : ViewModel() {
         val start: EventDateTime,
         val end: EventDateTime,
         val colorResId: Color,
-        val eventType: String,
+        val eventType: EventType,
     ) {
         fun matchesDate(date: LocalDate): Boolean {
             return this.start.toLocalDate() == date
         }
 
         fun occursOnDate(date: LocalDate): Boolean {
-            val eventStartDate = start?.dateTime?.let { LocalDate.parse(it, DateTimeFormatter.ISO_DATE_TIME) }
-            val eventEndDate = end?.dateTime?.let { LocalDate.parse(it, DateTimeFormatter.ISO_DATE_TIME) }
+            val eventStartDate = start.toLocalDate()
+            val eventEndDate = end.toLocalDate()
 
-            return eventStartDate != null && eventEndDate != null &&
-                    !date.isBefore(eventStartDate) && !date.isAfter(eventEndDate)
+            val adjustedEventEndDate = when {
+                // If it's an all-day event (date is not null but dateTime is), adjust the end date to be inclusive.
+                eventEndDate != null && start.dateTime == null && start.date != null -> eventEndDate.minusDays(1)
+                else -> eventEndDate
+            }
+
+            return (date.isEqual(eventStartDate) || (eventStartDate != null && date.isAfter(eventStartDate))) &&
+                    (adjustedEventEndDate == null || date.isEqual(adjustedEventEndDate) || date.isBefore(adjustedEventEndDate))
         }
     }
 
+    // update to handle all day events, needs to look for date in addition to dateTime
     data class EventDateTime(
-        val dateTime: String,
-        val timeZone: String
+        val dateTime: String?,
+        val date: String?,
+        val timeZone: String?
     ) {
         fun toLocalDate(): LocalDate? {
-            return dateTime?.let {
-                LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME).toLocalDate()
+            dateTime?.let {
+                return try {
+                    LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME).toLocalDate()
+                } catch (e: DateTimeParseException) {
+                    null
+                }
             }
+            date?.let {
+                return try {
+                    LocalDate.parse(it, DateTimeFormatter.ISO_DATE)
+                } catch (e: DateTimeParseException) {
+                    null
+                }
+            }
+            return null
         }
     }
+
 
     // Google API Things
     interface GoogleCalendarService {

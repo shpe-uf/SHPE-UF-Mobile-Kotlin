@@ -87,136 +87,136 @@ class MainActivity : ComponentActivity() {
 }
 
 // create sample card items
-val sampleCardItems = listOf(
-    HomeViewModel.Event(
-        id = "1",
-        summary = "Event 1",
-        description = "This is event 1",
-        location = "Location 1",
-        start = HomeViewModel.EventDateTime(
-            dateTime = "2024-02-16T10:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        end = HomeViewModel.EventDateTime(
-            dateTime = "2024-02-16T11:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        colorResId = Color.White,
-        eventType = "GBM"
-    ),
-    HomeViewModel.Event(
-        id = "2",
-        summary = "Event 2",
-        description = "This is event 2",
-        location = "Location 2",
-        start = HomeViewModel.EventDateTime(
-            dateTime = "2024-02-16T10:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        end = HomeViewModel.EventDateTime(
-            dateTime = "2024-02-16T11:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        colorResId = Color.White,
-        eventType = "GBM"
-    ),
-    HomeViewModel.Event(
-        id = "3",
-        summary = "Event 3",
-        description = "This is event 3",
-        location = "Location 3",
-        start = HomeViewModel.EventDateTime(
-            dateTime = "2024-02-17T10:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        end = HomeViewModel.EventDateTime(
-            dateTime = "2024-02-17T11:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        colorResId = Color.White,
-        eventType = "GBM"
-    ),
-    HomeViewModel.Event(
-        id = "4",
-        summary = "Event 4",
-        description = "This is event 4",
-        location = "Location 4",
-        start = HomeViewModel.EventDateTime(
-            dateTime = "2024-02-17T10:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        end = HomeViewModel.EventDateTime(
-            dateTime = "2024-02-17T12:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        colorResId = Color.White,
-        eventType = "GBM"
-    ),
-    HomeViewModel.Event(
-        id = "5",
-        summary = "Event 5",
-        description = "This is event 5",
-        location = "Location 5",
-        start = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-19T10:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        end = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-19T11:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        colorResId = Color.White,
-        eventType = "GBM",
-    ),
-HomeViewModel.Event(
-        id = "6",
-        summary = "Event 6",
-        description = "This is event 6",
-        location = "Location 6",
-        start = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-19T10:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        end = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-19T11:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-    colorResId = Color.White,
-    eventType = "GBM"
-    ),
-    HomeViewModel.Event(
-        id = "7",
-        summary = "Event 7",
-        description = "This is event 7",
-        location = "Location 7",
-        start = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-19T10:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        end = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-19T11:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        colorResId = Color.White,
-        eventType = "GBM"
-    ),
-    HomeViewModel.Event(
-        id = "8",
-        summary = "Event 8",
-        description = "This is event 8",
-        location = "Location 8",
-        start = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-19T10:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        end = HomeViewModel.EventDateTime(
-            dateTime = "2023-12-19T11:00:00-04:00",
-            timeZone = "America/New_York"
-        ),
-        colorResId = Color.White,
-        eventType = "GBM"
-    )
-)
+//val sampleCardItems = listOf(
+//    HomeViewModel.Event(
+//        id = "1",
+//        summary = "Event 1",
+//        description = "This is event 1",
+//        location = "Location 1",
+//        start = HomeViewModel.EventDateTime(
+//            dateTime = "2024-02-16T10:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        end = HomeViewModel.EventDateTime(
+//            dateTime = "2024-02-16T11:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        colorResId = Color.White,
+//        eventType = HomeViewModel.EventType.GBM
+//    ),
+//    HomeViewModel.Event(
+//        id = "2",
+//        summary = "Event 2",
+//        description = "This is event 2",
+//        location = "Location 2",
+//        start = HomeViewModel.EventDateTime(
+//            dateTime = "2024-02-16T10:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        end = HomeViewModel.EventDateTime(
+//            dateTime = "2024-02-16T11:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        colorResId = Color.White,
+//        eventType = HomeViewModel.EventType.GBM
+//    ),
+//    HomeViewModel.Event(
+//        id = "3",
+//        summary = "Event 3",
+//        description = "This is event 3",
+//        location = "Location 3",
+//        start = HomeViewModel.EventDateTime(
+//            dateTime = "2024-02-17T10:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        end = HomeViewModel.EventDateTime(
+//            dateTime = "2024-02-17T11:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        colorResId = Color.White,
+//        eventType = HomeViewModel.EventType.GBM
+//    ),
+//    HomeViewModel.Event(
+//        id = "4",
+//        summary = "Event 4",
+//        description = "This is event 4",
+//        location = "Location 4",
+//        start = HomeViewModel.EventDateTime(
+//            dateTime = "2024-02-17T10:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        end = HomeViewModel.EventDateTime(
+//            dateTime = "2024-02-17T12:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        colorResId = Color.White,
+//        eventType = HomeViewModel.EventType.GBM
+//    ),
+//    HomeViewModel.Event(
+//        id = "5",
+//        summary = "Event 5",
+//        description = "This is event 5",
+//        location = "Location 5",
+//        start = HomeViewModel.EventDateTime(
+//            dateTime = "2023-12-19T10:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        end = HomeViewModel.EventDateTime(
+//            dateTime = "2023-12-19T11:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        colorResId = Color.White,
+//        eventType = HomeViewModel.EventType.GBM,
+//    ),
+//HomeViewModel.Event(
+//        id = "6",
+//        summary = "Event 6",
+//        description = "This is event 6",
+//        location = "Location 6",
+//        start = HomeViewModel.EventDateTime(
+//            dateTime = "2023-12-19T10:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        end = HomeViewModel.EventDateTime(
+//            dateTime = "2023-12-19T11:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//    colorResId = Color.White,
+//    eventType = HomeViewModel.EventType.GBM
+//    ),
+//    HomeViewModel.Event(
+//        id = "7",
+//        summary = "Event 7",
+//        description = "This is event 7",
+//        location = "Location 7",
+//        start = HomeViewModel.EventDateTime(
+//            dateTime = "2023-12-19T10:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        end = HomeViewModel.EventDateTime(
+//            dateTime = "2023-12-19T11:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        colorResId = Color.White,
+//        eventType = HomeViewModel.EventType.GBM
+//    ),
+//    HomeViewModel.Event(
+//        id = "8",
+//        summary = "Event 8",
+//        description = "This is event 8",
+//        location = "Location 8",
+//        start = HomeViewModel.EventDateTime(
+//            dateTime = "2023-12-19T10:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        end = HomeViewModel.EventDateTime(
+//            dateTime = "2023-12-19T11:00:00-04:00",
+//            timeZone = "America/New_York"
+//        ),
+//        colorResId = Color.White,
+//        eventType = HomeViewModel.EventType.GBM
+//    )
+//)
 
 // New Method to render calendar
 fun getDaysInMonthArray(yearMonth: YearMonth): List<LocalDate?> {
@@ -502,28 +502,28 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
     }
 }
 
-@Preview (showBackground = true)
-@Composable
-fun EventDetailsPreview() {
-    EventDetails(
-        event = HomeViewModel.Event(
-            id = "1",
-            summary = "SHPE GBM #1",
-            description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
-            location = "https://ufl.zoom.us/j/95895737986",
-            start = HomeViewModel.EventDateTime(
-                dateTime = "2023-12-19T18:00:00-04:00",
-                timeZone = "America/New_York"
-            ),
-            end = HomeViewModel.EventDateTime(
-                dateTime = "2023-12-19T19:00:00-04:00",
-                timeZone = "America/New_York"
-            ),
-            colorResId = Color.White,
-            eventType = "GBM"
-        )
-    )
-}
+//@Preview (showBackground = true)
+//@Composable
+//fun EventDetailsPreview() {
+//    EventDetails(
+//        event = HomeViewModel.Event(
+//            id = "1",
+//            summary = "SHPE GBM #1",
+//            description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+//            location = "https://ufl.zoom.us/j/95895737986",
+//            start = HomeViewModel.EventDateTime(
+//                dateTime = "2023-12-19T18:00:00-04:00",
+//                timeZone = "America/New_York"
+//            ),
+//            end = HomeViewModel.EventDateTime(
+//                dateTime = "2023-12-19T19:00:00-04:00",
+//                timeZone = "America/New_York"
+//            ),
+//            colorResId = Color.White,
+//            eventType = HomeViewModel.EventType.GBM
+//        )
+//    )
+//}
 
 @Composable
 fun SlidingNotificationWindow(viewModel: HomeViewModel) {
@@ -1003,30 +1003,30 @@ fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest:
 }
 
 // preview for popup
-@Preview (showBackground = true)
-@Composable
-fun EventPopUpPreview() {
-    EventPopUp(
-        event = HomeViewModel.Event(
-            id = "1",
-            summary = "SHPE GBM #1",
-            description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
-            location = "https://ufl.zoom.us/j/95895737986",
-            start = HomeViewModel.EventDateTime(
-                dateTime = "2023-12-19T18:00:00-04:00",
-                timeZone = "America/New_York"
-            ),
-            end = HomeViewModel.EventDateTime(
-                dateTime = "2023-12-19T19:00:00-04:00",
-                timeZone = "America/New_York"
-            ),
-            colorResId = Color.White,
-            eventType = "GBM"
-        ),
-        showPopup = true,
-        onDismissRequest = { }
-    )
-}
+//@Preview (showBackground = true)
+//@Composable
+//fun EventPopUpPreview() {
+//    EventPopUp(
+//        event = HomeViewModel.Event(
+//            id = "1",
+//            summary = "SHPE GBM #1",
+//            description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+//            location = "https://ufl.zoom.us/j/95895737986",
+//            start = HomeViewModel.EventDateTime(
+//                dateTime = "2023-12-19T18:00:00-04:00",
+//                timeZone = "America/New_York"
+//            ),
+//            end = HomeViewModel.EventDateTime(
+//                dateTime = "2023-12-19T19:00:00-04:00",
+//                timeZone = "America/New_York"
+//            ),
+//            colorResId = Color.White,
+//            eventType = HomeViewModel.EventType.GBM
+//        ),
+//        showPopup = true,
+//        onDismissRequest = { }
+//    )
+//}
 
 @Composable
 fun EventCardFeed(events: List<HomeViewModel.Event>) {
@@ -1105,23 +1105,23 @@ fun DayContainer(
     }
 }
 
-@Preview (showBackground = true)
-@Composable
-fun DayContainerPreview() {
-    DayContainer(
-        // pass february 16, 2024
-        date = LocalDate.of(2024, 2, 16),
-        events = sampleCardItems
-    )
-}
-
-@Preview (showBackground = true)
-@Composable
-fun EventCardFeedPreview() {
-    SHPEUFMobileKotlinTheme {
-        EventCardFeed(events = sampleCardItems)
-    }
-}
+//@Preview (showBackground = true)
+//@Composable
+//fun DayContainerPreview() {
+//    DayContainer(
+//        // pass february 16, 2024
+//        date = LocalDate.of(2024, 2, 16),
+//        events = sampleCardItems
+//    )
+//}
+//
+//@Preview (showBackground = true)
+//@Composable
+//fun EventCardFeedPreview() {
+//    SHPEUFMobileKotlinTheme {
+//        EventCardFeed(events = sampleCardItems)
+//    }
+//}
 
 // used to make the time formatted properly
 fun formatEventTime(event: HomeViewModel.Event): String {
@@ -1136,7 +1136,11 @@ fun formatEventTime(event: HomeViewModel.Event): String {
         val endTime = endZonedDateTime.format(outputFormatter)
         "$startTime - $endTime"
     } catch (e: Exception) {
-        "TBD"
+        if (event.eventType == HomeViewModel.EventType.Default) {
+            "All Day"
+        } else {
+            "TBD"
+        }
     }
 }
 
@@ -1152,7 +1156,8 @@ fun formatDate(eventDateTime: HomeViewModel.EventDateTime): String {
         val dayOfMonthWithOrdinal = "$dayOfMonth${getOrdinalIndicator(dayOfMonth)}"
         zonedDateTime.format(outputFormatter).replaceFirst(Regex("\\d+"), dayOfMonthWithOrdinal)
     } catch (e: Exception) {
-        "TBD"
+        // if all day, say all day, if no date time, it basically means all day.
+        "All Day"
     }
 }
 
@@ -1166,30 +1171,30 @@ fun getOrdinalIndicator(dayOfMonth: Int): String {
         }
     }
 
-@Preview(showBackground = true)
-@Composable
-fun EventCardPreview() {
-    SHPEUFMobileKotlinTheme {
-        EventCard(
-            event = HomeViewModel.Event(
-                id = "1",
-                summary = "SHPE UF General Body Meeting",
-                description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
-                location = "https://ufl.zoom.us/j/95895737986",
-                start = HomeViewModel.EventDateTime(
-                    dateTime = "2023-12-19T18:00:00-04:00",
-                    timeZone = "America/New_York"
-                ),
-                end = HomeViewModel.EventDateTime(
-                    dateTime = "2023-12-19T19:00:00-04:00",
-                    timeZone = "America/New_York"
-                ),
-                colorResId = Color.White,
-                eventType = "GBM"
-            )
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun EventCardPreview() {
+//    SHPEUFMobileKotlinTheme {
+//        EventCard(
+//            event = HomeViewModel.Event(
+//                id = "1",
+//                summary = "SHPE UF General Body Meeting",
+//                description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+//                location = "https://ufl.zoom.us/j/95895737986",
+//                start = HomeViewModel.EventDateTime(
+//                    dateTime = "2023-12-19T18:00:00-04:00",
+//                    timeZone = "America/New_York"
+//                ),
+//                end = HomeViewModel.EventDateTime(
+//                    dateTime = "2023-12-19T19:00:00-04:00",
+//                    timeZone = "America/New_York"
+//                ),
+//                colorResId = Color.White,
+//                eventType = HomeViewModel.EventType.GBM
+//            )
+//        )
+//    }
+//}
 
 @Composable
 fun NewHomeScreen(viewModel: HomeViewModel = viewModel()) {
