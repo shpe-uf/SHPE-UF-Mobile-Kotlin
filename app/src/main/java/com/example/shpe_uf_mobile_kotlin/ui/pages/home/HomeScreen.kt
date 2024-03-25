@@ -1,8 +1,5 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
-import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -54,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -73,18 +71,6 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            SHPEUFMobileKotlinTheme  {
-                // Replace this with your card data
-                NewHomeScreen()
-            }
-        }
-    }
-}
 
 // create sample card items
 //val sampleCardItems = listOf(
@@ -285,16 +271,6 @@ fun TopHeader(
 //        )
 
         // This is for a temp one to test layout
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = "Search",
-            modifier = Modifier
-                .size(35.dp)
-                .align(Alignment.Bottom)
-                .width(30.dp)
-                .height(30.dp),
-            tint = Color.White
-        )
         // Icon for bell
         Icon(
             imageVector = Icons.Default.Notifications,
@@ -551,6 +527,10 @@ fun SlidingNotificationWindow(viewModel: HomeViewModel) {
 
 @Composable
 fun NotificationSettingsContent(viewModel: HomeViewModel) {
+    val context = LocalContext.current
+    val homeState by viewModel.homeState.collectAsState()
+
+
     // Notification Details
     Surface (
         modifier = Modifier
@@ -609,6 +589,8 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                     )
                 }
             }
+
+
             Spacer(modifier = Modifier.height(120.dp))
 
             Text(
@@ -644,14 +626,43 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                     Column (horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .weight(1f)) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notifications",
-                            modifier = Modifier
-                                .size(35.dp)
-                                .width(33.dp)
-                                .height(32.dp)
-                        )
+
+                        if (homeState.notificationSettings.gbmNotification) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Notifications",
+                                modifier = Modifier
+                                    .size(35.dp)
+                                    .width(33.dp)
+                                    .height(32.dp)
+                                    .clickable {
+                                        viewModel.toggleNotificationSettings(
+                                            context,
+                                            HomeViewModel.EventType.GBM,
+                                            !viewModel.homeState.value.notificationSettings.gbmNotification
+                                        )
+                                    }
+                            )
+                        }
+                        else {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Notifications",
+                                modifier = Modifier
+                                    .size(35.dp)
+                                    .width(33.dp)
+                                    .height(32.dp)
+                                    .clickable {
+                                        viewModel.toggleNotificationSettings(
+                                            context,
+                                            HomeViewModel.EventType.GBM,
+                                            !viewModel.homeState.value.notificationSettings.gbmNotification
+                                        )
+                                    },
+                                tint = Color(0xFFD25917)
+                            )
+                        }
+
                         Text(
                             text = "GBMs",
                             style = androidx.compose.ui.text.TextStyle(
@@ -675,6 +686,13 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                 .size(35.dp)
                                 .width(33.dp)
                                 .height(32.dp)
+                                .clickable {
+                                    viewModel.toggleNotificationSettings(
+                                        context,
+                                        HomeViewModel.EventType.InfoSession,
+                                        !viewModel.homeState.value.notificationSettings.infoSessionNotification
+                                    )
+                                }
                         )
                         Text(
                             text = "Info\nSessions",
@@ -699,6 +717,13 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                 .size(35.dp)
                                 .width(33.dp)
                                 .height(32.dp)
+                                .clickable {
+                                    viewModel.toggleNotificationSettings(
+                                        context,
+                                        HomeViewModel.EventType.Workshop,
+                                        !viewModel.homeState.value.notificationSettings.workshopNotification
+                                    )
+                                }
                         )
                         Text(
                             text = "Workshops",
@@ -716,9 +741,11 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
 
 
                 Row {
-                    Column (horizontalAlignment = Alignment.CenterHorizontally,
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
-                            .weight(1f)){
+                            .weight(1f)
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Notifications,
                             contentDescription = "Notifications",
@@ -726,6 +753,13 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                 .size(35.dp)
                                 .width(33.dp)
                                 .height(32.dp)
+                                .clickable {
+                                    viewModel.toggleNotificationSettings(
+                                        context,
+                                        HomeViewModel.EventType.Volunteering,
+                                        !viewModel.homeState.value.notificationSettings.volunteeringNotification
+                                    )
+                                }
                         )
                         Text(
                             text = "Volunteering",
@@ -749,6 +783,13 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                 .size(35.dp)
                                 .width(33.dp)
                                 .height(32.dp)
+                                .clickable {
+                                    viewModel.toggleNotificationSettings(
+                                        context,
+                                        HomeViewModel.EventType.Social,
+                                        !viewModel.homeState.value.notificationSettings.socialNotification
+                                    )
+                                }
                         )
                         Text(
                             text = "Socials",
