@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.NewHomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
+import com.example.shpe_uf_mobile_kotlin.ui.theme.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +24,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    NewHomeScreen()
                 }
             }
         }
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    NewHomeScreen()
+    Text(text = "Hello $name!", modifier = modifier)
 }
 
 @Preview(showBackground = true)

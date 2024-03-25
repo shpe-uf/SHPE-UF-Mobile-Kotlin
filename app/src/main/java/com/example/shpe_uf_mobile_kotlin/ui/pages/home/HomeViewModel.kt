@@ -1,6 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
+import android.app.Application
+import android.content.Context
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -21,13 +22,17 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.*
+import com.example.shpe_uf_mobile_kotlin.util.NotificationsUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.time.format.DateTimeParseException
 
 class HomeViewModel : ViewModel() {
+//class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // API Keys
     private val calendarId = BuildConfig.CALENDAR_ID
     private val apiKey = BuildConfig.REACT_APP_API_KEY
@@ -60,19 +65,55 @@ class HomeViewModel : ViewModel() {
     }
 
     // Notification Settings
-    fun toggleNotificationSettings(type: EventType, isEnabled: Boolean) {
-        val currentSettings = _homeUIState.value.notificationSettings
-        val updatedSettings = when (type) {
-            EventType.GBM -> currentSettings.copy(gbmNotification = isEnabled)
-            EventType.Social -> currentSettings.copy(socialNotification = isEnabled)
-            EventType.Workshop -> currentSettings.copy(workshopNotification = isEnabled)
-            EventType.InfoSession -> currentSettings.copy(infoSessionNotification = isEnabled)
-            EventType.Volunteering -> currentSettings.copy(volunteeringNotification = isEnabled)
-            else -> {
-                currentSettings
+//    fun toggleNotificationSettings(type: EventType, isEnabled: Boolean) {
+//        val currentSettings = _homeUIState.value.notificationSettings
+//        val updatedSettings = when (type) {
+//            EventType.GBM -> currentSettings.copy(gbmNotification = isEnabled)
+//            EventType.Social -> currentSettings.copy(socialNotification = isEnabled)
+//            EventType.Workshop -> currentSettings.copy(workshopNotification = isEnabled)
+//            EventType.InfoSession -> currentSettings.copy(infoSessionNotification = isEnabled)
+//            EventType.Volunteering -> currentSettings.copy(volunteeringNotification = isEnabled)
+//            else -> {
+//                currentSettings
+//            }
+//        }
+//        _homeUIState.value = _homeUIState.value.copy(notificationSettings = updatedSettings)
+//    }
+
+
+    fun toggleNotificationSettings(context: Context, type: EventType, isEnabled: Boolean) {
+        // Update events' notificationEnabled based on type and isEnabled
+        val updatedEvents = homeState.value.events.map { event ->
+            if (event.eventType == type) event.copy(notificationEnabled = isEnabled) else event
+        }
+
+        // Update notificationSettings in the UI state
+        val updatedNotificationSettings = homeState.value.notificationSettings.copy(
+            gbmNotification = if (type == EventType.GBM) isEnabled else homeState.value.notificationSettings.gbmNotification,
+            // Add similar lines for other event types if applicable
+        )
+
+        // Apply updated events and notification settings to state
+        _homeUIState.value = homeState.value.copy(events = updatedEvents, notificationSettings = updatedNotificationSettings)
+
+        // Handle scheduling or canceling notifications
+        handleNotificationsForEvents(context,updatedEvents, type, isEnabled)
+    }
+
+    private fun handleNotificationsForEvents(context: Context, events: List<Event>, type: EventType, isEnabled: Boolean) {
+        val notificationsUtil =  NotificationsUtil()
+
+        events.filter { it.eventType == type && it.notificationEnabled == isEnabled }.forEach { event ->
+            if (isEnabled) {
+                // Schedule notification
+                notificationsUtil.scheduleNotification(context, event)
+            } else {
+                // Assume cancelNotification is implemented and event.id is a unique identifier
+                //notificationsUtil.cancelNotification(event.id)
+                // Log for debugging
+                Log.d("HomeViewModel", "Canceled notification for ${event.summary}")
             }
         }
-        _homeUIState.value = _homeUIState.value.copy(notificationSettings = updatedSettings)
     }
 
     // Init Might Not Need to do this
@@ -227,6 +268,7 @@ class HomeViewModel : ViewModel() {
         val end: EventDateTime,
         val colorResId: Color,
         val eventType: EventType,
+        val notificationEnabled: Boolean = false
     ) {
         fun matchesDate(date: LocalDate): Boolean {
             return this.start.toLocalDate() == date
