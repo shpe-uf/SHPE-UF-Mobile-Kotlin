@@ -25,6 +25,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -146,37 +147,31 @@ fun RedeemPoints(modifier: Modifier = Modifier) {
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Box(
+            TextField(
+
+                value = text,
+                onValueChange = { text = it },
+                label = {
+                    Text(
+                        text = "Event Code ",
+                        style = TextStyle(
+                            fontSize = 25.sp,
+                            color = Color(0xFF72AAC0),
+                            textAlign = TextAlign.Center
+
+                        ),
+                        modifier = Modifier
+//                                .padding(bottom = 10.dp)
+//                                .fillMaxSize()
+                    ) },
+                maxLines = 1,
+
+                textStyle = TextStyle(color = Color.Red, fontWeight = FontWeight.Bold),
                 modifier = Modifier
                     .width(340.dp)
                     .height(50.dp)
-                    .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 8.dp))
-            ){
-                OutlinedTextField(
+            )
 
-                    value = text,
-                    onValueChange = { text = it },
-                    label = {
-                        Text(
-                            text = "Event Code ",
-                            style = TextStyle(
-                                fontSize = 25.sp,
-                                color = Color(0xFF72AAC0),
-                                textAlign = TextAlign.Center
-
-                            ),
-                            modifier = Modifier
-//                                .padding(bottom = 10.dp)
-//                                .fillMaxSize()
-                        ) },
-                    maxLines = 1,
-
-                    textStyle = TextStyle(color = Color.Red, fontWeight = FontWeight.Bold),
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .fillMaxSize()
-                )
-            }
             Spacer(modifier = Modifier.height(50.dp))
 
             Text(
