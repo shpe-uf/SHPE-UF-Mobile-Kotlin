@@ -70,6 +70,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import apolloClient
+import com.example.shpe_uf_mobile_kotlin.ui.pages.points.FullView
+import com.example.shpe_uf_mobile_kotlin.ui.pages.points.RedeemPoints
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
 class MainActivity : ComponentActivity() {
@@ -82,6 +84,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    FullView()
                 }
             }
         }
