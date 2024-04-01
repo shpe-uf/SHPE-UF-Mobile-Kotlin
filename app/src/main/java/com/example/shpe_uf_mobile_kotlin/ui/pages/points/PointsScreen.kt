@@ -429,6 +429,7 @@ fun PointsPercentile(modifier: Modifier = Modifier){
                     modifier = Modifier.fillMaxWidth(),
                     firstGradient = Color(0xFF0A2059),
                     secondGradient = Color(0xFF2E619E)
+
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
