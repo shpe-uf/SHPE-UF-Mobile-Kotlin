@@ -1,6 +1,5 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.points
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,11 +18,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -38,10 +37,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -148,7 +147,6 @@ fun RedeemPoints(modifier: Modifier = Modifier) {
             }
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
-
                 value = text,
                 onValueChange = { text = it },
                 label = {
@@ -163,9 +161,9 @@ fun RedeemPoints(modifier: Modifier = Modifier) {
                         modifier = Modifier
 //                                .padding(bottom = 10.dp)
 //                                .fillMaxSize()
+//                            .align(Alignment.CenterHorizontally)
                     ) },
                 maxLines = 1,
-
                 textStyle = TextStyle(color = Color.Red, fontWeight = FontWeight.Bold),
                 modifier = Modifier
                     .width(340.dp)
@@ -191,7 +189,7 @@ fun RedeemPoints(modifier: Modifier = Modifier) {
                     .height(80.dp)
                     .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 8.dp))
             ){
-                Button(onClick = {guests--},
+                Button(onClick = {if (guests > 0) guests -= 1 },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFFFFFFF),
                         contentColor = Color(0xFFFFFFFF)
@@ -286,7 +284,39 @@ fun RedeemPoints(modifier: Modifier = Modifier) {
         }
     }
 }
-
+@Preview
+@Composable
+fun PointsCalendar(modifier: Modifier = Modifier){
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ){
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 40.dp)
+                .background(Color.White)
+        )
+        {
+            Spacer(modifier = Modifier.height(30.dp))
+            Text(text = "GBM",
+                style = TextStyle(
+                    fontSize = 60.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFD25917)),
+            )
+            Spacer(modifier = Modifier.height(30.dp))
+            Text(text = "CABINET " +
+                    "MEETING",
+                style = TextStyle(
+                    fontSize = 60.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFD25917)),
+            )
+        }
+    }
+}
 @Composable
 fun PointsPercentile(modifier: Modifier = Modifier){
         var datas by remember { mutableStateOf(emptyList<ExampleQuery.GetUser>()) }
@@ -299,20 +329,13 @@ fun PointsPercentile(modifier: Modifier = Modifier){
             }
         }
 
-//        Column(
-//            modifier = modifier.fillMaxSize().padding(start = 52.dp)
-//        ) {
-//            Text("Whatever you need: ")
-//            datas.forEach { user -> Text(text = user.points.toString())}
-//        }
+
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .background(color = Color(0xFF004C73))
             .fillMaxSize()
     ){
-        TopSection()
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -330,7 +353,8 @@ fun PointsPercentile(modifier: Modifier = Modifier){
             ) {
                 Canvas(modifier = Modifier.matchParentSize()) {
                     val thickness = size.minDimension * 0.28f // Adjust the thickness here
-                    val sweepAngle = 360 * 0.93f // Assuming 93% for the example
+                    val degree = datas.sumBy { it.fallPercentile }.toFloat() / 100
+                    val sweepAngle = 360 * degree // Assuming 93% for the example
                     drawPieChartSegment(startAngle = -90f, sweepAngle = sweepAngle, color = Color(0xFF0A2059), thickness = thickness)
                     drawPieChartSegment(startAngle = -90f + sweepAngle, sweepAngle = 360 - sweepAngle, color = Color(0xFFC5CAE9), thickness = thickness)
                     drawCenterCircle(color = Color.White, thickness = thickness)
@@ -343,7 +367,7 @@ fun PointsPercentile(modifier: Modifier = Modifier){
                         color = Color.Black
                     )
                     Text(
-                        text = "93rd",
+                        text = "${datas.sumBy { it.fallPercentile }}",
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -381,8 +405,7 @@ fun PointsPercentile(modifier: Modifier = Modifier){
             Spacer(modifier = Modifier.height(44.dp))
 
             Text(
-                text = "Total Points: ${datas.forEach { user -> Text(text = user.points.toString())}}",
-//                text = datas.forEach { user -> Text(text = user.points.toString())},
+                text = "Total Points: ${datas.sumBy { it.points }}",
                 style = TextStyle(
                     fontSize = 20.sp,
                     color = Color(0xFF004C73),
@@ -401,8 +424,8 @@ fun PointsPercentile(modifier: Modifier = Modifier){
             ) {
                 PercentIndicator(
                     label = "FALL",
-                    percent = "TOP 95%",
-                    number = 12,
+                    percent = "TOP ${datas.sumBy { it.fallPercentile }}%",
+                    number = datas.sumBy { it.fallPoints },
                     modifier = Modifier.fillMaxWidth(),
                     firstGradient = Color(0xFF0A2059),
                     secondGradient = Color(0xFF2E619E)
@@ -417,9 +440,9 @@ fun PointsPercentile(modifier: Modifier = Modifier){
                 contentAlignment = Alignment.Center
             ) {
                 PercentIndicator(
-                    label = "SUMMER",
-                    percent = "TOP 4%",
-                    number = 12,
+                    label = "SPRING",
+                    percent = "TOP ${datas.sumBy { it.springPercentile }}%",
+                    number = datas.sumBy {it.springPoints},
                     modifier = Modifier.fillMaxWidth(),
                     firstGradient = Color(0xFF981F14),
                     secondGradient = Color(0xFFDE5026)
@@ -434,21 +457,24 @@ fun PointsPercentile(modifier: Modifier = Modifier){
                 contentAlignment = Alignment.Center
             ) {
                 PercentIndicator(
-                    label = "SPRING",
-                    percent = "TOP 2%",
-                    number = 4,
+                    label = "SUMMER",
+                    percent = "TOP ${datas.sumBy { it.summerPercentile }}%",
+                    number = datas.sumBy {it.summerPoints},
                     modifier = Modifier.fillMaxWidth(),
                     firstGradient = Color(0xFF0B70BA),
                     secondGradient = Color(0xFF84CBFF)
                 )
             }
         }
-
     }
 }
 
 @Composable
 fun BottomBar(modifier: Modifier = Modifier){
+    var calendar = ColorFilter.tint(Color.Black)
+    var leaderboard = ColorFilter.tint(Color.Black)
+    var profile = ColorFilter.tint(Color.Black)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -458,8 +484,14 @@ fun BottomBar(modifier: Modifier = Modifier){
             verticalAlignment = Alignment.CenterVertically,
              modifier = Modifier
                  .fillMaxWidth()
+                 .fillMaxHeight()
         ) {
-            Button(onClick = {},
+            Spacer(modifier = Modifier.width(60.dp))
+            Button(onClick = {
+                calendar = ColorFilter.tint(Color(0xFFD25917))
+                leaderboard = ColorFilter.tint(Color.Black)
+                profile = ColorFilter.tint(Color.Black)
+            },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFFFFFFF),
                     contentColor = Color(0xFFFFFFFF)
@@ -467,14 +499,62 @@ fun BottomBar(modifier: Modifier = Modifier){
                 contentPadding = PaddingValues(0.dp),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
-                    .width(200.dp)
-                    .height(100.dp)
+                    .size(50.dp)
             ){
                 Image(
-                    painter = painterResource(id = R.drawable.plus),
-                    contentDescription = "Plus",
+                    painter = painterResource(id = R.drawable.cal),
+                    contentDescription = "Calendar",
+                    colorFilter = calendar,
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(50.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(60.dp))
+
+            Button(onClick = {
+                calendar =  ColorFilter.tint(Color.Black)
+                leaderboard = ColorFilter.tint(Color(0xFFD25917))
+                profile = ColorFilter.tint(Color.Black)
+            },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFFFFFF),
+                    contentColor = Color(0xFFFFFFFF)
+                ),
+                contentPadding = PaddingValues(0.dp),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .size(50.dp)
+            ){
+                Image(
+                    painter = painterResource(id = R.drawable.leaderboard),
+                    contentDescription = "Leaderboard",
+                    colorFilter = leaderboard,
+                    modifier = Modifier
+                        .size(50.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(60.dp))
+
+            Button(onClick = {
+                calendar = ColorFilter.tint(Color.Black)
+                leaderboard = ColorFilter.tint(Color.Black)
+                profile = ColorFilter.tint(Color(0xFFD25917))
+            },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFFFFFF),
+                    contentColor = Color(0xFFFFFFFF)
+                ),
+                contentPadding = PaddingValues(0.dp),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .size(50.dp)
+            ){
+                Image(
+                    painter = painterResource(id = R.drawable.profile2),
+                    contentDescription = "Profile",
+                    colorFilter = profile,
+                    modifier = Modifier
+                        .size(50.dp)
                 )
             }
         }
@@ -598,6 +678,29 @@ fun SampleUsage() {
             number = 12,
             modifier = Modifier.fillMaxWidth()
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FullView() {
+    SHPEUFMobileKotlinTheme {
+        Column(modifier = Modifier.fillMaxSize()) {
+            TopSection()
+
+            LazyColumn(
+                modifier = Modifier.weight(1f)
+            ) {
+                item {
+                    PointsPercentile()
+                }
+                item {
+                    PointsCalendar()
+                }
+            }
+
+            BottomBar()
+        }
     }
 }
 @Preview(showBackground = true)
