@@ -625,41 +625,35 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
 
                     Column (horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
-                            .weight(1f)) {
+                            .weight(1f)
+                    ) {
 
                         if (homeState.notificationSettings.gbmNotification) {
-                            Icon(
-                                imageVector = Icons.Default.Notifications,
-                                contentDescription = "Notifications",
-                                modifier = Modifier
-                                    .size(35.dp)
-                                    .width(33.dp)
-                                    .height(32.dp)
-                                    .clickable {
-                                        viewModel.toggleNotificationSettings(
-                                            context,
-                                            HomeViewModel.EventType.GBM,
-                                            !viewModel.homeState.value.notificationSettings.gbmNotification
-                                        )
+                            Image(
+                                painter = painterResource(id = R.drawable.gbmselected),
+                                contentDescription = "GBM Notifications ON", modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable { viewModel.toggleNotificationSettings(
+                                        context,
+                                        HomeViewModel.EventType.GBM,
+                                        !viewModel.homeState.value.notificationSettings.gbmNotification
+                                    )
                                     }
                             )
                         }
                         else {
-                            Icon(
-                                imageVector = Icons.Default.Notifications,
-                                contentDescription = "Notifications",
-                                modifier = Modifier
-                                    .size(35.dp)
-                                    .width(33.dp)
-                                    .height(32.dp)
-                                    .clickable {
-                                        viewModel.toggleNotificationSettings(
-                                            context,
-                                            HomeViewModel.EventType.GBM,
-                                            !viewModel.homeState.value.notificationSettings.gbmNotification
-                                        )
-                                    },
-                                tint = Color(0xFFD25917)
+                            Image(
+                                painter = painterResource(id = R.drawable.gbmdefault),
+                                contentDescription = "GBM Notifications ON", modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable { viewModel.toggleNotificationSettings(
+                                        context,
+                                        HomeViewModel.EventType.GBM,
+                                        !viewModel.homeState.value.notificationSettings.gbmNotification
+                                    )
+                                    }
                             )
                         }
 
@@ -679,21 +673,35 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                         modifier = Modifier
                             .weight(1f)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notifications",
-                            modifier = Modifier
-                                .size(35.dp)
-                                .width(33.dp)
-                                .height(32.dp)
-                                .clickable {
-                                    viewModel.toggleNotificationSettings(
+                        if (homeState.notificationSettings.infoSessionNotification) {
+                            Image(
+                                painter = painterResource(id = R.drawable.infoselected),
+                                contentDescription = "Info Session Notifications ON", modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable { viewModel.toggleNotificationSettings(
                                         context,
                                         HomeViewModel.EventType.InfoSession,
                                         !viewModel.homeState.value.notificationSettings.infoSessionNotification
                                     )
-                                }
-                        )
+                                    }
+                            )
+                        }
+                        else {
+                            Image(
+                                painter = painterResource(id = R.drawable.infodefault),
+                                contentDescription = "Info Session Notifications OFF", modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable { viewModel.toggleNotificationSettings(
+                                        context,
+                                        HomeViewModel.EventType.InfoSession,
+                                        !viewModel.homeState.value.notificationSettings.infoSessionNotification
+                                    )
+                                    }
+                            )
+                        }
+
                         Text(
                             text = "Info\nSessions",
                             style = androidx.compose.ui.text.TextStyle(
@@ -709,22 +717,36 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
 
                     Column (horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
-                            .weight(1f)){
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notifications",
-                            modifier = Modifier
-                                .size(35.dp)
-                                .width(33.dp)
-                                .height(32.dp)
-                                .clickable {
-                                    viewModel.toggleNotificationSettings(
+                            .weight(1f)
+                    ){
+                        if (homeState.notificationSettings.workshopNotification) {
+                            Image(
+                                painter = painterResource(id = R.drawable.workshopselected),
+                                contentDescription = "Info Session Notifications ON", modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable { viewModel.toggleNotificationSettings(
                                         context,
                                         HomeViewModel.EventType.Workshop,
                                         !viewModel.homeState.value.notificationSettings.workshopNotification
                                     )
-                                }
-                        )
+                                    }
+                            )
+                        }
+                        else {
+                            Image(
+                                painter = painterResource(id = R.drawable.workshopdefault),
+                                contentDescription = "Workshop Notifications OFF", modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable { viewModel.toggleNotificationSettings(
+                                        context,
+                                        HomeViewModel.EventType.Workshop,
+                                        !viewModel.homeState.value.notificationSettings.workshopNotification
+                                    )
+                                    }
+                            )
+                        }
                         Text(
                             text = "Workshops",
                             style = androidx.compose.ui.text.TextStyle(
@@ -746,21 +768,34 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                         modifier = Modifier
                             .weight(1f)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notifications",
-                            modifier = Modifier
-                                .size(35.dp)
-                                .width(33.dp)
-                                .height(32.dp)
-                                .clickable {
-                                    viewModel.toggleNotificationSettings(
+                        if (homeState.notificationSettings.volunteeringNotification) {
+                            Image(
+                                painter = painterResource(id = R.drawable.volunteerselected),
+                                contentDescription = "Volunteer Notifications ON", modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable { viewModel.toggleNotificationSettings(
                                         context,
                                         HomeViewModel.EventType.Volunteering,
                                         !viewModel.homeState.value.notificationSettings.volunteeringNotification
                                     )
-                                }
-                        )
+                                    }
+                            )
+                        }
+                        else {
+                            Image(
+                                painter = painterResource(id = R.drawable.volunteerdefault),
+                                contentDescription = "Volunteer Notifications OFF", modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable { viewModel.toggleNotificationSettings(
+                                        context,
+                                        HomeViewModel.EventType.Volunteering,
+                                        !viewModel.homeState.value.notificationSettings.volunteeringNotification
+                                    )
+                                    }
+                            )
+                        }
                         Text(
                             text = "Volunteering",
                             style = androidx.compose.ui.text.TextStyle(
@@ -775,22 +810,38 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
 
                     Column (horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
-                            .weight(1f)){
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Notifications",
-                            modifier = Modifier
-                                .size(35.dp)
-                                .width(33.dp)
-                                .height(32.dp)
-                                .clickable {
-                                    viewModel.toggleNotificationSettings(
-                                        context,
-                                        HomeViewModel.EventType.Social,
-                                        !viewModel.homeState.value.notificationSettings.socialNotification
-                                    )
-                                }
-                        )
+                            .weight(1f)
+                    ){
+                        if (homeState.notificationSettings.socialNotification) {
+                            Image(
+                                painter = painterResource(id = R.drawable.socialselected),
+                                contentDescription = "Social Notifications ON", modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        viewModel.toggleNotificationSettings(
+                                            context,
+                                            HomeViewModel.EventType.Social,
+                                            !viewModel.homeState.value.notificationSettings.socialNotification
+                                        )
+                                    }
+                            )
+                        }
+                        else {
+                            Image(
+                                painter = painterResource(id = R.drawable.socialdefault),
+                                contentDescription = "Social Notifications OFF", modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        viewModel.toggleNotificationSettings(
+                                            context,
+                                            HomeViewModel.EventType.Social,
+                                            !viewModel.homeState.value.notificationSettings.socialNotification
+                                        )
+                                    }
+                            )
+                        }
                         Text(
                             text = "Socials",
                             style = androidx.compose.ui.text.TextStyle(
