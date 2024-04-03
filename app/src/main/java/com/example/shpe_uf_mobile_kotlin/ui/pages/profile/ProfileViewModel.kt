@@ -9,6 +9,31 @@ import kotlinx.coroutines.flow.asStateFlow
 class ProfileViewModel:ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
-    //TODO: set currentDisplayName to whatever currentName from ProfileUiState.kt is
-    private lateinit var currentDisplayName: String
+    fun onFullNameChanged(fullName: String) {
+        _uiState.value = _uiState.value.copy(fullName = fullName)
+    }
+    fun onUserNameChanged(userName: String) {
+        _uiState.value = _uiState.value.copy(userName = userName)
+    }
+    fun onEmailChanged(email: String) {
+        _uiState.value = _uiState.value.copy(email = email)
+    }
+    fun onGenderChanged(gender: String) {
+        _uiState.value = _uiState.value.copy(gender = gender)
+    }
+    fun onEthnicityChanged(ethnicity: String) {
+        _uiState.value = _uiState.value.copy(ethnicity = ethnicity)
+    }
+    fun onCountryChanged(country: String) {
+        _uiState.value = _uiState.value.copy(country = country)
+    }
+    fun onYearChanged(year: String) {
+        _uiState.value = _uiState.value.copy(year = year)
+    }
+    fun onGradYearChanged(gradYear: String) {
+        _uiState.value = _uiState.value.copy(gradYear = gradYear)
+    }
+    fun editProfile() {
+        TODO("Not yet implemented")
+    }
 }
