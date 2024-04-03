@@ -31,8 +31,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.time.format.DateTimeParseException
 
-class HomeViewModel : ViewModel() {
-//class HomeViewModel(application: Application) : AndroidViewModel(application) {
+//class HomeViewModel : ViewModel() {
+class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // API Keys
     private val calendarId = BuildConfig.CALENDAR_ID
     private val apiKey = BuildConfig.REACT_APP_API_KEY
@@ -82,6 +82,9 @@ class HomeViewModel : ViewModel() {
 
 
     fun toggleNotificationSettings(context: Context, type: EventType, isEnabled: Boolean) {
+        Log.d("HomeViewModel", "Toggled notification settings for $type: $isEnabled")
+
+
         // Update events' notificationEnabled based on type and isEnabled
         val updatedEvents = homeState.value.events.map { event ->
             if (event.eventType == type) event.copy(notificationEnabled = isEnabled) else event
@@ -90,7 +93,10 @@ class HomeViewModel : ViewModel() {
         // Update notificationSettings in the UI state
         val updatedNotificationSettings = homeState.value.notificationSettings.copy(
             gbmNotification = if (type == EventType.GBM) isEnabled else homeState.value.notificationSettings.gbmNotification,
-            // Add similar lines for other event types if applicable
+            infoSessionNotification = if (type == EventType.InfoSession) isEnabled else homeState.value.notificationSettings.infoSessionNotification,
+            workshopNotification = if (type == EventType.Workshop) isEnabled else homeState.value.notificationSettings.workshopNotification,
+            volunteeringNotification = if (type == EventType.Volunteering) isEnabled else homeState.value.notificationSettings.volunteeringNotification,
+            socialNotification = if (type == EventType.Social) isEnabled else homeState.value.notificationSettings.socialNotification
         )
 
         // Apply updated events and notification settings to state
@@ -98,6 +104,8 @@ class HomeViewModel : ViewModel() {
 
         // Handle scheduling or canceling notifications
         handleNotificationsForEvents(context,updatedEvents, type, isEnabled)
+        saveNotificationSettings(context, type, isEnabled)
+
     }
 
     private fun handleNotificationsForEvents(context: Context, events: List<Event>, type: EventType, isEnabled: Boolean) {
@@ -116,9 +124,36 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    // Saving States for reboot
+    private fun saveNotificationSettings(context: Context, eventType: EventType, isEnabled: Boolean){
+        val sharedPreferences = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putBoolean(eventType.name, isEnabled)
+            apply()
+        }
+
+        // Log for debugging
+        Log.d("HomeViewModel", "Saved notification settings for $eventType: $isEnabled")
+    }
+
+    private fun loadNotificationSettings(context: Context) {
+        val sharedPreferences = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
+        val settings = homeState.value.notificationSettings.copy(
+            gbmNotification = sharedPreferences.getBoolean(EventType.GBM.name, false),
+            socialNotification = sharedPreferences.getBoolean(EventType.Social.name, false),
+            workshopNotification = sharedPreferences.getBoolean(EventType.Workshop.name, false),
+            infoSessionNotification = sharedPreferences.getBoolean(EventType.InfoSession.name, false),
+            volunteeringNotification = sharedPreferences.getBoolean(EventType.Volunteering.name, false)
+        )
+        _homeUIState.value = homeState.value.copy(notificationSettings = settings)
+    }
+
     // Init Might Not Need to do this
     init {
         loadEvents()
+        loadNotificationSettings(
+            application.applicationContext
+        )
     }
 
     // Event fetching
