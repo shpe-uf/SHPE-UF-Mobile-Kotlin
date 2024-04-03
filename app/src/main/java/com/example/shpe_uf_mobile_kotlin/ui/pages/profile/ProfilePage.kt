@@ -148,7 +148,6 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
 
 
 
-//TODO: change necessary icons for each profile variable
 //TODO: reformat necessary variables into dropdowns
 
 @OptIn(ExperimentalMaterial3Api::class)
