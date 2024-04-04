@@ -21,7 +21,10 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -120,6 +123,30 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel){
             onValueChange = { registerPage1ViewModel.onLastNameChanged(it) }
         )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Gender",
+            fontSize = 16.sp,
+            color = Color(0xFFFFFFFF),
+            textAlign = TextAlign.Start,
+            modifier = Modifier
+                .padding(start = 72.dp)
+                .fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        GenderDropDownMenu(
+            value = uiState.gender ?: "",
+            isError = uiState.gender != null,
+            errorMessage = uiState.genderErrorMessage ?: "",
+            isExpanded = uiState.isExpanded,
+            onExpandedChange = {registerPage1ViewModel.toggleExpansion()},
+            onValueChange = { registerPage1ViewModel.onGenderChanged(it) }
+        )
+
+
         Spacer(modifier = Modifier.height(36.dp))
 
 
@@ -129,7 +156,6 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel){
             onClick = { registerPage1ViewModel.validateAndRegisterUser()
             })
 
-        // BELOW CREATES TEXT AND SIGN IN LINK TO NAVIGATE TO LOGIN PAGE
 
 
     }
@@ -328,6 +354,82 @@ private fun RegisterLastName(
         }
     )
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GenderDropDownMenu(
+    value: String,
+    isError: Boolean,
+    errorMessage: String,
+    isExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onValueChange: (String) -> Unit,
+){
+    ExposedDropdownMenuBox(
+        expanded = isExpanded,
+        onExpandedChange = {onExpandedChange(it)}
+    ) {
+        TextField(
+            value = value,
+            onValueChange = {},
+            readOnly = true,
+            leadingIcon = {
+                Image(
+                    painter = painterResource(id = R.drawable.gender_equality),
+                    contentDescription = "GenderEqualityIcon",
+                    modifier = Modifier.size(28.dp)
+                )
+            },
+            shape = RoundedCornerShape(10.dp),
+
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth(0.7f)
+                .menuAnchor()
+        )
+        ExposedDropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            DropdownMenuItem(
+                text = {
+                       Text(text = "Male")
+                },
+                onClick = {
+                    onValueChange("Male")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Female")
+                },
+                onClick = {
+                    onValueChange("Female")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Other")
+                },
+                onClick = {
+                    onValueChange("Other")
+                    onExpandedChange(false)
+                }
+            )
+        }
+    }
+}
+
+
+
+
 
 @Composable
 private fun ContinueButton(
