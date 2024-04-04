@@ -22,6 +22,7 @@ class RegisterPage1ViewModel: ViewModel() {
         val isValidEmail = validateEmail(currentState.email ?: "")
         val isValidPassword = validatePassword(currentState.password ?: "")
         val isPasswordConfirmed = validateConfirmPassword(currentState.password ?: "",
+            // ADD IN FOR GENDER
             currentState.confirmPassword ?: "")
 
         //Update state with error messages
@@ -32,6 +33,7 @@ class RegisterPage1ViewModel: ViewModel() {
             emailErrorMessage = isValidEmail,
             passwordErrorMessage = isValidPassword,
             confirmPasswordErrorMessage = isPasswordConfirmed
+            // ADD IN FOR GENDER
         )
 
         //Register user if all validations are passed
@@ -39,7 +41,9 @@ class RegisterPage1ViewModel: ViewModel() {
             && currentState.firstNameErrorMessage == null
             && currentState.lastNameErrorMessage == null
             && currentState.emailErrorMessage == null
-            && currentState.passwordErrorMessage == null) {
+            && currentState.passwordErrorMessage == null
+            // ADD IN FOR GENDER
+            ) {
             registerUser()
         }
 
@@ -100,6 +104,9 @@ class RegisterPage1ViewModel: ViewModel() {
         return if (password == confirmPassword) null else "Passwords must match."
     }
 
+
+    //TODO IMPLEMENT THE VALIDATE GENDER FUNCTION FROM SHPE SERVER
+
     //Functions to update the state for each input field
     fun onUsernameChanged(username: String) {
         _uiState.value = _uiState.value.copy(username = username)
@@ -131,6 +138,16 @@ class RegisterPage1ViewModel: ViewModel() {
 
     fun toggleConfirmPasswordVisibility() {
         _uiState.value = _uiState.value.copy(isConfirmPasswordVisible = !_uiState.value.isConfirmPasswordVisible)
+    }
+
+
+    // New adddtion by me
+    fun onGenderChanged(gender: String){
+        _uiState.value = _uiState.value.copy(gender = gender)
+    }
+
+    fun toggleExpansion(){
+        _uiState.value = _uiState.value.copy(isExpanded = !_uiState.value.isExpanded)
     }
 
 }
