@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -64,7 +72,83 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel){
     ){
         Spacer(modifier = Modifier.height(288.dp))
 
+        Text(
+            text = "Major",
+            fontSize = 16.sp,
+            color = Color(0xFFFFFFFF),
+            textAlign = TextAlign.Start,
+            modifier = Modifier
+                .padding(start = 72.dp)
+                .fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        MajorDropDownMenu(
+            value = uiState.major ?: "",
+            isError = uiState.major != null,
+            errorMessage = uiState.majorErrorMessage ?: "",
+            isExpanded = uiState.isExpanded,
+            onExpandedChange = {registerPage1ViewModel.toggleExpansion()},
+            onValueChange = { registerPage1ViewModel.onMajorChanged(it) }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Year",
+            fontSize = 16.sp,
+            color = Color(0xFFFFFFFF),
+            textAlign = TextAlign.Start,
+            modifier = Modifier
+                .padding(start = 72.dp)
+                .fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        YearDropDownMenu(
+            value = uiState.year ?: "",
+            isError = uiState.year != null,
+            errorMessage = uiState.yearErrorMessage ?: "",
+            isExpanded = uiState.isExpanded,
+            onExpandedChange = {registerPage1ViewModel.toggleExpansion()},
+            onValueChange = { registerPage1ViewModel.onYearChanged(it) }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Graduation Year",
+            fontSize = 16.sp,
+            color = Color(0xFFFFFFFF),
+            textAlign = TextAlign.Start,
+            modifier = Modifier
+                .padding(start = 72.dp)
+                .fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        GraduationYearDropDownMenu(
+            value = uiState.graduationYear ?: "",
+            isError = uiState.graduationYear != null,
+            errorMessage = uiState.graduationYearErrorMessage ?: "",
+            isExpanded = uiState.isExpanded,
+            onExpandedChange = {registerPage1ViewModel.toggleExpansion()},
+            onValueChange = { registerPage1ViewModel.onGraduationYearChanged(it) }
+        )
+
+        Spacer(modifier = Modifier.height(170.dp))
+
+        CompleteRegistrationButton(
+//            onClick = { // TODO call GraplQL mutation so that regisstration detailes are pushed to the database
+            onClick = { registerPage1ViewModel.validateAndRegisterUser()
+            })
+
     }
+
+
 }
 
 @Preview
@@ -158,6 +242,283 @@ fun RegistrationPage3AcademicInfoText(modifier: Modifier = Modifier){
                     modifier = Modifier.size(50.dp)
                 )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MajorDropDownMenu(
+    value: String,
+    isError: Boolean,
+    errorMessage: String,
+    isExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onValueChange: (String) -> Unit,
+){
+    ExposedDropdownMenuBox(
+        expanded = isExpanded,
+        onExpandedChange = {onExpandedChange(it)}
+    ) {
+        TextField(
+            value = value,
+            onValueChange = {},
+            readOnly = true,
+            leadingIcon = {
+                Image(
+                    painter = painterResource(id = R.drawable.majoricon),
+                    contentDescription = "MajorIcon",
+                    modifier = Modifier.size(24.dp)
+                )
+            },
+            shape = RoundedCornerShape(10.dp),
+
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth(0.7f)
+                .menuAnchor()
+        )
+        ExposedDropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Computer Science")
+                },
+                onClick = {
+                    onValueChange("Computer Science")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Mechanical Engineering")
+                },
+                onClick = {
+                    onValueChange("Mechanical Engineering")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Aerospace Engineering")
+                },
+                onClick = {
+                    onValueChange("Aerospace Engineering")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Electrical Engineering")
+                },
+                onClick = {
+                    onValueChange("Electrical Engineering")
+                    onExpandedChange(false)
+                }
+            )
+
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun YearDropDownMenu(
+    value: String,
+    isError: Boolean,
+    errorMessage: String,
+    isExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onValueChange: (String) -> Unit,
+){
+    ExposedDropdownMenuBox(
+        expanded = isExpanded,
+        onExpandedChange = {onExpandedChange(it)}
+    ) {
+        TextField(
+            value = value,
+            onValueChange = {},
+            readOnly = true,
+            leadingIcon = {
+                Image(
+                    painter = painterResource(id = R.drawable.yearicon),
+                    contentDescription = "YearIcon",
+                    modifier = Modifier.size(32.dp)
+                )
+            },
+            shape = RoundedCornerShape(10.dp),
+
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth(0.7f)
+                .menuAnchor()
+        )
+        ExposedDropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Freshman")
+                },
+                onClick = {
+                    onValueChange("Freshman")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Sophomore")
+                },
+                onClick = {
+                    onValueChange("Sophomore")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Junior")
+                },
+                onClick = {
+                    onValueChange("Junior")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Senior")
+                },
+                onClick = {
+                    onValueChange("Senior")
+                    onExpandedChange(false)
+                }
+            )
+
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GraduationYearDropDownMenu(
+    value: String,
+    isError: Boolean,
+    errorMessage: String,
+    isExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onValueChange: (String) -> Unit,
+){
+    ExposedDropdownMenuBox(
+        expanded = isExpanded,
+        onExpandedChange = {onExpandedChange(it)}
+    ) {
+        TextField(
+            value = value,
+            onValueChange = {},
+            readOnly = true,
+            leadingIcon = {
+                Image(
+                    painter = painterResource(id = R.drawable.graduationcapicon),
+                    contentDescription = "GraduationCapIcon",
+                    modifier = Modifier.size(26.dp)
+                )
+            },
+            shape = RoundedCornerShape(10.dp),
+
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth(0.7f)
+                .menuAnchor()
+        )
+        ExposedDropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            DropdownMenuItem(
+                text = {
+                    Text(text = "2024")
+                },
+                onClick = {
+                    onValueChange("2024")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "2025")
+                },
+                onClick = {
+                    onValueChange("2025")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "2026")
+                },
+                onClick = {
+                    onValueChange("2026")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "2027")
+                },
+                onClick = {
+                    onValueChange("2027")
+                    onExpandedChange(false)
+                }
+            )
+
+        }
+    }
+}
+
+@Composable
+private fun CompleteRegistrationButton(
+    onClick: () -> Unit) {
+
+    Button(
+        modifier = Modifier
+            .width(351.dp),
+        onClick = {
+            onClick()
+        },
+        contentPadding = PaddingValues(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent
+        ),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color(0xFFD25917),
+
+                    )
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Complete Registration",
+                fontSize = 20.sp,
+                color = Color.White
+            )
         }
     }
 }

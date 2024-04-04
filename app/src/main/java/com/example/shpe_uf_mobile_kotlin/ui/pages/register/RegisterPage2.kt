@@ -2,7 +2,6 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,9 +26,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -37,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -146,8 +142,54 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel){
             onValueChange = { registerPage1ViewModel.onGenderChanged(it) }
         )
 
+        Spacer(modifier = Modifier.height(12.dp))
 
-        Spacer(modifier = Modifier.height(36.dp))
+        Text(
+            text = "Ethnicity",
+            fontSize = 16.sp,
+            color = Color(0xFFFFFFFF),
+            textAlign = TextAlign.Start,
+            modifier = Modifier
+                .padding(start = 72.dp)
+                .fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        EthnicityDropDownMenu(
+            value = uiState.ethnicity ?: "",
+            isError = uiState.ethnicity != null,
+            errorMessage = uiState.ethnicityErrorMessage ?: "",
+            isExpanded = uiState.isExpanded,
+            onExpandedChange = {registerPage1ViewModel.toggleExpansion()},
+            onValueChange = { registerPage1ViewModel.onEthnicityChanged(it) }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Country of Origin",
+            fontSize = 16.sp,
+            color = Color(0xFFFFFFFF),
+            textAlign = TextAlign.Start,
+            modifier = Modifier
+                .padding(start = 72.dp)
+                .fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        CountryOriginDropDownMenu(
+            value = uiState.countryOrigin ?: "",
+            isError = uiState.countryOrigin != null,
+            errorMessage = uiState.countryOriginErrorMessage ?: "",
+            isExpanded = uiState.isExpanded,
+            onExpandedChange = {registerPage1ViewModel.toggleExpansion()},
+            onValueChange = { registerPage1ViewModel.onCountryOriginChanged(it) }
+        )
+
+
+        Spacer(modifier = Modifier.height(40.dp))
 
 
         ContinueButton(
@@ -155,9 +197,6 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel){
               // This on click should be used for very final view when slicking complete registration button
             onClick = { registerPage1ViewModel.validateAndRegisterUser()
             })
-
-
-
     }
 }
 
@@ -249,8 +288,8 @@ fun RegistrationPage2PersonalDetailsText(modifier: Modifier = Modifier){
 
             Row{
                 Image(
-                    painter = painterResource(id = R.drawable.userimage),
-                    contentDescription = "userImage",
+                    painter = painterResource(id = R.drawable.personaldetailsicon),
+                    contentDescription = "PersonalDetailsIcon",
                     modifier = Modifier.size(50.dp)
                 )
             }
@@ -286,9 +325,10 @@ private fun RegisterFirstName(
         isError = isError,
 
         leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.AccountCircle,
-                contentDescription = null
+            Image(
+                painter = painterResource(id = R.drawable.usericon),
+                contentDescription = "UserIcon",
+                modifier = Modifier.size(24.dp)
             )
         },
         shape = RoundedCornerShape(10.dp),
@@ -330,9 +370,11 @@ private fun RegisterLastName(
         onValueChange = {onValueChange(it)},
         isError = isError,
         leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.AccountCircle,
-                contentDescription = null)
+            Image(
+                painter = painterResource(id = R.drawable.usericon),
+                contentDescription = "UserIcon",
+                modifier = Modifier.size(24.dp)
+            )
         },
         shape = RoundedCornerShape(10.dp),
         singleLine = true,
@@ -423,6 +465,205 @@ private fun GenderDropDownMenu(
                     onExpandedChange(false)
                 }
             )
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EthnicityDropDownMenu(
+    value: String,
+    isError: Boolean,
+    errorMessage: String,
+    isExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onValueChange: (String) -> Unit,
+){
+    ExposedDropdownMenuBox(
+        expanded = isExpanded,
+        onExpandedChange = {onExpandedChange(it)}
+    ) {
+        TextField(
+            value = value,
+            onValueChange = {},
+            readOnly = true,
+            leadingIcon = {
+                Image(
+                    painter = painterResource(id = R.drawable.globeicon),
+                    contentDescription = "GlobeIcon",
+                    modifier = Modifier.size(24.dp)
+                )
+            },
+            shape = RoundedCornerShape(10.dp),
+
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth(0.7f)
+                .menuAnchor()
+        )
+        ExposedDropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            DropdownMenuItem(
+                text = {
+                    Text(text = "American Indian or Alaska Native")
+                },
+                onClick = {
+                    onValueChange("American Indian or Alaska Native")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Asian")
+                },
+                onClick = {
+                    onValueChange("Asian")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Black or African American")
+                },
+                onClick = {
+                    onValueChange("Other")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Hispanic/Latino")
+                },
+                onClick = {
+                    onValueChange("Hispanic/Latino")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Native Hawaiian or Other Pacific Islander")
+                },
+                onClick = {
+                    onValueChange("Native Hawaiian or Other Pacific Islander")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "White")
+                },
+                onClick = {
+                    onValueChange("White")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Two or more ethnicities")
+                },
+                onClick = {
+                    onValueChange("Two or more ethnicities")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Prefer not to answer")
+                },
+                onClick = {
+                    onValueChange("Prefer not to answer")
+                    onExpandedChange(false)
+                }
+            )
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CountryOriginDropDownMenu(
+    value: String,
+    isError: Boolean,
+    errorMessage: String,
+    isExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onValueChange: (String) -> Unit,
+){
+    ExposedDropdownMenuBox(
+        expanded = isExpanded,
+        onExpandedChange = {onExpandedChange(it)}
+    ) {
+        TextField(
+            value = value,
+            onValueChange = {},
+            readOnly = true,
+            leadingIcon = {
+                Image(
+                    painter = painterResource(id = R.drawable.globeicon),
+                    contentDescription = "GlobeIcon",
+                    modifier = Modifier.size(24.dp)
+                )
+            },
+            shape = RoundedCornerShape(10.dp),
+
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth(0.7f)
+                .menuAnchor()
+        )
+        ExposedDropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            DropdownMenuItem(
+                text = {
+                    Text(text = "United States")
+                },
+                onClick = {
+                    onValueChange("United States")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "India")
+                },
+                onClick = {
+                    onValueChange("India")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Canada")
+                },
+                onClick = {
+                    onValueChange("Canada")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Australia")
+                },
+                onClick = {
+                    onValueChange("Australia")
+                    onExpandedChange(false)
+                }
+            )
+
         }
     }
 }
