@@ -1,12 +1,14 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.register
 
 data class RegisterPage1State (
+    val username: String? = null,
     val firstName: String? = null,
     val lastName: String? = null,
     val email: String? = null,
     val password: String? = null,
     val confirmPassword: String? = null,
 
+    val usernameErrorMessage: String? = null,
     val emailErrorMessage: String? = null,
     val firstNameErrorMessage: String? = null,
     val lastNameErrorMessage: String? = null,
