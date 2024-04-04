@@ -1,6 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.register
 
 import android.graphics.Paint.Align
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -116,7 +118,8 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel){
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        RegisterEmail(value = uiState.email ?: "",
+        RegisterEmail(
+            value = uiState.email ?: "",
             isError = uiState.emailErrorMessage != null,
             errorMessage = uiState.emailErrorMessage ?: "",
             onValueChange = { registerPage1ViewModel.onEmailChanged(it) })
@@ -135,11 +138,11 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel){
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        RegisterFirstName(
-            value = uiState.firstName ?: "",
-            isError = uiState.firstNameErrorMessage != null,
-            errorMessage = uiState.firstNameErrorMessage ?: "",
-            onValueChange = { registerPage1ViewModel.onFirstNameChanged(it) }
+        RegisterUsername(
+            value = uiState.username ?: "",
+            isError = uiState.usernameErrorMessage != null,
+            errorMessage = uiState.usernameErrorMessage ?: "",
+            onValueChange = { registerPage1ViewModel.onUsernameChanged(it) }
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -188,7 +191,7 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel){
             onToggleConfirmPasswordVisibility = { registerPage1ViewModel.toggleConfirmPasswordVisibility() }
         )
 
-        Spacer(modifier = Modifier.height(88.dp))
+        Spacer(modifier = Modifier.height(64.dp))
 
         CreateAccountButton(
             onClick = { registerPage1ViewModel.validateAndRegisterUser() }
@@ -226,6 +229,10 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel){
 }
 
 
+/*
+RegistrationPageBaseLayer is a composable made up of the split color blue and orange
+with the gator image, so it can be repurposed in the other two views for registration page
+ */
 
 @Preview
 @Composable
@@ -247,6 +254,14 @@ fun RegistrationPageBaseLayer(modifier: Modifier = Modifier) {
                 .height(orangeHeight)
                 .background(Color(0xFFD25917))
         )
+
+        Image(
+            painter = painterResource(id = R.drawable.gatordark),
+            contentDescription = "SHPE GATOR DARK",
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -256,17 +271,6 @@ fun RegistrationPageBaseLayer(modifier: Modifier = Modifier) {
         )
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.gatordarkcropped),
-            contentDescription = "gator"
-        )
-
-    }
 }
 
 
@@ -370,16 +374,17 @@ fun RegistrationPage1WelcomeText(modifier: Modifier = Modifier){
 
 
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RegisterFirstName(
+private fun RegisterUsername(
 
-    /* Below are parameters for the function RegisterFirstName, which is responsible for rendering
-    a text field to allow users to register their first name for an account. value is used for the
-    current value of th email field, isError is used as a bool to indicated whether a user has made
-    an error while filling out the first name field, errorMessage is used to store the error
+    /* Below are parameters for the function RegisterUsername, which is responsible for rendering
+    a text field to allow users to register their username for an account. value is used for the
+    current value of the username, isError is used as a bool to indicated whether a user has made
+    an error while filling out the username field, errorMessage is used to store the error
     message to be displayed if there is an error, and onValueChange is a callback function invoked
-    when the value of the first name field changes
+    when the value of the username field changes
      */
 
     value: String,
@@ -390,7 +395,7 @@ private fun RegisterFirstName(
 
 
     TextField(modifier = Modifier
-        .height(42.dp)
+        .height(50.dp)
         .fillMaxWidth(0.7f),
         value = value,
         onValueChange = {onValueChange(it)},
@@ -435,7 +440,7 @@ private fun RegisterEmail(
 ) {
     TextField(
         modifier = Modifier
-            .height(42.dp)
+            .height(50.dp)
             .fillMaxWidth(0.7f),
         value = value,
         onValueChange = {onValueChange(it)},
@@ -463,7 +468,9 @@ private fun RegisterEmail(
             if (isError)
                 Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
         }
+
     )
+//    Log.d(errorMessage)
 }
 
 
@@ -479,7 +486,7 @@ private fun RegisterPassword(
 ) {
     TextField(
         modifier = Modifier
-            .height(42.dp)
+            .height(50.dp)
             .fillMaxWidth(0.7f),
         value = value,
         onValueChange = { onValueChange(it) },
@@ -534,7 +541,7 @@ private fun RegisterConfirmPassword(
 
     TextField(
         modifier = Modifier
-            .height(42.dp)
+            .height(50.dp)
             .fillMaxWidth(0.7f),
         value = value,
         onValueChange = { onValueChange(it) },

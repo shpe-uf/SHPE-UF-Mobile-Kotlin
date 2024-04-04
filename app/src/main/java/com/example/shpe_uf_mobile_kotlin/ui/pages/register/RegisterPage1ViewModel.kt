@@ -16,6 +16,7 @@ class RegisterPage1ViewModel: ViewModel() {
         val currentState = _uiState.value
 
         //Validate user input fields
+        val isValidUsername = validateUsername(currentState.username ?: "")
         val isValidFirstName = validateFirstName(currentState.firstName ?: "")
         val isValidLastName = validateLastName(currentState.lastName ?: "")
         val isValidEmail = validateEmail(currentState.email ?: "")
@@ -25,6 +26,7 @@ class RegisterPage1ViewModel: ViewModel() {
 
         //Update state with error messages
         _uiState.value = currentState.copy(
+            usernameErrorMessage = isValidUsername,
             firstNameErrorMessage = isValidFirstName,
             lastNameErrorMessage = isValidLastName,
             emailErrorMessage = isValidEmail,
@@ -33,7 +35,8 @@ class RegisterPage1ViewModel: ViewModel() {
         )
 
         //Register user if all validations are passed
-        if (currentState.firstNameErrorMessage == null
+        if (currentState.usernameErrorMessage == null
+            && currentState.firstNameErrorMessage == null
             && currentState.lastNameErrorMessage == null
             && currentState.emailErrorMessage == null
             && currentState.passwordErrorMessage == null) {
@@ -50,6 +53,14 @@ class RegisterPage1ViewModel: ViewModel() {
     }
 
     // Function to validate user inputs
+
+    private fun validateUsername(username: String): String? {
+        if (username.isBlank()) return "Username is required."
+
+        val usernameValidator = "^(?=.{6,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$".toRegex()
+        return if (username.matches(usernameValidator)) null else "Username must be at least 6 characters, max 20. No special characters, except for periods (.) and underscores (_)."
+    }
+
     private fun validateFirstName(name: String): String? {
         if (name.isBlank()) return "First name is required."
 
@@ -90,6 +101,10 @@ class RegisterPage1ViewModel: ViewModel() {
     }
 
     //Functions to update the state for each input field
+    fun onUsernameChanged(username: String) {
+        _uiState.value = _uiState.value.copy(username = username)
+    }
+
     fun onFirstNameChanged(firstName: String) {
         _uiState.value = _uiState.value.copy(firstName = firstName)
     }
