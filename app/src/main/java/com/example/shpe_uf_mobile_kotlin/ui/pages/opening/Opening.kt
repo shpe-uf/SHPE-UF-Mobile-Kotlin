@@ -1,5 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.opening
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -9,13 +10,23 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,27 +51,6 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.delay
-
-//@OptIn(ExperimentalFoundationApi::class, ExperimentalPagerApi::class)
-//@Composable
-//fun AutoSlidingCarousel(
-//    modifier: Modifier = Modifier,
-//    pagerState: PagerState = remember { PagerState() },
-//    itemContent: @Composable (index: Int) -> Unit,
-//){
-//    LaunchedEffect(pagerState.currentPage){
-//        delay(3000L)
-//        pagerState.animateScrollToPage((pagerState.currentPage + 1) % 8)
-//    }
-//
-//    Box(
-//        modifier = modifier.fillMaxWidth(),
-//    ){
-//        HorizontalPager(count = 8, state = pagerState){
-//            page -> itemContent(page)
-//        }
-//    }
-//}
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Preview
@@ -115,17 +106,10 @@ fun OpeningPage() {
         HorizontalPager(
             count = images.size,
             state = pagerState,
-            userScrollEnabled = false,
+            userScrollEnabled = false, // Prevents user from scrolling on the page.
             modifier = Modifier.fillMaxSize()
         ) { currentPage ->
-            Text(
-                text = subText[currentPage],
-                style = TextStyle(
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight(700),
-                    color = Color(0xFFB0B0B0),
-                )
-            )
+            // Text, image will change based on the current page.
             Image(
                 painter = painterResource(id = images[currentPage]),
                 contentDescription = "opening image",
@@ -133,14 +117,54 @@ fun OpeningPage() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(),
-                alpha = 0.6f
+                alpha = 0.5f
             )
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = subText[currentPage],
+                    style = TextStyle(
+                        fontSize = 30.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight(700),
+                        color = Color(0xFFB0B0B0),
+                    ),
+                    modifier = Modifier
+                        .offset(y = 80.dp)
+                        .height(40.dp)
+                )
+            }
+            Box(modifier = Modifier
+                .fillMaxSize()){
+                EllipseBar()
+            }
         }
     }
-// Shpe Logo
+
+    // SHPE Text
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "SHPE UF",
+            style = TextStyle(
+                fontSize = 48.sp,
+                fontWeight = FontWeight(700),
+                color = White
+            ),
+            modifier = Modifier
+                .offset(y = 21.dp)
+                .width(203.dp)
+                .height(58.dp)
+        )
+    }
+    Column(
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
@@ -150,38 +174,56 @@ fun OpeningPage() {
             modifier = Modifier
                 .width(250.dp)
                 .height(233.dp)
+                .offset(y = 150.dp)
         )
-        Text(
-            text = "SHPE UF",
-            style = TextStyle(
-                fontSize = 48.sp,
-                fontWeight = FontWeight(700),
-                color = White
-            )
-        )
-//        HorizontalPager(
-//            count = subText.size,
-//            state = pagerState,
-//            userScrollEnabled = false,
-//        ) { currentPage ->
-//
-//        }
-
     }
 
-//    Box(
-//        modifier = Modifier.fillMaxSize()
-//    ){
-//        Image(
-//            painter = painterResource(id = R.drawable.dots_1),
-//            contentDescription = "dots",
-//            contentScale = ContentScale.None,
-//            modifier = Modifier
-//                .width(101.4186.dp)
-//                .height(14.dp)
-//                .scale(2.25f)
-//                .align(Alignment.BottomCenter)
-//                .offset(y = (-10).dp)
-//        )
-//    }
+    GettingStartedBtn {
+        Log.d("Button", "Pressed!")
+    }
+
+}
+
+@Composable
+fun GettingStartedBtn(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+
+        Button(
+            onClick = { onClick() },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF011F35)),
+            modifier = Modifier
+                .width(350.dp)
+                .height(69.dp)
+                .align(Alignment.BottomCenter)
+                .offset(y=(-66).dp),
+            shape = RoundedCornerShape(size = 20.dp)
+
+
+        ) {
+            Text(
+                text = "Get Started",
+                style = TextStyle(
+                    fontSize = 25.sp,
+                    //fontFamily = FontFamily(Font(R.font.univers lt std)),
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFFFFFFF),
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun EllipseBar(){
+    Row(modifier = Modifier.fillMaxWidth().wrapContentSize(Alignment.Center)){
+        Box(
+            modifier = Modifier
+                .width(14.4186.dp)
+                .height(14.dp)
+                .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 14.4186.dp))
+        )
+    }
 }
