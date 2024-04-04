@@ -9,10 +9,20 @@ data class RegisterPage1State (
     val confirmPassword: String? = null,
 
 
-    // New addition by me for gender dropdown menu
+    // New addition by me for gender dropdown menus
     val gender: String? = null,
     val genderErrorMessage: String? = null,
     val isExpanded: Boolean = false,
+    val ethnicity: String? = null,
+    val ethnicityErrorMessage: String? = null,
+    val countryOrigin: String? = null,
+    val countryOriginErrorMessage: String? = null,
+    val major: String? = null,
+    val majorErrorMessage: String? = null,
+    val year: String? = null,
+    val yearErrorMessage: String? = null,
+    val graduationYear: String? = null,
+    val graduationYearErrorMessage: String? = null,
 
 
 

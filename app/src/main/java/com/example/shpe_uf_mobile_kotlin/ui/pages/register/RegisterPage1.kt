@@ -402,9 +402,10 @@ private fun RegisterUsername(
         isError = isError,
 
         leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.AccountCircle,
-                contentDescription = null
+            Image(
+                painter = painterResource(id = R.drawable.usericon),
+                contentDescription = "UserIcon",
+                modifier = Modifier.size(24.dp)
             )
         },
         shape = RoundedCornerShape(10.dp),
@@ -446,9 +447,11 @@ private fun RegisterEmail(
         onValueChange = {onValueChange(it)},
         isError = isError,
         leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.Email,
-                contentDescription = null)
+            Image(
+                painter = painterResource(id = R.drawable.emailicon),
+                contentDescription = "EmailIcon",
+                modifier = Modifier.size(24.dp)
+            )
         },
         shape = RoundedCornerShape(10.dp),
         singleLine = true,
@@ -492,9 +495,10 @@ private fun RegisterPassword(
         onValueChange = { onValueChange(it) },
         isError = isError,
         leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.Lock,
-                contentDescription = null
+            Image(
+                painter = painterResource(id = R.drawable.passwordicon),
+                contentDescription = "PasswordIcon",
+                modifier = Modifier.size(24.dp)
             )
         },
         visualTransformation =
@@ -547,9 +551,10 @@ private fun RegisterConfirmPassword(
         onValueChange = { onValueChange(it) },
         isError = isError,
         leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.Lock,
-                contentDescription = null
+            Image(
+                painter = painterResource(id = R.drawable.passwordicon),
+                contentDescription = "PasswordIcon",
+                modifier = Modifier.size(24.dp)
             )
         },
         visualTransformation =

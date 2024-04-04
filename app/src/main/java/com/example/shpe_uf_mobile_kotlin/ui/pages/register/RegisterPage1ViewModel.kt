@@ -22,7 +22,7 @@ class RegisterPage1ViewModel: ViewModel() {
         val isValidEmail = validateEmail(currentState.email ?: "")
         val isValidPassword = validatePassword(currentState.password ?: "")
         val isPasswordConfirmed = validateConfirmPassword(currentState.password ?: "",
-            // ADD IN FOR GENDER
+            // ADD IN FOR GENDER and other dropdown menus items
             currentState.confirmPassword ?: "")
 
         //Update state with error messages
@@ -33,7 +33,7 @@ class RegisterPage1ViewModel: ViewModel() {
             emailErrorMessage = isValidEmail,
             passwordErrorMessage = isValidPassword,
             confirmPasswordErrorMessage = isPasswordConfirmed
-            // ADD IN FOR GENDER
+            // ADD IN FOR GENDER and other Dropdown menus
         )
 
         //Register user if all validations are passed
@@ -42,7 +42,7 @@ class RegisterPage1ViewModel: ViewModel() {
             && currentState.lastNameErrorMessage == null
             && currentState.emailErrorMessage == null
             && currentState.passwordErrorMessage == null
-            // ADD IN FOR GENDER
+            // ADD IN FOR GENDER and other dropdown menus
             ) {
             registerUser()
         }
@@ -105,7 +105,7 @@ class RegisterPage1ViewModel: ViewModel() {
     }
 
 
-    //TODO IMPLEMENT THE VALIDATE GENDER FUNCTION FROM SHPE SERVER
+    //TODO IMPLEMENT THE VALIDATE GENDER FUNCTION FROM SHPE SERVER and others for all dropdown menus
 
     //Functions to update the state for each input field
     fun onUsernameChanged(username: String) {
@@ -148,6 +148,26 @@ class RegisterPage1ViewModel: ViewModel() {
 
     fun toggleExpansion(){
         _uiState.value = _uiState.value.copy(isExpanded = !_uiState.value.isExpanded)
+    }
+
+    fun onEthnicityChanged(ethnicity: String){
+        _uiState.value = _uiState.value.copy(ethnicity = ethnicity)
+    }
+
+    fun onCountryOriginChanged(countryOrigin: String){
+        _uiState.value = _uiState.value.copy(countryOrigin = countryOrigin)
+    }
+
+    fun onMajorChanged(major: String){
+        _uiState.value = _uiState.value.copy(major = major)
+    }
+
+    fun onYearChanged(year: String){
+        _uiState.value = _uiState.value.copy(year = year)
+    }
+
+    fun onGraduationYearChanged(graduationYear: String){
+        _uiState.value = _uiState.value.copy(graduationYear = graduationYear)
     }
 
 }
