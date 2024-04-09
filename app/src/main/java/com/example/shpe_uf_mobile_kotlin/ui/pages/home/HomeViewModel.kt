@@ -24,6 +24,8 @@ import java.time.ZonedDateTime
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
 import com.example.shpe_uf_mobile_kotlin.ui.theme.*
 import com.example.shpe_uf_mobile_kotlin.util.NotificationsUtil
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +34,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.time.format.DateTimeParseException
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(private val notificationRepo: NotificationRepository) : ViewModel() {
 //class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // API Keys
     private val calendarId = BuildConfig.CALENDAR_ID
@@ -120,22 +122,19 @@ class HomeViewModel : ViewModel() {
         // Log for debugging
         Log.d("HomeViewModel", "Saved notification settings for $eventType: $isEnabled")
     }
-
-    fun loadNotificationSettings(context: Context) {
-        val sharedPreferences = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
-        val settings = homeState.value.notificationSettings.copy(
-            gbmNotification = sharedPreferences.getBoolean(EventType.GBM.name, false),
-            socialNotification = sharedPreferences.getBoolean(EventType.Social.name, false),
-            workshopNotification = sharedPreferences.getBoolean(EventType.Workshop.name, false),
-            infoSessionNotification = sharedPreferences.getBoolean(EventType.InfoSession.name, false),
-            volunteeringNotification = sharedPreferences.getBoolean(EventType.Volunteering.name, false)
-        )
-        _homeUIState.value = homeState.value.copy(notificationSettings = settings)
+    
+    private fun loadNotificationsSettings() {
+        viewModelScope.launch {
+            val settings = notificationRepo.loadNotificationSettings()
+            _homeUIState.update { currentState ->
+                currentState.copy(notificationSettings = settings)
+            }
+        }
     }
 
     // Init Might Not Need to do this
     init {
-        val currentMonth = YearMonth.now()
+        loadNotificationsSettings()
        // fetchEventsForMonth(currentMonth.minusMonths(1)) // Previous month
     }
 
@@ -370,5 +369,15 @@ class HomeViewModel : ViewModel() {
     data class CalendarEventsResponse(
         val items: List<Event>
     )
+}
+
+class HomeViewModelFactory(private val notificationRepo: NotificationRepository) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return HomeViewModel(notificationRepo) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
 }
 

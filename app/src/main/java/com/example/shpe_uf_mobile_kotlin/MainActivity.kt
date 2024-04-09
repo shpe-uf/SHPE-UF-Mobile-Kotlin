@@ -10,6 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelProvider
+import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
+import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.NewHomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import com.example.shpe_uf_mobile_kotlin.ui.theme.*
@@ -19,12 +23,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SHPEUFMobileKotlinTheme {
+                val viewModelFactory = HomeViewModelFactory(NotificationRepository(applicationContext))
+                val homeViewModel = ViewModelProvider(this, viewModelFactory).get(HomeViewModel::class.java)
+
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    NewHomeScreen()
+                    NewHomeScreen(viewModel = homeViewModel)
                 }
             }
         }
