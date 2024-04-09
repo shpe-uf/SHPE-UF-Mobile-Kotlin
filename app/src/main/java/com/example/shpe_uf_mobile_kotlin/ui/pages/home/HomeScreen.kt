@@ -2,10 +2,20 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.home
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.DraggableState
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +23,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,9 +31,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -31,6 +48,8 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.rememberSwipeableState
+import androidx.compose.material.swipeable
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -44,19 +63,24 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -67,9 +91,13 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.abs
 
 
 // create sample card items
@@ -634,11 +662,12 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                 contentDescription = "GBM Notifications ON", modifier = Modifier
                                     .width(92.dp)
                                     .height(90.dp)
-                                    .clickable { viewModel.toggleNotificationSettings(
-                                        context,
-                                        HomeViewModel.EventType.GBM,
-                                        !viewModel.homeState.value.notificationSettings.gbmNotification
-                                    )
+                                    .clickable {
+                                        viewModel.toggleNotificationSettings(
+                                            context,
+                                            HomeViewModel.EventType.GBM,
+                                            !viewModel.homeState.value.notificationSettings.gbmNotification
+                                        )
                                     }
                             )
                         }
@@ -648,11 +677,12 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                 contentDescription = "GBM Notifications ON", modifier = Modifier
                                     .width(92.dp)
                                     .height(90.dp)
-                                    .clickable { viewModel.toggleNotificationSettings(
-                                        context,
-                                        HomeViewModel.EventType.GBM,
-                                        !viewModel.homeState.value.notificationSettings.gbmNotification
-                                    )
+                                    .clickable {
+                                        viewModel.toggleNotificationSettings(
+                                            context,
+                                            HomeViewModel.EventType.GBM,
+                                            !viewModel.homeState.value.notificationSettings.gbmNotification
+                                        )
                                     }
                             )
                         }
@@ -679,11 +709,12 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                 contentDescription = "Info Session Notifications ON", modifier = Modifier
                                     .width(92.dp)
                                     .height(90.dp)
-                                    .clickable { viewModel.toggleNotificationSettings(
-                                        context,
-                                        HomeViewModel.EventType.InfoSession,
-                                        !viewModel.homeState.value.notificationSettings.infoSessionNotification
-                                    )
+                                    .clickable {
+                                        viewModel.toggleNotificationSettings(
+                                            context,
+                                            HomeViewModel.EventType.InfoSession,
+                                            !viewModel.homeState.value.notificationSettings.infoSessionNotification
+                                        )
                                     }
                             )
                         }
@@ -693,11 +724,12 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                 contentDescription = "Info Session Notifications OFF", modifier = Modifier
                                     .width(92.dp)
                                     .height(90.dp)
-                                    .clickable { viewModel.toggleNotificationSettings(
-                                        context,
-                                        HomeViewModel.EventType.InfoSession,
-                                        !viewModel.homeState.value.notificationSettings.infoSessionNotification
-                                    )
+                                    .clickable {
+                                        viewModel.toggleNotificationSettings(
+                                            context,
+                                            HomeViewModel.EventType.InfoSession,
+                                            !viewModel.homeState.value.notificationSettings.infoSessionNotification
+                                        )
                                     }
                             )
                         }
@@ -725,11 +757,12 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                 contentDescription = "Info Session Notifications ON", modifier = Modifier
                                     .width(92.dp)
                                     .height(90.dp)
-                                    .clickable { viewModel.toggleNotificationSettings(
-                                        context,
-                                        HomeViewModel.EventType.Workshop,
-                                        !viewModel.homeState.value.notificationSettings.workshopNotification
-                                    )
+                                    .clickable {
+                                        viewModel.toggleNotificationSettings(
+                                            context,
+                                            HomeViewModel.EventType.Workshop,
+                                            !viewModel.homeState.value.notificationSettings.workshopNotification
+                                        )
                                     }
                             )
                         }
@@ -739,11 +772,12 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                 contentDescription = "Workshop Notifications OFF", modifier = Modifier
                                     .width(92.dp)
                                     .height(90.dp)
-                                    .clickable { viewModel.toggleNotificationSettings(
-                                        context,
-                                        HomeViewModel.EventType.Workshop,
-                                        !viewModel.homeState.value.notificationSettings.workshopNotification
-                                    )
+                                    .clickable {
+                                        viewModel.toggleNotificationSettings(
+                                            context,
+                                            HomeViewModel.EventType.Workshop,
+                                            !viewModel.homeState.value.notificationSettings.workshopNotification
+                                        )
                                     }
                             )
                         }
@@ -774,11 +808,12 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                 contentDescription = "Volunteer Notifications ON", modifier = Modifier
                                     .width(92.dp)
                                     .height(90.dp)
-                                    .clickable { viewModel.toggleNotificationSettings(
-                                        context,
-                                        HomeViewModel.EventType.Volunteering,
-                                        !viewModel.homeState.value.notificationSettings.volunteeringNotification
-                                    )
+                                    .clickable {
+                                        viewModel.toggleNotificationSettings(
+                                            context,
+                                            HomeViewModel.EventType.Volunteering,
+                                            !viewModel.homeState.value.notificationSettings.volunteeringNotification
+                                        )
                                     }
                             )
                         }
@@ -788,11 +823,12 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                 contentDescription = "Volunteer Notifications OFF", modifier = Modifier
                                     .width(92.dp)
                                     .height(90.dp)
-                                    .clickable { viewModel.toggleNotificationSettings(
-                                        context,
-                                        HomeViewModel.EventType.Volunteering,
-                                        !viewModel.homeState.value.notificationSettings.volunteeringNotification
-                                    )
+                                    .clickable {
+                                        viewModel.toggleNotificationSettings(
+                                            context,
+                                            HomeViewModel.EventType.Volunteering,
+                                            !viewModel.homeState.value.notificationSettings.volunteeringNotification
+                                        )
                                     }
                             )
                         }
@@ -1128,6 +1164,7 @@ fun EventCardFeed(events: List<HomeViewModel.Event>) {
         contentPadding = PaddingValues(10.dp),
         modifier = Modifier
             .background(Variables.blue)
+            .fillMaxSize()
 
     ) {
         items(daysInMonth) { day ->
@@ -1139,6 +1176,55 @@ fun EventCardFeed(events: List<HomeViewModel.Event>) {
             }
         }
     }
+}
+
+@Composable
+fun EventCardFeedSimple(viewModel: HomeViewModel) {
+    val state by viewModel.homeState.collectAsState()
+    val events = state.events
+    // Dynamically calculate days based on loaded months
+    val daysInMonth = viewModel.getDaysInMonthArray(state.loadedMonths)
+
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+    LazyColumn(
+        state = listState,
+        contentPadding = PaddingValues(10.dp),
+        modifier = Modifier
+            .background(Variables.blue)
+            .fillMaxSize()
+    ) {
+        items(daysInMonth) { day ->
+            day.let {
+                val dayEvents = events.filter { it.occursOnDate(day) }
+                if (dayEvents.isNotEmpty()) {
+                    DayContainer(date = day, events = dayEvents)
+                }
+            }
+        }
+    }
+
+    // Detecting scroll to the bottom and load the next month
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.isNearTheEnd() }
+            .distinctUntilChanged() // Only react to changes in the scroll position state.
+            .filter { it } // Only proceed if it's true that we're near the end.
+            .collect {
+                val lastLoadedMonth = state.loadedMonths.maxOrNull() ?: YearMonth.now()
+                val nextMonth = lastLoadedMonth.plusMonths(1)
+                coroutineScope.launch {
+                    viewModel.fetchEventsForMonth(nextMonth)
+                }
+            }
+    }
+}
+
+fun LazyListState.isNearTheEnd(bufferItems: Int = 3): Boolean {
+    // Check if the last visible item's index is within `bufferItems` of the total item count
+    val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return false
+    val totalItemCount = layoutInfo.totalItemsCount
+    return lastVisibleItemIndex >= totalItemCount - bufferItems - 1
 }
 
 @Composable
@@ -1288,6 +1374,8 @@ fun getOrdinalIndicator(dayOfMonth: Int): String {
 //    }
 //}
 
+// sliding page
+
 @Composable
 fun NewHomeScreen(viewModel: HomeViewModel = viewModel()) {
     val homeState = viewModel.homeState.collectAsState()
@@ -1297,26 +1385,33 @@ fun NewHomeScreen(viewModel: HomeViewModel = viewModel()) {
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
 
 
+    
+    // surround with surface
+    Surface (
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(),
+        color = Variables.blue
+    ) {
+        LaunchedEffect(currentDate) {
+            viewModel.fetchEventsForMonth(YearMonth.from(currentDate))
+        }
 
-    LaunchedEffect(currentDate) {
-        viewModel.fetchEventsForMonth(YearMonth.from(currentDate))
+        Column {
+            TopHeader()
+           // EventCardFeed(events = events)
+            EventCardFeedSimple(viewModel = viewModel)
+                // Place other components here if needed
+            }
+
+        SlidingEventWindow(viewModel = viewModel)
+        SlidingNotificationWindow(viewModel = viewModel)
+
+        val onDaySelected: (LocalDate) -> Unit = { date ->
+            selectedDate = date
+        }
     }
 
-
-
-    Column {
-
-
-        TopHeader()
-        EventCardFeed(events = events)
-    }
-
-    SlidingEventWindow(viewModel = viewModel)
-    SlidingNotificationWindow(viewModel = viewModel)
-
-    val onDaySelected: (LocalDate) -> Unit = { date ->
-        selectedDate = date
-    }
 
 }
 
