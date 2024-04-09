@@ -2,20 +2,10 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.home
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.AnchoredDraggableState
-import androidx.compose.foundation.gestures.DraggableAnchors
-import androidx.compose.foundation.gestures.DraggableState
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,22 +24,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.rememberSwipeableState
-import androidx.compose.material.swipeable
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -70,17 +53,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -91,13 +71,13 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import kotlin.math.abs
 
 
 // create sample card items
@@ -898,13 +878,24 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
 @Preview (showBackground = true)
 @Composable
 fun NotificationSettingsPreview() {
-    NotificationSettingsContent(viewModel = viewModel())
+    NotificationSettingsContent(
+        viewModel = HomeViewModel(
+        notificationRepo = NotificationRepository(
+            context = LocalContext.current
+        ),
+    ))
 }
 
 @Preview (showBackground = true)
 @Composable
 fun TopHeaderPreview() {
-    TopHeader()
+    TopHeader(
+        viewModel = HomeViewModel(
+            notificationRepo = NotificationRepository(
+                context = LocalContext.current
+            ),
+        )
+    )
 }
 
 // This is to display events under calendar
@@ -1377,7 +1368,7 @@ fun getOrdinalIndicator(dayOfMonth: Int): String {
 // sliding page
 
 @Composable
-fun NewHomeScreen(viewModel: HomeViewModel = viewModel()) {
+fun NewHomeScreen(viewModel: HomeViewModel) {
     val homeState = viewModel.homeState.collectAsState()
     val currentDate = homeState.value.currentDate
     val events = homeState.value.events
@@ -1398,7 +1389,7 @@ fun NewHomeScreen(viewModel: HomeViewModel = viewModel()) {
         }
 
         Column {
-            TopHeader()
+            TopHeader(viewModel = viewModel)
            // EventCardFeed(events = events)
             EventCardFeedSimple(viewModel = viewModel)
                 // Place other components here if needed
@@ -1418,9 +1409,13 @@ fun NewHomeScreen(viewModel: HomeViewModel = viewModel()) {
 @Preview
 @Composable
 fun NewHomeScreenPreview() {
-    SHPEUFMobileKotlinTheme {
-        NewHomeScreen()
-    }
+    NewHomeScreen(
+        viewModel = HomeViewModel(
+            notificationRepo = NotificationRepository(
+                context = LocalContext.current
+            ),
+        )
+    )
 }
 
 // circular logo image at the top of the screen
