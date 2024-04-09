@@ -29,10 +29,11 @@ import com.example.shpe_uf_mobile_kotlin.util.NotificationsUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.time.format.DateTimeParseException
 
-//class HomeViewModel : ViewModel() {
-class HomeViewModel(application: Application) : AndroidViewModel(application) {
+class HomeViewModel : ViewModel() {
+//class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // API Keys
     private val calendarId = BuildConfig.CALENDAR_ID
     private val apiKey = BuildConfig.REACT_APP_API_KEY
@@ -65,22 +66,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // Notification Settings
-//    fun toggleNotificationSettings(type: EventType, isEnabled: Boolean) {
-//        val currentSettings = _homeUIState.value.notificationSettings
-//        val updatedSettings = when (type) {
-//            EventType.GBM -> currentSettings.copy(gbmNotification = isEnabled)
-//            EventType.Social -> currentSettings.copy(socialNotification = isEnabled)
-//            EventType.Workshop -> currentSettings.copy(workshopNotification = isEnabled)
-//            EventType.InfoSession -> currentSettings.copy(infoSessionNotification = isEnabled)
-//            EventType.Volunteering -> currentSettings.copy(volunteeringNotification = isEnabled)
-//            else -> {
-//                currentSettings
-//            }
-//        }
-//        _homeUIState.value = _homeUIState.value.copy(notificationSettings = updatedSettings)
-//    }
-
-
     fun toggleNotificationSettings(context: Context, type: EventType, isEnabled: Boolean) {
         Log.d("HomeViewModel", "Toggled notification settings for $type: $isEnabled")
 
@@ -136,7 +121,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         Log.d("HomeViewModel", "Saved notification settings for $eventType: $isEnabled")
     }
 
-    private fun loadNotificationSettings(context: Context) {
+    fun loadNotificationSettings(context: Context) {
         val sharedPreferences = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
         val settings = homeState.value.notificationSettings.copy(
             gbmNotification = sharedPreferences.getBoolean(EventType.GBM.name, false),
@@ -150,30 +135,41 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     // Init Might Not Need to do this
     init {
-        loadEvents()
-        loadNotificationSettings(
-            application.applicationContext
-        )
+        val currentMonth = YearMonth.now()
+       // fetchEventsForMonth(currentMonth.minusMonths(1)) // Previous month
     }
+
 
     // Event fetching
     private fun loadEvents() {
         // Fetch events for the current date when the ViewModel is create
-        fetchEventsForMonth(YearMonth.now())
+        fetchEventsForMonth(YearMonth.now().minusMonths(1))
     }
+
+    fun getDaysInMonthArray(loadedMonths: List<YearMonth>): List<LocalDate> {
+        return loadedMonths.sorted().flatMap { month ->
+            (1..month.lengthOfMonth()).map { day ->
+                LocalDate.of(month.year, month.monthValue, day)
+            }
+        }
+    }
+
 
     fun fetchEventsForMonth(yearMonth: YearMonth) {
         val zoneId = ZoneId.of("America/New_York")
         val monthStart = yearMonth.atDay(1)
         val monthEnd = yearMonth.atEndOfMonth()
 
+        Log.d("HomeViewModel", "Month Start: $monthStart")
+        Log.d("HomeViewModel", "Month End: $monthEnd")
+
         val timeMin = ZonedDateTime.of(monthStart, LocalTime.MIN, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
         val timeMax = ZonedDateTime.of(monthEnd, LocalTime.MAX, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
 
-        fetchCalendarEvents(timeMin, timeMax)
+        fetchCalendarEvents(timeMin, timeMax, yearMonth)
     }
 
-    private fun fetchCalendarEvents(timeMin: String, timeMax: String) {
+    private fun fetchCalendarEvents(timeMin: String, timeMax: String, yearMonth: YearMonth) {
         // Check if any of the required parameters are null or empty and log an error if they are
         if (calendarId.isEmpty() || timeMin.isEmpty() || timeMax.isEmpty() || apiKey.isEmpty()) {
             Log.d("HomeViewModel", "calendarId: $calendarId")
@@ -226,13 +222,24 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                             end = calendarEvent.end,
                             eventType = eventTypeDetermined,
                             colorResId = determinedColor,
-                       )
+                        )
                     }
-                    // Update the LiveData with the new list of events
+
                     withContext(Dispatchers.Main) {
-                        _homeUIState.value = _homeUIState.value.copy(events = events ?: emptyList())
+                        // add new events on top of old ones
+                        _homeUIState.update { it.copy(events = events.orEmpty() + homeState.value.events) }
+                        _homeUIState.update { it.copy(loadedMonths = it.loadedMonths + yearMonth) }
+
+                        if (events.isNullOrEmpty()) {
+                            _homeUIState.update { it.copy(monthsWithNoEvents = it.monthsWithNoEvents + yearMonth) }
+                            // remove the month from the loaded months
+                            _homeUIState.update { it.copy(loadedMonths = it.loadedMonths - yearMonth) }
+                        }
+
+
                     }
-                } else {
+                }
+                else {
                     // Log an error if the response is not successful
                     Log.e("HomeViewModel", "Failed to fetch calendar events: ${response.errorBody()?.string()}")
                 }
