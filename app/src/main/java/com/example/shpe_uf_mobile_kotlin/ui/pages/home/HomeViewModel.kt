@@ -122,7 +122,7 @@ class HomeViewModel(private val notificationRepo: NotificationRepository) : View
         // Log for debugging
         Log.d("HomeViewModel", "Saved notification settings for $eventType: $isEnabled")
     }
-    
+
     private fun loadNotificationsSettings() {
         viewModelScope.launch {
             val settings = notificationRepo.loadNotificationSettings()
