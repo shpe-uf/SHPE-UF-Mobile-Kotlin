@@ -487,6 +487,8 @@ private fun RegisterPassword(
     onValueChange: (String) -> Unit,
     onTogglePasswordVisibility: () -> Unit
 ) {
+
+
     TextField(
         modifier = Modifier
             .height(50.dp)
@@ -506,12 +508,14 @@ private fun RegisterPassword(
         trailingIcon = {
             IconButton(onClick = { onTogglePasswordVisibility() }) {
                 val visibilityIcon =
-                    if (isPasswordVisible) Icons.Filled.Visibility
-                    else Icons.Filled.VisibilityOff
+                    if (isPasswordVisible) painterResource(id = R.drawable.openeyeicon)
+                    else painterResource(id = R.drawable.closedeyeicon)
                 val description = if (isPasswordVisible) "Hide Password" else "Show Password"
-                Icon(
-                    imageVector = visibilityIcon,
+                Image(
+                    painter = visibilityIcon,
+                    modifier = Modifier.size(28.dp),
                     contentDescription = description
+
                 )
             }
         },
@@ -562,11 +566,12 @@ private fun RegisterConfirmPassword(
         trailingIcon = {
             IconButton(onClick = { onToggleConfirmPasswordVisibility() }) {
                 val visibilityIcon =
-                    if (isConfirmPasswordVisible) Icons.Filled.Visibility
-                    else Icons.Filled.VisibilityOff
+                    if (isConfirmPasswordVisible) painterResource(id = R.drawable.openeyeicon)
+                    else painterResource(id = R.drawable.closedeyeicon)
                 val description = if (isConfirmPasswordVisible) "Hide Password" else "Show Password"
-                Icon(
-                    imageVector = visibilityIcon,
+                Image(
+                    painter = visibilityIcon,
+                    modifier = Modifier.size(28.dp),
                     contentDescription = description
                 )
             }
