@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +16,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -48,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -60,6 +65,9 @@ import androidx.compose.ui.unit.sp
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
+//TODO: add bottom bar functionality
+
+
 @Preview(showBackground = true)
 @Composable
 fun ProfilePagePreview() {
@@ -67,37 +75,28 @@ fun ProfilePagePreview() {
     ProfileScreen(viewModel)
 }
 
-//TODO: set background to be Figma gator
-//TODO: add dark mode functionality
+
 @Composable
 fun ProfileScreen(profileViewModel: ProfileViewModel){
     SHPEUFMobileKotlinTheme{
         val uiState by profileViewModel.uiState.collectAsState()
+        ProfilePageBackground()
         Column(
             modifier = Modifier
-                .padding(horizontal = 15.dp, vertical = 30.dp)
+                //TODO: fix disappearing profile text fields
+                .padding(horizontal = 15.dp, vertical = 210.dp)
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(50.dp)
+            verticalArrangement = Arrangement.spacedBy(40.dp)
         ) {
-            Column {
-                //TODO: display user's profile picture when they upload it
-                Icon(
-                    imageVector = Icons.Filled.AccountCircle,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .height(95.dp)
-                        .fillMaxSize()
-                )
-            }
             Column (
                 modifier = Modifier
                     .fillMaxWidth(),
             ){
                 //TODO: implement functionality for Save and Cancel buttons once user decides to edit profile
-                GradientButton(
+                EditProfileButton(
                     onClick = {profileViewModel.editProfile()}
                 )
             }
@@ -108,6 +107,7 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
+                //TODO: remove borders from text fields
                 ProfileName(
                     value = uiState.fullName ?: "",
                     onValueChange = profileViewModel::onFullNameChanged
@@ -171,12 +171,13 @@ fun ProfileGradYear(value: String, onValueChange: (String) -> Unit) {
         ),
         label = {
             Text(
-                text = "Graduation Year",
-                fontSize = 18.sp
+                text = "GRADUATION YEAR",
+                fontSize = 15.sp
             )
         }
     )
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -199,8 +200,8 @@ fun ProfileYear(value: String, onValueChange: (String) -> Unit) {
         ),
         label = {
             Text(
-                text = "Year",
-                fontSize = 18.sp
+                text = "YEAR",
+                fontSize = 15.sp
             )
         }
     )
@@ -227,8 +228,8 @@ fun ProfileCountry(value: String, onValueChange: (String) -> Unit) {
         ),
         label = {
             Text(
-                text = "Country of Origin",
-                fontSize = 18.sp
+                text = "COUNTRY OF ORIGIN",
+                fontSize = 15.sp
             )
         }
     )
@@ -255,8 +256,8 @@ fun ProfileEthnicity(value: String, onValueChange: (String) -> Unit) {
         ),
         label = {
             Text(
-                text = "Ethnicity",
-                fontSize = 18.sp
+                text = "ETHNICITY",
+                fontSize = 15.sp
             )
         }
     )
@@ -267,7 +268,7 @@ fun ProfileEthnicity(value: String, onValueChange: (String) -> Unit) {
 fun ProfileGender(value: String, onValueChange: (String) -> Unit) {
     OutlinedTextField(
         modifier = Modifier
-            .fillMaxWidth(0.8f),
+            .fillMaxWidth(0.7f),
         value = value,
         onValueChange = { newValue -> onValueChange(newValue) },
         leadingIcon = {
@@ -283,8 +284,8 @@ fun ProfileGender(value: String, onValueChange: (String) -> Unit) {
         ),
         label = {
             Text(
-                text = "Gender",
-                fontSize = 18.sp
+                text = "GENDER",
+                fontSize = 15.sp
             )
         }
     )
@@ -299,9 +300,9 @@ fun ProfileEmail(value: String, onValueChange: (String) -> Unit) {
         value = value,
         onValueChange = { newValue -> onValueChange(newValue) },
         leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.Email,
-                contentDescription = null
+            Image(
+                painter = painterResource(id = R.drawable.profile_email),
+                contentDescription = null,
             )
         },
         shape = RoundedCornerShape(12.dp),
@@ -311,8 +312,8 @@ fun ProfileEmail(value: String, onValueChange: (String) -> Unit) {
         ),
         label = {
             Text(
-                text = "Email",
-                fontSize = 18.sp
+                text = "EMAIL",
+                fontSize = 15.sp
             )
         }
     )
@@ -327,9 +328,9 @@ fun ProfileUserName(value: String, onValueChange: (String) -> Unit) {
         value = value,
         onValueChange = { newValue -> onValueChange(newValue) },
         leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.AccountCircle,
-                contentDescription = null
+            Image(
+                painter = painterResource(id = R.drawable.profile_circle_orange),
+                contentDescription = null,
             )
         },
         shape = RoundedCornerShape(12.dp),
@@ -339,8 +340,8 @@ fun ProfileUserName(value: String, onValueChange: (String) -> Unit) {
         ),
         label = {
             Text(
-                text = "Username",
-                fontSize = 18.sp
+                text = "USERNAME",
+                fontSize = 15.sp
             )
         }
     )
@@ -355,9 +356,9 @@ fun ProfileName(value: String, onValueChange: (String) -> Unit) {
         value = value,
         onValueChange = { newValue -> onValueChange(newValue) },
         leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.AccountCircle,
-                contentDescription = null
+            Image(
+                painter = painterResource(id = R.drawable.profile_circle_orange),
+                contentDescription = null,
             )
         },
         shape = RoundedCornerShape(12.dp),
@@ -367,42 +368,109 @@ fun ProfileName(value: String, onValueChange: (String) -> Unit) {
         ),
         label = {
             Text(
-                text = "Name",
-                fontSize = 18.sp
+                text = "NAME",
+                fontSize = 15.sp
             )
         }
     )
 }
 
 @Composable
-private fun GradientButton(
-    onClick: () -> Unit
-) {
-    val gradientColors = listOf(Color(0xFFD23C20), Color(0xFFF1652F))
-    Button(
-        modifier = Modifier
-            .fillMaxWidth(),
-        onClick = {
-            onClick()
-        },
-        contentPadding = PaddingValues(),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent
-        ),
-    ) {
+fun ProfilePageBackground(modifier: Modifier = Modifier) {
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val orangeHeight = screenHeight * (1.01f / 5f) // Orange covers about a fourth of the screen
+    val blueHeight = screenHeight * (4f / 5f) // Blue covers the remaining three-fourths
+    Box(modifier = modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
-//                .fillMaxWidth()
-                .background(
-                    brush = Brush.horizontalGradient(colors = gradientColors),
-                )
-                .padding(horizontal = 20.dp, vertical = 5.dp),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .height(orangeHeight)
+                .background(Color(0xFFD25917))
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.TopStart) // Align centrally
+                .padding(top = 102.dp) // Adjust the padding to move the image
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.gator_dark_mode),
+                contentDescription = "SHPE GATOR DARK",
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .width(90.dp) // Fixed width
+                    .height(90.dp) // Fixed height
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(blueHeight)
+                .align(Alignment.BottomCenter)
+                .background(Color(0xFF011F35))
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 86.dp) // Adjust the padding to move the image
+
+        ){
+            Image(
+                painter = painterResource(id = R.drawable.background_blue_circle),
+                contentDescription = "BLUE CURVE",
+                modifier = Modifier.align(Alignment.Center)
+                    .width(450.dp) // Fixed width
+                    .height(450.dp) // Fixed height
+            )
+        }
+        //TODO: display user's profile picture when they upload it
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 93.dp) // Adjust the padding to move the image
+
+        ){
+            Image(
+                painter = painterResource(id = R.drawable.empty_profile_picture),
+                contentDescription = "BLUE CURVE",
+                modifier = Modifier.align(Alignment.Center)
+                    .width(95.dp) // Fixed width
+                    .height(95.dp) // Fixed height
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun EditProfileButton(
+    onClick: () -> Unit
+) {
+    Button(
+        modifier = Modifier
+            .wrapContentWidth() // Adjust the width of the button to wrap its content
+            .height(35.dp), // Adjust the height of the button
+        onClick = onClick,
+        shape = RoundedCornerShape(20.dp), // Rounded corners
+        colors = ButtonDefaults.buttonColors(
+            contentColor = Color.White
+        ),
+    ){
+        Row(
+            //TODO: fix alignment
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Edit Profile",
-                fontSize = 20.sp,
+                fontSize = 14.sp, // Adjust the font size
                 color = Color.White
+            )
+            Spacer(modifier = Modifier.width(8.dp)) // Add some space between icon and text
+            Icon(
+                painter = painterResource(id = R.drawable.edit_profile_pencil), // Replace with your pencil icon
+                contentDescription = "Edit Profile Icon",
+                modifier = Modifier.size(16.dp), // Adjust the size of the icon
+                tint = Color.White // Set the color of the icon
             )
         }
     }

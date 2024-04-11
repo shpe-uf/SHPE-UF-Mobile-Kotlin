@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.asStateFlow
 class ProfileViewModel:ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+
+
+    //TODO: add validation for text field inputs
     fun onFullNameChanged(fullName: String) {
         _uiState.value = _uiState.value.copy(fullName = fullName)
     }
