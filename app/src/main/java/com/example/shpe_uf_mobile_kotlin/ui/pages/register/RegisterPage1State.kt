@@ -12,17 +12,27 @@ data class RegisterPage1State (
     // New addition by me for gender dropdown menus
     val gender: String? = null,
     val genderErrorMessage: String? = null,
-    val isExpanded: Boolean = false,
+    val isGenderMenuExpanded: Boolean = false,
+
     val ethnicity: String? = null,
     val ethnicityErrorMessage: String? = null,
+    val isEthnicityMenuExpanded: Boolean = false,
+
     val countryOrigin: String? = null,
     val countryOriginErrorMessage: String? = null,
+    val isCountryOriginMenuExpanded: Boolean = false,
+
     val major: String? = null,
     val majorErrorMessage: String? = null,
+    val isMajorMenuExpanded: Boolean = false,
+
     val year: String? = null,
     val yearErrorMessage: String? = null,
+    val isYearMenuExpanded: Boolean = false,
+
     val graduationYear: String? = null,
     val graduationYearErrorMessage: String? = null,
+    val isGraduationMenuExpanded: Boolean = false,
 
 
 

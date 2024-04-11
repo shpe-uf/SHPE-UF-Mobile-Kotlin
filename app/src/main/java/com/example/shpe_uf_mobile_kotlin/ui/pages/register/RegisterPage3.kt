@@ -88,8 +88,8 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel){
             value = uiState.major ?: "",
             isError = uiState.major != null,
             errorMessage = uiState.majorErrorMessage ?: "",
-            isExpanded = uiState.isExpanded,
-            onExpandedChange = {registerPage1ViewModel.toggleExpansion()},
+            isMajorMenuExpanded = uiState.isMajorMenuExpanded,
+            onExpandedChange = {registerPage1ViewModel.toggleMajorMenuExpansion()},
             onValueChange = { registerPage1ViewModel.onMajorChanged(it) }
         )
 
@@ -111,8 +111,8 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel){
             value = uiState.year ?: "",
             isError = uiState.year != null,
             errorMessage = uiState.yearErrorMessage ?: "",
-            isExpanded = uiState.isExpanded,
-            onExpandedChange = {registerPage1ViewModel.toggleExpansion()},
+            isYearMenuExpanded = uiState.isYearMenuExpanded,
+            onExpandedChange = {registerPage1ViewModel.toggleYearMenuExpansion()},
             onValueChange = { registerPage1ViewModel.onYearChanged(it) }
         )
 
@@ -134,8 +134,8 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel){
             value = uiState.graduationYear ?: "",
             isError = uiState.graduationYear != null,
             errorMessage = uiState.graduationYearErrorMessage ?: "",
-            isExpanded = uiState.isExpanded,
-            onExpandedChange = {registerPage1ViewModel.toggleExpansion()},
+            isGraduationMenuExpanded = uiState.isGraduationMenuExpanded,
+            onExpandedChange = {registerPage1ViewModel.toggleGraduationMenuExpansion()},
             onValueChange = { registerPage1ViewModel.onGraduationYearChanged(it) }
         )
 
@@ -252,12 +252,12 @@ private fun MajorDropDownMenu(
     value: String,
     isError: Boolean,
     errorMessage: String,
-    isExpanded: Boolean,
+    isMajorMenuExpanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onValueChange: (String) -> Unit,
 ){
     ExposedDropdownMenuBox(
-        expanded = isExpanded,
+        expanded = isMajorMenuExpanded,
         onExpandedChange = {onExpandedChange(it)}
     ) {
         TextField(
@@ -274,7 +274,7 @@ private fun MajorDropDownMenu(
             shape = RoundedCornerShape(10.dp),
 
             trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isMajorMenuExpanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
@@ -283,7 +283,7 @@ private fun MajorDropDownMenu(
                 .menuAnchor()
         )
         ExposedDropdownMenu(
-            expanded = isExpanded,
+            expanded = isMajorMenuExpanded,
             onDismissRequest = { onExpandedChange(false) }
         ) {
             DropdownMenuItem(
@@ -333,12 +333,12 @@ private fun YearDropDownMenu(
     value: String,
     isError: Boolean,
     errorMessage: String,
-    isExpanded: Boolean,
+    isYearMenuExpanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onValueChange: (String) -> Unit,
 ){
     ExposedDropdownMenuBox(
-        expanded = isExpanded,
+        expanded = isYearMenuExpanded,
         onExpandedChange = {onExpandedChange(it)}
     ) {
         TextField(
@@ -355,7 +355,7 @@ private fun YearDropDownMenu(
             shape = RoundedCornerShape(10.dp),
 
             trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isYearMenuExpanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
@@ -364,7 +364,7 @@ private fun YearDropDownMenu(
                 .menuAnchor()
         )
         ExposedDropdownMenu(
-            expanded = isExpanded,
+            expanded = isYearMenuExpanded,
             onDismissRequest = { onExpandedChange(false) }
         ) {
             DropdownMenuItem(
@@ -414,12 +414,12 @@ private fun GraduationYearDropDownMenu(
     value: String,
     isError: Boolean,
     errorMessage: String,
-    isExpanded: Boolean,
+    isGraduationMenuExpanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onValueChange: (String) -> Unit,
 ){
     ExposedDropdownMenuBox(
-        expanded = isExpanded,
+        expanded = isGraduationMenuExpanded,
         onExpandedChange = {onExpandedChange(it)}
     ) {
         TextField(
@@ -436,7 +436,7 @@ private fun GraduationYearDropDownMenu(
             shape = RoundedCornerShape(10.dp),
 
             trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isGraduationMenuExpanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
@@ -445,7 +445,7 @@ private fun GraduationYearDropDownMenu(
                 .menuAnchor()
         )
         ExposedDropdownMenu(
-            expanded = isExpanded,
+            expanded = isGraduationMenuExpanded,
             onDismissRequest = { onExpandedChange(false) }
         ) {
             DropdownMenuItem(

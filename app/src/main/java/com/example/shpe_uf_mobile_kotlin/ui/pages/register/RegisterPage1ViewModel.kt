@@ -146,28 +146,59 @@ class RegisterPage1ViewModel: ViewModel() {
         _uiState.value = _uiState.value.copy(gender = gender)
     }
 
-    fun toggleExpansion(){
-        _uiState.value = _uiState.value.copy(isExpanded = !_uiState.value.isExpanded)
+    fun toggleGenderMenuExpansion(){
+        _uiState.value = _uiState.value.copy(isGenderMenuExpanded = !_uiState.value.isGenderMenuExpanded)
     }
+
+
 
     fun onEthnicityChanged(ethnicity: String){
         _uiState.value = _uiState.value.copy(ethnicity = ethnicity)
     }
 
+    fun toggleEthnicityMenuExpansion(){
+        _uiState.value = _uiState.value.copy(isEthnicityMenuExpanded = !_uiState.value.isEthnicityMenuExpanded)
+    }
+
+
+
     fun onCountryOriginChanged(countryOrigin: String){
         _uiState.value = _uiState.value.copy(countryOrigin = countryOrigin)
     }
+
+    fun toggleCountryOriginMenuExpansion(){
+        _uiState.value = _uiState.value.copy(isCountryOriginMenuExpanded = !_uiState.value.isCountryOriginMenuExpanded)
+    }
+
+
 
     fun onMajorChanged(major: String){
         _uiState.value = _uiState.value.copy(major = major)
     }
 
+    fun toggleMajorMenuExpansion(){
+        _uiState.value = _uiState.value.copy(isMajorMenuExpanded = !_uiState.value.isMajorMenuExpanded)
+    }
+
+
+
     fun onYearChanged(year: String){
         _uiState.value = _uiState.value.copy(year = year)
     }
 
+    fun toggleYearMenuExpansion(){
+        _uiState.value = _uiState.value.copy(isYearMenuExpanded = !_uiState.value.isYearMenuExpanded)
+    }
+
+
+
+
     fun onGraduationYearChanged(graduationYear: String){
         _uiState.value = _uiState.value.copy(graduationYear = graduationYear)
+    }
+
+    fun toggleGraduationMenuExpansion(){
+        _uiState.value = _uiState.value.copy(isGraduationMenuExpanded = !_uiState.value.isGraduationMenuExpanded)
     }
 
 }

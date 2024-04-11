@@ -137,8 +137,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel){
             value = uiState.gender ?: "",
             isError = uiState.gender != null,
             errorMessage = uiState.genderErrorMessage ?: "",
-            isExpanded = uiState.isExpanded,
-            onExpandedChange = {registerPage1ViewModel.toggleExpansion()},
+            isGenderMenuExpanded = uiState.isGenderMenuExpanded,
+            onExpandedChange = {registerPage1ViewModel.toggleGenderMenuExpansion()},
             onValueChange = { registerPage1ViewModel.onGenderChanged(it) }
         )
 
@@ -160,8 +160,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel){
             value = uiState.ethnicity ?: "",
             isError = uiState.ethnicity != null,
             errorMessage = uiState.ethnicityErrorMessage ?: "",
-            isExpanded = uiState.isExpanded,
-            onExpandedChange = {registerPage1ViewModel.toggleExpansion()},
+            isEthnicityMenuExpanded = uiState.isEthnicityMenuExpanded,
+            onExpandedChange = {registerPage1ViewModel.toggleEthnicityMenuExpansion()},
             onValueChange = { registerPage1ViewModel.onEthnicityChanged(it) }
         )
 
@@ -183,8 +183,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel){
             value = uiState.countryOrigin ?: "",
             isError = uiState.countryOrigin != null,
             errorMessage = uiState.countryOriginErrorMessage ?: "",
-            isExpanded = uiState.isExpanded,
-            onExpandedChange = {registerPage1ViewModel.toggleExpansion()},
+            isCountryOriginMenuExpanded = uiState.isCountryOriginMenuExpanded,
+            onExpandedChange = {registerPage1ViewModel.toggleCountryOriginMenuExpansion()},
             onValueChange = { registerPage1ViewModel.onCountryOriginChanged(it) }
         )
 
@@ -404,12 +404,12 @@ private fun GenderDropDownMenu(
     value: String,
     isError: Boolean,
     errorMessage: String,
-    isExpanded: Boolean,
+    isGenderMenuExpanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onValueChange: (String) -> Unit,
 ){
     ExposedDropdownMenuBox(
-        expanded = isExpanded,
+        expanded = isGenderMenuExpanded,
         onExpandedChange = {onExpandedChange(it)}
     ) {
         TextField(
@@ -426,7 +426,7 @@ private fun GenderDropDownMenu(
             shape = RoundedCornerShape(10.dp),
 
             trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isGenderMenuExpanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
@@ -435,7 +435,7 @@ private fun GenderDropDownMenu(
                 .menuAnchor()
         )
         ExposedDropdownMenu(
-            expanded = isExpanded,
+            expanded = isGenderMenuExpanded,
             onDismissRequest = { onExpandedChange(false) }
         ) {
             DropdownMenuItem(
@@ -476,12 +476,12 @@ private fun EthnicityDropDownMenu(
     value: String,
     isError: Boolean,
     errorMessage: String,
-    isExpanded: Boolean,
+    isEthnicityMenuExpanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onValueChange: (String) -> Unit,
 ){
     ExposedDropdownMenuBox(
-        expanded = isExpanded,
+        expanded = isEthnicityMenuExpanded,
         onExpandedChange = {onExpandedChange(it)}
     ) {
         TextField(
@@ -498,7 +498,7 @@ private fun EthnicityDropDownMenu(
             shape = RoundedCornerShape(10.dp),
 
             trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isEthnicityMenuExpanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
@@ -507,7 +507,7 @@ private fun EthnicityDropDownMenu(
                 .menuAnchor()
         )
         ExposedDropdownMenu(
-            expanded = isExpanded,
+            expanded = isEthnicityMenuExpanded,
             onDismissRequest = { onExpandedChange(false) }
         ) {
             DropdownMenuItem(
@@ -593,12 +593,12 @@ private fun CountryOriginDropDownMenu(
     value: String,
     isError: Boolean,
     errorMessage: String,
-    isExpanded: Boolean,
+    isCountryOriginMenuExpanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onValueChange: (String) -> Unit,
 ){
     ExposedDropdownMenuBox(
-        expanded = isExpanded,
+        expanded = isCountryOriginMenuExpanded,
         onExpandedChange = {onExpandedChange(it)}
     ) {
         TextField(
@@ -615,7 +615,7 @@ private fun CountryOriginDropDownMenu(
             shape = RoundedCornerShape(10.dp),
 
             trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isCountryOriginMenuExpanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
@@ -624,7 +624,7 @@ private fun CountryOriginDropDownMenu(
                 .menuAnchor()
         )
         ExposedDropdownMenu(
-            expanded = isExpanded,
+            expanded = isCountryOriginMenuExpanded,
             onDismissRequest = { onExpandedChange(false) }
         ) {
             DropdownMenuItem(
