@@ -26,6 +26,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -33,11 +35,15 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.rememberBottomSheetScaffoldState
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -945,6 +951,49 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
 //        EventPopUp(event, showPopUp, onDismissRequest = { showPopUp = false })
 //    }
 }
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
+fun SlidingSheet() {
+    val scaffoldSheetState = rememberBottomSheetScaffoldState()
+    val scope = rememberCoroutineScope()
+    Scaffold(
+    ) { innerPadding ->
+        // 40.dp for the drag handle
+        val bottomPadding = innerPadding.calculateBottomPadding() + 40.dp
+        BottomSheetScaffold(
+            scaffoldState = scaffoldSheetState,
+            sheetPeekHeight = bottomPadding,
+            modifier = Modifier.padding(innerPadding),
+            sheetContent = {
+                Column(
+                    Modifier
+                        .padding(bottom = bottomPadding)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Sheet content")
+                    Spacer(Modifier.height(20.dp))
+                    Button(onClick = {
+                        scope.launch { scaffoldSheetState.bottomSheetState.collapse()}
+                    }) {
+                        Text("Hide bottom sheet")
+                    }
+                    Button(onClick = { }) {
+                        Text("Some button")
+                    }
+                }
+            },
+        ) {
+
+            // this is where your screen could go
+            NewHomeScreen(viewModel = viewModel())
+
+        }
+
+    }
+}
+
 
 // Not being used for good for reference
 @Composable
