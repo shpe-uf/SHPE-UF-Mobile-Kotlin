@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.BottomNavigation
@@ -62,7 +63,8 @@ class MainActivity : ComponentActivity() {
                             BottomNavigation(
                                 backgroundColor = MaterialTheme.colorScheme.surface,
                                 contentColor = MaterialTheme.colorScheme.onSurface,
-                                elevation = 8.dp
+                                elevation = 8.dp,
+                                modifier = Modifier.navigationBarsPadding()
                             ) {
                                 items.forEach { item ->
                                     BottomNavigationItem(
