@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.shpe_uf_mobile_kotlin.repository.EventRepository
 import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavHostContainer
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.items
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SHPEUFMobileKotlinTheme {
-                val viewModelFactory = HomeViewModelFactory(NotificationRepository(applicationContext))
+                val viewModelFactory = HomeViewModelFactory(NotificationRepository(applicationContext), EventRepository(applicationContext))
                 val homeViewModel: HomeViewModel = viewModel(factory = viewModelFactory)
 
                 val navController = rememberNavController()
