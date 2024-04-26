@@ -77,6 +77,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.shpe_uf_mobile_kotlin.repository.EventRepository
 import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -886,10 +887,14 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
 fun NotificationSettingsPreview() {
     NotificationSettingsContent(
         viewModel = HomeViewModel(
-        notificationRepo = NotificationRepository(
-            context = LocalContext.current
-        ),
-    ))
+            notificationRepo = NotificationRepository(
+                context = LocalContext.current
+            ),
+            eventRepo = EventRepository(
+                context = LocalContext.current
+            ),
+        )
+    )
 }
 
 @Preview (showBackground = true)
@@ -898,6 +903,9 @@ fun TopHeaderPreview() {
     TopHeader(
         viewModel = HomeViewModel(
             notificationRepo = NotificationRepository(
+                context = LocalContext.current
+            ),
+            eventRepo = EventRepository(
                 context = LocalContext.current
             ),
         )
@@ -1461,6 +1469,9 @@ fun NewHomeScreenPreview() {
     NewHomeScreen(
         viewModel = HomeViewModel(
             notificationRepo = NotificationRepository(
+                context = LocalContext.current
+            ),
+            eventRepo = EventRepository(
                 context = LocalContext.current
             ),
         )

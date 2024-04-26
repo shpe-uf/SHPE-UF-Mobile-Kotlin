@@ -33,8 +33,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.time.format.DateTimeParseException
+import com.example.shpe_uf_mobile_kotlin.repository.EventRepository
 
-class HomeViewModel(private val notificationRepo: NotificationRepository) : ViewModel() {
+class HomeViewModel(
+    private val notificationRepo: NotificationRepository,
+    private val eventRepo: EventRepository
+) : ViewModel() {
 //class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // API Keys
     private val calendarId = BuildConfig.CALENDAR_ID
@@ -371,11 +375,13 @@ class HomeViewModel(private val notificationRepo: NotificationRepository) : View
     )
 }
 
-class HomeViewModelFactory(private val notificationRepo: NotificationRepository) : ViewModelProvider.Factory {
+class HomeViewModelFactory(
+    private val notificationRepo: NotificationRepository,
+    private val eventRepo: EventRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return HomeViewModel(notificationRepo) as T
+            return HomeViewModel(notificationRepo, eventRepo) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
