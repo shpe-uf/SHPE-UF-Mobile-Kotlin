@@ -2,6 +2,10 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.opening
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -49,6 +53,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // The goat source: https://blog.protein.tech/jetpack-compose-auto-image-slider-with-dots-indicator-45dfeba37712
 
@@ -87,107 +92,33 @@ fun OpeningPage() {
     // TODO: Add to ViewModel.
     val isDragged by pagerState.interactionSource.collectIsDraggedAsState() // to prevent auto scrolling when dragging the screen
 
+    HorizontalPager(
+        count = images.size,
+        state = pagerState,
+        modifier = Modifier.fillMaxSize()
+    ) { currentPage ->
+        // Text, image will change based on the current page.
+        // Offset each page to match figma design
+        Log.d("Page", ""+currentPage)
+        Image(
+            painter = painterResource(id = images[currentPage]),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            alpha = 0.5f
+        )
 
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(3250)
-            val nextPage = (pagerState.currentPage + 1) % pagerState.pageCount
-            pagerState.scrollToPage(nextPage)
-        }
-    }
-
-    AnimatedVisibility( // TODO: Implement animation, a sort of fade in and out.
-        visible = visible,
-
-    ) {
-        HorizontalPager(
-            count = images.size,
-            state = pagerState,
-            modifier = Modifier.fillMaxSize()
-        ) { currentPage ->
-            // Text, image will change based on the current page.
-            // Offset each page to match figma design
-            Log.d("Page", ""+currentPage)
-            // TODO: Figure out how to match picture design on Figma if need be. Ask Yair.
-            when(currentPage){
-                0 -> Image(
-                    painter = painterResource(id = images[currentPage]),
-                    contentDescription = "opening image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    alpha = 0.5f
-                )
-                1 -> Image(
-                    painter = painterResource(id = images[currentPage]),
-                    contentDescription = "opening image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    alpha = 0.5f
-                )
-                2 -> Image(
-                    painter = painterResource(id = images[currentPage]),
-                    contentDescription = "opening image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    alpha = 0.5f
-                )
-                3 -> Image(
-                    painter = painterResource(id = images[currentPage]),
-                    contentDescription = "opening image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    alpha = 0.5f
-                )
-                4 -> Image(
-                    painter = painterResource(id = images[currentPage]),
-                    contentDescription = "opening image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    alpha = 0.5f
-                )
-                5 -> Image(
-                    painter = painterResource(id = images[currentPage]),
-                    contentDescription = "opening image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    alpha = 0.5f
-                )
-                6 -> Image(
-                    painter = painterResource(id = images[currentPage]),
-                    contentDescription = "opening image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    alpha = 0.5f
-                )
-                7 -> Image(
-                    painter = painterResource(id = images[currentPage]),
-                    contentDescription = "opening image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    alpha = 0.5f
-                )
-            }
-
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn(animationSpec = tween(durationMillis = 1500)),
+                exit = fadeOut(animationSpec = tween(durationMillis = 2000))
             ) {
                 Text(
                     text = subText[currentPage],
@@ -202,7 +133,18 @@ fun OpeningPage() {
                         .height(40.dp)
                 )
             }
-            EllipseBar(selectedIndex = if (isDragged) pagerState.currentPage else pagerState.currentPage)
+
+        }
+        EllipseBar(selectedIndex = if (isDragged) pagerState.currentPage else pagerState.currentPage)
+    }
+
+    with(pagerState){
+        LaunchedEffect(key1 = currentPage){
+            launch{
+                delay(2500)
+                val nextPage = (pagerState.currentPage + 1) % pagerState.pageCount
+                pagerState.animateScrollToPage(page = nextPage, pageOffset = 0.0f)
+            }
         }
     }
 
@@ -231,7 +173,7 @@ fun OpeningPage() {
                 color = Color.White
             ),
             modifier = Modifier
-                .offset(x=5.dp,y = 21.dp)
+                .offset(x = 5.dp, y = 21.dp)
                 .width(203.dp)
                 .height(58.dp)
                 .shadow(10.dp)
@@ -258,7 +200,7 @@ fun GettingStartedBtn(onClick: () -> Unit) { // TODO: Implement navigation to Lo
                 .width(325.dp)
                 .height(69.dp)
                 .align(Alignment.BottomCenter)
-                .offset(y = (-66).dp),
+                .offset(y = (-43).dp),
             shape = RoundedCornerShape(size = 20.dp)
         ) {
             Text(
@@ -284,7 +226,7 @@ fun EllipseBar(
             .wrapContentHeight()
             .wrapContentWidth()
             .align(Alignment.BottomCenter)
-            .offset(y = (-29).dp), // taken from figma
+            .offset(y=(-5).dp), // taken from figma
         ){
             items(8) {index ->
                 Dot(color = if (index == selectedIndex) Color.White else Color(0xFF4c4c4c))
@@ -293,9 +235,6 @@ fun EllipseBar(
                     Spacer(modifier = Modifier.padding(horizontal = 5.dp))
                 }
             }
-
-
-
         }
     }
 
@@ -304,8 +243,7 @@ fun EllipseBar(
 // Represents a dot that can either have a white or gray color. White = selected, gray = unselected.
 @Composable
 fun Dot(color: Color){
-    Canvas(modifier = Modifier.size(14.dp), onDraw ={
+    Canvas(modifier = Modifier.size(10.dp), onDraw ={
         drawCircle(color = color)
     })
 }
-
