@@ -39,17 +39,26 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import kotlin.math.absoluteValue
 
 // The goat source: https://blog.protein.tech/jetpack-compose-auto-image-slider-with-dots-indicator-45dfeba37712
 
 @OptIn(ExperimentalFoundationApi::class)
-@Preview
+@Preview(showBackground = true, widthDp = 430, heightDp = 932)
 @Composable
 fun OpeningPage() {
     // TODO: Add to ViewModel.
@@ -79,13 +88,21 @@ fun OpeningPage() {
         pageCount = {subText.size}
     )
 
+    var currentPage by remember { mutableStateOf(0)}
+
+    LaunchedEffect(pagerState){
+        snapshotFlow{ pagerState.currentPage }.collect { page ->
+            currentPage = page
+        }
+    }
+
     // Start Pager
     HorizontalPager(state = pagerState) { page ->
         Card(
             Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .graphicsLayer{
+                .graphicsLayer {
                     val pageOffset = (
                             (pagerState.currentPage - page) + pagerState
                                 .currentPageOffsetFraction
@@ -97,17 +114,9 @@ fun OpeningPage() {
                         stop = 1f,
                         fraction = 1f - pageOffset.coerceIn(0f, 1f)
                     )
-                }
+                },
         ){
-            Text(
-                text = subText[page],
-                style = TextStyle(
-                    fontSize = 25.sp,
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight(700),
-                    color = Color(0xFFB0B0B0),
-                ),
-            )
+
             Image(
                 painter = painterResource(id = images[page]),
                 contentDescription = null,
@@ -115,24 +124,27 @@ fun OpeningPage() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(),
-                //alpha = 0.5f
+                alpha = 0.5f
             )
-
-
 
         }
 
     } // end pager
 
-    Row(
-        Modifier
-            .wrapContentHeight()
-            .fillMaxWidth()
-            .align(Alignment.BottomCenter)
-            .padding(bottom = 8.dp),
-        horizontalArrangement = Arrangement.Center
-    ){
-
+    Box(modifier = Modifier.fillMaxSize()){
+        Row(
+            Modifier
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.Center
+        ){
+            repeat(pagerState.pageCount) { iteration ->
+                val color = if (pagerState.currentPage == iteration) Color.White else Color.DarkGray
+                IndicatorDot(color = color)
+            }
+        }
     }
 
 //    LaunchedEffect(Unit) {
@@ -212,6 +224,17 @@ fun OpeningPage() {
                 .width(203.dp)
                 .height(58.dp)
         )
+        Text(
+            text = subText[currentPage],
+            style = TextStyle(
+                fontSize = 30.sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight(700),
+                color = Color(0xFFB0B0B0),
+            ),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+        )
     }
 
     GettingStartedBtn {
@@ -255,9 +278,9 @@ fun GettingStartedBtn(onClick: () -> Unit) { // TODO: Implement navigation to Lo
 fun IndicatorDot(color: Color){
     Box(
         modifier = Modifier
-            .padding(2.dp)
+            .padding(5.dp)
             .clip(CircleShape)
             .background(color)
-            .size(16.dp)
+            .size(14.dp)
     )
 }
