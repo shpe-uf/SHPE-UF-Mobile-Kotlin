@@ -68,5 +68,11 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    // Might remove in the future.
     implementation ("com.google.accompanist:accompanist-pager:0.27.1")
+
+    // Used for Jetpack Compose's new Paging library.
+    implementation("androidx.compose.ui:ui-util:$version")
+    implementation("androidx.compose.ui:ui:$version")
 }
