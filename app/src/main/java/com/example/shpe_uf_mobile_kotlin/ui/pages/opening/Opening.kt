@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,7 +54,16 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.onEach
 import kotlin.math.absoluteValue
 
 // The goat source: https://blog.protein.tech/jetpack-compose-auto-image-slider-with-dots-indicator-45dfeba37712
@@ -88,12 +99,21 @@ fun OpeningPage() {
         pageCount = {subText.size}
     )
 
-    var currentPage by remember { mutableStateOf(0)}
+    var pageKey by remember { mutableStateOf(0)}
+    val effectFlow = rememberFlowWithLifecycle(pagerState.interactionSource.interactions, 
+        LocalLifecycleOwner.current)
 
-    LaunchedEffect(pagerState){
-        snapshotFlow{ pagerState.currentPage }.collect { page ->
-            currentPage = page
+    LaunchedEffect(effectFlow) {
+        effectFlow.collectLatest {
+            if(it is DragInteraction.Stop) pageKey++
         }
+    }
+
+    LaunchedEffect(pageKey){
+        delay(3250)
+        val newPage = (pagerState.currentPage + 1) % images.size
+        pagerState.animateScrollToPage(newPage)
+        pageKey++
     }
 
     // Start Pager
@@ -107,13 +127,8 @@ fun OpeningPage() {
                             (pagerState.currentPage - page) + pagerState
                                 .currentPageOffsetFraction
                             ).absoluteValue
-
-                    // We animate the alpha, between 50% and 100%
-                    alpha = lerp(
-                        start = 0.5f,
-                        stop = 1f,
-                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                    )
+                    translationX = pageOffset * size.width
+                    alpha = 1 - pageOffset.absoluteValue
                 },
         ){
 
@@ -208,7 +223,7 @@ fun OpeningPage() {
             modifier = Modifier
                 .width(250.dp)
                 .height(233.dp)
-                .offset(y = 125.dp)
+                .offset(y = 75.dp)
         )
         Spacer(modifier = Modifier.padding(vertical = 42.dp))
         Text(
@@ -225,7 +240,7 @@ fun OpeningPage() {
                 .height(58.dp)
         )
         Text(
-            text = subText[currentPage],
+            text = subText[pagerState.currentPage],
             style = TextStyle(
                 fontSize = 30.sp,
                 fontFamily = FontFamily.Serif,
@@ -283,4 +298,26 @@ fun IndicatorDot(color: Color){
             .background(color)
             .size(14.dp)
     )
+}
+
+/**
+ * Remembers the result of [flowWithLifecycle]. Updates the value if the [flow]
+ * or [lifecycleOwner] changes. Cancels collection in onStop() and start it in onStart()
+ *
+ * @param flow The [Flow] that is going to be collected.
+ * @param lifecycleOwner The [LifecycleOwner] to validate the [Lifecycle.State] from
+ *
+ * @return [Flow] with the remembered value of type [T]
+ */
+@Composable
+fun <T> rememberFlowWithLifecycle( // 1
+    flow: Flow<T>,
+    lifecycleOwner: LifecycleOwner
+): Flow<T> {
+    return remember(flow, lifecycleOwner) { // 2
+        flow.flowWithLifecycle( // 3
+            lifecycleOwner.lifecycle, // 4
+            Lifecycle.State.STARTED // 5
+        )
+    }
 }
