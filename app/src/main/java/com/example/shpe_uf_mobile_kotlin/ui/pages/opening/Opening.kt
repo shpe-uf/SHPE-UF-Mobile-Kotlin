@@ -1,6 +1,15 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.opening
 
 import android.util.Log
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -68,7 +77,7 @@ import kotlin.math.absoluteValue
 
 // The goat source: https://blog.protein.tech/jetpack-compose-auto-image-slider-with-dots-indicator-45dfeba37712
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Preview(showBackground = true, widthDp = 430, heightDp = 932)
 @Composable
 fun OpeningPage() {
@@ -162,54 +171,6 @@ fun OpeningPage() {
         }
     }
 
-//    LaunchedEffect(Unit) {
-//        while (true) {
-//            //delay(2500)
-//            Log.d("async", "currently changing pages")
-//            val nextPage = (pagerState.currentPage + 1) % pagerState.pageCount
-//            pagerState.animateScrollToPage(nextPage)
-//        }
-//    }
-//
-//        HorizontalPager(
-//            count = images.size,
-//            state = pagerState,
-//            modifier = Modifier.fillMaxSize()
-//        ) { currentPage ->
-//            // Text, image will change based on the current page.
-//            // Offset each page to match figma design
-//            Log.d("Page", "Current page: "+currentPage)
-//            Image(
-//                painter = painterResource(id = images[currentPage]),
-//                contentDescription = null,
-//                contentScale = ContentScale.Crop,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .fillMaxHeight(),
-//                alpha = 0.5f
-//            )
-//
-//            Column(
-//                modifier = Modifier.fillMaxSize(),
-//                verticalArrangement = Arrangement.Center,
-//                horizontalAlignment = Alignment.CenterHorizontally
-//            ) {
-//                    Text(
-//                        text = subText[currentPage],
-//                        style = TextStyle(
-//                            fontSize = 25.sp,
-//                            fontFamily = FontFamily.Serif,
-//                            fontWeight = FontWeight(700),
-//                            color = Color(0xFFB0B0B0),
-//                        ),
-//                        modifier = Modifier
-//                            .offset(y = 84.dp) // TODO: Fix spacing between SHPE UF and the sub text.
-//                            .height(40.dp)
-//                    )
-//            }
-//            //EllipseBar(selectedIndex = if (isDragged) pagerState.currentPage else pagerState.currentPage)
-//        }
-
     // SHPE Text
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -239,17 +200,29 @@ fun OpeningPage() {
                 .width(203.dp)
                 .height(58.dp)
         )
-        Text(
-            text = subText[pagerState.currentPage],
-            style = TextStyle(
-                fontSize = 30.sp,
-                fontFamily = FontFamily.Serif,
-                fontWeight = FontWeight(700),
-                color = Color(0xFFB0B0B0),
-            ),
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-        )
+        AnimatedContent(
+            targetState = pagerState,
+            transitionSpec = {
+                (slideInHorizontally { height -> height } + fadeIn()).togetherWith(
+                    slideOutHorizontally { height -> -height } + fadeOut())
+                    .using(SizeTransform(clip = false))
+            }
+        ){
+            target ->
+            Text(
+                text = subText[target.currentPage],
+                style = TextStyle(
+                    fontSize = 30.sp,
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = FontWeight(700),
+                    color = Color(0xFFB0B0B0),
+                ),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+            )
+
+        }
+
     }
 
     GettingStartedBtn {
