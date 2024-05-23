@@ -161,7 +161,7 @@ fun OpeningPage() {
                 .wrapContentHeight()
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 8.dp),
+                .padding(bottom = 5.dp),
             horizontalArrangement = Arrangement.Center
         ){
             repeat(pagerState.pageCount) { iteration ->
@@ -245,7 +245,7 @@ fun GettingStartedBtn(onClick: () -> Unit) { // TODO: Implement navigation to Lo
                 .width(325.dp)
                 .height(69.dp)
                 .align(Alignment.BottomCenter)
-                .offset(y = (-43).dp),
+                .offset(y = (-58).dp),
             shape = RoundedCornerShape(size = 20.dp)
         ) {
             Text(
