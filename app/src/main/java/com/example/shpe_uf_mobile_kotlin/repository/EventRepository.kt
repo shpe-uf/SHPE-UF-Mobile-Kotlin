@@ -1,26 +1,27 @@
 package com.example.shpe_uf_mobile_kotlin.repository
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import com.example.shpe_uf_mobile_kotlin.data.database.EventDBProvider
-import com.example.shpe_uf_mobile_kotlin.data.models.Event
+import com.example.shpe_uf_mobile_kotlin.data.DAO.EventDao
+import com.example.shpe_uf_mobile_kotlin.data.database.EventDatabase
+import com.example.shpe_uf_mobile_kotlin.data.models.toEventEntity
+import com.example.shpe_uf_mobile_kotlin.data.models.toHomeViewModelEvent
+import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
+
 
 class EventRepository(context: Context) {
-    private val eventDao = EventDBProvider.getInstance(context).eventDAO()
+    private val eventDao: EventDao
 
-    fun getAllEvents(): LiveData<List<Event>> {
-        return eventDao.getAllEvents()
+    init {
+        val eventDatabase = EventDatabase.getInstance(context)
+        eventDao = eventDatabase.eventDAO()
     }
 
-    fun getEventById(id: String): LiveData<Event> {
-        return eventDao.getEventById(id)
+    suspend fun insert(event: HomeViewModel.Event) {
+        eventDao.insert(event.toEventEntity())
     }
 
-    suspend fun insertEvent(event: Event) {
-        eventDao.insertEvent(event)
+    suspend fun getALlEvents(): List <HomeViewModel.Event> {
+        return eventDao.getAllEvents().map { it.toHomeViewModelEvent() }
     }
 
-    suspend fun deleteEvent(event: Event) {
-        eventDao.deleteEvent(event)
-    }
 }

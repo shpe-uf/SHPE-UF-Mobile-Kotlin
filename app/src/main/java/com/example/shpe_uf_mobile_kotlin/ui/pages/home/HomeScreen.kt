@@ -31,6 +31,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
@@ -296,6 +297,18 @@ fun TopHeader(
                 .width(33.dp)
                 .height(32.dp)
                 .clickable { viewModel.openNotificationWindow() },
+            tint = Color.White
+        )
+
+        Icon(
+            imageVector = Icons.Default.Flag,
+            contentDescription = "Notifications",
+            modifier = Modifier
+                .size(35.dp)
+                .align(Alignment.Bottom)
+                .width(33.dp)
+                .height(32.dp)
+                .clickable { viewModel.loadEvents() },
             tint = Color.White
         )
 

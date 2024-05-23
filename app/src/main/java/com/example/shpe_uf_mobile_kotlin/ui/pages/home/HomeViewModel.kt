@@ -1,5 +1,4 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
-import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.viewModelScope
@@ -22,7 +21,6 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
@@ -139,15 +137,39 @@ class HomeViewModel(
     // Init Might Not Need to do this
     init {
         loadNotificationsSettings()
-       // fetchEventsForMonth(currentMonth.minusMonths(1)) // Previous month
+        //fetchEventsForMonth(YearMonth.now())
+        //loadEvents()
     }
 
-
-    // Event fetching
-    private fun loadEvents() {
-        // Fetch events for the current date when the ViewModel is create
-        fetchEventsForMonth(YearMonth.now().minusMonths(1))
+    // Event Caching
+    // save event
+    fun saveEventEE(event: Event) {
+        viewModelScope.launch {
+            eventRepo.insert(event)
+        }
     }
+
+    // load events
+    fun loadEvents() {
+        Log.d("HomeViewModel", "Loading events")
+
+        viewModelScope.launch {
+            val events = eventRepo.getALlEvents()
+
+            if (events.isNotEmpty()) {
+                Log.d("HomeViewModel", "Loading:")
+                Log.d("HomeViewModel", "Loaded events: $events")
+
+                //_events.value = events
+                _homeUIState.update { it.copy(events = events) }
+
+                Log.d("HomeViewModel", "Saved events: ${homeState.value.events}")
+                // insert this month to loaded events
+                _homeUIState.update { it.copy(loadedMonths = it.loadedMonths + YearMonth.now()) }
+            }
+        }
+    }
+
 
     fun getDaysInMonthArray(loadedMonths: List<YearMonth>): List<LocalDate> {
         return loadedMonths.sorted().flatMap { month ->
@@ -180,6 +202,15 @@ class HomeViewModel(
             Log.d("HomeViewModel", "timeMax: $timeMax")
             return
         }
+
+        loadEvents()
+
+        if (homeState.value.events.isNotEmpty()) {
+            Log.d("HomeViewModel", "Events already loaded")
+            return
+        }
+
+        Log.d("HomeViewModel", "Events after load events: ${_homeUIState.value.events}")
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -232,6 +263,13 @@ class HomeViewModel(
                         // add new events on top of old ones
                         _homeUIState.update { it.copy(events = events.orEmpty() + homeState.value.events) }
                         _homeUIState.update { it.copy(loadedMonths = it.loadedMonths + yearMonth) }
+
+                        // save event in the database
+                        events?.forEach { event ->
+                            saveEventEE(event)
+                            Log.d("HomeViewModel", "Saved event: $event")
+
+                        }
 
                         if (events.isNullOrEmpty()) {
                             _homeUIState.update { it.copy(monthsWithNoEvents = it.monthsWithNoEvents + yearMonth) }

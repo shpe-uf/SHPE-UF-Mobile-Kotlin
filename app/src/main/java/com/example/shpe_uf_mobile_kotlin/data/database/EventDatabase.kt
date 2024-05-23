@@ -6,27 +6,25 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.shpe_uf_mobile_kotlin.data.models.Event
-import com.example.shpe_uf_mobile_kotlin.data.DAO.EventDAO
+import com.example.shpe_uf_mobile_kotlin.data.DAO.EventDao
 
-@Database(entities = [Event::class], version = 1, exportSchema = false)
+@Database(entities = [Event::class], version = 1)
 abstract class EventDatabase : RoomDatabase() {
-    abstract fun eventDAO(): EventDAO
-}
+    abstract fun eventDAO(): EventDao
+    companion object {
+        @Volatile
+        private var INSTANCE: EventDatabase? = null
 
-object EventDBProvider {
-    @Volatile
-    private var INSTANCE: EventDatabase? = null
-
-    fun getInstance(context: Context): EventDatabase {
-        return INSTANCE ?: synchronized(this) {
-            val instance = Room.databaseBuilder(
-                context.applicationContext,
-                EventDatabase::class.java,
-                "events_database"
-            ).fallbackToDestructiveMigration()  // Handle migrations sensibly in a real app
-                .build()
-            INSTANCE = instance
-            instance
+        fun getInstance(context: Context): EventDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    EventDatabase::class.java,
+                    "events.db"
+                ).build()
+                INSTANCE = instance
+                instance
+            }
         }
     }
 }
