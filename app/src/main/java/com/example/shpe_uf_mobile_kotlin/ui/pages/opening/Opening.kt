@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -155,21 +156,27 @@ fun OpeningPage() {
 
     } // end pager
 
-    Box(modifier = Modifier.fillMaxSize()){
-        Row(
-            Modifier
-                .wrapContentHeight()
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 5.dp),
-            horizontalArrangement = Arrangement.Center
-        ){
-            repeat(pagerState.pageCount) { iteration ->
-                val color = if (pagerState.currentPage == iteration) Color.White else Color.DarkGray
-                IndicatorDot(color = color)
+    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(10.dp)){
+        GettingStartedBtn {
+            Log.d("Button", "Pressed!")
+        }
+
+        Box(modifier = Modifier.fillMaxSize()){
+            Row(
+                Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter),
+                horizontalArrangement = Arrangement.Center
+            ){
+                repeat(pagerState.pageCount) { iteration ->
+                    val color = if (pagerState.currentPage == iteration) Color.White else Color.DarkGray
+                    IndicatorDot(color = color)
+                }
             }
         }
     }
+
 
     // SHPE Text
     Column(
@@ -225,9 +232,7 @@ fun OpeningPage() {
 
     }
 
-    GettingStartedBtn {
-        Log.d("Button", "Pressed!")
-    }
+
 
 }
 
@@ -245,7 +250,7 @@ fun GettingStartedBtn(onClick: () -> Unit) { // TODO: Implement navigation to Lo
                 .width(325.dp)
                 .height(69.dp)
                 .align(Alignment.BottomCenter)
-                .offset(y = (-58).dp),
+                .offset(y = (-43).dp),
             shape = RoundedCornerShape(size = 20.dp)
         ) {
             Text(
