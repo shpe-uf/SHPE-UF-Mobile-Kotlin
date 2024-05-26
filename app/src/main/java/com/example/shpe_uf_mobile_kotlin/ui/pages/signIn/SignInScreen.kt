@@ -1,17 +1,25 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -19,9 +27,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,157 +44,241 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.withStyle
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
-
-@Preview(showBackground = true)
-@Composable
-fun SignInUIPreview(){
-    //SignInLayout()
-    //SignInBackground()
-}
-
-//@Composable
-////fun SignIn(){
-////    SignInLayout()
-////    SignInBackground()
-////    UsernameTextField()
-////}
 
 @Preview
 @Composable
-fun TextFieldsAndButton(signInViewModel: SignInViewModel = SignInViewModel()){
-    SHPEUFMobileKotlinTheme {
-        val uiState by signInViewModel.uiState.collectAsState()
+fun SignIn() {
+    SignInBackground()
+    SignInScreen()
+}
 
-        Column(
-            Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(),
-        ){
-            UsernameTextField(
-                value = uiState.username ?: "",
-                onValueChange = { signInViewModel.onUsernameChanged(it)}
+@Composable
+fun SignInBackground() {
+
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFD25917))
+    ) {
+
+        Image (
+            painter = painterResource(R.drawable.gator),
+            contentDescription = "Gator",
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 48.dp)
+        )
+
+    }
+
+}
+
+@Composable
+fun SignInScreen(
+    signInViewModel : SignInViewModel = SignInViewModel()
+) {
+
+
+
+    val uiState by signInViewModel.uiState.collectAsState()
+    val shpeLogo = R.drawable .shpe_logo_full_color
+
+    Box (
+        modifier = Modifier
+            .padding(top = 82.dp)
+    ) {
+
+        Spacer(modifier = Modifier.height(128.dp))
+
+        Column (
+            modifier = Modifier
+                .background(Color(0xFF011F35))
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Image (
+                painter = painterResource(shpeLogo),
+                contentDescription = shpeLogo.toString(),
+                contentScale = ContentScale.Fit
             )
-            PasswordTextField(
+            Text (
+                text = "SIGN IN",
+                style = MaterialTheme.typography.displayLarge,
+                color = Color(0xFFD25917)
+            )
+
+            Spacer(modifier = Modifier.height(64.dp))
+
+            UserNameInput(
+                value = uiState.username ?: "",
+                onValueChange = { signInViewModel.onUsernameChanged(it) }
+            )
+            PasswordInput(
                 value = uiState.password ?: "",
-                onValueChange = { signInViewModel.onPasswordChanged(it)},
+                onValueChange = { signInViewModel.onPasswordChanged(it) },
                 isPasswordVisible = uiState.isPasswordVisible
             )
 
-            Submit(
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SignInButton(
                 onClick = { signInViewModel.validateAndLoginUser() }
             )
 
-            Text_(
+            LoginErrorMessage(
                 value = uiState.loginErrorMessage ?: ""
             )
+
+            SignUp()
+
         }
     }
 
+
 }
 
-@Composable
-fun SignInBackground(modifier: Modifier = Modifier) {
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val orangeHeight = screenHeight * (1.01f / 11f)
-    val whiteHeight = screenHeight * (10f / 11f)
-
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(orangeHeight)
-                .background(OrangeSHPE)
-        )
-        Image(
-            painter = painterResource(id = R.drawable.gatorshpe),
-            contentDescription = "SHPE GATOR",
-            modifier = Modifier
-                .fillMaxWidth()
-                .offset(y = -20.dp)
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(whiteHeight)
-                .align(Alignment.BottomCenter)
-                .background(WhiteSHPE)
-        )
-    }
-}
-
-//@Composable
-//fun SignInLayout(modifier: Modifier = Modifier){
-//
-//    Column(
-//        Modifier
-//            .padding(25.dp)
-//            .fillMaxWidth()) {
-////        Text(
-////            text = "SIGN IN",
-////            style = TextStyle(
-////                fontSize = 50.sp,
-////                fontWeight = FontWeight(400),
-////                color = OrangeSHPE,
-////            ),
-////            modifier = Modifier
-////                .width(180.dp)
-////                .height(42.dp)
-////        )
-//    }
-//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UsernameTextField(
+fun UserNameInput(
     value: String,
     onValueChange: (String) -> Unit
-){
-    TextField(
-        value = value,
-        onValueChange = {onValueChange(it)},
-        textStyle = TextStyle(fontSize = 25.sp),
-        label = {Text("Username")},
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text
+) {
+
+    Column (
+        modifier = Modifier
+            .padding(horizontal = 24.dp)
+    ) {
+
+        Text (
+            text = "Username",
+            color = Color.White,
+            modifier = Modifier
+                .padding(horizontal = 40.dp, vertical = 4.dp)
         )
-    )
+
+        TextField(
+            shape = MaterialTheme.shapes.large,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp),
+            value = value,
+            onValueChange = {onValueChange(it)},
+            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 25.sp),
+            label = {Text("Username")},
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text
+            )
+        )
+
+    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PasswordTextField(
+fun PasswordInput(
     value: String,
     onValueChange: (String) -> Unit,
     isPasswordVisible: Boolean
-){
+) {
 
-    TextField(
-        value = value,
-        onValueChange = {onValueChange(it)},
-        label = {Text("Password")},
-        visualTransformation =
-        if(isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None
-    )
-}
-
-@Composable
-fun Submit(onClick: () -> Unit){
-    Button(
+    Column (
         modifier = Modifier
-            .fillMaxWidth(),
-        onClick = {
-            onClick()
-    }){
-        Text("Submit")
+            .padding(horizontal = 24.dp)
+    ) {
+
+        Text (
+            text = "Password",
+            color = Color.White,
+            modifier = Modifier
+                .padding(horizontal = 40.dp, vertical = 4.dp)
+        )
+
+        TextField (
+            shape = MaterialTheme.shapes.large,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp),
+            value = value,
+            onValueChange = {onValueChange(it)},
+            label = {Text("Password")},
+            visualTransformation =
+            if(isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None
+        )
+
     }
 }
 
 @Composable
-fun Text_(value: String){
+fun SignInButton(onClick: () -> Unit) {
+
+    Button (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 72.dp, vertical = 16.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFD25917),
+            contentColor = Color.White // Set text color
+        ),
+        onClick = {
+            onClick()
+        }
+    ) {
+        Text("Sign In")
+    }
+
+}
+
+@Composable
+fun LoginErrorMessage(value: String){
     Text(value)
 }
+
+@Composable
+fun SignUp() {
+
+    val annotatedText = buildAnnotatedString {
+
+        withStyle (
+            style = SpanStyle(Color.White)
+        ) {
+            append("Don't have an account? ")
+        }
+
+        // We attach this *URL* annotation to the following content
+        // until `pop()` is called
+        pushStringAnnotation(
+            tag = "URL", annotation = "https://developer.android.com"
+        )
+        withStyle(
+            style = SpanStyle(
+                color = Color.Blue, fontWeight = FontWeight.Bold
+            )
+        ) {
+            append("Sign Up")
+        }
+
+        pop()
+    }
+
+    ClickableText(text = annotatedText, onClick = { offset ->
+        // We check if there is an *URL* annotation attached to the text
+        // at the clicked position
+        annotatedText.getStringAnnotations(
+            tag = "URL", start = offset, end = offset
+        ).firstOrNull()?.let { annotation ->
+            // If yes, we log its value
+            Log.d("Clicked URL", annotation.item)
+        }
+    })
+
+}
+
+
