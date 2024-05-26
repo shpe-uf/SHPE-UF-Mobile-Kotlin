@@ -7,13 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -25,6 +22,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,17 +33,17 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.shpe_uf_mobile_kotlin.R
-import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
-import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
-import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
+import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 
 @Preview
 @Composable
@@ -56,14 +54,12 @@ fun SignIn() {
 
 @Composable
 fun SignInBackground() {
-
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFD25917))
     ) {
-
-        Image (
+        Image(
             painter = painterResource(R.drawable.gator),
             contentDescription = "Gator",
             contentScale = ContentScale.FillWidth,
@@ -71,42 +67,35 @@ fun SignInBackground() {
                 .fillMaxWidth()
                 .padding(horizontal = 48.dp)
         )
-
     }
-
 }
 
 @Composable
-fun SignInScreen(
-    signInViewModel : SignInViewModel = SignInViewModel()
-) {
+fun SignInScreen() {
 
-
-
+    val signInViewModel = remember { SignInViewModel() }
     val uiState by signInViewModel.uiState.collectAsState()
-    val shpeLogo = R.drawable .shpe_logo_full_color
+    val shpeLogo = R.drawable.shpe_logo_full_color
 
-    Box (
+    Box(
         modifier = Modifier
             .padding(top = 82.dp)
     ) {
-
         Spacer(modifier = Modifier.height(128.dp))
 
-        Column (
+        Column(
             modifier = Modifier
                 .background(Color(0xFF011F35))
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            Image (
+            Image(
                 painter = painterResource(shpeLogo),
                 contentDescription = shpeLogo.toString(),
                 contentScale = ContentScale.Fit
             )
-            Text (
+            Text(
                 text = "SIGN IN",
                 style = MaterialTheme.typography.displayLarge,
                 color = Color(0xFFD25917)
@@ -135,13 +124,9 @@ fun SignInScreen(
             )
 
             SignUp()
-
         }
     }
-
-
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -149,13 +134,11 @@ fun UserNameInput(
     value: String,
     onValueChange: (String) -> Unit
 ) {
-
-    Column (
+    Column(
         modifier = Modifier
             .padding(horizontal = 24.dp)
     ) {
-
-        Text (
+        Text(
             text = "Username",
             color = Color.White,
             modifier = Modifier
@@ -168,17 +151,15 @@ fun UserNameInput(
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp),
             value = value,
-            onValueChange = {onValueChange(it)},
+            onValueChange = { onValueChange(it) },
             textStyle = androidx.compose.ui.text.TextStyle(fontSize = 25.sp),
-            label = {Text("Username")},
+            label = { Text("Username") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text
             )
         )
-
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -188,38 +169,34 @@ fun PasswordInput(
     onValueChange: (String) -> Unit,
     isPasswordVisible: Boolean
 ) {
-
-    Column (
+    Column(
         modifier = Modifier
             .padding(horizontal = 24.dp)
     ) {
-
-        Text (
+        Text(
             text = "Password",
             color = Color.White,
             modifier = Modifier
                 .padding(horizontal = 40.dp, vertical = 4.dp)
         )
 
-        TextField (
+        TextField(
             shape = MaterialTheme.shapes.large,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp),
             value = value,
-            onValueChange = {onValueChange(it)},
-            label = {Text("Password")},
+            onValueChange = { onValueChange(it) },
+            label = { Text("Password") },
             visualTransformation =
-            if(isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None
+            if (isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None
         )
-
     }
 }
 
 @Composable
 fun SignInButton(onClick: () -> Unit) {
-
-    Button (
+    Button(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 72.dp, vertical = 16.dp),
@@ -233,20 +210,17 @@ fun SignInButton(onClick: () -> Unit) {
     ) {
         Text("Sign In")
     }
-
 }
 
 @Composable
-fun LoginErrorMessage(value: String){
+fun LoginErrorMessage(value: String) {
     Text(value)
 }
 
 @Composable
 fun SignUp() {
-
     val annotatedText = buildAnnotatedString {
-
-        withStyle (
+        withStyle(
             style = SpanStyle(Color.White)
         ) {
             append("Don't have an account? ")
@@ -278,7 +252,5 @@ fun SignUp() {
             Log.d("Clicked URL", annotation.item)
         }
     })
-
 }
-
 
