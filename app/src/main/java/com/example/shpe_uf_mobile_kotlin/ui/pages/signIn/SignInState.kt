@@ -14,4 +14,3 @@ data class SignInState(
     // By default password should be invisible.
     val isPasswordVisible: Boolean = true
 )
-
