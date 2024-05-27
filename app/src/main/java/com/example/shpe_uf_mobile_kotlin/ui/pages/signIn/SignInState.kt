@@ -9,7 +9,7 @@ data class SignInState(
     // By default user should be unable to login.
     val usernameErrorMessage: String? = "Username is required.",
     val passwordErrorMessage: String? = "Password is required.",
-    val loginErrorMessage: String? = "Unable to login.",
+    val loginErrorMessage: String? = "Could not login.",
 
     // By default password should be invisible.
     val isPasswordVisible: Boolean = false
