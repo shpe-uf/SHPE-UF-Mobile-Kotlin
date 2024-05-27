@@ -156,10 +156,8 @@ fun OpeningPage() {
 
     } // end pager
 
-    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(10.dp)){
-        GettingStartedBtn {
-            Log.d("Button", "Pressed!")
-        }
+    Column(Modifier.fillMaxSize().navigationBarsPadding()){
+
 
         Box(modifier = Modifier.fillMaxSize()){
             Row(
@@ -174,6 +172,10 @@ fun OpeningPage() {
                     IndicatorDot(color = color)
                 }
             }
+        }
+
+        GettingStartedBtn {
+            Log.d("Button", "Pressed!")
         }
     }
 
@@ -249,8 +251,7 @@ fun GettingStartedBtn(onClick: () -> Unit) { // TODO: Implement navigation to Lo
             modifier = Modifier
                 .width(325.dp)
                 .height(69.dp)
-                .align(Alignment.BottomCenter)
-                .offset(y = (-43).dp),
+                .align(Alignment.BottomCenter),
             shape = RoundedCornerShape(size = 20.dp)
         ) {
             Text(
