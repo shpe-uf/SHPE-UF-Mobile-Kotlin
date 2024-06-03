@@ -120,6 +120,6 @@ class SignInViewModel : ViewModel() {
     // TODO: Implement password visibility in UI.
     // Changes the password's visibility.
     fun togglePasswordVisibility() {
-        _uiState.value = _uiState.value.copy(isPasswordVisible = !_uiState.value.isPasswordVisible)
+        _uiState.value = _uiState.value.copy(isPasswordInvisible = !_uiState.value.isPasswordInvisible)
     }
 }
