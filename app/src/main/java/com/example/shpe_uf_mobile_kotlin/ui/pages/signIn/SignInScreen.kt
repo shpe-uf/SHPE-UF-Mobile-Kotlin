@@ -105,7 +105,7 @@ fun SignInScreen() {
             PasswordInput(
                 value = uiState.password ?: "",
                 onValueChange = { signInViewModel.onPasswordChanged(it) },
-                isPasswordVisible = uiState.isPasswordInvisible
+                isPasswordInvisible = uiState.isPasswordInvisible
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -162,7 +162,7 @@ fun UserNameInput(
 fun PasswordInput(
     value: String,
     onValueChange: (String) -> Unit,
-    isPasswordVisible: Boolean
+    isPasswordInvisible: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -184,7 +184,7 @@ fun PasswordInput(
             onValueChange = { onValueChange(it) },
             label = { Text("Password") },
             visualTransformation =
-            if (isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None
+            if (isPasswordInvisible) PasswordVisualTransformation() else VisualTransformation.None
         )
     }
 }
