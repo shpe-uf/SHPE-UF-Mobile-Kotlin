@@ -1,12 +1,8 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.opening
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.runtime.Composable
 import com.example.shpe_uf_mobile_kotlin.R
 
-data class OpeningPageState @OptIn(ExperimentalFoundationApi::class) constructor(
+data class OpeningPageState (
 
     // storing each page as a pair of images and captions.
 
