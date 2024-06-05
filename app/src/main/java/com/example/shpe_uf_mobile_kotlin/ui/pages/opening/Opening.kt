@@ -54,6 +54,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardElevation
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -76,55 +77,21 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.onEach
 import kotlin.math.absoluteValue
 
+
+@Preview
+@Composable
+fun OpeningPagePreview(){
+    val viewModel = OpeningViewModel()
+    OpeningPage(viewModel)
+}
+
 // The goat source: https://blog.protein.tech/jetpack-compose-auto-image-slider-with-dots-indicator-45dfeba37712
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
-@Preview(showBackground = true, widthDp = 430, heightDp = 932)
 @Composable
-fun OpeningPage() {
-    // TODO: Add to ViewModel.
-    val images = listOf(
-        R.drawable.opening_1,
-        R.drawable.opening_2,
-        R.drawable.opening_3,
-        R.drawable.opening_4,
-        R.drawable.opening_5,
-        R.drawable.opening_6,
-        R.drawable.opening_7,
-        R.drawable.opening_8
-    )
-    // TODO: Add to ViewModel.
-    val subText = listOf(
-        "Familia",
-        "Leadership",
-        "Professionalism",
-        "Resilience",
-        "Mentorship",
-        "Education",
-        "Technology",
-        "Community"
-    )
-    // TODO: Add to ViewModel.
-    val pagerState = rememberPagerState(
-        pageCount = {subText.size}
-    )
+fun OpeningPage(viewModel: OpeningViewModel) {
 
-    var pageKey by remember { mutableStateOf(0)}
-    val effectFlow = rememberFlowWithLifecycle(pagerState.interactionSource.interactions, 
-        LocalLifecycleOwner.current)
-
-    LaunchedEffect(effectFlow) {
-        effectFlow.collectLatest {
-            if(it is DragInteraction.Stop) pageKey++
-        }
-    }
-
-    LaunchedEffect(pageKey){
-        delay(3250)
-        val newPage = (pagerState.currentPage + 1) % images.size
-        pagerState.animateScrollToPage(newPage)
-        pageKey++
-    }
+    val pagerState = viewModel.updatePage()
 
     // Start Pager
     HorizontalPager(state = pagerState) { page ->
@@ -143,7 +110,7 @@ fun OpeningPage() {
         ){
 
             Image(
-                painter = painterResource(id = images[page]),
+                painter = painterResource(id = viewModel.getPage(page).first),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -156,7 +123,10 @@ fun OpeningPage() {
 
     } // end pager
 
-    Column(Modifier.fillMaxSize().navigationBarsPadding()){
+    Column(
+        Modifier
+            .fillMaxSize()
+            .navigationBarsPadding()){
 
 
         Box(modifier = Modifier.fillMaxSize()){
@@ -219,7 +189,7 @@ fun OpeningPage() {
         ){
             target ->
             Text(
-                text = subText[target.currentPage],
+                text = viewModel.getPage(target.currentPage).second,
                 style = TextStyle(
                     fontSize = 30.sp,
                     fontFamily = FontFamily.Serif,
@@ -277,26 +247,4 @@ fun IndicatorDot(color: Color){
             .background(color)
             .size(14.dp)
     )
-}
-
-/**
- * Remembers the result of [flowWithLifecycle]. Updates the value if the [flow]
- * or [lifecycleOwner] changes. Cancels collection in onStop() and start it in onStart()
- *
- * @param flow The [Flow] that is going to be collected.
- * @param lifecycleOwner The [LifecycleOwner] to validate the [Lifecycle.State] from
- *
- * @return [Flow] with the remembered value of type [T]
- */
-@Composable
-fun <T> rememberFlowWithLifecycle( // 1
-    flow: Flow<T>,
-    lifecycleOwner: LifecycleOwner
-): Flow<T> {
-    return remember(flow, lifecycleOwner) { // 2
-        flow.flowWithLifecycle( // 3
-            lifecycleOwner.lifecycle, // 4
-            Lifecycle.State.STARTED // 5
-        )
-    }
 }
