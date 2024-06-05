@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
 class MainActivity : ComponentActivity() {
@@ -25,25 +26,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    OpeningPage()
+                    OpeningPage(OpeningViewModel())
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SHPEUFMobileKotlinTheme {
-        Greeting("Android")
     }
 }
