@@ -53,14 +53,15 @@ fun SHPEUFMobileKotlinTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
-        }
-    }
+//    val view = LocalView.current
+//    if (!view.isInEditMode) {
+//        SideEffect {
+//            val window = (view.context as Activity).window
+//            window.statusBarColor = colorScheme.primary.toArgb()
+//            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+//        }
+//    }
+    //edge to edge
 
     MaterialTheme(
         colorScheme = colorScheme,
