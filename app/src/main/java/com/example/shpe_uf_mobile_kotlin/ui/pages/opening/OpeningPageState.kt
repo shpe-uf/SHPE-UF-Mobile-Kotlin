@@ -2,10 +2,10 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.opening
 
 import com.example.shpe_uf_mobile_kotlin.R
 
-data class OpeningPageState (
+// Opening page state
+data class OpeningPageState(
 
-    // storing each page as a pair of images and captions.
-
+    // Storing each page as a pair of images and captions.
     val pages: List<Pair<Int, String>> = listOf(
         Pair(R.drawable.opening_1, "Familia"),
         Pair(R.drawable.opening_2, "Leadership"),
@@ -17,5 +17,6 @@ data class OpeningPageState (
         Pair(R.drawable.opening_8, "Community"),
     ),
 
+    // Current page index
     val pageKey: Int = 0,
 )
