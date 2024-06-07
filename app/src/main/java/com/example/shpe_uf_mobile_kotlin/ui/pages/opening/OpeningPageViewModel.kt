@@ -1,22 +1,14 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.opening;
 
-import android.util.Log
-import android.view.DragEvent
-import android.view.GestureDetector
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.DragInteraction
-import androidx.compose.foundation.interaction.Interaction
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.unit.Velocity
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
@@ -29,7 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 
 // Represents the state of the opening page.
-class OpeningViewModel : ViewModel() {
+class OpeningPageViewModel : ViewModel() {
 
     // Holds the state of the opening page.
     private val _uiState = MutableStateFlow(OpeningPageState())
