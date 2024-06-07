@@ -1,18 +1,10 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.opening
 
-import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -52,14 +44,15 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
-import kotlin.math.absoluteValue
+import androidx.compose.ui.draw.shadow
+import com.example.shpe_uf_mobile_kotlin.ui.theme.GREY
+import com.example.shpe_uf_mobile_kotlin.ui.theme.WHITE
 
 
 @Preview
@@ -77,15 +70,21 @@ fun OpeningPage(viewModel: OpeningViewModel) {
 
     val pagerState = viewModel.updatePage()
 
+    // Images
     ImageCarousel(pagerState = pagerState, viewModel = viewModel)
+
+    GettingStartedButton {
+
+    }
 
     Column(
         Modifier
             .fillMaxSize()
-            .navigationBarsPadding()
+            .safeDrawingPadding(),
     ) {
 
         Box(modifier = Modifier.fillMaxSize()) {
+            // Indicator Dots
             Row(
                 Modifier
                     .wrapContentHeight()
@@ -95,12 +94,16 @@ fun OpeningPage(viewModel: OpeningViewModel) {
             ) {
                 repeat(pagerState.pageCount) { iteration ->
                     val color =
-                        if (pagerState.currentPage == iteration) Color.White else Color(0xFF727272)
+                        if (pagerState.currentPage == iteration) WHITE else GREY
                     IndicatorDot(color = color)
                 }
             }
+
+
         }
+
     }
+
 
     // SHPE Text
     Column(
@@ -119,7 +122,6 @@ fun OpeningPage(viewModel: OpeningViewModel) {
                 color = Color.White
             ),
             modifier = Modifier
-                .offset(x = 5.dp, y = 21.dp)
                 .width(203.dp)
                 .height(58.dp)
         )
@@ -134,18 +136,9 @@ fun OpeningPage(viewModel: OpeningViewModel) {
 fun ImageCarousel(pagerState: PagerState, viewModel: OpeningViewModel) {
     // Start Pager
     HorizontalPager(state = pagerState) { page ->
-        Card(
-            Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-//                .graphicsLayer {
-//                    val pageOffset = (
-//                            (pagerState.currentPage - page) + pagerState
-//                                .currentPageOffsetFraction
-//                            ).absoluteValue
-//                    translationX = pageOffset * size.width
-//                    alpha = 1 - pageOffset.absoluteValue
-//                },
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
         ) {
 
             Image(
@@ -209,7 +202,7 @@ fun AnimatedCaption(pagerState: PagerState, viewModel: OpeningViewModel) {
 }
 
 @Composable
-fun GettingStartedBtn(onClick: () -> Unit) { // TODO: Implement navigation to Login page when pressing this button.
+fun GettingStartedButton(onClick: () -> Unit) { // TODO: Implement navigation to Login page when pressing this button.
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -219,9 +212,13 @@ fun GettingStartedBtn(onClick: () -> Unit) { // TODO: Implement navigation to Lo
             onClick = { onClick() },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF011F35)),
             modifier = Modifier
+                .shadow(
+                    elevation = 4.dp,
+                    spotColor = Color(0x40000000),
+                    ambientColor = Color(0x40000000)
+                )
                 .width(325.dp)
-                .height(69.dp)
-                .align(Alignment.BottomCenter),
+                .height(69.dp),
             shape = RoundedCornerShape(size = 20.dp)
         ) {
             Text(
@@ -242,7 +239,6 @@ fun GettingStartedBtn(onClick: () -> Unit) { // TODO: Implement navigation to Lo
 fun IndicatorDot(color: Color) {
     Box(
         modifier = Modifier
-            .safeDrawingPadding()
             .padding(5.dp)
             .clip(CircleShape)
             .background(color)
