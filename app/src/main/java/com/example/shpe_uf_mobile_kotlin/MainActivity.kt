@@ -1,6 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin
 
-import android.graphics.Color
+//import android.graphics.Color
 import android.os.Bundle
 import android.view.Window
 import androidx.activity.ComponentActivity
@@ -23,6 +23,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
@@ -50,9 +52,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 items
 
-                enableEdgeToEdge(statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT))
-
-
+                enableEdgeToEdge(statusBarStyle = SystemBarStyle.light( Color(0xFFD25917).toArgb(), Color(0xFFD25917).toArgb()))
 
                 // A surface container using the 'background' color from the theme
                 Surface(

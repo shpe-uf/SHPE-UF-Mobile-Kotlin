@@ -3,6 +3,7 @@ package com.example.shpe_uf_mobile_kotlin.data.models
 import androidx.compose.ui.graphics.Color
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
@@ -10,9 +11,10 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 
 
 
-@Entity(tableName = "events")
+@Entity(tableName = "events", indices =[Index(value = ["summary"], unique = true)])
 @TypeConverters(Converters::class)
 data class Event(
+    // i want the primary key to be the summary string
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val summary: String,
     val description: String?,
