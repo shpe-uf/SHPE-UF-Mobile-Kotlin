@@ -9,7 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
-import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPageViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    OpeningPage(OpeningViewModel())
+                    OpeningPage(OpeningPageViewModel())
                 }
             }
         }

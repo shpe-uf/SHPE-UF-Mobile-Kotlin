@@ -2,9 +2,6 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.opening
 
 import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -43,10 +39,6 @@ import com.example.shpe_uf_mobile_kotlin.R
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,7 +52,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.WHITE
 @Preview
 @Composable
 fun OpeningPagePreview() {
-    val viewModel = OpeningViewModel()
+    val viewModel = OpeningPageViewModel()
     OpeningPage(viewModel)
 }
 
@@ -68,7 +60,7 @@ fun OpeningPagePreview() {
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun OpeningPage(viewModel: OpeningViewModel) {
+fun OpeningPage(viewModel: OpeningPageViewModel) {
 
     val pagerState = viewModel.updatePage()
 
@@ -93,7 +85,7 @@ fun OpeningPage(viewModel: OpeningViewModel) {
         }
         Spacer(Modifier.weight(1f)) // Space between caption and button.
         Row {
-            GettingStartedButton(onClick = { /*TODO*/ }) // Button is fourth.
+            GettingStartedButton(onClick = { Log.d("Button", "Pressed") }) // Button is fourth.
         }
         Spacer(Modifier.height(23.dp))
         Row {
@@ -104,7 +96,7 @@ fun OpeningPage(viewModel: OpeningViewModel) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageCarousel(pagerState: PagerState, viewModel: OpeningViewModel) {
+fun ImageCarousel(pagerState: PagerState, viewModel: OpeningPageViewModel) {
     // Start Pager
     HorizontalPager(state = pagerState) { page ->
         Box(
@@ -148,7 +140,11 @@ fun SHPEUFText() {
             fontStyle = FontStyle.Italic,
             fontWeight = FontWeight(700),
             color = Color.White,
-            shadow = Shadow(color = Color(0xFF000000), offset = Offset(x = 2f, y = 4f), blurRadius = 4f)
+            shadow = Shadow(
+                color = Color(0xFF000000),
+                offset = Offset(x = 2f, y = 4f),
+                blurRadius = 4f
+            )
         ),
         modifier = Modifier
             .width(203.dp)
@@ -159,22 +155,7 @@ fun SHPEUFText() {
 // TODO: Incorporate animation.
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AnimatedCaption(pagerState: PagerState, viewModel: OpeningViewModel) {
-    val offsetX = remember { Animatable(0f) }
-
-    val animationSpec = tween<Float>(
-        durationMillis = 300,
-        easing = FastOutSlowInEasing,
-    )
-
-    LaunchedEffect(Unit) {
-        offsetX.animateTo(
-            targetValue = -100f,
-            animationSpec = animationSpec
-        )
-    }
-
-    Log.d("offsetX value", offsetX.value.toString())
+fun AnimatedCaption(pagerState: PagerState, viewModel: OpeningPageViewModel) {
 
     Text(
         text = viewModel.getPage(pagerState.currentPage).second,
@@ -202,7 +183,7 @@ fun GettingStartedButton(
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF011F35)),
         modifier = Modifier
             .shadow(
-                elevation = 4.dp,
+                elevation = 10.dp,
                 spotColor = Color(0x40000000),
                 ambientColor = Color(0x40000000)
             )
@@ -217,7 +198,7 @@ fun GettingStartedButton(
                 fontWeight = FontWeight(400),
                 color = Color(0xFFFFFFFF),
             ),
-            modifier = Modifier.offset(y = (-1).dp) // Figma has a weird offset by 1 pixel.
+            modifier = Modifier.offset(y = (-4).dp) // Figma has a weird offset by 1 pixel.
         )
     }
 }
@@ -231,6 +212,7 @@ fun IndicatorDot(color: Color) {
             .clip(CircleShape) // Makes the dot round.
             .background(color) // Color of the dot.
             .size(10.dp) // Size of the dot.
+            .shadow(elevation = 4.dp, shape = CircleShape)
     )
 }
 
@@ -246,10 +228,13 @@ fun IndicatorDots(pagerState: PagerState) {
         horizontalArrangement = Arrangement.Center // Center horizontally.
     ) {
         // Dots based on current page.
+
         repeat(pagerState.pageCount) { iteration ->
             val color =
                 if (pagerState.currentPage == iteration) WHITE else GREY
             IndicatorDot(color = color)
+
+
         }
     }
 }
