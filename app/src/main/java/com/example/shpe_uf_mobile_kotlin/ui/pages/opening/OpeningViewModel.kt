@@ -20,17 +20,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 
+// Represents the state of the opening page.
 class OpeningViewModel : ViewModel() {
 
+    // Holds the state of the opening page.
     private val _uiState = MutableStateFlow(OpeningPageState())
     val uiState: StateFlow<OpeningPageState> = _uiState.asStateFlow()
 
     // Get the page given the current index.
-    fun getPage(index: Int): Pair<Int, String>{
+    fun getPage(index: Int): Pair<Int, String> {
         val currentState = uiState.value
         return currentState.pages[index]
     }
 
+    // Get the current page key.
     private fun getPageKey(): Int {
         return uiState.value.pageKey
     }
@@ -38,25 +41,33 @@ class OpeningViewModel : ViewModel() {
     // Updates the current page depending on if it's scrolling or automatic.
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun updatePage(): PagerState{
+    fun updatePage(): PagerState {
         val currentState = uiState.collectAsState().value
         val pages = currentState.pages
 
-        val pagerState = rememberPagerState(
-            pageCount = {pages.size}
+        val pagerState = rememberPagerState(pageCount = { pages.size })
+        val effectFlow = rememberFlowWithLifecycle(
+            pagerState.interactionSource.interactions, LocalLifecycleOwner.current
         )
-        val effectFlow = rememberFlowWithLifecycle(pagerState.interactionSource.interactions,
-            LocalLifecycleOwner.current)
 
         // Used for manually moving the images using a drag interaction.
         LaunchedEffect(effectFlow) {
-            effectFlow.collectLatest{
-                if(it is DragInteraction.Stop) updatePageKey()
+            effectFlow.collectLatest {
+                if (it is DragInteraction.Stop) {
+
+                    val velocity = it.velocity
+                    if (pagerState.currentPage == pages.size - 1) { // Reached last page, scroll to first page.
+                        pagerState.scrollToPage(0)
+                    }
+                    else {
+                        updatePageKey()
+                    }
+                }
             }
         }
 
         // Used for automatically moving the carousel.
-        LaunchedEffect(getPageKey()){
+        LaunchedEffect(getPageKey()) {
             delay(3250)
             val newPage = (pagerState.currentPage + 1) % pages.size
             pagerState.animateScrollToPage(newPage)
@@ -67,11 +78,11 @@ class OpeningViewModel : ViewModel() {
     }
 
     // Increment the page key by 1.
-    private fun updatePageKey(){
+    private fun updatePageKey() {
         val currentState = uiState.value
 
         _uiState.value = currentState.copy(
-            pageKey = getPageKey()+1
+            pageKey = getPageKey() + 1
         )
     }
 
@@ -87,8 +98,7 @@ class OpeningViewModel : ViewModel() {
      */
     @Composable
     private fun <T> rememberFlowWithLifecycle( // 1
-        flow: Flow<T>,
-        lifecycleOwner: LifecycleOwner
+        flow: Flow<T>, lifecycleOwner: LifecycleOwner
     ): Flow<T> {
         return remember(flow, lifecycleOwner) { // 2
             flow.flowWithLifecycle( // 3
