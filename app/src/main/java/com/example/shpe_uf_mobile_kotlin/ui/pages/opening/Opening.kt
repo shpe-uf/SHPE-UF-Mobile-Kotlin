@@ -51,6 +51,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Shadow
 import com.example.shpe_uf_mobile_kotlin.ui.theme.GREY
 import com.example.shpe_uf_mobile_kotlin.ui.theme.WHITE
 
@@ -73,62 +75,31 @@ fun OpeningPage(viewModel: OpeningViewModel) {
     // Images
     ImageCarousel(pagerState = pagerState, viewModel = viewModel)
 
-    GettingStartedButton {
-
-    }
-
+    // All content is in a 1x5 grid. With 4 Spacers, to ensure spacing.
     Column(
-        Modifier
-            .fillMaxSize()
-            .safeDrawingPadding(),
-    ) {
-
-        Box(modifier = Modifier.fillMaxSize()) {
-            // Indicator Dots
-            Row(
-                Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                repeat(pagerState.pageCount) { iteration ->
-                    val color =
-                        if (pagerState.currentPage == iteration) WHITE else GREY
-                    IndicatorDot(color = color)
-                }
-            }
-
-
-        }
-
-    }
-
-
-    // SHPE Text
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(21.dp),
+        modifier = Modifier.safeDrawingPadding(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        SHPELogo()
-        Spacer(modifier = Modifier.padding(21.dp))
-        Text(
-            text = "SHPE UF",
-            style = TextStyle(
-                fontSize = 48.sp,
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight(700),
-                color = Color.White
-            ),
-            modifier = Modifier
-                .width(203.dp)
-                .height(58.dp)
-        )
-        Spacer(modifier = Modifier.padding(10.dp))
-        AnimatedCaption(pagerState = pagerState, viewModel = viewModel)
+        Row {
+            SHPELogo() // SHPE Logo is first.
+        }
+        Spacer(Modifier.height(21.dp)) // Space between logo and text.
+        Row {
+            SHPEUFText() // SHPE UF Text is second.
+        }
+        Spacer(Modifier.height(16.dp)) // Space between text and caption.
+        Row {
+            AnimatedCaption(pagerState = pagerState, viewModel = viewModel) // Caption is third.
+        }
+        Spacer(Modifier.weight(1f)) // Space between caption and button.
+        Row {
+            GettingStartedButton(onClick = { /*TODO*/ }) // Button is fourth.
+        }
+        Spacer(Modifier.height(23.dp))
+        Row {
+            IndicatorDots(pagerState = pagerState) // Dots are last.
+        }
     }
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -162,13 +133,30 @@ fun SHPELogo() {
         contentDescription = "SHPE logo.",
         contentScale = ContentScale.FillBounds,
         modifier = Modifier
-            .safeDrawingPadding()
             .width(250.dp)
             .height(233.dp)
 
     )
 }
 
+@Composable
+fun SHPEUFText() {
+    Text(
+        text = "SHPE UF",
+        style = TextStyle(
+            fontSize = 48.sp,
+            fontStyle = FontStyle.Italic,
+            fontWeight = FontWeight(700),
+            color = Color.White,
+            shadow = Shadow(color = Color(0xFF000000), offset = Offset(x = 2f, y = 4f), blurRadius = 4f)
+        ),
+        modifier = Modifier
+            .width(203.dp)
+            .height(58.dp)
+    )
+}
+
+// TODO: Incorporate animation.
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AnimatedCaption(pagerState: PagerState, viewModel: OpeningViewModel) {
@@ -195,42 +183,42 @@ fun AnimatedCaption(pagerState: PagerState, viewModel: OpeningViewModel) {
             fontFamily = FontFamily.Serif,
             fontWeight = FontWeight(700),
             color = Color(0xFFB0B0B0),
+            shadow = Shadow(
+                color = Color(0xFF000000),
+                offset = Offset(x = 2f, y = 4f),
+                blurRadius = 4f
+            ) // Taken from Figma, offset X was estimated.
         ),
-//            modifier = Modifier
-//                .align(Alignment.CenterHorizontally)
     )
 }
 
+// Button
 @Composable
-fun GettingStartedButton(onClick: () -> Unit) { // TODO: Implement navigation to Login page when pressing this button.
-    Box(
+fun GettingStartedButton(
+    onClick: () -> Unit
+) { // TODO: Implement navigation to Login page when pressing this button.
+    Button(
+        onClick = { onClick() },
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF011F35)),
         modifier = Modifier
-            .fillMaxSize()
-    ) {
-
-        Button(
-            onClick = { onClick() },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF011F35)),
-            modifier = Modifier
-                .shadow(
-                    elevation = 4.dp,
-                    spotColor = Color(0x40000000),
-                    ambientColor = Color(0x40000000)
-                )
-                .width(325.dp)
-                .height(69.dp),
-            shape = RoundedCornerShape(size = 20.dp)
-        ) {
-            Text(
-                text = "Get Started",
-                style = TextStyle(
-                    fontSize = 25.sp,
-                    //fontFamily = FontFamily(Font(R.font.univers lt std)),
-                    fontWeight = FontWeight(400),
-                    color = Color(0xFFFFFFFF),
-                )
+            .shadow(
+                elevation = 4.dp,
+                spotColor = Color(0x40000000),
+                ambientColor = Color(0x40000000)
             )
-        }
+            .width(325.dp)
+            .height(69.dp),
+        shape = RoundedCornerShape(size = 20.dp)
+    ) {
+        Text(
+            text = "Get Started",
+            style = TextStyle(
+                fontSize = 25.sp,
+                fontWeight = FontWeight(400),
+                color = Color(0xFFFFFFFF),
+            ),
+            modifier = Modifier.offset(y = (-1).dp) // Figma has a weird offset by 1 pixel.
+        )
     }
 }
 
@@ -239,9 +227,29 @@ fun GettingStartedButton(onClick: () -> Unit) { // TODO: Implement navigation to
 fun IndicatorDot(color: Color) {
     Box(
         modifier = Modifier
-            .padding(5.dp)
-            .clip(CircleShape)
-            .background(color)
-            .size(10.dp)
+            .padding(5.dp) // Space between dots.
+            .clip(CircleShape) // Makes the dot round.
+            .background(color) // Color of the dot.
+            .size(10.dp) // Size of the dot.
     )
+}
+
+// Indicator Dots
+// TODO: Add animation.
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun IndicatorDots(pagerState: PagerState) {
+    Row(
+        Modifier
+            .wrapContentHeight() // Fill height.
+            .fillMaxWidth(), // Fill width.
+        horizontalArrangement = Arrangement.Center // Center horizontally.
+    ) {
+        // Dots based on current page.
+        repeat(pagerState.pageCount) { iteration ->
+            val color =
+                if (pagerState.currentPage == iteration) WHITE else GREY
+            IndicatorDot(color = color)
+        }
+    }
 }
