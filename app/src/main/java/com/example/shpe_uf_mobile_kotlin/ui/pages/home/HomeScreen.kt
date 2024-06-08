@@ -1,4 +1,5 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
@@ -50,6 +51,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -83,6 +85,7 @@ import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import java.time.Month
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -263,7 +266,7 @@ fun TopHeader(
 
         Text(
             // I think we should add the year as well
-            text = "${currentDate.month}",
+            text = homeState.monthDisplayedName,
             style = androidx.compose.ui.text.TextStyle(
                 color = Color.White,
                 fontSize = 24.sp,
@@ -309,6 +312,17 @@ fun TopHeader(
                 .width(33.dp)
                 .height(32.dp)
                 .clickable { viewModel.loadEvents() },
+            tint = Color.White
+        )
+        Icon(
+            imageVector = Icons.Default.Timer,
+            contentDescription = "CalenderFetch",
+            modifier = Modifier
+                .size(35.dp)
+                .align(Alignment.Bottom)
+                .width(33.dp)
+                .height(32.dp)
+                .clickable { viewModel.fetchEventsForMonth(YearMonth.now()) },
             tint = Color.White
         )
 
@@ -1243,11 +1257,31 @@ fun EventCardFeed(events: List<HomeViewModel.Event>) {
 fun EventCardFeedSimple(viewModel: HomeViewModel) {
     val state by viewModel.homeState.collectAsState()
     val events = state.events
+    val listState = rememberLazyListState()
+
     // Dynamically calculate days based on loaded months
     val daysInMonth = viewModel.getDaysInMonthArray(state.loadedMonths)
-
-    val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val eventInDays = mutableMapOf<LocalDate, List<HomeViewModel.Event>>()
+
+    val today = LocalDate.now()
+
+    // Updated to handle events spanning multiple days
+    val groupedEvents = remember(events) {
+        mutableMapOf<LocalDate, MutableList<HomeViewModel.Event>>().apply {
+            events.forEach { event ->
+                val startDate = LocalDate.parse(event.start.dateTime?.substring(0, 10))
+                val endDate = LocalDate.parse(event.end.dateTime?.substring(0, 10))
+                var currentDate = startDate
+                while (!currentDate.isAfter(endDate)) {
+                    if (!currentDate.isBefore(today)) {  // Only consider dates from today onwards
+                        this.getOrPut(currentDate) { mutableListOf() }.add(event)
+                    }
+                    currentDate = currentDate.plusDays(1)
+                }
+            }
+        }.toSortedMap()
+    }
 
     LazyColumn(
         state = listState,
@@ -1256,37 +1290,54 @@ fun EventCardFeedSimple(viewModel: HomeViewModel) {
             .background(Variables.blue)
             .fillMaxSize()
     ) {
-        items(daysInMonth) { day ->
-            day.let {
-                val dayEvents = events.filter { it.occursOnDate(day) }
-                if (dayEvents.isNotEmpty()) {
-                    DayContainer(date = day, events = dayEvents)
+        groupedEvents.forEach { (date, events) ->
+            item {
+                if (date != null) {
+                    DayContainer(date = date, events = events)
                 }
             }
         }
     }
 
+    // we need to get the month from the last event that is seen on the screen
+
+//    LazyColumn(
+//        state = listState,
+//        contentPadding = PaddingValues(10.dp),
+//        modifier = Modifier
+//            .background(Variables.blue)
+//            .fillMaxSize()
+//    ) {
+//        items(daysInMonth) { day ->
+//            day.let {
+//                val dayEvents = events.filter { it.occursOnDate(day) }
+//                if (dayEvents.isNotEmpty()) {
+//                    DayContainer(date = day, events = dayEvents)
+//                }
+//            }
+//        }
+//    }
+
     // Detecting scroll to the bottom and load the next month
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.isNearTheEnd() }
-            .distinctUntilChanged() // Only react to changes in the scroll position state.
-            .filter { it } // Only proceed if it's true that we're near the end.
-            .collect {
-                val lastLoadedMonth = state.loadedMonths.maxOrNull() ?: YearMonth.now()
-                val nextMonth = lastLoadedMonth.plusMonths(1)
-                coroutineScope.launch {
-                    viewModel.fetchEventsForMonth(nextMonth)
-                }
-            }
-    }
+//    LaunchedEffect(listState) {
+//        snapshotFlow { listState.isNearTheEnd() }
+//            .distinctUntilChanged() // Only react to changes in the scroll position state.
+//            .filter { it } // Only proceed if it's true that we're near the end.
+//            .collect {
+//                val lastLoadedMonth = state.loadedMonths.maxOrNull() ?: YearMonth.now()
+//                val nextMonth = lastLoadedMonth.plusMonths(1)
+//                coroutineScope.launch {
+//                    viewModel.fetchEventsForMonth(nextMonth)
+//                }
+//            }
 }
 
-fun LazyListState.isNearTheEnd(bufferItems: Int = 3): Boolean {
-    // Check if the last visible item's index is within `bufferItems` of the total item count
-    val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return false
-    val totalItemCount = layoutInfo.totalItemsCount
-    return lastVisibleItemIndex >= totalItemCount - bufferItems - 1
-}
+//fun LazyListState.isNearTheEnd(bufferItems: Int = 3): Boolean {
+//    // Check if the last visible item's index is within `bufferItems` of the total item count
+//    val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return false
+//    val totalItemCount = layoutInfo.totalItemsCount
+//    return lastVisibleItemIndex >= totalItemCount - bufferItems - 1
+//}
 
 @Composable
 fun DayContainer(
@@ -1455,7 +1506,8 @@ fun NewHomeScreen(viewModel: HomeViewModel) {
         color = Variables.blue
     ) {
         LaunchedEffect(currentDate) {
-            viewModel.fetchEventsForMonth(YearMonth.from(currentDate))
+            //viewModel.fetchEventsForMonth(YearMonth.now())
+            viewModel.loadEvents()
         }
 
         Column {

@@ -11,11 +11,12 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 
 
 
-@Entity(tableName = "events", indices =[Index(value = ["summary"], unique = true)])
+@Entity(tableName = "events", indices =[Index(value = ["calendarID"], unique = true)])
 @TypeConverters(Converters::class)
 data class Event(
     // i want the primary key to be the summary string
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val calendarID: String? = null,
     val summary: String,
     val description: String?,
     val location: String?,
@@ -33,6 +34,7 @@ data class Event(
 // mapper functions
 fun HomeViewModel.Event.toEventEntity(): Event {
     return Event(
+        calendarID = this.id,
         summary = this.summary,
         description = this.description,
         location = this.location,

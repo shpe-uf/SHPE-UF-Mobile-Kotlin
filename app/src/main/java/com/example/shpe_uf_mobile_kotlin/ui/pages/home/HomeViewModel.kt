@@ -134,6 +134,10 @@ class HomeViewModel(
         }
     }
 
+    fun updateMonthName(month: String) {
+        _homeUIState.update { it.copy(monthDisplayedName = month) }
+    }
+
     // Init Might Not Need to do this
     init {
         loadNotificationsSettings()
@@ -149,23 +153,27 @@ class HomeViewModel(
         }
     }
 
-    // load events
     fun loadEvents() {
         Log.d("HomeViewModel", "Loading events")
 
         viewModelScope.launch {
-            val events = eventRepo.getALlEvents()
+            if (_homeUIState.value.events.isEmpty()) {
+                val events = eventRepo.getALlEvents()
+                Log.d("HomeViewModel", "Events fetched from database: $events")
 
-            if (events.isNotEmpty()) {
-                Log.d("HomeViewModel", "Loading:")
-                Log.d("HomeViewModel", "Loaded events: $events")
-
-                //_events.value = events
                 _homeUIState.update { it.copy(events = events) }
 
-                Log.d("HomeViewModel", "Saved events: ${homeState.value.events}")
-                // insert this month to loaded events
-                _homeUIState.update { it.copy(loadedMonths = it.loadedMonths + YearMonth.now()) }
+                // Only fetch for the current month if the initial fetch is empty
+                if (events.isEmpty()) {
+                    Log.d("HomeViewModel", "Fetching events from server")
+                    fetchEventsForMonth(YearMonth.now())
+                }
+            } else {
+                Log.d("HomeViewModel", "Using cached events")
+            }
+
+            _homeUIState.value.events.forEach { event ->
+                Log.d("HomeViewModel", "Events in UI: $event")
             }
         }
     }
@@ -182,14 +190,16 @@ class HomeViewModel(
 
     fun fetchEventsForMonth(yearMonth: YearMonth) {
         val zoneId = ZoneId.of("America/New_York")
-        val monthStart = yearMonth.atDay(1)
-        val monthEnd = yearMonth.atEndOfMonth()
 
-        Log.d("HomeViewModel", "Month Start: $monthStart")
-        Log.d("HomeViewModel", "Month End: $monthEnd")
+         // I want to load starting from today to the end of a semester 4 months away
+        val dataAtLoad = LocalDate.now()
+        val semesterEnd = LocalDate.now().plusMonths(4)
 
-        val timeMin = ZonedDateTime.of(monthStart, LocalTime.MIN, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-        val timeMax = ZonedDateTime.of(monthEnd, LocalTime.MAX, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        Log.d("HomeViewModel", "Month Start: $dataAtLoad")
+        Log.d("HomeViewModel", "Month End: $semesterEnd")
+
+        val timeMin = ZonedDateTime.of(dataAtLoad, LocalTime.MIN, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        val timeMax = ZonedDateTime.of(semesterEnd, LocalTime.MAX, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
 
         fetchCalendarEvents(timeMin, timeMax, yearMonth)
     }
@@ -202,15 +212,6 @@ class HomeViewModel(
             Log.d("HomeViewModel", "timeMax: $timeMax")
             return
         }
-
-        loadEvents()
-
-        if (homeState.value.events.isNotEmpty()) {
-            Log.d("HomeViewModel", "Events already loaded")
-            return
-        }
-
-        Log.d("HomeViewModel", "Events after load events: ${_homeUIState.value.events}")
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -261,14 +262,12 @@ class HomeViewModel(
 
                     withContext(Dispatchers.Main) {
                         // add new events on top of old ones
-                        _homeUIState.update { it.copy(events = events.orEmpty() + homeState.value.events) }
+                        _homeUIState.update { it.copy(events = events.orEmpty()) }
                         _homeUIState.update { it.copy(loadedMonths = it.loadedMonths + yearMonth) }
 
                         // save event in the database
                         events?.forEach { event ->
                             saveEventEE(event)
-                            Log.d("HomeViewModel", "Saved event: $event")
-
                         }
 
                         if (events.isNullOrEmpty()) {
@@ -276,8 +275,6 @@ class HomeViewModel(
                             // remove the month from the loaded months
                             _homeUIState.update { it.copy(loadedMonths = it.loadedMonths - yearMonth) }
                         }
-
-
                     }
                 }
                 else {
