@@ -27,10 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -40,10 +38,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import com.example.shpe_uf_mobile_kotlin.R
-import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
-import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 
 @Preview
 @Composable
@@ -110,7 +105,7 @@ fun SignInScreen() {
             PasswordInput(
                 value = uiState.password ?: "",
                 onValueChange = { signInViewModel.onPasswordChanged(it) },
-                isPasswordVisible = uiState.isPasswordVisible
+                isPasswordInvisible = uiState.isPasswordInvisible
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -167,7 +162,7 @@ fun UserNameInput(
 fun PasswordInput(
     value: String,
     onValueChange: (String) -> Unit,
-    isPasswordVisible: Boolean
+    isPasswordInvisible: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -189,7 +184,7 @@ fun PasswordInput(
             onValueChange = { onValueChange(it) },
             label = { Text("Password") },
             visualTransformation =
-            if (isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None
+            if (isPasswordInvisible) PasswordVisualTransformation() else VisualTransformation.None
         )
     }
 }
