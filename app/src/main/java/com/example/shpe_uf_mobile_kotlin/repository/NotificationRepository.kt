@@ -14,7 +14,8 @@ class NotificationRepository(private val context: Context) {
              socialNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.Social.name, false),
              workshopNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.Workshop.name, false),
              infoSessionNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.InfoSession.name, false),
-            volunteeringNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.Volunteering.name, false)
+             volunteeringNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.Volunteering.name, false),
+             allNotificationSelection = sharedPreferences.getBoolean("AllNotifications", false)
             )
      }
 }

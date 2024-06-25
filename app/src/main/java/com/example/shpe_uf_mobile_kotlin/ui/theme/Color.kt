@@ -26,3 +26,8 @@ val VolunteeringColor = Color(0xFF2A5616)
 val VolunteeringColorLight = Color(0xFF2A6A16)
 
 val TextColor = Color(0xFFB7B7B7)
+
+// Notification Colors
+val allNotificationsOn = Color(0xFFD25917)
+val allNotificationsOff = Color(0xFF933815)
+

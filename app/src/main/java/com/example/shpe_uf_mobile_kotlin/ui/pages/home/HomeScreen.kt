@@ -1,5 +1,4 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -39,6 +37,7 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,13 +50,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -74,21 +71,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.shpe_uf_mobile_kotlin.R
-import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
-import java.time.LocalDate
-import java.time.YearMonth
-import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.repository.EventRepository
 import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import java.time.Month
+import java.time.LocalDate
+import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
 // create sample card items
@@ -633,7 +626,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
             }
 
 
-            Spacer(modifier = Modifier.height(120.dp))
+            Spacer(modifier = Modifier.height(100.dp))
 
             Text(
                 text = "Tap which type of event you want" +
@@ -641,13 +634,13 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                 style = androidx.compose.ui.text.TextStyle(
                     fontSize = 20.sp,
                     fontWeight = FontWeight(400),
-                    color = Color(0xFFFFFFFF),
+                    color = Color(0xFFB7B7B7),
 
                     textAlign = TextAlign.Center,
                 ),
-                color = Color.White,
+                color = Color(0xFFB7B7B7),
             )
-            Spacer(modifier = Modifier.height(120.dp))
+            Spacer(modifier = Modifier.height(80.dp))
 
             // Rest of tHE Content in the screen
             Column(
@@ -904,6 +897,35 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                         )
                     }
                 }
+
+
+                // Button for allowing all notifications
+                Spacer(modifier = Modifier.height(60.dp))
+                Button(
+                    modifier = Modifier
+                        .width(254.dp)
+                        .height(41.dp),
+                    onClick = { viewModel.toggleAllNotifications(context)},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = homeState.allNotificationCurrentColor
+                    )
+                ) {
+                    Text(
+                        text = "Allow for all",
+                        style = androidx.compose.ui.text.TextStyle(
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFFFFFFF),
+
+                            textAlign = TextAlign.Center,
+                        )
+                    )
+                }
+
+
+
+
+
             }
         }
     }
@@ -1386,11 +1408,21 @@ fun DayContainer(
                 EventCard(event)
             }
             // dotted spacer
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(Color.LightGray)
+            // we are adding an image to act as a spacer
+            Image(
+                painter = painterResource(id = R.drawable.dashed_line_spacer),
+                contentDescription = "Dotted Line",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(Color.Transparent)
             )
+
+//            Spacer(modifier = Modifier
+//                .fillMaxWidth()
+//                .height(1.dp)
+//                .background(Color.Transparent)
+//            )
         }
     }
 }

@@ -1,7 +1,29 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
 import android.content.Context
 import android.util.Log
+import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.shpe_uf_mobile_kotlin.BuildConfig
+import com.example.shpe_uf_mobile_kotlin.repository.EventRepository
+import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
+import com.example.shpe_uf_mobile_kotlin.ui.theme.GBMColor
+import com.example.shpe_uf_mobile_kotlin.ui.theme.InfoSessionColor
+import com.example.shpe_uf_mobile_kotlin.ui.theme.SocialColor
+import com.example.shpe_uf_mobile_kotlin.ui.theme.VolunteeringColor
+import com.example.shpe_uf_mobile_kotlin.ui.theme.WorkshopColor
+import com.example.shpe_uf_mobile_kotlin.ui.theme.allNotificationsOff
+import com.example.shpe_uf_mobile_kotlin.ui.theme.allNotificationsOn
+import com.example.shpe_uf_mobile_kotlin.util.NotificationsUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -10,28 +32,12 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import com.example.shpe_uf_mobile_kotlin.BuildConfig
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.HttpException
 import java.time.LocalTime
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
-import com.example.shpe_uf_mobile_kotlin.ui.theme.*
-import com.example.shpe_uf_mobile_kotlin.util.NotificationsUtil
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import com.example.shpe_uf_mobile_kotlin.repository.EventRepository
 
 class HomeViewModel(
     private val notificationRepo: NotificationRepository,
@@ -40,7 +46,7 @@ class HomeViewModel(
 //class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // API Keys
     private val calendarId = BuildConfig.CALENDAR_ID
-    private val apiKey = BuildConfig.REACT_APP_API_KEY
+    private val apiKey = BuildConfig.CALENDAR_API_KEY
 
     // HomeViewModel State
     private val _homeUIState = MutableStateFlow(HomeScreenState())
@@ -79,7 +85,7 @@ class HomeViewModel(
             if (event.eventType == type) event.copy(notificationEnabled = isEnabled) else event
         }
 
-        // Update notificationSettings in the UI state
+        // Update notificationSettings in the UI state, we could optimize this by only updating the specific notification setting with a switch
         val updatedNotificationSettings = homeState.value.notificationSettings.copy(
             gbmNotification = if (type == EventType.GBM) isEnabled else homeState.value.notificationSettings.gbmNotification,
             infoSessionNotification = if (type == EventType.InfoSession) isEnabled else homeState.value.notificationSettings.infoSessionNotification,
@@ -95,6 +101,53 @@ class HomeViewModel(
         handleNotificationsForEvents(context,updatedEvents, type, isEnabled)
         saveNotificationSettings(context, type, isEnabled)
 
+    }
+
+    fun toggleAllNotifications(context: Context) {
+        Log.d("HomeViewModel", "Currently all notifications are ${homeState.value.notificationSettings.allNotificationSelection}")
+        Log.d ("HomeViewModel", "Toggled all notifications")
+
+        // all starts as false
+        val allNotificationOn = homeState.value.notificationSettings.allNotificationSelection
+
+        if (!allNotificationOn) {
+            // update button color
+            _homeUIState.update { currentState ->
+                currentState.copy(allNotificationCurrentColor = allNotificationsOn)
+            }
+
+        } else {
+            // update color
+            _homeUIState.update { currentState ->
+                currentState.copy(allNotificationCurrentColor = allNotificationsOff)
+            }
+        }
+
+        _homeUIState.update { currentState ->
+            currentState.copy(notificationSettings = currentState.notificationSettings.copy(
+                gbmNotification = !allNotificationOn,
+                socialNotification = !allNotificationOn,
+                workshopNotification = !allNotificationOn,
+                infoSessionNotification = !allNotificationOn,
+                volunteeringNotification = !allNotificationOn,
+                allNotificationSelection = !allNotificationOn
+            ))
+        }
+
+        // save the settings
+        saveNotificationSettings(context, EventType.GBM, !allNotificationOn)
+        saveNotificationSettings(context, EventType.Social, !allNotificationOn)
+        saveNotificationSettings(context, EventType.Workshop, !allNotificationOn)
+        saveNotificationSettings(context, EventType.InfoSession, !allNotificationOn)
+        saveNotificationSettings(context, EventType.Volunteering, !allNotificationOn)
+        saveNotificationSettings(context, EventType.Default, !allNotificationOn)
+
+        // sharedpreferences for all notifications color
+        val sharedPreferences = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putBoolean("AllNotifications", !allNotificationOn)
+            apply()
+        }
     }
 
     private fun handleNotificationsForEvents(context: Context, events: List<Event>, type: EventType, isEnabled: Boolean) {
@@ -130,6 +183,15 @@ class HomeViewModel(
             val settings = notificationRepo.loadNotificationSettings()
             _homeUIState.update { currentState ->
                 currentState.copy(notificationSettings = settings)
+            }
+        }
+        if (homeState.value.notificationSettings.allNotificationSelection) {
+            _homeUIState.update { currentState ->
+                currentState.copy(allNotificationCurrentColor = allNotificationsOn)
+            }
+        } else {
+            _homeUIState.update { currentState ->
+                currentState.copy(allNotificationCurrentColor = allNotificationsOff)
             }
         }
     }
