@@ -16,12 +16,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,7 +54,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,6 +63,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -75,6 +75,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.repository.EventRepository
 import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
+import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
+import com.example.shpe_uf_mobile_kotlin.ui.theme.Universltstd
+import com.example.shpe_uf_mobile_kotlin.ui.theme.Viga
+import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
+import com.example.shpe_uf_mobile_kotlin.ui.theme.headerOrange
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
@@ -84,158 +89,63 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 
-// create sample card items
-//val sampleCardItems = listOf(
-//    HomeViewModel.Event(
-//        id = "1",
-//        summary = "Event 1",
-//        description = "This is event 1",
-//        location = "Location 1",
-//        start = HomeViewModel.EventDateTime(
-//            dateTime = "2024-02-16T10:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        end = HomeViewModel.EventDateTime(
-//            dateTime = "2024-02-16T11:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        colorResId = Color.White,
-//        eventType = HomeViewModel.EventType.GBM
-//    ),
-//    HomeViewModel.Event(
-//        id = "2",
-//        summary = "Event 2",
-//        description = "This is event 2",
-//        location = "Location 2",
-//        start = HomeViewModel.EventDateTime(
-//            dateTime = "2024-02-16T10:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        end = HomeViewModel.EventDateTime(
-//            dateTime = "2024-02-16T11:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        colorResId = Color.White,
-//        eventType = HomeViewModel.EventType.GBM
-//    ),
-//    HomeViewModel.Event(
-//        id = "3",
-//        summary = "Event 3",
-//        description = "This is event 3",
-//        location = "Location 3",
-//        start = HomeViewModel.EventDateTime(
-//            dateTime = "2024-02-17T10:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        end = HomeViewModel.EventDateTime(
-//            dateTime = "2024-02-17T11:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        colorResId = Color.White,
-//        eventType = HomeViewModel.EventType.GBM
-//    ),
-//    HomeViewModel.Event(
-//        id = "4",
-//        summary = "Event 4",
-//        description = "This is event 4",
-//        location = "Location 4",
-//        start = HomeViewModel.EventDateTime(
-//            dateTime = "2024-02-17T10:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        end = HomeViewModel.EventDateTime(
-//            dateTime = "2024-02-17T12:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        colorResId = Color.White,
-//        eventType = HomeViewModel.EventType.GBM
-//    ),
-//    HomeViewModel.Event(
-//        id = "5",
-//        summary = "Event 5",
-//        description = "This is event 5",
-//        location = "Location 5",
-//        start = HomeViewModel.EventDateTime(
-//            dateTime = "2023-12-19T10:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        end = HomeViewModel.EventDateTime(
-//            dateTime = "2023-12-19T11:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        colorResId = Color.White,
-//        eventType = HomeViewModel.EventType.GBM,
-//    ),
-//HomeViewModel.Event(
-//        id = "6",
-//        summary = "Event 6",
-//        description = "This is event 6",
-//        location = "Location 6",
-//        start = HomeViewModel.EventDateTime(
-//            dateTime = "2023-12-19T10:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        end = HomeViewModel.EventDateTime(
-//            dateTime = "2023-12-19T11:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//    colorResId = Color.White,
-//    eventType = HomeViewModel.EventType.GBM
-//    ),
-//    HomeViewModel.Event(
-//        id = "7",
-//        summary = "Event 7",
-//        description = "This is event 7",
-//        location = "Location 7",
-//        start = HomeViewModel.EventDateTime(
-//            dateTime = "2023-12-19T10:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        end = HomeViewModel.EventDateTime(
-//            dateTime = "2023-12-19T11:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        colorResId = Color.White,
-//        eventType = HomeViewModel.EventType.GBM
-//    ),
-//    HomeViewModel.Event(
-//        id = "8",
-//        summary = "Event 8",
-//        description = "This is event 8",
-//        location = "Location 8",
-//        start = HomeViewModel.EventDateTime(
-//            dateTime = "2023-12-19T10:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        end = HomeViewModel.EventDateTime(
-//            dateTime = "2023-12-19T11:00:00-04:00",
-//            timeZone = "America/New_York"
-//        ),
-//        colorResId = Color.White,
-//        eventType = HomeViewModel.EventType.GBM
-//    )
-//)
-
-// New Method to render calendar
-fun getDaysInMonthArray(yearMonth: YearMonth): List<LocalDate?> {
-    val daysInMonth = mutableListOf<LocalDate?>()
-
-    // Calculate the offset to align the start of the month with the correct day of the week
-    val firstOfMonth = yearMonth.atDay(1)
-    val dayOfWeekOffset = firstOfMonth.dayOfWeek.value % 7
-
-    // Add nulls to create offset
-    for (i in 0 until dayOfWeekOffset) {
-        daysInMonth.add(null)
-    }
-
-    // Add actual days of the month
-    for (day in 1..yearMonth.lengthOfMonth()) {
-        daysInMonth.add(yearMonth.atDay(day))
-    }
-
-    return daysInMonth
-}
+//create sample card items
+val sampleCardItems = listOf(
+    HomeViewModel.Event(
+        id = "1",
+        summary = "Event 1",
+        description = "This is event 1",
+        location = "Location 1",
+        start = HomeViewModel.EventDateTime(
+            dateTime = "2024-06-25T10:00:00-04:00",
+            date = null,
+            timeZone = "America/New_York"
+        ),
+        end = HomeViewModel.EventDateTime(
+            dateTime = "2024-06-25T11:00:00-04:00",
+            date = null,
+            timeZone = "America/New_York"
+        ),
+        colorResId = Color.White,
+        eventType = HomeViewModel.EventType.GBM
+    ),
+    HomeViewModel.Event(
+        id = "2",
+        summary = "Event 2",
+        description = "This is event 2",
+        location = "Location 2",
+        start = HomeViewModel.EventDateTime(
+            dateTime = null,
+            date = "2024-06-26",
+            timeZone = "America/New_York"
+        ),
+        end = HomeViewModel.EventDateTime(
+            dateTime = null,
+            date = "2024-06-26",
+            timeZone = "America/New_York"
+        ),
+        colorResId = Color.White,
+        eventType = HomeViewModel.EventType.GBM
+    ),
+    HomeViewModel.Event(
+        id = "3",
+        summary = "Event 3",
+        description = "This is event 3",
+        location = "Location 3",
+        start = HomeViewModel.EventDateTime(
+            dateTime = "2024-06-30T10:00:00-04:00",
+            date = null,
+            timeZone = "America/New_York"
+        ),
+        end = HomeViewModel.EventDateTime(
+            dateTime = "2024-06-30T11:00:00-04:00",
+            date = null,
+            timeZone = "America/New_York"
+        ),
+        colorResId = Color.White,
+        eventType = HomeViewModel.EventType.GBM
+    )
+)
 
 // New HomeScreen Things
 @Composable
@@ -243,24 +153,20 @@ fun TopHeader(
     viewModel: HomeViewModel = viewModel()
 ) {
     val homeState by viewModel.homeState.collectAsState()
-    val currentDate = homeState.currentDate
 
     // Take the date from the current viewModel date and display the month
-    // then in the same row we will display a search icon and notification icon
     Row (
         modifier = Modifier
             .fillMaxWidth()
             .height(93.dp)
-            .background(color = Variables.orange)
+            .background(color = headerOrange)
             .padding(10.dp),
-
     ) {
         // display month together "Month Year"
-
         Text(
             // I think we should add the year as well
             text = homeState.monthDisplayedName,
-            style = androidx.compose.ui.text.TextStyle(
+            style = TextStyle(
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
@@ -295,7 +201,6 @@ fun TopHeader(
                 .clickable { viewModel.openNotificationWindow() },
             tint = Color.White
         )
-
         Icon(
             imageVector = Icons.Default.Flag,
             contentDescription = "Notifications",
@@ -318,13 +223,7 @@ fun TopHeader(
                 .clickable { viewModel.fetchEventsForMonth(YearMonth.now()) },
             tint = Color.White
         )
-
     }
-}
-
-object Variables {
-    val orange = Color(0xFFD25917)
-    val blue = Color(0xFF011F35)
 }
 
 @Composable
@@ -357,20 +256,31 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
     Surface (
         modifier = Modifier
             .fillMaxWidth(1f)
-            .fillMaxHeight(),
+            .fillMaxHeight()
+            .background(blueDarkModeBackground),
     ) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-        ) {
-
+        Column {
             // image and close button container, could be made into own composable to be used later
-            Box(contentAlignment = Alignment.TopStart) {
+            Box(contentAlignment = Alignment.TopStart,
+                modifier = Modifier
+                    .fillMaxWidth()
+
+            ) {
                 Image(
-                    painter = painterResource(id = R.drawable.shpe_logo_full_color),
+                    painter = painterResource(id = when (event!!.eventType) {
+                        HomeViewModel.EventType.GBM -> R.drawable.gbm_background
+                        HomeViewModel.EventType.InfoSession -> R.drawable.info_session_background
+                        HomeViewModel.EventType.Workshop -> R.drawable.workshop_background
+                        HomeViewModel.EventType.Social -> R.drawable.social_background
+                        HomeViewModel.EventType.Volunteering -> R.drawable.volunteering_background
+                        HomeViewModel.EventType.Default -> R.drawable.social_background
+                    }),
                     contentDescription = "Event Image",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .height(240.dp)
                 )
+
                 IconButton(onClick = { viewModel.hideEventDetails() },
                     modifier = Modifier
                         .background(Color.Black.copy(alpha = 0.1f), shape = CircleShape)
@@ -386,155 +296,172 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
             // Event details card to have the rounded corner style be there
             Card(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxSize()
+                    .background(blueDarkModeBackground)
+                    .offset(y = (-20).dp),
                 shape = RoundedCornerShape(size = 25.dp),
-                colors = CardDefaults.cardColors(containerColor = Variables.blue),
+                colors = CardDefaults.cardColors(containerColor = blueDarkModeBackground),
+
             ) {
-                Column(
+                Column (
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight()
-                        .padding(60.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(50.dp),
                 ) {
-
-                    // This is the date, time and location
-                    Column {
-                        Row (
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                modifier = Modifier
-                                    .weight(0.9f),
-                                text = event!!.summary,
-                                style = androidx.compose.ui.text.TextStyle(
-                                    fontSize = 32.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFFD25917),
-                                )
-                            )
-                            // current placeholder for the icon, can replace with the actual image we need,
-                            Icon(
-                                imageVector = Icons.Default.People,
-                                contentDescription = "People",
-                                tint = Color(0xFFD25917),
-                                modifier = Modifier
-                                    .size(45.dp)
-                                    .weight(0.1f)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(82.dp))
-
-                        Row {
-                            Icon(
-                                imageVector = Icons.Default.CalendarMonth,
-                                contentDescription = "Date",
-                                tint = Color.White
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-
-                            Text(
-                                text = formatDate(event!!.start),
-                                style = androidx.compose.ui.text.TextStyle (
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight(400),
-                                    color = Color(0xFFFFFFFF),
-                                )
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Row {
-                            Icon(imageVector = Icons.Default.Timer,
-                                contentDescription = null,
-                                tint = Color.White
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-
-                            Text(
-                                text = formatEventTime(event!!),
-                                style = androidx.compose.ui.text.TextStyle (
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight(400),
-                                    color = Color(0xFFFFFFFF),
-                                )
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Row {
-                            Icon(
-                                imageVector = Icons.Default.LocationOn,
-                                contentDescription = "Location",
-                                tint = Color.White
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-
-                            Text(
-                                text = event!!.location ?: ("TBD"),
-                                style = androidx.compose.ui.text.TextStyle (
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight(400),
-                                    color = Color(0xFFFFFFFF),
-                                )
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(82.dp))
-
-                        Text(text = "Description",
-                            style = androidx.compose.ui.text.TextStyle (
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight(400),
-                                color = Color(0xFFFFFFFF),
-                            )
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-
+                    //Title
+                    Row (
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            text = event!!.description
-                                ?: ("This is basic placeholder of data. In order for this to work" +
-                                        "properly, we need to make sure that in the google calendar these events are updated." +
-                                        "Otherwise we would need a specific functions to update these on later."),
-                            style = androidx.compose.ui.text.TextStyle (
-                                fontSize = 18.sp,
+                            modifier = Modifier
+                                .weight(0.9f),
+                            text = event!!.summary,
+                            style = TextStyle(
+                                fontFamily = Viga,
+                                fontSize = 32.sp,
                                 fontWeight = FontWeight(400),
-                                color = Color(0xFFFFFFFF),
-                            )
+                                color = Color(0xFFD25917),)
+                        )
+                        Image (
+                            painter = painterResource(id = when (event.eventType) {
+                                HomeViewModel.EventType.GBM -> R.drawable.gbm_icon
+                                HomeViewModel.EventType.InfoSession -> R.drawable.infosession_icon
+                                HomeViewModel.EventType.Workshop -> R.drawable.workshop_icon
+                                HomeViewModel.EventType.Social -> R.drawable.social_icon
+                                HomeViewModel.EventType.Volunteering -> R.drawable.volunteering_icon
+                                HomeViewModel.EventType.Default -> R.drawable.social_icon
+                            }),
+                            contentDescription = "Favorite",
+                            modifier = Modifier
+                                .size(37.dp)
                         )
                     }
-                    // maybe have the save event be here:
+                    Spacer(modifier = Modifier.height(50.dp))
 
+                    // Event Date
+                    Row {
+                        Image(
+                            painterResource(R.drawable.calendar_ui_icon),
+                            contentDescription = "Calendar",
+                            modifier = Modifier
+                                .size(37.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = formatDate(event!!.start),
+                            style = TextStyle (
+                                fontSize = 18.sp,
+                                fontFamily = Universltstd,
+                                fontWeight = FontWeight(400),
+                                color = Color(0xFFFFFFFF),),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Event Time
+                    Row (verticalAlignment = Alignment.CenterVertically) {
+                        Image (
+                            painter = painterResource(id = R.drawable.timer_ui_icon),
+                            contentDescription = "Clock",
+                            modifier = Modifier
+                                .size(37.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = formatEventTime(event!!),
+                            style = TextStyle (
+                                fontSize = 18.sp,
+                                fontFamily = Universltstd,
+                                fontWeight = FontWeight(400),
+                                color = Color(0xFFFFFFFF),),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Event Location
+                    Row {
+                        Image (
+                            painter = painterResource(id = R.drawable.location_ui_icon),
+                            contentDescription = "Location",
+                            modifier = Modifier
+                                .size(37.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = event!!.location ?: ("TBD"),
+                            style = TextStyle (
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight(400),
+                                color = Color(0xFFFFFFFF),),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(50.dp))
+
+                    Text(text = "Description:",
+                        style = TextStyle (
+                            fontSize = 18.sp,
+                            fontFamily = Universltstd,
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFB7B7B7),)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = event!!.description
+                            ?: ("Join us!"),
+                        style = TextStyle (
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFFFFFFF),)
+                    )
                 }
             }
         }
     }
 }
 
-//@Preview (showBackground = true)
-//@Composable
-//fun EventDetailsPreview() {
-//    EventDetails(
-//        event = HomeViewModel.Event(
-//            id = "1",
-//            summary = "SHPE GBM #1",
-//            description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
-//            location = "https://ufl.zoom.us/j/95895737986",
-//            start = HomeViewModel.EventDateTime(
-//                dateTime = "2023-12-19T18:00:00-04:00",
-//                timeZone = "America/New_York"
-//            ),
-//            end = HomeViewModel.EventDateTime(
-//                dateTime = "2023-12-19T19:00:00-04:00",
-//                timeZone = "America/New_York"
-//            ),
-//            colorResId = Color.White,
-//            eventType = HomeViewModel.EventType.GBM
-//        )
-//    )
-//}
+@Preview (showBackground = true)
+@Composable
+fun EventDetailsPreview() {
+    EventDetails(
+        event = HomeViewModel.Event(
+            id = "1",
+            summary = "SHPE GBM #1",
+            description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+            location = "https://ufl.zoom.us/j/95895737986",
+            start = HomeViewModel.EventDateTime(
+                dateTime = "2023-12-19T18:00:00-04:00",
+                date = null,
+                timeZone = "America/New_York"
+            ),
+            end = HomeViewModel.EventDateTime(
+                dateTime = "2023-12-19T19:00:00-04:00",
+                date = null,
+                timeZone = "America/New_York"
+            ),
+            colorResId = Color.White,
+            eventType = HomeViewModel.EventType.GBM
+        ),
+        viewModel = HomeViewModel(
+            notificationRepo = NotificationRepository(
+                context = LocalContext.current
+            ),
+            eventRepo = EventRepository(
+                context = LocalContext.current
+            ),
+        )
+    )
+}
 
 @Composable
 fun SlidingNotificationWindow(viewModel: HomeViewModel) {
@@ -571,7 +498,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
         modifier = Modifier
             .fillMaxWidth(1f)
             .fillMaxHeight(),
-        color = Variables.blue
+        color = blueDarkModeBackground
     ) {
         Column(
             modifier = Modifier
@@ -587,7 +514,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(93.dp)
-                        .background(color = Variables.orange)
+                        .background(color = headerOrange)
                         .padding(10.dp),
 
                     ) {
@@ -610,7 +537,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
 
                     Text(
                         text = "Notifications Settings",
-                        style = androidx.compose.ui.text.TextStyle(
+                        style = TextStyle(
                             color = Color.White,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
@@ -631,7 +558,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
             Text(
                 text = "Tap which type of event you want" +
                         "\nnotifications for",
-                style = androidx.compose.ui.text.TextStyle(
+                style = TextStyle(
                     fontSize = 20.sp,
                     fontWeight = FontWeight(400),
                     color = Color(0xFFB7B7B7),
@@ -696,7 +623,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
 
                         Text(
                             text = "GBMs",
-                            style = androidx.compose.ui.text.TextStyle(
+                            style = TextStyle(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight(400),
                                 color = Color(0xFFFFFFFF),
@@ -743,7 +670,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
 
                         Text(
                             text = "Info\nSessions",
-                            style = androidx.compose.ui.text.TextStyle(
+                            style = TextStyle(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight(400),
                                 color = Color(0xFFFFFFFF),
@@ -790,7 +717,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                         }
                         Text(
                             text = "Workshops",
-                            style = androidx.compose.ui.text.TextStyle(
+                            style = TextStyle(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight(400),
                                 color = Color(0xFFFFFFFF),
@@ -841,7 +768,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                         }
                         Text(
                             text = "Volunteering",
-                            style = androidx.compose.ui.text.TextStyle(
+                            style = TextStyle(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight(400),
                                 color = Color(0xFFFFFFFF),
@@ -887,7 +814,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                         }
                         Text(
                             text = "Socials",
-                            style = androidx.compose.ui.text.TextStyle(
+                            style = TextStyle(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight(400),
                                 color = Color(0xFFFFFFFF),
@@ -912,7 +839,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                 ) {
                     Text(
                         text = "Allow for all",
-                        style = androidx.compose.ui.text.TextStyle(
+                        style = TextStyle(
                             fontSize = 16.sp,
                             fontWeight = FontWeight(400),
                             color = Color(0xFFFFFFFF),
@@ -1098,7 +1025,7 @@ fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest:
                     modifier = Modifier
                         .fillMaxWidth(),
                     shape = RoundedCornerShape(size = 25.dp),
-                    colors = CardDefaults.cardColors(containerColor = Variables.blue),
+                    colors = CardDefaults.cardColors(containerColor = blueDarkModeBackground),
                 ) {
                     Column(
                         modifier = Modifier
@@ -1123,7 +1050,7 @@ fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest:
                                     textAlign = TextAlign.Center,
 
                                     text = event.summary,
-                                    style = androidx.compose.ui.text.TextStyle(
+                                    style = TextStyle(
                                         fontSize = 32.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFFD25917),
@@ -1151,7 +1078,7 @@ fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest:
 
                                 Text(
                                     text = formatDate(event.start),
-                                    style = androidx.compose.ui.text.TextStyle (
+                                    style = TextStyle (
                                             fontSize = 18.sp,
                                             fontWeight = FontWeight(400),
                                             color = Color(0xFFFFFFFF),
@@ -1169,7 +1096,7 @@ fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest:
 
                                 Text(
                                     text = formatEventTime(event),
-                                    style = androidx.compose.ui.text.TextStyle (
+                                    style = TextStyle (
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight(400),
                                         color = Color(0xFFFFFFFF),
@@ -1188,7 +1115,7 @@ fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest:
 
                                 Text(
                                     text = event.location ?: ("TBD"),
-                                    style = androidx.compose.ui.text.TextStyle (
+                                    style = TextStyle (
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight(400),
                                         color = Color(0xFFFFFFFF),
@@ -1198,7 +1125,7 @@ fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest:
                             Spacer(modifier = Modifier.height(82.dp))
 
                             Text(text = "Description",
-                                style = androidx.compose.ui.text.TextStyle (
+                                style = TextStyle (
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight(400),
                                     color = Color(0xFFFFFFFF),
@@ -1211,7 +1138,7 @@ fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest:
                                     ?: ("This is basic placeholder of data. In order for this to work" +
                                             "properly, we need to make sure that in the google calendar these events are updated." +
                                             "Otherwise we would need a specific functions to update these on later."),
-                                style = androidx.compose.ui.text.TextStyle (
+                                style = TextStyle (
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight(400),
                                     color = Color(0xFFFFFFFF),
@@ -1254,29 +1181,7 @@ fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest:
 //}
 
 @Composable
-fun EventCardFeed(events: List<HomeViewModel.Event>) {
-    val daysInMonth = getDaysInMonthArray(YearMonth.now())
-
-    LazyColumn(
-        contentPadding = PaddingValues(10.dp),
-        modifier = Modifier
-            .background(Variables.blue)
-            .fillMaxSize()
-
-    ) {
-        items(daysInMonth) { day ->
-            if (day != null) {
-                val dayEvents = events.filter { it.occursOnDate(day) }
-                if (dayEvents.isNotEmpty()) {
-                    DayContainer(date = day, events = dayEvents)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun EventCardFeedSimple(viewModel: HomeViewModel) {
+fun EventCardFeed(viewModel: HomeViewModel) {
     val state by viewModel.homeState.collectAsState()
     val events = state.events
     val listState = rememberLazyListState()
@@ -1309,7 +1214,7 @@ fun EventCardFeedSimple(viewModel: HomeViewModel) {
         state = listState,
         contentPadding = PaddingValues(10.dp),
         modifier = Modifier
-            .background(Variables.blue)
+            .background(blueDarkModeBackground)
             .fillMaxSize()
     ) {
         groupedEvents.forEach { (date, events) ->
@@ -1320,59 +1225,20 @@ fun EventCardFeedSimple(viewModel: HomeViewModel) {
             }
         }
     }
-
-    // we need to get the month from the last event that is seen on the screen
-
-//    LazyColumn(
-//        state = listState,
-//        contentPadding = PaddingValues(10.dp),
-//        modifier = Modifier
-//            .background(Variables.blue)
-//            .fillMaxSize()
-//    ) {
-//        items(daysInMonth) { day ->
-//            day.let {
-//                val dayEvents = events.filter { it.occursOnDate(day) }
-//                if (dayEvents.isNotEmpty()) {
-//                    DayContainer(date = day, events = dayEvents)
-//                }
-//            }
-//        }
-//    }
-
-    // Detecting scroll to the bottom and load the next month
-//    LaunchedEffect(listState) {
-//        snapshotFlow { listState.isNearTheEnd() }
-//            .distinctUntilChanged() // Only react to changes in the scroll position state.
-//            .filter { it } // Only proceed if it's true that we're near the end.
-//            .collect {
-//                val lastLoadedMonth = state.loadedMonths.maxOrNull() ?: YearMonth.now()
-//                val nextMonth = lastLoadedMonth.plusMonths(1)
-//                coroutineScope.launch {
-//                    viewModel.fetchEventsForMonth(nextMonth)
-//                }
-//            }
 }
-
-//fun LazyListState.isNearTheEnd(bufferItems: Int = 3): Boolean {
-//    // Check if the last visible item's index is within `bufferItems` of the total item count
-//    val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return false
-//    val totalItemCount = layoutInfo.totalItemsCount
-//    return lastVisibleItemIndex >= totalItemCount - bufferItems - 1
-//}
 
 @Composable
 fun DayContainer(
     date: LocalDate,
     events: List<HomeViewModel.Event>,
+    viewModel: HomeViewModel = viewModel()
 ) {
-
     val dayOfWeek = DateTimeFormatter.ofPattern("EEE").format(date)
 
     // Display the day of the month on the left and then all the events of that day on the right in a column
     Row {
         // This is used to show the date
-        Column (
+        Column(
             modifier = Modifier
                 .weight(0.1f)
                 .padding(top = 10.dp),
@@ -1381,7 +1247,7 @@ fun DayContainer(
         {
             Text(
                 text = dayOfWeek,
-                style = androidx.compose.ui.text.TextStyle(
+                style = TextStyle(
                     fontSize = 14.sp,
                     fontWeight = FontWeight(400),
                     color = Color(0xFFB7B7B7),
@@ -1390,7 +1256,7 @@ fun DayContainer(
             )
             Text(
                 text = date.dayOfMonth.toString(),
-                style  = androidx.compose.ui.text.TextStyle(
+                style = TextStyle(
                     fontSize = 20.sp,
                     fontWeight = FontWeight(400),
                     color = Color(0xFFB7B7B7),
@@ -1405,7 +1271,7 @@ fun DayContainer(
                 .weight(1f)
         ) {
             events.forEach { event ->
-                EventCard(event)
+                EventCard(event, viewModel = viewModel)
             }
             // dotted spacer
             // we are adding an image to act as a spacer
@@ -1417,33 +1283,47 @@ fun DayContainer(
                     .height(1.dp)
                     .background(Color.Transparent)
             )
-
-//            Spacer(modifier = Modifier
-//                .fillMaxWidth()
-//                .height(1.dp)
-//                .background(Color.Transparent)
-//            )
         }
     }
 }
 
-//@Preview (showBackground = true)
-//@Composable
-//fun DayContainerPreview() {
-//    DayContainer(
-//        // pass february 16, 2024
-//        date = LocalDate.of(2024, 2, 16),
-//        events = sampleCardItems
-//    )
-//}
-//
-//@Preview (showBackground = true)
-//@Composable
-//fun EventCardFeedPreview() {
-//    SHPEUFMobileKotlinTheme {
-//        EventCardFeed(events = sampleCardItems)
-//    }
-//}
+@Preview (showBackground = true)
+@Composable
+fun DayContainerPreview() {
+    SHPEUFMobileKotlinTheme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            DayContainer(
+                date = LocalDate.now(),
+                events = sampleCardItems,
+                viewModel = HomeViewModel(
+                    notificationRepo = NotificationRepository(
+                        context = LocalContext.current
+                    ),
+                    eventRepo = EventRepository(
+                        context = LocalContext.current
+                    ),
+                )
+            )
+        }
+    }
+}
+
+@Preview (showBackground = true)
+@Composable
+fun EventCardFeedPreview() {
+    SHPEUFMobileKotlinTheme {
+        EventCardFeed(
+            viewModel = HomeViewModel(
+                notificationRepo = NotificationRepository(
+                    context = LocalContext.current
+                ),
+                eventRepo = EventRepository(
+                    context = LocalContext.current
+                ),
+            )
+        )
+    }
+}
 
 // used to make the time formatted properly
 fun formatEventTime(event: HomeViewModel.Event): String {
@@ -1493,49 +1373,52 @@ fun getOrdinalIndicator(dayOfMonth: Int): String {
         }
     }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun EventCardPreview() {
-//    SHPEUFMobileKotlinTheme {
-//        EventCard(
-//            event = HomeViewModel.Event(
-//                id = "1",
-//                summary = "SHPE UF General Body Meeting",
-//                description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
-//                location = "https://ufl.zoom.us/j/95895737986",
-//                start = HomeViewModel.EventDateTime(
-//                    dateTime = "2023-12-19T18:00:00-04:00",
-//                    timeZone = "America/New_York"
-//                ),
-//                end = HomeViewModel.EventDateTime(
-//                    dateTime = "2023-12-19T19:00:00-04:00",
-//                    timeZone = "America/New_York"
-//                ),
-//                colorResId = Color.White,
-//                eventType = HomeViewModel.EventType.GBM
-//            )
-//        )
-//    }
-//}
-
-// sliding page
+@Preview(showBackground = true)
+@Composable
+fun EventCardPreview() {
+    SHPEUFMobileKotlinTheme {
+        EventCard(
+            event = HomeViewModel.Event(
+                id = "1",
+                summary = "SHPE GBM #1",
+                description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+                location = "https://ufl.zoom.us/j/95895737986",
+                start = HomeViewModel.EventDateTime(
+                    dateTime = "2023-12-19T18:00:00-04:00",
+                    date = null,
+                    timeZone = "America/New_York"
+                ),
+                end = HomeViewModel.EventDateTime(
+                    dateTime = "2023-12-19T19:00:00-04:00",
+                    date = null,
+                    timeZone = "America/New_York"
+                ),
+                colorResId = Color.White,
+                eventType = HomeViewModel.EventType.GBM
+            ),
+            viewModel = HomeViewModel(
+                notificationRepo = NotificationRepository(
+                    context = LocalContext.current
+                ),
+                eventRepo = EventRepository(
+                    context = LocalContext.current
+                ),
+            )
+        )
+    }
+}
 
 @Composable
 fun NewHomeScreen(viewModel: HomeViewModel) {
     val homeState = viewModel.homeState.collectAsState()
     val currentDate = homeState.value.currentDate
-    val events = homeState.value.events
 
-    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
-
-
-    
     // surround with surface
     Surface (
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(),
-        color = Variables.blue
+        color = blueDarkModeBackground
     ) {
         LaunchedEffect(currentDate) {
             //viewModel.fetchEventsForMonth(YearMonth.now())
@@ -1545,19 +1428,12 @@ fun NewHomeScreen(viewModel: HomeViewModel) {
         Column {
             TopHeader(viewModel = viewModel)
            // EventCardFeed(events = events)
-            EventCardFeedSimple(viewModel = viewModel)
-                // Place other components here if needed
-            }
+            EventCardFeed(viewModel = viewModel)
+        }
 
         SlidingEventWindow(viewModel = viewModel)
         SlidingNotificationWindow(viewModel = viewModel)
-
-        val onDaySelected: (LocalDate) -> Unit = { date ->
-            selectedDate = date
-        }
     }
-
-
 }
 
 @Preview
