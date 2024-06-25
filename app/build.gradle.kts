@@ -1,5 +1,5 @@
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -28,7 +28,7 @@ android {
 
 
         buildConfigField("String", "CALENDAR_ID", "\"${localProperties["calendar_id"]}\"")
-        buildConfigField("String", "REACT_APP_API_KEY", "\"${localProperties["REACT_APP_API_KEY"]}\"")
+        buildConfigField("String", "CALENDAR_API_KEY", "\"${localProperties["CALENDAR_API_KEY"]}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
