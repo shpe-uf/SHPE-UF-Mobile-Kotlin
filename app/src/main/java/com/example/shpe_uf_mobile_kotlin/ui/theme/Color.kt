@@ -31,3 +31,6 @@ val TextColor = Color(0xFFB7B7B7)
 val allNotificationsOn = Color(0xFFD25917)
 val allNotificationsOff = Color(0xFF933815)
 
+// Background Colors
+val blueDarkModeBackground = Color(0xFF011F35)
+val headerOrange = Color(0xFFD25917)
