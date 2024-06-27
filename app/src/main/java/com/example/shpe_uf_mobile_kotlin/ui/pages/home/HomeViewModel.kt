@@ -203,8 +203,8 @@ class HomeViewModel(
     // Init Might Not Need to do this
     init {
         loadNotificationsSettings()
-        //fetchEventsForMonth(YearMonth.now())
-        //loadEvents()
+        fetchEventsForMonth(YearMonth.now())
+        loadEvents()
     }
 
     // Event Caching
@@ -307,7 +307,7 @@ class HomeViewModel(
                             EventType.Workshop -> WorkshopColor
                             EventType.InfoSession -> InfoSessionColor
                             EventType.Volunteering -> VolunteeringColor
-                            else -> GBMColor
+                            else -> SocialColor
                         }
 
                         Event(

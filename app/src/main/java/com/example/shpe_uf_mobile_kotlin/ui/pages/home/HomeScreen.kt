@@ -30,10 +30,13 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material3.Button
@@ -106,7 +109,7 @@ val sampleCardItems = listOf(
             date = null,
             timeZone = "America/New_York"
         ),
-        colorResId = Color.White,
+        colorResId = blueDarkModeBackground,
         eventType = HomeViewModel.EventType.GBM
     ),
     HomeViewModel.Event(
@@ -124,7 +127,7 @@ val sampleCardItems = listOf(
             date = "2024-06-26",
             timeZone = "America/New_York"
         ),
-        colorResId = Color.White,
+        colorResId = Color.Red,
         eventType = HomeViewModel.EventType.GBM
     ),
     HomeViewModel.Event(
@@ -142,7 +145,7 @@ val sampleCardItems = listOf(
             date = null,
             timeZone = "America/New_York"
         ),
-        colorResId = Color.White,
+        colorResId = Color.Blue,
         eventType = HomeViewModel.EventType.GBM
     )
 )
@@ -158,9 +161,10 @@ fun TopHeader(
     Row (
         modifier = Modifier
             .fillMaxWidth()
-            .height(93.dp)
+            .height(83.dp)
             .background(color = headerOrange)
-            .padding(10.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         // display month together "Month Year"
         Text(
@@ -168,42 +172,33 @@ fun TopHeader(
             text = homeState.monthDisplayedName,
             style = TextStyle(
                 color = Color.White,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
+                fontFamily = Viga,
+                fontSize = 26.sp,
+                fontWeight = FontWeight(400)
             ),
             color = Color.White,
             modifier = Modifier
                 .weight(1f)
                 .align(Alignment.Bottom)
-                .width(107.dp)
-                .height(31.dp)
         )
-
-        // display search icon using the icon pack Image is for custom icon
-//        Image(
-//            painter = painterResource(id = R.drawable.ic_search),
-//            contentDescription = "Search Icon",
-//            modifier = Modifier
-//                .size(24.dp)
-//                .align(Alignment.CenterVertically)
-//        )
 
         // This is for a temp one to test layout
         // Icon for bell
         Icon(
-            imageVector = Icons.Default.Notifications,
+            painter = painterResource(id = R.drawable.notifications_icon),
             contentDescription = "Notifications",
+
             modifier = Modifier
-                .size(35.dp)
+                .size(33.dp)
                 .align(Alignment.Bottom)
-                .width(33.dp)
-                .height(32.dp)
                 .clickable { viewModel.openNotificationWindow() },
             tint = Color.White
         )
+
+        // Debug Buttons for Now
         Icon(
-            imageVector = Icons.Default.Flag,
-            contentDescription = "Notifications",
+            imageVector = Icons.Default.Storage,
+            contentDescription = "Get from local storage",
             modifier = Modifier
                 .size(35.dp)
                 .align(Alignment.Bottom)
@@ -213,8 +208,8 @@ fun TopHeader(
             tint = Color.White
         )
         Icon(
-            imageVector = Icons.Default.Timer,
-            contentDescription = "CalenderFetch",
+            imageVector = Icons.Default.Cloud,
+            contentDescription = "Get Events From Cloud",
             modifier = Modifier
                 .size(35.dp)
                 .align(Alignment.Bottom)
@@ -513,7 +508,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(93.dp)
+                        .height(83.dp)
                         .background(color = headerOrange)
                         .padding(10.dp),
 
@@ -539,6 +534,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                         text = "Notifications Settings",
                         style = TextStyle(
                             color = Color.White,
+                            fontFamily = Viga,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         ),
@@ -551,8 +547,6 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                     )
                 }
             }
-
-
             Spacer(modifier = Modifier.height(100.dp))
 
             Text(
@@ -560,9 +554,9 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                         "\nnotifications for",
                 style = TextStyle(
                     fontSize = 20.sp,
+                    fontFamily = Viga,
                     fontWeight = FontWeight(400),
                     color = Color(0xFFB7B7B7),
-
                     textAlign = TextAlign.Center,
                 ),
                 color = Color(0xFFB7B7B7),
@@ -577,19 +571,15 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                     .padding(start = 20.dp, end = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-
                     Column (horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .weight(1f)
                     ) {
-
                         if (homeState.notificationSettings.gbmNotification) {
                             Image(
                                 painter = painterResource(id = R.drawable.gbmselected),
@@ -620,19 +610,19 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                     }
                             )
                         }
-
                         Text(
                             text = "GBMs",
                             style = TextStyle(
                                 fontSize = 16.sp,
+                                fontFamily = Universltstd,
                                 fontWeight = FontWeight(400),
                                 color = Color(0xFFFFFFFF),
-
                                 textAlign = TextAlign.Center,
-                            )
+                            ),
+                            modifier = Modifier
+                                .padding(top = 10.dp)
                         )
                     }
-
                     Column (horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .weight(1f)
@@ -667,17 +657,17 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                                     }
                             )
                         }
-
                         Text(
                             text = "Info\nSessions",
                             style = TextStyle(
                                 fontSize = 16.sp,
+                                fontFamily = Universltstd,
                                 fontWeight = FontWeight(400),
                                 color = Color(0xFFFFFFFF),
-
                                 textAlign = TextAlign.Center,
-                            )
-
+                            ),
+                            modifier = Modifier
+                                .padding(top = 10.dp)
                         )
                     }
 
@@ -719,16 +709,17 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                             text = "Workshops",
                             style = TextStyle(
                                 fontSize = 16.sp,
+                                fontFamily = Universltstd,
                                 fontWeight = FontWeight(400),
                                 color = Color(0xFFFFFFFF),
-
                                 textAlign = TextAlign.Center,
-                            )
+                            ),
+                            modifier = Modifier
+                                .padding(top = 10.dp)
                         )
                     }
                 }
                 Spacer(modifier = Modifier.height(60.dp))
-
 
                 Row {
                     Column(
@@ -771,10 +762,12 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                             style = TextStyle(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight(400),
+                                fontFamily = Universltstd,
                                 color = Color(0xFFFFFFFF),
-
                                 textAlign = TextAlign.Center,
-                            )
+                            ),
+                            modifier = Modifier
+                                .padding(top = 10.dp)
                         )
                     }
 
@@ -816,15 +809,16 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                             text = "Socials",
                             style = TextStyle(
                                 fontSize = 16.sp,
+                                fontFamily = Universltstd,
                                 fontWeight = FontWeight(400),
                                 color = Color(0xFFFFFFFF),
-
                                 textAlign = TextAlign.Center,
-                            )
+                            ),
+                            modifier = Modifier
+                                .padding(top = 10.dp)
                         )
                     }
                 }
-
 
                 // Button for allowing all notifications
                 Spacer(modifier = Modifier.height(60.dp))
@@ -841,18 +835,13 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                         text = "Allow for all",
                         style = TextStyle(
                             fontSize = 16.sp,
+                            fontFamily = Universltstd,
                             fontWeight = FontWeight(400),
                             color = Color(0xFFFFFFFF),
-
                             textAlign = TextAlign.Center,
                         )
                     )
                 }
-
-
-
-
-
             }
         }
     }
@@ -888,52 +877,106 @@ fun TopHeaderPreview() {
     )
 }
 
-// This is to display events under calendar
+// The Event that is displayed on the screen
 @Composable
 fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()) {
     // not sure about padding for now
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 10.dp, top = 10.dp, end = 5.dp, bottom = 10.dp)
+            .padding(start = 10.dp, top = 5.dp, end = 5.dp, bottom = 5.dp)
             .clickable { viewModel.selectEvent(event) },
         colors = CardDefaults.cardColors(containerColor = event.colorResId),
         shape = RoundedCornerShape(size = 25.dp),
     ) {
-        Column(modifier = Modifier.padding(15.dp)) {
-            Row {
-                Text(text = event.summary, style = MaterialTheme.typography.titleLarge)
-                // Insert people together icon
-                // current placeholder for the icon, can replace with the actual image we need,
-                Icon(imageVector = Icons.Default.People, contentDescription = "People")
+        Column(modifier = Modifier
+            .padding(start = 25.dp, end = 20.dp, top = 10.dp, bottom = 10.dp)
+        ) {
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = event.summary,
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontFamily = Universltstd,
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFFFFFFFF),
+                    ),
+                    modifier = Modifier
+                        .padding(end = 10.dp, top = 5.dp)
+                )
+
+                // we need to change this based on the event type
+                Icon(
+                    painter = painterResource(id = when (event.eventType) {
+                        HomeViewModel.EventType.GBM -> R.drawable.gbm_icon
+                        HomeViewModel.EventType.InfoSession -> R.drawable.infosession_icon
+                        HomeViewModel.EventType.Workshop -> R.drawable.workshop_icon
+                        HomeViewModel.EventType.Social -> R.drawable.social_icon
+                        HomeViewModel.EventType.Volunteering -> R.drawable.volunteering_icon
+                        HomeViewModel.EventType.Default -> R.drawable.social_icon
+                    }),
+                    contentDescription = "Event Type",
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.White
+                )
             }
+            Spacer(modifier = Modifier.height(4.dp))
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row {
-                    Icon(imageVector = Icons.Default.People, contentDescription = "People")
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon (
+                        painter = painterResource(id = R.drawable.calendar_ui_icon),
+                        contentDescription = "Calendar",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(end = 5.dp),
+                        tint = Color.Unspecified
+                    )
+
                     Text(
                         text = formatDate(event.start),
-                        style = MaterialTheme.typography.bodyMedium
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontFamily = Universltstd,
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFFFFFFF)
+                        ),
+                        modifier = Modifier
+                            .padding(top = 2.dp)
                     )
                 }
-                Row {
-                    Icon(imageVector = Icons.Default.Timer, contentDescription = null)
-                    Text(text = formatEventTime(event), style = MaterialTheme.typography.bodyMedium)
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon (
+                        painter = painterResource(id = R.drawable.timer_ui_icon),
+                        contentDescription = "Clock",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(end = 5.dp),
+                        tint = Color.Unspecified
+                    )
+                    Text(text = formatEventTime(event),
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontFamily = Universltstd,
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFFFFFFF)
+                        ),
+                        modifier = Modifier
+                            .padding(top = 2.dp)
+                    )
                 }
             }
-
-//            IconButton(onClick = onSaveClicked) {
-//                Icon(imageVector = Icons.Default.Save, contentDescription = "Save")
-//            }
         }
     }
-
-//    if (showPopUp) {
-//        EventPopUp(event, showPopUp, onDismissRequest = { showPopUp = false })
-//    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -1187,9 +1230,9 @@ fun EventCardFeed(viewModel: HomeViewModel) {
     val listState = rememberLazyListState()
 
     // Dynamically calculate days based on loaded months
-    val daysInMonth = viewModel.getDaysInMonthArray(state.loadedMonths)
-    val coroutineScope = rememberCoroutineScope()
-    val eventInDays = mutableMapOf<LocalDate, List<HomeViewModel.Event>>()
+//    val daysInMonth = viewModel.getDaysInMonthArray(state.loadedMonths)
+//    val coroutineScope = rememberCoroutineScope()
+//    val eventInDays = mutableMapOf<LocalDate, List<HomeViewModel.Event>>()
 
     val today = LocalDate.now()
 
@@ -1220,7 +1263,25 @@ fun EventCardFeed(viewModel: HomeViewModel) {
         groupedEvents.forEach { (date, events) ->
             item {
                 if (date != null) {
-                    DayContainer(date = date, events = events)
+                    DayContainer(date = date, events = events, viewModel = viewModel)
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // if the last of the grouped events, no dash
+                    if (date != groupedEvents.keys.last()) {
+                        Row {
+                            Spacer(modifier = Modifier.fillMaxWidth(0.15f))
+
+                            Image(
+                                painter = painterResource(id = R.drawable.dashed_line_spacer),
+                                contentDescription = "Dotted Line",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(Color.Transparent)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
                 }
             }
         }
@@ -1231,7 +1292,7 @@ fun EventCardFeed(viewModel: HomeViewModel) {
 fun DayContainer(
     date: LocalDate,
     events: List<HomeViewModel.Event>,
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel
 ) {
     val dayOfWeek = DateTimeFormatter.ofPattern("EEE").format(date)
 
@@ -1241,7 +1302,7 @@ fun DayContainer(
         Column(
             modifier = Modifier
                 .weight(0.1f)
-                .padding(top = 10.dp),
+                .padding(top = 15.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         )
         {
@@ -1249,6 +1310,7 @@ fun DayContainer(
                 text = dayOfWeek,
                 style = TextStyle(
                     fontSize = 14.sp,
+                    fontFamily = Universltstd,
                     fontWeight = FontWeight(400),
                     color = Color(0xFFB7B7B7),
                     textAlign = TextAlign.Center,
@@ -1258,8 +1320,9 @@ fun DayContainer(
                 text = date.dayOfMonth.toString(),
                 style = TextStyle(
                     fontSize = 20.sp,
+                    fontFamily = Universltstd,
                     fontWeight = FontWeight(400),
-                    color = Color(0xFFB7B7B7),
+                    color = Color(0xFFFFFFFF),
                     textAlign = TextAlign.Center,
                 ),
             )
@@ -1273,16 +1336,6 @@ fun DayContainer(
             events.forEach { event ->
                 EventCard(event, viewModel = viewModel)
             }
-            // dotted spacer
-            // we are adding an image to act as a spacer
-            Image(
-                painter = painterResource(id = R.drawable.dashed_line_spacer),
-                contentDescription = "Dotted Line",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(Color.Transparent)
-            )
         }
     }
 }
@@ -1393,7 +1446,7 @@ fun EventCardPreview() {
                     date = null,
                     timeZone = "America/New_York"
                 ),
-                colorResId = Color.White,
+                colorResId = blueDarkModeBackground,
                 eventType = HomeViewModel.EventType.GBM
             ),
             viewModel = HomeViewModel(
@@ -1410,24 +1463,23 @@ fun EventCardPreview() {
 
 @Composable
 fun NewHomeScreen(viewModel: HomeViewModel) {
-    val homeState = viewModel.homeState.collectAsState()
-    val currentDate = homeState.value.currentDate
+//    val homeState = viewModel.homeState.collectAsState()
+//    val currentDate = homeState.value.currentDate
+//    val launched = homeState.value.launched
 
-    // surround with surface
     Surface (
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(),
         color = blueDarkModeBackground
     ) {
-        LaunchedEffect(currentDate) {
-            //viewModel.fetchEventsForMonth(YearMonth.now())
-            viewModel.loadEvents()
+        LaunchedEffect(Unit) {
+//            viewModel.fetchEventsForMonth(YearMonth.now())
+//            viewModel.loadEvents()
         }
 
         Column {
             TopHeader(viewModel = viewModel)
-           // EventCardFeed(events = events)
             EventCardFeed(viewModel = viewModel)
         }
 
