@@ -1,17 +1,14 @@
 package com.example.shpe_uf_mobile_kotlin
 
-//import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -20,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.example.shpe_uf_mobile_kotlin.repository.EventRepository
 import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
@@ -39,7 +35,8 @@ class MainActivity : ComponentActivity() {
                 val viewModelFactory = HomeViewModelFactory(NotificationRepository(applicationContext), EventRepository(applicationContext))
                 val navController = rememberNavController()
 
-                enableEdgeToEdge(statusBarStyle = SystemBarStyle.light( Color(0xFFD25917).toArgb(), Color(0xFFD25917).toArgb()))
+                enableEdgeToEdge(statusBarStyle = SystemBarStyle.light( Color(0xFFD25917).toArgb(), Color(0xFFD25917).toArgb()),
+                     navigationBarStyle = SystemBarStyle.light( blueDarkModeBackground.toArgb(), blueDarkModeBackground.toArgb()))
 
                 // A surface container using the 'background' color from the theme
                 Surface(
