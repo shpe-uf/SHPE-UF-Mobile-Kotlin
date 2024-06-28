@@ -1,4 +1,5 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
@@ -22,6 +23,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,13 +33,9 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Cloud
-import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material3.Button
@@ -46,15 +45,12 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -85,11 +81,21 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 import com.example.shpe_uf_mobile_kotlin.ui.theme.headerOrange
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 
 
 //create sample card items
@@ -182,7 +188,6 @@ fun TopHeader(
                 .align(Alignment.Bottom)
         )
 
-        // This is for a temp one to test layout
         // Icon for bell
         Icon(
             painter = painterResource(id = R.drawable.notifications_icon),
@@ -196,26 +201,26 @@ fun TopHeader(
         )
 
         // Debug Buttons for Now
-        Icon(
-            imageVector = Icons.Default.Storage,
-            contentDescription = "Get from local storage",
+//        Icon(
+//            imageVector = Icons.Default.Storage,
+//            contentDescription = "Get from local storage",
+//            modifier = Modifier
+//                .size(35.dp)
+//                .align(Alignment.Bottom)
+//                .width(33.dp)
+//                .height(32.dp)
+//                .clickable { viewModel.loadEvents() },
+//            tint = Color.White
+//        )
+                Icon(
+            imageVector = Icons.Default.Delete,
+            contentDescription = "Delete local storage",
             modifier = Modifier
                 .size(35.dp)
                 .align(Alignment.Bottom)
                 .width(33.dp)
                 .height(32.dp)
-                .clickable { viewModel.loadEvents() },
-            tint = Color.White
-        )
-        Icon(
-            imageVector = Icons.Default.Cloud,
-            contentDescription = "Get Events From Cloud",
-            modifier = Modifier
-                .size(35.dp)
-                .align(Alignment.Bottom)
-                .width(33.dp)
-                .height(32.dp)
-                .clickable { viewModel.fetchEventsForMonth(YearMonth.now()) },
+                .clickable { viewModel.eraseEvents() },
             tint = Color.White
         )
     }
@@ -293,7 +298,7 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                 modifier = Modifier
                     .fillMaxSize()
                     .background(blueDarkModeBackground)
-                    .offset(y = (-20).dp),
+                    .offset(y = (-23).dp),
                 shape = RoundedCornerShape(size = 25.dp),
                 colors = CardDefaults.cardColors(containerColor = blueDarkModeBackground),
 
@@ -984,8 +989,7 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
 fun SlidingSheet() {
     val scaffoldSheetState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
-    Scaffold(
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         // 40.dp for the drag handle
         val bottomPadding = innerPadding.calculateBottomPadding() + 40.dp
         BottomSheetScaffold(
@@ -1012,19 +1016,16 @@ fun SlidingSheet() {
                 }
             },
         ) {
-
             // this is where your screen could go
-            NewHomeScreen(viewModel = viewModel())
-
+            HomeScreen(viewModel = viewModel())
         }
-
     }
 }
 
 
 // Not being used for good for reference
 @Composable
-fun EventPopUp(event: HomeViewModel.Event, showPopup: Boolean, onDismissRequest: () -> Unit ) {
+fun EventPopUp(event: HomeViewModel.Event, onDismissRequest: () -> Unit ) {
 // Pop up for the event
     Dialog(onDismissRequest = onDismissRequest,
         DialogProperties(dismissOnBackPress = true,
@@ -1228,13 +1229,9 @@ fun EventCardFeed(viewModel: HomeViewModel) {
     val state by viewModel.homeState.collectAsState()
     val events = state.events
     val listState = rememberLazyListState()
-
-    // Dynamically calculate days based on loaded months
-//    val daysInMonth = viewModel.getDaysInMonthArray(state.loadedMonths)
-//    val coroutineScope = rememberCoroutineScope()
-//    val eventInDays = mutableMapOf<LocalDate, List<HomeViewModel.Event>>()
-
     val today = LocalDate.now()
+    val isRefreshing = state.isRefreshing
+    val scope = rememberCoroutineScope()
 
     // Updated to handle events spanning multiple days
     val groupedEvents = remember(events) {
@@ -1253,38 +1250,195 @@ fun EventCardFeed(viewModel: HomeViewModel) {
         }.toSortedMap()
     }
 
-    LazyColumn(
-        state = listState,
-        contentPadding = PaddingValues(10.dp),
+    Box (
         modifier = Modifier
-            .background(blueDarkModeBackground)
             .fillMaxSize()
+            .background(blueDarkModeBackground)
+            .padding(top = 83.dp)
     ) {
-        groupedEvents.forEach { (date, events) ->
-            item {
-                if (date != null) {
-                    DayContainer(date = date, events = events, viewModel = viewModel)
-                    Spacer(modifier = Modifier.height(10.dp))
+        PullToRefreshLazyColumn(
+            items = groupedEvents.keys.toList(),
+            content = { date ->
+                DayContainer(date = date, events = groupedEvents[date]!!, viewModel = viewModel)
 
-                    // if the last of the grouped events, no dash
-                    if (date != groupedEvents.keys.last()) {
-                        Row {
-                            Spacer(modifier = Modifier.fillMaxWidth(0.15f))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                            Image(
-                                painter = painterResource(id = R.drawable.dashed_line_spacer),
-                                contentDescription = "Dotted Line",
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(Color.Transparent)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(10.dp))
+                if (date != groupedEvents.keys.last()) {
+                    Row {
+                        Spacer(modifier = Modifier.fillMaxWidth(0.15f))
+
+                        Image(
+                            painter = painterResource(id = R.drawable.dashed_line_spacer),
+                            contentDescription = "Dotted Line",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(Color.Transparent)
+                        )
                     }
+                    Spacer(modifier = Modifier.height(10.dp))
                 }
+            },
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                scope.launch {
+                    viewModel.pullToRefresh()
+                }
+            },
+            state = listState
+        )
+
+        LaunchedEffect(listState, groupedEvents, state) {
+            snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+                .collect { visibleItems ->
+                    if (visibleItems.isNotEmpty()) {
+                        val firstVisibleIndex = visibleItems.first().index
+                        val lastVisibleIndex = visibleItems.last().index
+
+                        val firstVisibleDate = groupedEvents.keys.toList()[firstVisibleIndex]
+                        val lastVisibleDate = groupedEvents.keys.toList()[lastVisibleIndex]
+
+//                        Log.d("HomeViewModel", "Last Visible Index: $lastVisibleIndex")
+//                        Log.d("HomeViewModel", "Grouped Events Keys: ${groupedEvents.keys}")
+//                        Log.d("HomeViewModel", "Last Visible Date: $lastVisibleDate")
+//                        Log.d("HomeViewModel", "First Visible Date: $firstVisibleDate")
+
+                        if (firstVisibleDate != null && lastVisibleDate != null) {
+
+                        if (firstVisibleDate.month != lastVisibleDate.month) {
+                            viewModel.updateMonthName(
+                                "${
+                                    firstVisibleDate.month.name.substring(0, 3)}/${lastVisibleDate.month.name.substring(0, 3)}"
+                            )
+                        } else {
+                            viewModel.updateMonthName(lastVisibleDate.month.name)
+                        }
+
+//                            if (lastVisibleIndex >= groupedEvents.keys.size - 1) {
+//                                // loading more events from the last loaded
+//                                viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
+//                                Log.d("HomeViewModel", "Fetching more event ${state.lastDateLoaded}")
+//                            }
+                        }
+
+                        val lastVal = listState.isScrollInProgress
+
+//                        if (!listState.canScrollForward && !state.isRefreshing && lastVal) {
+//                            // insert delay to prevent multiple calls
+//                            scope.launch {
+//                                Log.d("HomeViewModel", "Fetching more event from ${state.lastDateLoaded}")
+//                                viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
+//                            }
+//                        }
+                }
+                }
+
+
+//            snapshotFlow { listState.isScrolledPastEnd() }
+//                .collectLatest {
+//                    scope.launch {
+//                        viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
+//                        Log.d("HomeViewModel", "Fetching more event ${state.lastDateLoaded}")
+//                    }
+//                }
+
+        }
+//        var previousOffset by remember { mutableStateOf(0) }
+//
+//        LaunchedEffect(listState) {
+//            snapshotFlow { listState.firstVisibleItemScrollOffset }
+//                .collect { currentOffset ->
+//                    val isScrollingUp = currentOffset < previousOffset
+//                    previousOffset = currentOffset
+//
+//                    if (isScrollingUp && !listState.canScrollForward && !state.isRefreshing) {
+//                        scope.launch {
+//                            Log.d("HomeViewModel", "Fetching more event from ${state.lastDateLoaded}")
+//                            viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
+//                        }
+//                    }
+//                }
+//        }
+
+//        LaunchedEffect(listState, groupedEvents, state) {
+//            snapshotFlow { listState.canScrollForward }
+//                .distinctUntilChanged()
+//                .filter { !it }  // Trigger only when you cannot scroll forward
+//                .collectLatest {
+//                    scope.launch {
+//                        if (!state.isRefreshing) {
+//                            Log.d("HomeViewModel", "Fetching more event from ${state.lastDateLoaded}")
+//                            viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
+//                        }
+//                    }
+//                }
+//        }
+
+    }
+}
+
+fun LazyListState.isScrolledPastEnd(): Boolean {
+    Log.d("HomeViewModel", "Checking if scrolled past end")
+
+
+    val layoutInfo = layoutInfo
+    if (layoutInfo.visibleItemsInfo.isEmpty()) return false
+
+    val lastVisibleItem = layoutInfo.visibleItemsInfo.last()
+    val isLastItem = lastVisibleItem.index == layoutInfo.totalItemsCount - 1
+    val hasScrolledPastLastItem = lastVisibleItem.size + lastVisibleItem.offset < layoutInfo.viewportEndOffset
+
+    return isLastItem && hasScrolledPastLastItem
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun <T> PullToRefreshLazyColumn(
+    items: List<T>,
+    content: @Composable (T) -> Unit,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState()
+) {
+    val pullToRefreshState = rememberPullToRefreshState()
+    Box(
+        modifier = modifier
+            .nestedScroll(pullToRefreshState.nestedScrollConnection)
+    ) {
+        LazyColumn(
+            state = state,
+            contentPadding = PaddingValues(8.dp),
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(items) {
+                content(it)
             }
         }
+
+        if(pullToRefreshState.isRefreshing) {
+            LaunchedEffect(true) {
+                Log.d("PullToRefresh", "Refreshing")
+                onRefresh()
+            }
+        }
+
+        LaunchedEffect(isRefreshing) {
+            if(isRefreshing) {
+                pullToRefreshState.startRefresh()
+            } else {
+                pullToRefreshState.endRefresh()
+            }
+        }
+
+        PullToRefreshContainer(
+            state = pullToRefreshState,
+            modifier = Modifier
+                .align(Alignment.TopCenter),
+            containerColor = blueDarkModeBackground,
+        )
     }
 }
 
@@ -1462,25 +1616,16 @@ fun EventCardPreview() {
 }
 
 @Composable
-fun NewHomeScreen(viewModel: HomeViewModel) {
-//    val homeState = viewModel.homeState.collectAsState()
-//    val currentDate = homeState.value.currentDate
-//    val launched = homeState.value.launched
-
+fun HomeScreen(viewModel: HomeViewModel) {
     Surface (
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(),
         color = blueDarkModeBackground
     ) {
-        LaunchedEffect(Unit) {
-//            viewModel.fetchEventsForMonth(YearMonth.now())
-//            viewModel.loadEvents()
-        }
-
-        Column {
-            TopHeader(viewModel = viewModel)
+        Box {
             EventCardFeed(viewModel = viewModel)
+            TopHeader(viewModel = viewModel)
         }
 
         SlidingEventWindow(viewModel = viewModel)
@@ -1490,8 +1635,8 @@ fun NewHomeScreen(viewModel: HomeViewModel) {
 
 @Preview
 @Composable
-fun NewHomeScreenPreview() {
-    NewHomeScreen(
+fun HomeScreenPreview() {
+    HomeScreen(
         viewModel = HomeViewModel(
             notificationRepo = NotificationRepository(
                 context = LocalContext.current
