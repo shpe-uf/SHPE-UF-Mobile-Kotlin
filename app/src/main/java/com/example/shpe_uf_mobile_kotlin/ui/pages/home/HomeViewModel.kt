@@ -31,19 +31,16 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 
 class HomeViewModel(
     private val notificationRepo: NotificationRepository,
     private val eventRepo: EventRepository
 ) : ViewModel() {
-//class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // API Keys
     private val calendarId = BuildConfig.CALENDAR_ID
     private val apiKey = BuildConfig.CALENDAR_API_KEY
@@ -55,6 +52,12 @@ class HomeViewModel(
     // Event Type
     enum class EventType {
         Default, GBM, Social, Workshop, InfoSession, Volunteering
+    }
+
+    init {
+        loadNotificationsSettings()
+        fetchEventsMonths(localDate = LocalDate.now(), monthsToFetch = 4)
+        loadEvents()
     }
 
     // Window Visibility
@@ -74,11 +77,11 @@ class HomeViewModel(
     fun hideNotificationWindow() {
         _homeUIState.value = _homeUIState.value.copy(isNotificationWindowVisible = false)
     }
+    // -------------------
 
     // Notification Settings
     fun toggleNotificationSettings(context: Context, type: EventType, isEnabled: Boolean) {
         Log.d("HomeViewModel", "Toggled notification settings for $type: $isEnabled")
-
 
         // Update events' notificationEnabled based on type and isEnabled
         val updatedEvents = homeState.value.events.map { event ->
@@ -100,7 +103,6 @@ class HomeViewModel(
         // Handle scheduling or canceling notifications
         handleNotificationsForEvents(context,updatedEvents, type, isEnabled)
         saveNotificationSettings(context, type, isEnabled)
-
     }
 
     fun toggleAllNotifications(context: Context) {
@@ -142,7 +144,7 @@ class HomeViewModel(
         saveNotificationSettings(context, EventType.Volunteering, !allNotificationOn)
         saveNotificationSettings(context, EventType.Default, !allNotificationOn)
 
-        // sharedpreferences for all notifications color
+        // shared preferences for all notifications color
         val sharedPreferences = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
             putBoolean("AllNotifications", !allNotificationOn)
@@ -196,77 +198,67 @@ class HomeViewModel(
         }
     }
 
+    // UI
     fun updateMonthName(month: String) {
         _homeUIState.update { it.copy(monthDisplayedName = month) }
     }
 
-    // Init Might Not Need to do this
-    init {
-        loadNotificationsSettings()
-        fetchEventsForMonth(YearMonth.now())
-        loadEvents()
+    fun pullToRefresh() {
+        _homeUIState.update { it.copy(isRefreshing = true) }
+        fetchEventsMonths(localDate = LocalDate.now(), monthsToFetch = 4)
+        // isRefreshing will be set to false in fetchCalendarEvents, it has to, otherwise breaks.
     }
 
     // Event Caching
-    // save event
-    fun saveEventEE(event: Event) {
+    private fun saveEventToDataBase(event: Event) {
         viewModelScope.launch {
             eventRepo.insert(event)
         }
     }
 
-    fun loadEvents() {
+     fun eraseEvents() {
+        _homeUIState.update { it.copy(events = emptyList()) }
+    }
+
+    private fun loadEvents() {
         Log.d("HomeViewModel", "Loading events")
 
         viewModelScope.launch {
             if (_homeUIState.value.events.isEmpty()) {
                 val events = eventRepo.getALlEvents()
-                Log.d("HomeViewModel", "Events fetched from database: $events")
+                Log.d("HomeViewModel", "Events fetched from database")
 
                 _homeUIState.update { it.copy(events = events) }
 
                 // Only fetch for the current month if the initial fetch is empty
                 if (events.isEmpty()) {
                     Log.d("HomeViewModel", "Fetching events from server")
-                    fetchEventsForMonth(YearMonth.now())
+                    fetchEventsMonths(localDate = LocalDate.now(), 4) // Fetch 4 months ahead
                 }
             } else {
                 Log.d("HomeViewModel", "Using cached events")
             }
-
-            _homeUIState.value.events.forEach { event ->
-                Log.d("HomeViewModel", "Events in UI: $event")
-            }
         }
     }
 
-
-    fun getDaysInMonthArray(loadedMonths: List<YearMonth>): List<LocalDate> {
-        return loadedMonths.sorted().flatMap { month ->
-            (1..month.lengthOfMonth()).map { day ->
-                LocalDate.of(month.year, month.monthValue, day)
-            }
-        }
-    }
-
-
-    fun fetchEventsForMonth(yearMonth: YearMonth) {
+    fun fetchEventsMonths(localDate: LocalDate = LocalDate.now(), monthsToFetch: Int) {
         val zoneId = ZoneId.of("America/New_York")
 
-         // I want to load starting from today to the end of a semester 4 months away
-        val dataAtLoad = LocalDate.now()
-        val semesterEnd = LocalDate.now().plusMonths(4)
+          // yearMonth is time timeMin begins
 
-        Log.d("HomeViewModel", "Month Start: $dataAtLoad")
-        Log.d("HomeViewModel", "Month End: $semesterEnd")
+         // I want to load starting from today to the end of a semester 4 months away
+        val dataAtLoad = localDate
+        val periodEnd = localDate.plusMonths(monthsToFetch.toLong())
 
         val timeMin = ZonedDateTime.of(dataAtLoad, LocalTime.MIN, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-        val timeMax = ZonedDateTime.of(semesterEnd, LocalTime.MAX, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        val timeMax = ZonedDateTime.of(periodEnd, LocalTime.MAX, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
 
-        fetchCalendarEvents(timeMin, timeMax, yearMonth)
+        _homeUIState.update { it.copy(lastDateLoaded = periodEnd) }
+
+        fetchCalendarEvents(timeMin, timeMax)
     }
 
-    private fun fetchCalendarEvents(timeMin: String, timeMax: String, yearMonth: YearMonth) {
+    private fun fetchCalendarEvents(timeMin: String, timeMax: String) {
         // Check if any of the required parameters are null or empty and log an error if they are
         if (calendarId.isEmpty() || timeMin.isEmpty() || timeMax.isEmpty() || apiKey.isEmpty()) {
             Log.d("HomeViewModel", "calendarId: $calendarId")
@@ -274,6 +266,9 @@ class HomeViewModel(
             Log.d("HomeViewModel", "timeMax: $timeMax")
             return
         }
+
+        Log.d("HomeViewModel", "Fetching from: $timeMin to $timeMax")
+        _homeUIState.update { it.copy(isRefreshing = true) }
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -288,17 +283,8 @@ class HomeViewModel(
                 // Make the network call
                 val response = service.getCalendarEvents(calendarId, timeMin, timeMax, apiKey)
 
-                // Check if the response is successful
                 if (response.isSuccessful) {
-
-
-                    // display all the events in the log in an organized manner
-                    response.body()?.items?.forEach { calendarEvent ->
-                        Log.d("HomeViewModel", "CalendarEvent: $calendarEvent")
-                        Log.d("HomeViewModel", "-----------------------------------")
-                    }
-
-                    // Parse the response body
+                    // Go through all the steps to determine event details
                     val events = response.body()?.items?.map { calendarEvent ->
                         val eventTypeDetermined = determineEventType(calendarEvent.summary)
                         val determinedColor = when (eventTypeDetermined) {
@@ -323,24 +309,14 @@ class HomeViewModel(
                     }
 
                     withContext(Dispatchers.Main) {
-                        // add new events on top of old ones
                         _homeUIState.update { it.copy(events = events.orEmpty()) }
-                        _homeUIState.update { it.copy(loadedMonths = it.loadedMonths + yearMonth) }
 
-                        // save event in the database
                         events?.forEach { event ->
-                            saveEventEE(event)
-                        }
-
-                        if (events.isNullOrEmpty()) {
-                            _homeUIState.update { it.copy(monthsWithNoEvents = it.monthsWithNoEvents + yearMonth) }
-                            // remove the month from the loaded months
-                            _homeUIState.update { it.copy(loadedMonths = it.loadedMonths - yearMonth) }
+                            saveEventToDataBase(event)
                         }
                     }
                 }
                 else {
-                    // Log an error if the response is not successful
                     Log.e("HomeViewModel", "Failed to fetch calendar events: ${response.errorBody()?.string()}")
                 }
             }
@@ -349,6 +325,10 @@ class HomeViewModel(
             }
             catch (e: Throwable) {
                 Log.e("HomeViewModel", "Failure in fetchCalendarEvents", e)
+            }
+            finally {
+                // need to update refresh status, used for pull to refresh
+                _homeUIState.update { it.copy(isRefreshing = false) }
             }
         }
     }
@@ -395,12 +375,7 @@ class HomeViewModel(
         }
     }
 
-    fun saveEvent(event: Event) {
-        // Implement the logic to save the event
-        // This could involve database operations or other state changes
-    }
-
-    // update this and
+    // Event Data Class
     data class Event(
         val id: String?,
         val summary: String,
@@ -411,51 +386,14 @@ class HomeViewModel(
         val colorResId: Color,
         val eventType: EventType,
         val notificationEnabled: Boolean = false
-    ) {
-        fun matchesDate(date: LocalDate): Boolean {
-            return this.start.toLocalDate() == date
-        }
-
-        fun occursOnDate(date: LocalDate): Boolean {
-            val eventStartDate = start.toLocalDate()
-            val eventEndDate = end.toLocalDate()
-
-            val adjustedEventEndDate = when {
-                // If it's an all-day event (date is not null but dateTime is), adjust the end date to be inclusive.
-                eventEndDate != null && start.dateTime == null && start.date != null -> eventEndDate.minusDays(1)
-                else -> eventEndDate
-            }
-
-            return (date.isEqual(eventStartDate) || (eventStartDate != null && date.isAfter(eventStartDate))) &&
-                    (adjustedEventEndDate == null || date.isEqual(adjustedEventEndDate) || date.isBefore(adjustedEventEndDate))
-        }
-    }
+    )
 
     // update to handle all day events, needs to look for date in addition to dateTime
     data class EventDateTime(
         val dateTime: String?,
         val date: String?,
         val timeZone: String?
-    ) {
-        fun toLocalDate(): LocalDate? {
-            dateTime?.let {
-                return try {
-                    LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME).toLocalDate()
-                } catch (e: DateTimeParseException) {
-                    null
-                }
-            }
-            date?.let {
-                return try {
-                    LocalDate.parse(it, DateTimeFormatter.ISO_DATE)
-                } catch (e: DateTimeParseException) {
-                    null
-                }
-            }
-            return null
-        }
-    }
-
+    )
 
     // Google API Things
     interface GoogleCalendarService {

@@ -8,6 +8,10 @@ data class HomeScreenState(
     val events: List<HomeViewModel.Event> = emptyList(),
     val currentDate: LocalDate = LocalDate.now(),
     val monthDisplayedName : String = LocalDate.now().month.name,
+    val isRefreshing: Boolean = false,
+    val lastDateLoaded: LocalDate = LocalDate.now(),
+    var isFetching: Boolean = false,
+    var nextPage: Int = 0,
 
     // Window visibility
     val isEventDetailsVisible: Boolean = false,
@@ -18,11 +22,6 @@ data class HomeScreenState(
     val allNotificationCurrentColor: Color = Color(0xFF933815),
     // -------------------
 
-    val loadedMonths: List<YearMonth> = listOf(),
-    val monthIsLoading: Boolean = false,
-
-    val requestedMonths: Set<YearMonth> = emptySet(),
-    val monthsWithNoEvents: Set<YearMonth> = emptySet()
 )
 
 data class NotificationSelection (

@@ -29,7 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
-import com.example.shpe_uf_mobile_kotlin.ui.pages.home.NewHomeScreen
+import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 
 object NavRoute {
@@ -124,7 +124,7 @@ fun NavHostContainer(navHostController: NavHostController, homeViewModelFactory:
     ) {
         composable(NavRoute.HOME)
         {
-            NewHomeScreen(
+            HomeScreen(
                 viewModel = homeViewModel
             )
         }
