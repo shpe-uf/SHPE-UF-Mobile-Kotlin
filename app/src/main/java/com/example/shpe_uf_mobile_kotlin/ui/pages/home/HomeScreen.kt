@@ -1,6 +1,13 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.os.Build
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -48,6 +55,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -88,15 +96,10 @@ import java.util.Locale
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-
+import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
+import com.example.shpe_uf_mobile_kotlin.util.*
 
 //create sample card items
 val sampleCardItems = listOf(
@@ -491,8 +494,7 @@ fun SlidingNotificationWindow(viewModel: HomeViewModel) {
 fun NotificationSettingsContent(viewModel: HomeViewModel) {
     val context = LocalContext.current
     val homeState by viewModel.homeState.collectAsState()
-
-
+    
     // Notification Details
     Surface (
         modifier = Modifier
@@ -500,6 +502,9 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
             .fillMaxHeight(),
         color = blueDarkModeBackground
     ) {
+        // Permissions and Dialogs
+        PermissionsAndDialogs(viewModel, context)
+
         Column(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -848,6 +853,130 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                     )
                 }
             }
+        }
+    }
+}
+
+// Permissions and Dialogs
+@Composable
+fun PermissionsAndDialogs(viewModel: HomeViewModel, context: Context) {
+    // Notification Permission Request
+    val dialogQueue = viewModel.visiblePermissionDialogQueue
+
+    val multiplePermissionResultLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            permissions.forEach { (permission, isGranted) ->
+                if (isGranted) {
+                    Log.d("HomeViewModel", "Permission Granted: $permission")
+                    //viewModel.dismissDialog()
+                    if (dialogQueue.contains(permission)) {
+                        viewModel.dismissDialog()
+                    }
+                }
+                else {
+                    viewModel.dismissDialog()
+                    viewModel.onPermissionResult(permission, isGranted)
+                    Log.d("HomeViewModel", "Permission Denied: $permission")
+                }
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            multiplePermissionResultLauncher.launch(permissionsToRequest)
+        }
+    }
+
+    val activity = context as Activity
+    dialogQueue
+        .forEach { permission ->
+            PermissionDialog(
+                permissionTextProvider = when (permission) {
+                    Manifest.permission.POST_NOTIFICATIONS -> NotificationsPermissionProvider()
+                    Manifest.permission.USE_EXACT_ALARM -> NotificationsPermissionProvider()
+                    else -> return@forEach
+                },
+                isPermanentlyDeclined = !shouldShowRequestPermissionRationale(activity, permission),
+                onDismiss = { viewModel.dismissDialog() },
+                onOkayClick = {
+                    viewModel.dismissDialog()
+                    Log.d("HomeViewModel", "Restarting to ask again: $permission")
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        multiplePermissionResultLauncher.launch(permissionsToRequest)
+                    }
+                },
+                onGoToAppSettingsClick = {
+                    viewModel.dismissDialog()
+                    openAppSettings(context)
+                }
+            )
+        }
+}
+
+@Composable
+fun PermissionDialog (
+    permissionTextProvider: PermissionTextProvider,
+    isPermanentlyDeclined: Boolean,
+    onDismiss: () -> Unit,
+    onOkayClick: () -> Unit,
+    onGoToAppSettingsClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = "Permission Required")
+        },
+        text = {
+            Column {
+                Text(
+                    text = permissionTextProvider.getDesiredPermissionText(isPermanentlyDeclined,
+                        Manifest.permission.CAMERA),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+        },
+        confirmButton = {
+            if (!isPermanentlyDeclined) {
+                Button(onClick = onOkayClick) {
+                    Text("Okay")
+                }
+            }
+            else {
+                Button(onClick = onGoToAppSettingsClick) {
+                    Text("Go to App Settings")
+                }
+            }
+        },
+        dismissButton = {
+            if (!isPermanentlyDeclined) {
+                Button(onClick = onDismiss) {
+                    Text("Dismiss")
+                }
+            }
+        },
+        modifier = modifier
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+private val permissionsToRequest = arrayOf(
+    Manifest.permission.USE_EXACT_ALARM,
+    Manifest.permission.POST_NOTIFICATIONS,
+)
+
+interface PermissionTextProvider{
+    fun getDesiredPermissionText(isPermanentlyDeclined: Boolean, permission: String): String
+}
+
+class NotificationsPermissionProvider : PermissionTextProvider {
+    override fun getDesiredPermissionText(isPermanentlyDeclined: Boolean, permission: String): String {
+        return if (isPermanentlyDeclined) {
+            "You have permanently denied notifications permission. Please go to app settings and enable it."
+        } else {
+            "This app requires the notifications permission to function properly."
         }
     }
 }
