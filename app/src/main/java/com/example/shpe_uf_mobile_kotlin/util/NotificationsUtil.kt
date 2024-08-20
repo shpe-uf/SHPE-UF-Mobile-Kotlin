@@ -75,8 +75,6 @@ class NotificationsUtil {
             requestPermissionForNotifications(context)
             return
         }
-        // check if notifications are allowed
-
 
         val alarmManager = context.getSystemService(AlarmManager::class.java)
         val intent = Intent(context, AlarmReceiver::class.java)
@@ -89,27 +87,26 @@ class NotificationsUtil {
         Log.d("HomeViewModel", "Notification Title: ${event.summary}")
         Log.d("HomeViewModel", "Notification Message: ${event.description}")
 
-
+        val requestCode = event.id.hashCode()
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            0,
+            requestCode,
             intent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         // create eventTime var based on eventStart date and dateTime
-        val eventTime = event.start.dateTime?.let {
+        var eventTime = event.start.dateTime?.let {
             LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME)?.withSecond(0)
         } ?: event.start.date?.let {
             LocalDate.parse(it, DateTimeFormatter.ISO_DATE).atStartOfDay()?.withSecond(0)
-        }
-        // subtract 15 minutes from eventTime
-        eventTime?.minusMinutes(15)
+        }?.atZone(ZoneId.systemDefault())?.toLocalDateTime()
+
+        eventTime = eventTime?.minusMinutes(15)
+        Log.d("HomeViewModel", "Event time: $eventTime")
 
         // proper format time
         val triggerAtMillis = eventTime?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
-
-        Log.d("HomeViewModel", "Event time: $eventTime")
 
         // Schedule the alarm
         if (triggerAtMillis != null) {
