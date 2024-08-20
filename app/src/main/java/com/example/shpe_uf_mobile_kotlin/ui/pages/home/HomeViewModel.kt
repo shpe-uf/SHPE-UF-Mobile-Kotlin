@@ -1,6 +1,8 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
 import android.content.Context
 import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -167,6 +169,27 @@ class HomeViewModel(
             }
         }
     }
+
+
+    // Permission Handling
+    val visiblePermissionDialogQueue = mutableStateListOf<String>()
+
+    fun dismissDialog() {
+        if (visiblePermissionDialogQueue.isNotEmpty()) {
+            Log.d("HomeViewModel", "Removing, ${visiblePermissionDialogQueue.last()}")
+            visiblePermissionDialogQueue.removeLast()
+        }
+    }
+
+    fun onPermissionResult(
+        permission: String,
+        isGranted: Boolean
+    ) {
+        if (!isGranted && !visiblePermissionDialogQueue.contains(permission)) {
+            visiblePermissionDialogQueue.add(permission)
+        }
+    }
+
 
     // Saving States for reboot
     private fun saveNotificationSettings(context: Context, eventType: EventType, isEnabled: Boolean){
@@ -371,7 +394,7 @@ class HomeViewModel(
             ) -> EventType.Volunteering
 
             // Return default event type if no keywords matched
-            else -> EventType.Default
+            else -> EventType.Social
         }
     }
 

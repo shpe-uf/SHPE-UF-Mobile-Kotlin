@@ -15,7 +15,7 @@ class SHPEUFApp : Application() {
     private fun createNotificationChannel() {
         val name = NotificationsUtil.CHANNEL_ID
         val descriptionText = "SHPE UF Events Channel"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel(NotificationsUtil.CHANNEL_ID, name, importance).apply {
             description = descriptionText
         }
