@@ -494,7 +494,7 @@ fun SlidingNotificationWindow(viewModel: HomeViewModel) {
 fun NotificationSettingsContent(viewModel: HomeViewModel) {
     val context = LocalContext.current
     val homeState by viewModel.homeState.collectAsState()
-    
+
     // Notification Details
     Surface (
         modifier = Modifier
@@ -965,6 +965,7 @@ fun PermissionDialog (
 private val permissionsToRequest = arrayOf(
     Manifest.permission.USE_EXACT_ALARM,
     Manifest.permission.POST_NOTIFICATIONS,
+    Manifest.permission.WAKE_LOCK
 )
 
 interface PermissionTextProvider{
