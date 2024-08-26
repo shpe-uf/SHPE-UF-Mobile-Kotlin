@@ -62,7 +62,18 @@ class HomeViewModel(
         loadEvents()
     }
 
-    // Window Visibility
+    // UI
+    fun updateMonthName(month: String) {
+        _homeUIState.update { it.copy(monthDisplayedName = month) }
+    }
+
+    fun pullToRefresh() {
+        _homeUIState.update { it.copy(isRefreshing = true) }
+        fetchEventsMonths(localDate = LocalDate.now(), monthsToFetch = 4)
+        // isRefreshing will be set to false in fetchCalendarEvents, it has to, otherwise breaks.
+    }
+
+    // UI - Window Visibility
     fun selectEvent(event: Event?) {
         _homeUIState.value = _homeUIState.value.copy(selectedEvent = event)
         _homeUIState.value = _homeUIState.value.copy(isEventDetailsVisible = true)
@@ -79,7 +90,27 @@ class HomeViewModel(
     fun hideNotificationWindow() {
         _homeUIState.value = _homeUIState.value.copy(isNotificationWindowVisible = false)
     }
+
+    // UI - Permission Handling
+    val visiblePermissionDialogQueue = mutableStateListOf<String>()
+
+    fun dismissDialog() {
+        if (visiblePermissionDialogQueue.isNotEmpty()) {
+            Log.d("HomeViewModel", "Removing, ${visiblePermissionDialogQueue.last()}")
+            visiblePermissionDialogQueue.removeLast()
+        }
+    }
+
+    fun onPermissionResult(
+        permission: String,
+        isGranted: Boolean
+    ) {
+        if (!isGranted && !visiblePermissionDialogQueue.contains(permission)) {
+            visiblePermissionDialogQueue.add(permission)
+        }
+    }
     // -------------------
+
 
     // Notification Settings
     fun toggleNotificationSettings(context: Context, type: EventType, isEnabled: Boolean) {
@@ -111,21 +142,11 @@ class HomeViewModel(
         Log.d("HomeViewModel", "Currently all notifications are ${homeState.value.notificationSettings.allNotificationSelection}")
         Log.d ("HomeViewModel", "Toggled all notifications")
 
+
+
+
         // all starts as false
         val allNotificationOn = homeState.value.notificationSettings.allNotificationSelection
-
-        if (!allNotificationOn) {
-            // update button color
-            _homeUIState.update { currentState ->
-                currentState.copy(allNotificationCurrentColor = allNotificationsOn)
-            }
-
-        } else {
-            // update color
-            _homeUIState.update { currentState ->
-                currentState.copy(allNotificationCurrentColor = allNotificationsOff)
-            }
-        }
 
         _homeUIState.update { currentState ->
             currentState.copy(notificationSettings = currentState.notificationSettings.copy(
@@ -137,6 +158,36 @@ class HomeViewModel(
                 allNotificationSelection = !allNotificationOn
             ))
         }
+
+        if (!allNotificationOn) {
+            // update button color and schedule all notifications
+            _homeUIState.update { currentState ->
+                currentState.copy(allNotificationCurrentColor = allNotificationsOn)
+            }
+
+            // schedule all notifications
+            homeState.value.events.forEach { event ->
+                if (shouldScheduleNotification(event)) {
+                    NotificationsUtil.scheduleNotification(event)
+                }
+            }
+
+
+        } else {
+            // update color
+            _homeUIState.update { currentState ->
+                currentState.copy(allNotificationCurrentColor = allNotificationsOff)
+            }
+
+            // cancel all notifications
+            homeState.value.events.forEach { event ->
+                if (shouldScheduleNotification(event)) {
+                    NotificationsUtil.cancelNotification(event)
+                }
+            }
+        }
+
+
 
         // save the settings
         saveNotificationSettings(context, EventType.GBM, !allNotificationOn)
@@ -155,12 +206,12 @@ class HomeViewModel(
     }
 
     private fun handleNotificationsForEvents(context: Context, events: List<Event>, type: EventType, isEnabled: Boolean) {
-        val notificationsUtil =  NotificationsUtil()
+        val notificationsUtil = NotificationsUtil
 
         events.filter { it.eventType == type && it.notificationEnabled == isEnabled }.forEach { event ->
             if (isEnabled) {
                 // Schedule notification
-                notificationsUtil.scheduleNotification(context, event)
+                notificationsUtil.scheduleNotification(event)
             } else {
                 // Assume cancelNotification is implemented and event.id is a unique identifier
                 //notificationsUtil.cancelNotification(event.id)
@@ -170,24 +221,15 @@ class HomeViewModel(
         }
     }
 
-
-    // Permission Handling
-    val visiblePermissionDialogQueue = mutableStateListOf<String>()
-
-    fun dismissDialog() {
-        if (visiblePermissionDialogQueue.isNotEmpty()) {
-            Log.d("HomeViewModel", "Removing, ${visiblePermissionDialogQueue.last()}")
-            visiblePermissionDialogQueue.removeLast()
-        }
-    }
-
-    fun onPermissionResult(
-        permission: String,
-        isGranted: Boolean
-    ) {
-        if (!isGranted && !visiblePermissionDialogQueue.contains(permission)) {
-            visiblePermissionDialogQueue.add(permission)
-        }
+    private fun shouldScheduleNotification(event: HomeViewModel.Event): Boolean {
+        return when (event.eventType) {
+            EventType.GBM -> _homeUIState.value.notificationSettings.gbmNotification
+            EventType.Social -> _homeUIState.value.notificationSettings.socialNotification
+            EventType.Workshop -> _homeUIState.value.notificationSettings.workshopNotification
+            EventType.InfoSession -> _homeUIState.value.notificationSettings.infoSessionNotification
+            EventType.Volunteering -> _homeUIState.value.notificationSettings.volunteeringNotification
+            else -> false
+        } || _homeUIState.value.notificationSettings.allNotificationSelection
     }
 
 
@@ -221,16 +263,6 @@ class HomeViewModel(
         }
     }
 
-    // UI
-    fun updateMonthName(month: String) {
-        _homeUIState.update { it.copy(monthDisplayedName = month) }
-    }
-
-    fun pullToRefresh() {
-        _homeUIState.update { it.copy(isRefreshing = true) }
-        fetchEventsMonths(localDate = LocalDate.now(), monthsToFetch = 4)
-        // isRefreshing will be set to false in fetchCalendarEvents, it has to, otherwise breaks.
-    }
 
     // Event Caching
     private fun saveEventToDataBase(event: Event) {
@@ -336,6 +368,12 @@ class HomeViewModel(
 
                         events?.forEach { event ->
                             saveEventToDataBase(event)
+
+                            // Schedule notifications for events that should have them
+                            if (shouldScheduleNotification(event)) {
+                                NotificationsUtil.scheduleNotification(event)
+                            }
+
                         }
                     }
                 }
