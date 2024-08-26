@@ -10,6 +10,7 @@ class SHPEUFApp : Application() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        NotificationsUtil.init(this)
     }
 
     private fun createNotificationChannel() {
