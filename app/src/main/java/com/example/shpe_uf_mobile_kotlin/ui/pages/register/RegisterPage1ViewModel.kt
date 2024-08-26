@@ -1,9 +1,15 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.register
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import apolloClient
+import com.apollographql.apollo3.api.Optional
+import com.example.shpe_uf_mobile_kotlin.RegisterMutation
+import com.example.shpe_uf_mobile_kotlin.type.RegisterInput
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class RegisterPage1ViewModel: ViewModel() {
     //Mutable State Flow that holds the state of the Register Screen View
@@ -22,8 +28,16 @@ class RegisterPage1ViewModel: ViewModel() {
         val isValidEmail = validateEmail(currentState.email ?: "")
         val isValidPassword = validatePassword(currentState.password ?: "")
         val isPasswordConfirmed = validateConfirmPassword(currentState.password ?: "",
-            // ADD IN FOR GENDER and other dropdown menus items
             currentState.confirmPassword ?: "")
+        // Latest added by Ant
+        val isValidGender = validateGender(currentState.gender ?: "")
+        val isValidEthnicity = validateEthnicity(currentState.ethnicity ?: "")
+        val isValidCountryOrigin = validateCountryOrigin(currentState.countryOrigin ?: "")
+        val isValidMajor = validateMajor(currentState.major ?: "")
+        val isValidYear = validateYear(currentState.year ?: "")
+        val isValidGraduationYear = validateGraduationYear(currentState.graduationYear ?: "")
+
+
 
         //Update state with error messages
         _uiState.value = currentState.copy(
@@ -32,8 +46,15 @@ class RegisterPage1ViewModel: ViewModel() {
             lastNameErrorMessage = isValidLastName,
             emailErrorMessage = isValidEmail,
             passwordErrorMessage = isValidPassword,
-            confirmPasswordErrorMessage = isPasswordConfirmed
+            confirmPasswordErrorMessage = isPasswordConfirmed,
+
             // ADD IN FOR GENDER and other Dropdown menus
+            genderErrorMessage = isValidGender,
+            ethnicityErrorMessage = isValidEthnicity,
+            countryOriginErrorMessage = isValidCountryOrigin,
+            majorErrorMessage = isValidMajor,
+            yearErrorMessage = isValidYear,
+            graduationYearErrorMessage = isValidGraduationYear
         )
 
         //Register user if all validations are passed
@@ -42,19 +63,100 @@ class RegisterPage1ViewModel: ViewModel() {
             && currentState.lastNameErrorMessage == null
             && currentState.emailErrorMessage == null
             && currentState.passwordErrorMessage == null
+            && currentState.confirmPasswordErrorMessage == null
             // ADD IN FOR GENDER and other dropdown menus
+            && currentState.genderErrorMessage == null
+            && currentState.ethnicityErrorMessage == null
+            && currentState.countryOriginErrorMessage == null
+            && currentState.majorErrorMessage == null
+            && currentState.yearErrorMessage == null
+            && currentState.graduationYearErrorMessage == null
             ) {
-            registerUser()
+            // pass in individual fields into the performRegister function
+            // TODO: Here is space after validation has been done checking for errors
+            // TODO: Need to make create a map/array so that it can be passed in as input to the graphQL function
+            // TODO: Call performRegister function w/ input to make the
+
+            if (currentState.firstName is String
+                && currentState.lastName is String
+                && currentState.username is String
+                && currentState.email is String
+                && currentState.password is String
+                && currentState.confirmPassword is String
+                && currentState.gender is String
+                && currentState.ethnicity is String
+                && currentState.countryOrigin is String
+                && currentState.major is String
+                && currentState.year is String
+                && currentState.graduationYear is String
+                && currentState.listServ is String) { val registerInput = RegisterInput(
+                    firstName = currentState.firstName,
+                    lastName = currentState.lastName,
+                    username = currentState.username,
+                    email = currentState.email,
+                    password = currentState.password,
+                    confirmPassword = currentState.confirmPassword,
+                    sex = currentState.gender,
+                    ethnicity = currentState.ethnicity,
+                    country = currentState.countryOrigin,
+                    major = currentState.major,
+                    year = currentState.year,
+                    graduating = currentState.graduationYear,
+                    listServ = "false")
+
+
+                performRegister(Optional.presentIfNotNull(registerInput))
+
+//                try {
+//                    val response = apolloClient.mutation(RegisterMutation(registerInput = registerInput)).execute()
+//                } catch (e: ApolloException) {
+//                    // handle exception
+//                }
+
+
+            }
+
+
+
         }
 
     }
 
-    //Function to handle user registration
-    private fun registerUser() {
+// TODO UNCOMMENT THE STUFF THAT MAKES ERRORS AND FIX BY MAKING MAP TO PASS THROUGH FUNCTION ASK ANDREI
+// Add all inputs needed firstname, lastname, country, password, etc. and pass into registerUser
 
-        //TODO Handle user registration
 
+    private fun performRegister(registerInput: Optional<RegisterInput?>){
+        /*
+            Launches a new coroutine in the viewModelScope, provided by the ViewModel.
+            Ensures the coroutine is cancelled when the ViewModel is cleared. Important for avoiding memory leaks.
+        */
+        viewModelScope.launch {// Everything in the {} runs asynchronously.
+            val registerSuccess = registerUser(registerInput)
+
+//            if(!loginSuccess) updateErrorMessage("Could not login.") else updateErrorMessage("Logged in.")
+//            // make a compose function updateErrorMessage to know whether or not it registered using UI
+
+        }
     }
+
+    // Handles user login using graphQL.
+    // use a map with key and values to have a vector of strings to input
+    private suspend fun registerUser(registerInput: Optional<RegisterInput?>): Boolean {
+        val response = apolloClient.mutation(RegisterMutation(registerInput)).execute()
+
+        if (!response.hasErrors()) {
+            val id = response.data?.register?.id
+            println("GraphQL: $id")
+            return true
+        } else { // Else, the user provided incorrect credentials.
+            println("GraphQL: Could not login.")
+            return false
+        }
+    }
+
+
+    
 
     // Function to validate user inputs
 
@@ -103,6 +205,33 @@ class RegisterPage1ViewModel: ViewModel() {
     private fun validateConfirmPassword(password: String, confirmPassword: String): String? {
         return if (password == confirmPassword) null else "Passwords must match."
     }
+
+
+    // TODO: IMPLEMENT VALIDATE FUNCTIONS for remaining "special" fields needed in sign up
+    private fun validateGender(gender: String): String? {
+        return null
+    }
+
+    private fun validateEthnicity(ethnicity: String): String? {
+        return null
+    }
+
+    private fun validateCountryOrigin(countryOrigin: String): String? {
+        return null
+    }
+
+    private fun validateMajor(major: String): String? {
+        return null
+    }
+
+    private fun validateYear(year: String): String? {
+        return null
+    }
+
+    private fun validateGraduationYear(graduationYear: String): String? {
+        return null
+    }
+
 
 
     //TODO IMPLEMENT THE VALIDATE GENDER FUNCTION FROM SHPE SERVER and others for all dropdown menus

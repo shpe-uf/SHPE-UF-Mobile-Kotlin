@@ -34,6 +34,8 @@ data class RegisterPage1State (
     val graduationYearErrorMessage: String? = null,
     val isGraduationMenuExpanded: Boolean = false,
 
+    val listServ: String? = "false",
+
 
 
     val usernameErrorMessage: String? = null,
@@ -45,4 +47,6 @@ data class RegisterPage1State (
 
     val isPasswordVisible: Boolean = true,
     val isConfirmPasswordVisible: Boolean = true
+
+
 )

@@ -25,29 +25,29 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+//                    Greeting("Android")
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-    LaunchedEffect(Unit) {
-        val response = apolloClient.query(ExampleQuery()).execute()
-        Log.d("LaunchList", "Success ${response.data}")
-    }
-}
+//@Composable
+//fun Greeting(name: String, modifier: Modifier = Modifier) {
+//    Text(
+//        text = "Hello $name!",
+//        modifier = modifier
+//    )
+//    LaunchedEffect(Unit) {
+//        val response = apolloClient.query(ExampleQuery()).execute()
+//        Log.d("LaunchList", "Success ${response.data}")
+//    }
+//}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SHPEUFMobileKotlinTheme {
-        Greeting("Android")
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    SHPEUFMobileKotlinTheme {
+//        Greeting("Android")
+//    }
+//}
