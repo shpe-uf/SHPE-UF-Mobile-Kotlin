@@ -72,6 +72,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
+
     implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.4")
 }
 
