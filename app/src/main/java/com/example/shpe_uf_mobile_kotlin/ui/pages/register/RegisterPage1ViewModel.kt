@@ -107,11 +107,6 @@ class RegisterPage1ViewModel: ViewModel() {
 
                 performRegister(Optional.presentIfNotNull(registerInput))
 
-//                try {
-//                    val response = apolloClient.mutation(RegisterMutation(registerInput = registerInput)).execute()
-//                } catch (e: ApolloException) {
-//                    // handle exception
-//                }
 
 
             }

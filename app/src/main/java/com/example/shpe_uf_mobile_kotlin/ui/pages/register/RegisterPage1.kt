@@ -64,6 +64,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.R
 
 
@@ -71,13 +72,13 @@ import com.example.shpe_uf_mobile_kotlin.R
 Function is used to preview the whole UI of the page but also to pass in
 the viewModel into the RegistrationPage1 function to make the
  */
-@Preview
+
 @Composable
-fun ResgistrationPage1Preview(){
+fun RegistrationPage1Preview(navController: NavController){
 
     val viewModel = RegisterPage1ViewModel()
 
-    RegistrationPage1(registerPage1ViewModel = viewModel)
+    RegistrationPage1(registerPage1ViewModel = viewModel, navController = navController)
 
 }
 
@@ -87,7 +88,7 @@ Function is used for housing all the different separate components that
 ultimately make up the final UI
  */
 @Composable
-fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel){
+fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navController: NavController){
 
     val uiState by registerPage1ViewModel.uiState.collectAsState()
 
@@ -194,7 +195,9 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel){
         Spacer(modifier = Modifier.height(64.dp))
 
         CreateAccountButton(
-            onClick = { registerPage1ViewModel.validateAndRegisterUser() }
+
+            onClick = { navController.navigate("register_Page2") }
+//            onClick = { registerPage1ViewModel.validateAndRegisterUser() }
         )
 
         // BELOW CREATES TEXT AND SIGN IN LINK TO NAVIGATE TO LOGIN PAGE

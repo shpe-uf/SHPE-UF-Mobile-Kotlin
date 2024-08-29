@@ -45,8 +45,8 @@ class RegisterGraphQLTest {
         val registerInput = RegisterInput(
             firstName = "Anthony",
             lastName = "Zurita",
-            username = "AntAndrei2",
-            email = "testAntAndrei2@ufl.edu",
+            username = "AntAndrei23",
+            email = "testAntAndrei23@ufl.edu",
             password = "12344321zZ$",
             confirmPassword = "12344321zZ$",
             sex = "Male",
@@ -54,7 +54,7 @@ class RegisterGraphQLTest {
             country = "United States",
             major = "Mechanical Engineering",
             year = "Freshman",
-            graduating = "Spring Semester",
+            graduating = "2027",
             listServ = "false"
     )
 //        registerUser(Optional.presentIfNotNull(registerInput))
