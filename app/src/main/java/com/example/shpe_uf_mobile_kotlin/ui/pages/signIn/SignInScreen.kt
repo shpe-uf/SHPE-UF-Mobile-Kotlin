@@ -82,7 +82,7 @@ fun SignInScreen() {
 
     Box(
         modifier = Modifier
-            //.padding(top = 82.dp)
+            .padding(top = 82.dp)
     ) {
         Column(
             modifier = Modifier
@@ -90,32 +90,39 @@ fun SignInScreen() {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(shpeLogo),
-                contentDescription = shpeLogo.toString(),
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .height(93.dp)
-                    .width(86.dp)
-            )
-            Text(
-                text = "SIGN IN",
-                style = MaterialTheme.typography.displayLarge,
-                color = Color(0xFFD25917)
-            )
-
-            Spacer(modifier = Modifier.height(64.dp))
-
-            UserNameInput(
-                value = uiState.username ?: "",
-                onValueChange = { signInViewModel.onUsernameChanged(it) }
-            )
-            PasswordInput(
-                value = uiState.password ?: "",
-                onValueChange = { signInViewModel.onPasswordChanged(it) },
-                isPasswordVisible = uiState.isPasswordVisible
-            )
-
+            Spacer(modifier = Modifier.height(41.dp))
+            Row{
+                Image(
+                    painter = painterResource(shpeLogo),
+                    contentDescription = shpeLogo.toString(),
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .height(93.dp)
+                        .width(86.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+            Row{
+                Text(
+                    text = "SIGN IN",
+                    style = MaterialTheme.typography.displayLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFD25917)
+                )
+            }
+            Row{
+                UserNameInput(
+                    value = uiState.username ?: "",
+                    onValueChange = { signInViewModel.onUsernameChanged(it) }
+                )
+            }
+            Row{
+                PasswordInput(
+                    value = uiState.password ?: "",
+                    onValueChange = { signInViewModel.onPasswordChanged(it) },
+                    isPasswordVisible = uiState.isPasswordVisible
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             SignInButton(
@@ -128,6 +135,28 @@ fun SignInScreen() {
 
             SignUp()
         }
+    }
+}
+
+@Composable
+fun InputText(
+    value: String,
+    onValueChange: (String) -> Unit,
+    type: String,
+    label: String,
+    color: Color
+){
+    Column{
+
+        // Label
+        Text(
+            text = label,
+            color = color,
+            modifier = Modifier
+                .padding(horizontal = 40.dp, vertical = 4.dp)
+        )
+
+        // Input box
     }
 }
 
