@@ -453,11 +453,13 @@ private fun EditProfileButton(
         onClick = onClick,
         shape = RoundedCornerShape(20.dp), // Rounded corners
         colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF001627),
             contentColor = Color.White
         ),
     ){
         Row(
             //TODO: fix alignment
+            horizontalArrangement = Arrangement.Center, // Center content horizontally
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
