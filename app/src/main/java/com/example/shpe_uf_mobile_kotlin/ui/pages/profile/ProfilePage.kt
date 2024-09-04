@@ -2,6 +2,7 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -96,8 +99,11 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
                     .fillMaxWidth(),
             ){
                 //TODO: implement functionality for Save and Cancel buttons once user decides to edit profile
-                EditProfileButton(
-                    onClick = {profileViewModel.editProfile()}
+//                EditProfileButton(
+//                    onClick = {profileViewModel.editProfile()}
+//                )
+                SaveProfileButton(
+                    onClick = {profileViewModel.saveProfileChanges()}
                 )
             }
             Column (
@@ -144,8 +150,6 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
         }
     }
 }
-
-
 
 
 //TODO: reformat necessary variables into dropdowns
@@ -441,38 +445,32 @@ fun ProfilePageBackground(modifier: Modifier = Modifier) {
     }
 }
 
-
 @Composable
-private fun EditProfileButton(
-    onClick: () -> Unit
-) {
-    Button(
+private fun SaveProfileButton(onClick: () -> Unit) {
+    Box(
         modifier = Modifier
-            .wrapContentWidth() // Adjust the width of the button to wrap its content
-            .height(35.dp), // Adjust the height of the button
-        onClick = onClick,
-        shape = RoundedCornerShape(20.dp), // Rounded corners
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF001627),
-            contentColor = Color.White
-        ),
-    ){
-        Row(
-            //TODO: fix alignment
-            horizontalArrangement = Arrangement.Center, // Center content horizontally
-            verticalAlignment = Alignment.CenterVertically
+            .fillMaxWidth() // Ensure the Box takes up the full width of the screen
+            .padding(top = 16.dp) // Add some padding at the top to prevent cutting off
+            .wrapContentHeight() // Make sure the Box height wraps its content
+            .offset(x = (LocalConfiguration.current.screenWidthDp * 0.2).dp) // Offset by 1/5th of the screen width
+    ) {
+        Button(
+            modifier = Modifier
+                .wrapContentSize(Alignment.Center) // Ensure the button wraps its content and is centered
+                .padding(horizontal = 12.dp, vertical = 8.dp) // Add padding to control button size and avoid cutting text
+                .border(1.dp, Color.White, RoundedCornerShape(20.dp)), // Add a thin white border with rounded corners
+            onClick = onClick,
+            shape = RoundedCornerShape(20.dp), // Rounded corners
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF001627),
+                contentColor = Color.White
+            ),
         ) {
             Text(
-                text = "Edit Profile",
-                fontSize = 14.sp, // Adjust the font size
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.width(8.dp)) // Add some space between icon and text
-            Icon(
-                painter = painterResource(id = R.drawable.edit_profile_pencil), // Replace with your pencil icon
-                contentDescription = "Edit Profile Icon",
-                modifier = Modifier.size(16.dp), // Adjust the size of the icon
-                tint = Color.White // Set the color of the icon
+                text = "Save",
+                fontSize = 19.sp, // Adjust the font size
+                color = Color.White,
+                modifier = Modifier.align(Alignment.CenterVertically) // Ensure the text is vertically centered
             )
         }
     }

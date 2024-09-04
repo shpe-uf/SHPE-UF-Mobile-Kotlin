@@ -39,4 +39,8 @@ class ProfileViewModel:ViewModel() {
     fun editProfile() {
         TODO("Not yet implemented")
     }
+
+    fun saveProfileChanges() {
+        TODO("Not yet implemented")
+    }
 }
