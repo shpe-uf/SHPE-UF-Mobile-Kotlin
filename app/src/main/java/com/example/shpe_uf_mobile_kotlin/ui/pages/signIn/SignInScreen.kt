@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -213,7 +215,7 @@ fun UserNameInput(
                     .fillMaxWidth(),
                 value = value,
                 onValueChange = { onValueChange(it) },
-                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 16.sp),
+                textStyle = TextStyle(fontSize = 16.sp, color = Color.Black),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text
@@ -281,7 +283,7 @@ fun PasswordInput(
                 .fillMaxWidth(),
             value = value,
             onValueChange = { onValueChange(it) },
-            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 16.sp),
+            textStyle = TextStyle(fontSize = 16.sp, color = Color.Black),
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password
@@ -297,7 +299,8 @@ fun SignInButton(onClick: () -> Unit) {
     Button(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 72.dp, vertical = 16.dp),
+            .padding(horizontal = 65.dp, vertical = 16.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFFD25917),
             contentColor = Color.White // Set text color
@@ -306,7 +309,13 @@ fun SignInButton(onClick: () -> Unit) {
             onClick()
         }
     ) {
-        Text("Sign In")
+        Text(
+            text = "Sign In",
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight(400)
+            )
+            )
     }
 }
 
