@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -28,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -173,16 +175,21 @@ fun UserNameInput(
         )
 
             TextField(
-                shape = MaterialTheme.shapes.large,
+                shape = RoundedCornerShape(10.dp),
+                colors = TextFieldDefaults.textFieldColors( // These colors match the FIGMA design.
+                    containerColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent, // Transparent to not show.
+                    unfocusedIndicatorColor = Color.Transparent // Transparent to not show.
+                ),
                 leadingIcon = {
                     Icon(
-                        Icons.Outlined.Person,
+                        painter = painterResource(id = R.drawable.profile_circle),
                         contentDescription = "Person",
                     )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 2.dp),
+                    ,
                 value = value,
                 onValueChange = { onValueChange(it) },
                 textStyle = androidx.compose.ui.text.TextStyle(fontSize = 25.sp),
@@ -221,13 +228,13 @@ fun PasswordInput(
             shape = MaterialTheme.shapes.large,
             leadingIcon = {
                 Icon(
-                    Icons.Outlined.Lock,
+                    painter = painterResource(R.drawable.lock_3),
                     contentDescription = "Lock",
                 )
             },
             trailingIcon = {
                 if (isPasswordVisible) Icon(
-                    Icons.Default.VisibilityOff,
+                    painter = painterResource(R.drawable.state_default),
                     contentDescription = "Visibility",
                 ) else Icon(
                     Icons.Default.Visibility,
