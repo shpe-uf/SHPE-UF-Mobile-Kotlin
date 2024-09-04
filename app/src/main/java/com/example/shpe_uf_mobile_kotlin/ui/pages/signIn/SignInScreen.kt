@@ -1,6 +1,5 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
-import android.graphics.drawable.Icon
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,15 +17,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -67,13 +62,22 @@ fun SignIn(){
 
 @Composable
 fun SignInBackground() {
+
+    // Dark mode support
+    val gator = if (isSystemInDarkTheme()){
+        painterResource(R.drawable.gator)
+    }
+    else {
+        painterResource(R.drawable.light_gator)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFD25917))
     ) {
         Image(
-            painter = painterResource(R.drawable.gator),
+            painter = gator,
             contentDescription = "Gator",
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
@@ -140,7 +144,8 @@ fun SignInScreen() {
                 PasswordInput(
                     value = uiState.password ?: "",
                     onValueChange = { signInViewModel.onPasswordChanged(it) },
-                    isPasswordInvisible = uiState.isPasswordInvisible
+                    isPasswordInvisible = uiState.isPasswordInvisible,
+                    signInViewModel
                 )
             }
             Spacer(modifier = Modifier.height(85.dp))
@@ -150,21 +155,12 @@ fun SignInScreen() {
                     onClick = { signInViewModel.validateAndLoginUser() }
                 )
             }
-            UserNameInput(
-                value = uiState.username ?: "",
-                onValueChange = { signInViewModel.onUsernameChanged(it) }
-            )
-            PasswordInput(
-                value = uiState.password ?: "",
-                onValueChange = { signInViewModel.onPasswordChanged(it) },
-                isPasswordInvisible = uiState.isPasswordInvisible
-            )
 
-            Row{
-                LoginErrorMessage(
-                    value = uiState.loginErrorMessage ?: ""
-                )
-            }
+//            Row{
+//                LoginErrorMessage(
+//                    value = uiState.loginErrorMessage ?: ""
+//                )
+//            }
 
             SignUp()
         }
@@ -177,6 +173,15 @@ fun UserNameInput(
     value: String,
     onValueChange: (String) -> Unit
 ) {
+    // Dark mode support
+    val labelColor = if (isSystemInDarkTheme()){
+        Color.White
+    }
+    else {
+        Color.Black
+    }
+
+
     Column(
         modifier = Modifier
             .padding(horizontal = 24.dp)
@@ -187,7 +192,7 @@ fun UserNameInput(
                 fontSize = 16.sp,
                 fontWeight = FontWeight(400)
             ),
-            color = Color.White,
+            color = labelColor,
             modifier = Modifier
                 .padding(horizontal = 11.dp, vertical = 6.53.dp)
         )
@@ -224,8 +229,17 @@ fun UserNameInput(
 fun PasswordInput(
     value: String,
     onValueChange: (String) -> Unit,
-    isPasswordInvisible: Boolean
+    isPasswordInvisible: Boolean,
+    viewModel: SignInViewModel
 ) {
+    // Dark mode support
+    val labelColor = if (isSystemInDarkTheme()){
+        Color.White
+    }
+    else {
+        Color.Black
+    }
+
     Column(
         modifier = Modifier
             .padding(horizontal = 24.dp)
@@ -236,7 +250,7 @@ fun PasswordInput(
                 fontSize = 16.sp,
                 fontWeight = FontWeight(400)
             ),
-            color = Color.White,
+            color = labelColor,
             modifier = Modifier
                 .padding(horizontal = 9.22.dp, vertical = 5.53.dp)
         )
@@ -255,13 +269,14 @@ fun PasswordInput(
                 )
             },
             trailingIcon = {
-                if (isPasswordInvisible) Icon(
-                    painter = painterResource(R.drawable.state_default),
-                    contentDescription = "Visibility",
-                ) else Icon(
-                    Icons.Default.Visibility,
-                    contentDescription = "Visibility",
-                )
+                val image = if(isPasswordInvisible)
+                    painterResource(R.drawable.state_default)
+                else
+                    painterResource(R.drawable.state_selected)
+
+                IconButton(onClick = { viewModel.togglePasswordVisibility() }){
+                       Icon(painter = image, contentDescription = image.toString())
+                }
             },
             modifier = Modifier
                 .fillMaxWidth(),
@@ -303,9 +318,24 @@ fun LoginErrorMessage(value: String) {
 
 @Composable
 fun SignUp() {
+    // Dark mode support
+    val labelColor = if (isSystemInDarkTheme()){
+        Color.White
+    }
+    else {
+        Color.Black
+    }
+
+    val signUpColor = if(isSystemInDarkTheme()){
+        Color(0xFF93E1FF)
+    }
+    else {
+        Color(0xFF0B70BA)
+    }
+
     val annotatedText = buildAnnotatedString {
         withStyle(
-            style = SpanStyle(color = Color.White, fontSize = 14.sp, fontWeight = FontWeight(400))
+            style = SpanStyle(color = labelColor, fontSize = 14.sp, fontWeight = FontWeight(400))
         ) {
             append("Don't have an account? ")
         }
@@ -317,7 +347,7 @@ fun SignUp() {
         )
         withStyle(
             style = SpanStyle(
-                color = Color(0xFF93E1FF), fontSize = 14.sp, fontWeight = FontWeight(400)
+                color = signUpColor, fontSize = 14.sp, fontWeight = FontWeight(400)
             )
         ) {
             append("Sign Up")
