@@ -43,6 +43,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -139,7 +140,7 @@ fun SignInScreen() {
                 PasswordInput(
                     value = uiState.password ?: "",
                     onValueChange = { signInViewModel.onPasswordChanged(it) },
-                    isPasswordVisible = uiState.isPasswordVisible
+                    isPasswordInvisible = uiState.isPasswordInvisible
                 )
             }
             Spacer(modifier = Modifier.height(85.dp))
@@ -254,7 +255,7 @@ fun PasswordInput(
                 )
             },
             trailingIcon = {
-                if (isPasswordVisible) Icon(
+                if (isPasswordInvisible) Icon(
                     painter = painterResource(R.drawable.state_default),
                     contentDescription = "Visibility",
                 ) else Icon(
