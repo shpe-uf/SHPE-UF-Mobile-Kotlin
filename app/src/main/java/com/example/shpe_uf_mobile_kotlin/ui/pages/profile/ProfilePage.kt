@@ -98,12 +98,9 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
                 modifier = Modifier
                     .fillMaxWidth(),
             ){
-                //TODO: implement functionality for Save and Cancel buttons once user decides to edit profile
-//                EditProfileButton(
-//                    onClick = {profileViewModel.editProfile()}
-//                )
-                SaveProfileButton(
-                    onClick = {profileViewModel.saveProfileChanges()}
+                SaveCancelButtons(
+                    onSaveClick = { profileViewModel.saveProfileChanges() },
+                    onCancelClick = { profileViewModel.cancelProfileChanges() }
                 )
             }
             Column (
@@ -150,6 +147,7 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
         }
     }
 }
+
 
 
 //TODO: reformat necessary variables into dropdowns
@@ -446,32 +444,59 @@ fun ProfilePageBackground(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun SaveProfileButton(onClick: () -> Unit) {
+private fun SaveCancelButtons(
+    onSaveClick: () -> Unit,
+    onCancelClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth() // Ensure the Box takes up the full width of the screen
             .padding(top = 16.dp) // Add some padding at the top to prevent cutting off
-            .wrapContentHeight() // Make sure the Box height wraps its content
-            .offset(x = (LocalConfiguration.current.screenWidthDp * 0.2).dp) // Offset by 1/5th of the screen width
+            .offset(x = (LocalConfiguration.current.screenWidthDp * 0.16).dp) // Offset by 1/5th of the screen width
     ) {
-        Button(
-            modifier = Modifier
-                .wrapContentSize(Alignment.Center) // Ensure the button wraps its content and is centered
-                .padding(horizontal = 12.dp, vertical = 8.dp) // Add padding to control button size and avoid cutting text
-                .border(1.dp, Color.White, RoundedCornerShape(20.dp)), // Add a thin white border with rounded corners
-            onClick = onClick,
-            shape = RoundedCornerShape(20.dp), // Rounded corners
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF001627),
-                contentColor = Color.White
-            ),
+        Row(
+            modifier = Modifier.wrapContentSize(),
+            horizontalArrangement = Arrangement.spacedBy(2.dp) // Space between the buttons
         ) {
-            Text(
-                text = "Save",
-                fontSize = 19.sp, // Adjust the font size
-                color = Color.White,
-                modifier = Modifier.align(Alignment.CenterVertically) // Ensure the text is vertically centered
-            )
+            Button(
+                modifier = Modifier
+                    .wrapContentSize(Alignment.Center)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .border(0.75.dp, Color.White, RoundedCornerShape(20.dp)),
+                onClick = onSaveClick,
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF001627),
+                    contentColor = Color.White
+                ),
+            ) {
+                Text(
+                    text = "Save",
+                    fontSize = 19.sp,
+                    color = Color.White,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
+
+            Button(
+                modifier = Modifier
+                    .wrapContentSize(Alignment.Center)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .border(1.dp, Color.White, RoundedCornerShape(20.dp)),
+                onClick = onCancelClick,
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF001627),
+                    contentColor = Color.White
+                ),
+            ) {
+                Text(
+                    text = "Cancel",
+                    fontSize = 19.sp,
+                    color = Color.White,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
         }
     }
 }
