@@ -171,7 +171,7 @@ fun UserNameInput(
             ),
             color = Color.White,
             modifier = Modifier
-                .padding(horizontal = 40.dp, vertical = 4.dp)
+                .padding(horizontal = 11.dp, vertical = 6.53.dp)
         )
 
             TextField(
@@ -188,11 +188,10 @@ fun UserNameInput(
                     )
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    ,
+                    .fillMaxWidth(),
                 value = value,
                 onValueChange = { onValueChange(it) },
-                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 25.sp),
+                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 16.sp),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text
@@ -221,11 +220,16 @@ fun PasswordInput(
             ),
             color = Color.White,
             modifier = Modifier
-                .padding(horizontal = 40.dp, vertical = 4.dp)
+                .padding(horizontal = 9.22.dp, vertical = 5.53.dp)
         )
 
         TextField(
-            shape = MaterialTheme.shapes.large,
+            shape = RoundedCornerShape(10.dp),
+            colors = TextFieldDefaults.textFieldColors( // These colors match the FIGMA design.
+                containerColor = Color.White,
+                focusedIndicatorColor = Color.Transparent, // Transparent to not show.
+                unfocusedIndicatorColor = Color.Transparent // Transparent to not show.
+            ),
             leadingIcon = {
                 Icon(
                     painter = painterResource(R.drawable.lock_3),
@@ -242,10 +246,14 @@ fun PasswordInput(
                 )
             },
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 2.dp),
+                .fillMaxWidth(),
             value = value,
             onValueChange = { onValueChange(it) },
+            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 16.sp),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password
+            ),
             visualTransformation =
             if (isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None
         )
