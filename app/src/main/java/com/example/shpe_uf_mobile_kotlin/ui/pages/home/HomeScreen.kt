@@ -1367,8 +1367,20 @@ fun EventCardFeed(viewModel: HomeViewModel) {
     val groupedEvents = remember(events) {
         mutableMapOf<LocalDate, MutableList<HomeViewModel.Event>>().apply {
             events.forEach { event ->
-                val startDate = LocalDate.parse(event.start.dateTime?.substring(0, 10))
-                val endDate = LocalDate.parse(event.end.dateTime?.substring(0, 10))
+//                val startDate = LocalDate.parse(event.start.dateTime?.substring(0, 10))
+//                val endDate = LocalDate.parse(event.end.dateTime?.substring(0, 10))
+                var startDate = LocalDate.now();
+                var endDate = LocalDate.now();
+
+                // not all have date time, some have date
+                if (event.start.dateTime == null) {
+                    startDate = LocalDate.parse(event.start.date)
+                    endDate = LocalDate.parse(event.end.date)
+                }
+                else {
+                    startDate = LocalDate.parse(event.start.dateTime.substring(0, 10))
+                    endDate = LocalDate.parse(event.end.dateTime?.substring(0, 10))
+                }
                 var currentDate = startDate
                 while (!currentDate.isAfter(endDate)) {
                     if (!currentDate.isBefore(today)) {  // Only consider dates from today onwards
@@ -1618,6 +1630,10 @@ fun DayContainer(
                 .weight(1f)
         ) {
             events.forEach { event ->
+
+                // debug code
+                Log.d("HomeViewModel", "Event: ${event.summary}")
+
                 EventCard(event, viewModel = viewModel)
             }
         }
