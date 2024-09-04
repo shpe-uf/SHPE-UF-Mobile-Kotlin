@@ -1,24 +1,36 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
+import android.graphics.drawable.Icon
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,8 +38,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -39,10 +53,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
+import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
+import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 
 @Preview
 @Composable
-fun SignIn() {
+fun SignIn(){
     SignInBackground()
     SignInScreen()
 }
@@ -65,6 +82,7 @@ fun SignInBackground() {
     }
 }
 
+@Preview(device = "spec:width=1080px,height=2340px,dpi=240")
 @Composable
 fun SignInScreen() {
 
@@ -72,32 +90,65 @@ fun SignInScreen() {
     val uiState by signInViewModel.uiState.collectAsState()
     val shpeLogo = R.drawable.shpe_logo_full_color
 
+    // Dark mode support
+    val background = if (isSystemInDarkTheme()){
+        ThemeColors.Night.background
+    }
+    else {
+        ThemeColors.Day.background
+    }
+
     Box(
         modifier = Modifier
             .padding(top = 82.dp)
     ) {
-        Spacer(modifier = Modifier.height(128.dp))
-
         Column(
             modifier = Modifier
-                .background(Color(0xFF011F35))
+                .background(background)
                 .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(shpeLogo),
-                contentDescription = shpeLogo.toString(),
-                contentScale = ContentScale.Fit
-            )
-            Text(
-                text = "SIGN IN",
-                style = MaterialTheme.typography.displayLarge,
-                color = Color(0xFFD25917)
-            )
+            Spacer(modifier = Modifier.height(41.dp))
+            Row{
+                Image(
+                    painter = painterResource(shpeLogo),
+                    contentDescription = shpeLogo.toString(),
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .height(93.dp)
+                        .width(86.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+            Row{
+                Text(
+                    text = "SIGN IN",
+                    style = MaterialTheme.typography.displayLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFD25917)
+                )
+            }
+            Spacer(modifier = Modifier.height(88.dp))
+            Row{
+                UserNameInput(
+                    value = uiState.username ?: "",
+                    onValueChange = { signInViewModel.onUsernameChanged(it) }
+                )
+            }
+            Row{
+                PasswordInput(
+                    value = uiState.password ?: "",
+                    onValueChange = { signInViewModel.onPasswordChanged(it) },
+                    isPasswordVisible = uiState.isPasswordVisible
+                )
+            }
+            Spacer(modifier = Modifier.height(85.dp))
 
-            Spacer(modifier = Modifier.height(64.dp))
-
+            Row{
+                SignInButton(
+                    onClick = { signInViewModel.validateAndLoginUser() }
+                )
+            }
             UserNameInput(
                 value = uiState.username ?: "",
                 onValueChange = { signInViewModel.onUsernameChanged(it) }
@@ -108,15 +159,11 @@ fun SignInScreen() {
                 isPasswordInvisible = uiState.isPasswordInvisible
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            SignInButton(
-                onClick = { signInViewModel.validateAndLoginUser() }
-            )
-
-            LoginErrorMessage(
-                value = uiState.loginErrorMessage ?: ""
-            )
+            Row{
+                LoginErrorMessage(
+                    value = uiState.loginErrorMessage ?: ""
+                )
+            }
 
             SignUp()
         }
@@ -135,26 +182,40 @@ fun UserNameInput(
     ) {
         Text(
             text = "Username",
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight(400)
+            ),
             color = Color.White,
             modifier = Modifier
-                .padding(horizontal = 40.dp, vertical = 4.dp)
+                .padding(horizontal = 11.dp, vertical = 6.53.dp)
         )
 
-        TextField(
-            shape = MaterialTheme.shapes.large,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp),
-            value = value,
-            onValueChange = { onValueChange(it) },
-            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 25.sp),
-            label = { Text("Username") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text
+            TextField(
+                shape = RoundedCornerShape(10.dp),
+                colors = TextFieldDefaults.textFieldColors( // These colors match the FIGMA design.
+                    containerColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent, // Transparent to not show.
+                    unfocusedIndicatorColor = Color.Transparent // Transparent to not show.
+                ),
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.profile_circle),
+                        contentDescription = "Person",
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = value,
+                onValueChange = { onValueChange(it) },
+                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 16.sp),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text
+                )
             )
-        )
-    }
+        }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -170,19 +231,46 @@ fun PasswordInput(
     ) {
         Text(
             text = "Password",
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight(400)
+            ),
             color = Color.White,
             modifier = Modifier
-                .padding(horizontal = 40.dp, vertical = 4.dp)
+                .padding(horizontal = 9.22.dp, vertical = 5.53.dp)
         )
 
         TextField(
-            shape = MaterialTheme.shapes.large,
+            shape = RoundedCornerShape(10.dp),
+            colors = TextFieldDefaults.textFieldColors( // These colors match the FIGMA design.
+                containerColor = Color.White,
+                focusedIndicatorColor = Color.Transparent, // Transparent to not show.
+                unfocusedIndicatorColor = Color.Transparent // Transparent to not show.
+            ),
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(R.drawable.lock_3),
+                    contentDescription = "Lock",
+                )
+            },
+            trailingIcon = {
+                if (isPasswordVisible) Icon(
+                    painter = painterResource(R.drawable.state_default),
+                    contentDescription = "Visibility",
+                ) else Icon(
+                    Icons.Default.Visibility,
+                    contentDescription = "Visibility",
+                )
+            },
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp),
+                .fillMaxWidth(),
             value = value,
             onValueChange = { onValueChange(it) },
-            label = { Text("Password") },
+            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 16.sp),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password
+            ),
             visualTransformation =
             if (isPasswordInvisible) PasswordVisualTransformation() else VisualTransformation.None
         )
@@ -216,7 +304,7 @@ fun LoginErrorMessage(value: String) {
 fun SignUp() {
     val annotatedText = buildAnnotatedString {
         withStyle(
-            style = SpanStyle(Color.White)
+            style = SpanStyle(color = Color.White, fontSize = 14.sp, fontWeight = FontWeight(400))
         ) {
             append("Don't have an account? ")
         }
@@ -228,7 +316,7 @@ fun SignUp() {
         )
         withStyle(
             style = SpanStyle(
-                color = Color.Blue, fontWeight = FontWeight.Bold
+                color = Color(0xFF93E1FF), fontSize = 14.sp, fontWeight = FontWeight(400)
             )
         ) {
             append("Sign Up")
