@@ -1,6 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -79,7 +80,7 @@ fun SignInBackground() {
         Image(
             painter = gator,
             contentDescription = "Gator",
-            contentScale = ContentScale.FillWidth,
+            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 48.dp)
@@ -87,7 +88,6 @@ fun SignInBackground() {
     }
 }
 
-@Preview(device = "spec:width=1080px,height=2340px,dpi=240")
 @Composable
 fun SignInScreen() {
 
@@ -180,7 +180,6 @@ fun UserNameInput(
     else {
         Color.Black
     }
-
 
     Column(
         modifier = Modifier
