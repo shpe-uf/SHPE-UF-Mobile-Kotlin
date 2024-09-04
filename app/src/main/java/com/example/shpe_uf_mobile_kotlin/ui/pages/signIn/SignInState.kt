@@ -1,5 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
+import androidx.compose.ui.graphics.Color
+
 data class SignInState(
 
     // By default, username and password are null.
