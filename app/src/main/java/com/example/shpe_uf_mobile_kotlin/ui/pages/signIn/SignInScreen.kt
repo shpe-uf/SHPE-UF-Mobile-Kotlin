@@ -4,6 +4,7 @@ import android.graphics.drawable.Icon
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
+import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 
 @Preview
@@ -90,13 +92,21 @@ fun SignInScreen() {
     val uiState by signInViewModel.uiState.collectAsState()
     val shpeLogo = R.drawable.shpe_logo_full_color
 
+    // Dark mode support
+    val background = if (isSystemInDarkTheme()){
+        ThemeColors.Night.background
+    }
+    else {
+        ThemeColors.Day.background
+    }
+
     Box(
         modifier = Modifier
             .padding(top = 82.dp)
     ) {
         Column(
             modifier = Modifier
-                .background(Color(0xFF011F35))
+                .background(background)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
