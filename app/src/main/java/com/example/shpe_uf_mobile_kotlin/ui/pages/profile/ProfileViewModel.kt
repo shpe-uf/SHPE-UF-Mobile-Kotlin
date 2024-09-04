@@ -36,11 +36,12 @@ class ProfileViewModel:ViewModel() {
     fun onGradYearChanged(gradYear: String) {
         _uiState.value = _uiState.value.copy(gradYear = gradYear)
     }
-    fun editProfile() {
+
+    fun saveProfileChanges() {
         TODO("Not yet implemented")
     }
 
-    fun saveProfileChanges() {
+    fun cancelProfileChanges() {
         TODO("Not yet implemented")
     }
 }
