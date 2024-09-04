@@ -1,9 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
 import android.util.Log
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import apolloClient
@@ -75,7 +72,11 @@ class SignInViewModel : ViewModel() {
         // If the response doesn't throw an error, then it successfully logged in.
         if (!response.hasErrors()) {
             val id = response.data?.login?.id
+
             Log.d("GraphQL", "$id")
+
+            Log.d("Welcome!", "Welcome $username to SHPE UF!")
+
             return true
         } else { // Else, the user provided incorrect credentials.
             Log.w("GraphQL", "Could not login.")
