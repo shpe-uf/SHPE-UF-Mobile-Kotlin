@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.apollographql.apollo3").version("4.0.0-beta.4")
 }
 
 android {
@@ -69,4 +70,11 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+    implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.4")
+}
+
+apollo {
+    service("service") {
+        packageName.set("com.example.shpe_uf_mobile_kotlin")
+    }
 }
