@@ -1,0 +1,16 @@
+query GetUser($userId: ID!) {
+    getUser(userId: $userId) {
+        firstName
+        lastName
+        username
+        email
+        sex
+        ethnicity
+        country
+        year
+        graduating
+        classes
+        internships
+        socialMedia
+    }
+}
