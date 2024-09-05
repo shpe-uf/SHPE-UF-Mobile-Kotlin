@@ -1,6 +1,9 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
 import android.util.Log
+import android.widget.Toast
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import apolloClient
@@ -16,6 +19,9 @@ class SignInViewModel : ViewModel() {
 
     // _uiState is only accessible within the viewmodel, this makes it read only.
     val uiState: StateFlow<SignInState> = _uiState
+
+    private val _toastMessage = MutableLiveData<String?>()
+    val toastMessage: LiveData<String?> = _toastMessage
 
     /* This function checks the username and password fields for nullness (emptyness) and performs a login mutation accessing the database to login.
 
@@ -46,6 +52,7 @@ class SignInViewModel : ViewModel() {
             // Calls a function to perform login.
             performLogin(username.toString(), password.toString())
         } else {
+            _toastMessage.value = "Username and password is required."
             Log.w("Validation", "${currentState.usernameErrorMessage} | ${currentState.passwordErrorMessage}")
         }
     }
