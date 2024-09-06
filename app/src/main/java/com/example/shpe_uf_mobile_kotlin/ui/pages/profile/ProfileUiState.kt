@@ -9,8 +9,8 @@ data class ProfileUiState(
     val country: String? = null,
     val year: String? = null,
     val gradYear: String? = null,
-    val classes: Array<String>? = null,
-    val internships: Array<String>? = null,
-    val socialMedia: Array<String>? = null,
+    val classes: List<String?>? = null,
+    val internships: List<String?>? = null,
+    val socialMedia: List<String?>? = null,
     val photo: String? = null
 )
