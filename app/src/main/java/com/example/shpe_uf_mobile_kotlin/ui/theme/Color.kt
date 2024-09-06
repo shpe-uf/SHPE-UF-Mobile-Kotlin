@@ -18,13 +18,14 @@ val light_bg = Color(0xFFEDEDED)
 
 sealed class ThemeColors(
     val background: Color,
-    val text: Color
+    val text: Color,
 ) {
-    object Night: ThemeColors(
+    object Night : ThemeColors(
         background = dark_bg,
         text = Color.White
     )
-    object Day: ThemeColors(
+
+    object Day : ThemeColors(
         background = light_bg,
         text = Color.Black
     )

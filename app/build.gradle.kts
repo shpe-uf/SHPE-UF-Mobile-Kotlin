@@ -73,8 +73,8 @@ dependencies {
     implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.4")
 }
 
-apollo{
-    service("service"){
+apollo {
+    service("service") {
         packageName.set("com.example.shpe_uf_mobile_kotlin")
     }
 }

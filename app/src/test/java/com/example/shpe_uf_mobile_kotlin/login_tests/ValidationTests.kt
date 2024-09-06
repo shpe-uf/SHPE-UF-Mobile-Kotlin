@@ -8,10 +8,10 @@ import org.junit.Assert.*
 
 
 // Validates all login functions.
-
 private fun validateUsername(username: String): Boolean {
     return !username.isNullOrBlank()
 }
+
 private fun validatePassword(password: String): Boolean {
     return !password.isNullOrBlank()
 }
@@ -35,31 +35,31 @@ private suspend fun loginUser(username: String, password: String): Boolean {
 // Test names are self explanatory.
 class ValidationTests {
     @Test
-    fun testEmptyUsernameOnly(){
+    fun testEmptyUsernameOnly() {
         val result = validateUsername("")
         assertEquals(false, result)
     }
 
     @Test
-    fun testNonEmptyUsernameOnly(){
+    fun testNonEmptyUsernameOnly() {
         val result = validateUsername("andreiursu")
         assertEquals(true, result)
     }
 
     @Test
-    fun testEmptyPasswordOnly(){
+    fun testEmptyPasswordOnly() {
         val result = validatePassword("")
         assertEquals(false, result)
     }
 
     @Test
-    fun testNonEmptyPasswordOnly(){
+    fun testNonEmptyPasswordOnly() {
         val result = validatePassword("Password123!")
         assertEquals(true, result)
     }
 
     @Test
-    fun testBothEmptyUsernamePassword(){
+    fun testBothEmptyUsernamePassword() {
         val res1 = validateUsername("")
         val res2 = validatePassword("")
 
@@ -68,7 +68,7 @@ class ValidationTests {
     }
 
     @Test
-    fun testEmptyUsernameNonEmptyPassword(){
+    fun testEmptyUsernameNonEmptyPassword() {
         val res1 = validateUsername("")
         val res2 = validatePassword("Password123!")
 
@@ -77,7 +77,7 @@ class ValidationTests {
     }
 
     @Test
-    fun testNonEmptyUsernameEmptyPassword(){
+    fun testNonEmptyUsernameEmptyPassword() {
         val res1 = validateUsername("andreiursu")
         val res2 = validatePassword("")
 
@@ -86,7 +86,7 @@ class ValidationTests {
     }
 
     @Test
-    fun testFilledUsernameAndPassword(){
+    fun testFilledUsernameAndPassword() {
         val res1 = validateUsername("andreiursu")
         val res2 = validatePassword("Password123!")
 

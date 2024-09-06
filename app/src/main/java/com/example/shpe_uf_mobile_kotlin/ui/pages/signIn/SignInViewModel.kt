@@ -37,8 +37,8 @@ class SignInViewModel : ViewModel() {
 
         // Update state with error messages.
         _uiState.value = currentState.copy(
-            usernameErrorMessage = if(isValidUsername) null else "Username is required.",
-            passwordErrorMessage = if(isValidPassword) null else "Password is required."
+            usernameErrorMessage = if (isValidUsername) null else "Username is required.",
+            passwordErrorMessage = if (isValidPassword) null else "Password is required."
         )
 
         // Get the current username and password values.
@@ -53,7 +53,10 @@ class SignInViewModel : ViewModel() {
             performLogin(username.toString(), password.toString())
         } else {
             _toastMessage.value = "Username and password is required."
-            Log.w("Validation", "${currentState.usernameErrorMessage} | ${currentState.passwordErrorMessage}")
+            Log.w(
+                "Validation",
+                "${currentState.usernameErrorMessage} | ${currentState.passwordErrorMessage}"
+            )
         }
     }
 
@@ -64,7 +67,10 @@ class SignInViewModel : ViewModel() {
             Ensures the coroutine is cancelled when the ViewModel is cleared. Important for avoiding memory leaks.
         */
         viewModelScope.launch {// Everything in the {} runs asynchronously.
-            val loginSuccess = loginUser(username, password) // This call will suspend the coroutine until the login operation is complete.
+            val loginSuccess = loginUser(
+                username,
+                password
+            ) // This call will suspend the coroutine until the login operation is complete.
 
             // If login is unsuccessful, do nothing, else change it to logged in.
             if (loginSuccess) updateErrorMessage("Logged in.") else updateErrorMessage("Could not login.")
@@ -103,10 +109,12 @@ class SignInViewModel : ViewModel() {
     private fun getUsername(): String? {
         return getCurrentState().username
     }
+
     private fun getPassword(): String? {
         return getCurrentState().password
     }
-    private fun getCurrentState(): SignInState{
+
+    private fun getCurrentState(): SignInState {
         return _uiState.value
     }
 
@@ -114,6 +122,7 @@ class SignInViewModel : ViewModel() {
     private fun validateUsername(username: String): Boolean {
         return !username.isNullOrBlank()
     }
+
     private fun validatePassword(password: String): Boolean {
         return !password.isNullOrBlank()
     }
@@ -130,6 +139,7 @@ class SignInViewModel : ViewModel() {
 
     // Changes the password's visibility.
     fun togglePasswordVisibility() {
-        _uiState.value = _uiState.value.copy(isPasswordInvisible = !_uiState.value.isPasswordInvisible)
+        _uiState.value =
+            _uiState.value.copy(isPasswordInvisible = !_uiState.value.isPasswordInvisible)
     }
 }

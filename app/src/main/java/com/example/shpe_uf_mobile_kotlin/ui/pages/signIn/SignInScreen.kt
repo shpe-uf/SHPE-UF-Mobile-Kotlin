@@ -62,7 +62,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 
 @Preview
 @Composable
-fun SignIn(){
+fun SignIn() {
     SignInBackground()
     SignInScreen()
 }
@@ -71,10 +71,9 @@ fun SignIn(){
 fun SignInBackground() {
 
     // Dark mode support
-    val gator = if (isSystemInDarkTheme()){
+    val gator = if (isSystemInDarkTheme()) {
         painterResource(R.drawable.gator)
-    }
-    else {
+    } else {
         painterResource(R.drawable.light_gator)
     }
 
@@ -102,10 +101,9 @@ fun SignInScreen() {
     val shpeLogo = R.drawable.shpe_logo_full_color
 
     // Dark mode support
-    val background = if (isSystemInDarkTheme()){
+    val background = if (isSystemInDarkTheme()) {
         ThemeColors.Night.background
-    }
-    else {
+    } else {
         ThemeColors.Day.background
     }
 
@@ -120,7 +118,7 @@ fun SignInScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(41.dp))
-            Row{
+            Row {
                 Image(
                     painter = painterResource(shpeLogo),
                     contentDescription = shpeLogo.toString(),
@@ -131,7 +129,7 @@ fun SignInScreen() {
                 )
             }
             Spacer(modifier = Modifier.height(30.dp))
-            Row{
+            Row {
                 Text(
                     text = "SIGN IN",
                     style = MaterialTheme.typography.displayLarge,
@@ -140,13 +138,13 @@ fun SignInScreen() {
                 )
             }
             Spacer(modifier = Modifier.height(88.dp))
-            Row{
+            Row {
                 UserNameInput(
                     value = uiState.username ?: "",
                     onValueChange = { signInViewModel.onUsernameChanged(it) }
                 )
             }
-            Row{
+            Row {
                 PasswordInput(
                     value = uiState.password ?: "",
                     onValueChange = { signInViewModel.onPasswordChanged(it) },
@@ -156,7 +154,7 @@ fun SignInScreen() {
             }
             Spacer(modifier = Modifier.height(85.dp))
 
-            Row{
+            Row {
                 SignInButton(
                     onClick = { signInViewModel.validateAndLoginUser() }
                 )
@@ -172,13 +170,12 @@ fun SignInScreen() {
 @Composable
 fun UserNameInput(
     value: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
 ) {
     // Dark mode support
-    val labelColor = if (isSystemInDarkTheme()){
+    val labelColor = if (isSystemInDarkTheme()) {
         Color.White
-    }
-    else {
+    } else {
         Color.Black
     }
 
@@ -197,31 +194,31 @@ fun UserNameInput(
             modifier = Modifier
                 .padding(horizontal = 11.dp, vertical = 6.53.dp)
         )
-            TextField(
-                shape = RoundedCornerShape(10.dp),
-                colors = TextFieldDefaults.textFieldColors( // These colors match the FIGMA design.
-                    containerColor = Color.White,
-                    focusedIndicatorColor = Color.Transparent, // Transparent to not show.
-                    unfocusedIndicatorColor = Color.Transparent // Transparent to not show.
-                ),
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.profile_circle),
-                        contentDescription = "Person",
-                        modifier = Modifier.size(22.dp)
-                    )
-                },
-                modifier = Modifier
-                    .width(318.dp),
-                value = value,
-                onValueChange = { onValueChange(it) },
-                textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text
+        TextField(
+            shape = RoundedCornerShape(10.dp),
+            colors = TextFieldDefaults.textFieldColors( // These colors match the FIGMA design.
+                containerColor = Color.White,
+                focusedIndicatorColor = Color.Transparent, // Transparent to not show.
+                unfocusedIndicatorColor = Color.Transparent // Transparent to not show.
+            ),
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.profile_circle),
+                    contentDescription = "Person",
+                    modifier = Modifier.size(22.dp)
                 )
+            },
+            modifier = Modifier
+                .width(318.dp),
+            value = value,
+            onValueChange = { onValueChange(it) },
+            textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text
             )
-        }
+        )
+    }
 
 }
 
@@ -231,13 +228,12 @@ fun PasswordInput(
     value: String,
     onValueChange: (String) -> Unit,
     isPasswordInvisible: Boolean,
-    viewModel: SignInViewModel
+    viewModel: SignInViewModel,
 ) {
     // Dark mode support
-    val labelColor = if (isSystemInDarkTheme()){
+    val labelColor = if (isSystemInDarkTheme()) {
         Color.White
-    }
-    else {
+    } else {
         Color.Black
     }
 
@@ -270,13 +266,13 @@ fun PasswordInput(
                 )
             },
             trailingIcon = {
-                val image = if(isPasswordInvisible)
+                val image = if (isPasswordInvisible)
                     painterResource(R.drawable.state_default)
                 else
                     painterResource(R.drawable.state_selected)
 
-                IconButton(onClick = { viewModel.togglePasswordVisibility() }){
-                       Icon(painter = image, contentDescription = image.toString())
+                IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
+                    Icon(painter = image, contentDescription = image.toString())
                 }
             },
             modifier = Modifier
@@ -315,7 +311,7 @@ fun SignInButton(onClick: () -> Unit) {
                 fontSize = 16.sp,
                 fontWeight = FontWeight(400)
             )
-            )
+        )
     }
 }
 
@@ -327,17 +323,15 @@ fun LoginErrorMessage(value: String) {
 @Composable
 fun SignUp() {
     // Dark mode support
-    val labelColor = if (isSystemInDarkTheme()){
+    val labelColor = if (isSystemInDarkTheme()) {
         Color.White
-    }
-    else {
+    } else {
         Color.Black
     }
 
-    val signUpColor = if(isSystemInDarkTheme()){
+    val signUpColor = if (isSystemInDarkTheme()) {
         Color(0xFF93E1FF)
-    }
-    else {
+    } else {
         Color(0xFF0B70BA)
     }
 
