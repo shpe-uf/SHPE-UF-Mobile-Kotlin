@@ -41,13 +41,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.dark_bg
 
-@Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun LoadingScreen() {
+fun LoadingScreen(navController: NavController) {
 
     // Dark mode support
     val gator = if (isSystemInDarkTheme()) {
@@ -82,20 +83,20 @@ fun LoadingScreen() {
             )
         )
         Spacer(Modifier.height(150.dp))
-        ButtonSHPE { TODO("Navigate to login screen.") }
+        ButtonSHPE { navController.navigate(Routes.login) }
 
     }
 }
 
 @Composable
-fun ButtonSHPE(onClick: @Composable () -> Unit) {
+fun ButtonSHPE(onClick: () -> Unit) {
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val color = if (isPressed) dark_bg else Color.White
 
     Button(
-        onClick = { onClick },
+        onClick =  onClick,
         interactionSource = interactionSource,
         modifier = Modifier
             .width(129.dp)
