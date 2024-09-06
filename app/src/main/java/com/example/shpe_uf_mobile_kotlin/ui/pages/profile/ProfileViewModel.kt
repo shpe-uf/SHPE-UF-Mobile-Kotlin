@@ -3,8 +3,10 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shpe_uf_mobile_kotlin.DeleteUserMutation
+import com.example.shpe_uf_mobile_kotlin.EditUserMutation
 import com.example.shpe_uf_mobile_kotlin.GetUserQuery
 import com.example.shpe_uf_mobile_kotlin.apolloClient
+import com.example.shpe_uf_mobile_kotlin.type.EditUserProfileInput
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,6 +17,14 @@ class ProfileViewModel:ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
+
+    fun onFirstNameChanged(firstName: String){
+        _uiState.value = _uiState.value.copy(firstName = firstName)
+    }
+
+    fun onLastNameChanged(lastName: String){
+        _uiState.value = _uiState.value.copy(lastName = lastName)
+    }
 
     //TODO: add validation for text field inputs
     fun onFullNameChanged(fullName: String) {
@@ -77,6 +87,8 @@ class ProfileViewModel:ViewModel() {
             val userInfo = getUserInfoCoroutine(id)
 
             if(userInfo != null){
+                onFirstNameChanged(userInfo.firstName)
+                onLastNameChanged(userInfo.lastName)
                 onFullNameChanged(userInfo.firstName + " " + userInfo.lastName)
                 onUserNameChanged(userInfo.username)
                 onEmailChanged(userInfo.email)
@@ -101,6 +113,58 @@ class ProfileViewModel:ViewModel() {
         } else { // If there is an error return null.
             return null
         }
+    }
+
+    fun updateUser(option: String): EditUserProfileInput? {
+        val current = _uiState.value
+
+        if(current.firstName is String
+            && current.lastName is String
+            && current.classes is List<*>
+            && current.country is String
+            && current.email is String
+            && current.ethnicity is String
+            && current.gradYear is String
+            && current.internships is List<*>
+            && current.major is String
+            && current.photo is String
+            && current.gender is String
+            && current.socialMedia is List<*>
+            && current.year is String
+            ){
+            val input = EditUserProfileInput(
+                firstName = current.firstName,
+                lastName = current.lastName,
+                classes = current.classes,
+                country = current.country,
+                email = current.email, // used to update the user's info.
+                ethnicity = current.ethnicity,
+                graduating = current.gradYear,
+                internships = current.internships,
+                major = current.major,
+                photo = current.photo,
+                sex = current.gender,
+                socialMedia = current.socialMedia,
+                year = current.year
+            )
+
+            return input
+        }
+
+        return null
+    }
+
+    // Function to update user profile based on attribute chosen.
+    private fun updateUserProfile(editUserProfileInput: EditUserProfileInput){
+        viewModelScope.launch {
+            val out = updateUserProfileCoroutine(editUserProfileInput)
+        }
+    }
+
+    private suspend fun updateUserProfileCoroutine(editUserProfileInput: EditUserProfileInput): Boolean{
+        val response = apolloClient.mutation(EditUserMutation(editUserProfileInput)).execute()
+
+        return response.hasErrors()
     }
 
     // Functions for delete the user from the SHPE server.
