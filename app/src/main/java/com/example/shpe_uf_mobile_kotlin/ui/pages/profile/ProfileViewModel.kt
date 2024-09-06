@@ -17,7 +17,6 @@ class ProfileViewModel:ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
-
     fun onFirstNameChanged(firstName: String){
         _uiState.value = _uiState.value.copy(firstName = firstName)
     }
@@ -76,8 +75,20 @@ class ProfileViewModel:ViewModel() {
         TODO("Not yet implemented")
     }
 
-    fun deleteProfile(){
+    fun deleteProfile(email: String){
+        deleteUserProfile(email)
+    }
 
+    // Should load the user's profile, will be called when the user logs in and the id is collected and stored in the app.
+    fun loadProfile(): Boolean{
+        val current = uiState.value
+
+        if(current.firstName == null && current.id != null){
+            getUserInfo(current.id)
+            return true
+        }
+
+        return false
     }
 
     // Function to update the user profile with values from the database given the user's ID.
@@ -157,7 +168,7 @@ class ProfileViewModel:ViewModel() {
     // Function to update user profile based on attribute chosen.
     private fun updateUserProfile(editUserProfileInput: EditUserProfileInput){
         viewModelScope.launch {
-            val out = updateUserProfileCoroutine(editUserProfileInput)
+            updateUserProfileCoroutine(editUserProfileInput)
         }
     }
 
@@ -168,12 +179,13 @@ class ProfileViewModel:ViewModel() {
     }
 
     // Functions for delete the user from the SHPE server.
-    private fun deleteUserProfile(email: String){
+    private fun deleteUserProfile(email: String): Boolean {
+        var output = false
         viewModelScope.launch {
-            val output = deleteUserProfileCoroutine(email)
-
+            output = deleteUserProfileCoroutine(email)
             // TODO: Add navigation to opening page after user account is deleted.
         }
+        return output
     }
 
     private suspend fun deleteUserProfileCoroutine(email: String): Boolean{
