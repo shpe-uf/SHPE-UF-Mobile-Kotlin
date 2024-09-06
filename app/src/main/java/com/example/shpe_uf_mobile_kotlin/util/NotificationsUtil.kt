@@ -194,37 +194,6 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 }
 
-//class AlarmReceiver : BroadcastReceiver() {
-//    override fun onReceive(appContext: Context, intent: Intent) {
-//        val notificationId = intent.getIntExtra(NotificationsUtilInfo.NOTIFICATION_ID, 0)
-//        val title = intent.getStringExtra(NotificationsUtilInfo.NOTIFICATION_TITLE)  ?: "Shpe UF Event"
-//        val message = intent.getStringExtra(NotificationsUtilInfo.NOTIFICATION_MESSAGE) ?: "You have an upcoming event"
-//
-//
-//        Log.d("HomeViewModel", "Alarm received for event: $title")
-//        Log.d("HomeViewModel", "Notification ID: $notificationId")
-//        Log.d("HomeViewModel", "Notification message: $message")
-//
-//        val notificationBuilder = NotificationCompat.Builder(appContext, NotificationsUtilInfo.CHANNEL_ID)
-//            .setSmallIcon(R.drawable.shpe_logo_full_color)
-//            .setContentTitle(title)
-//            .setContentText(message)
-//            .setPriority(NotificationCompat.PRIORITY_HIGH)
-//            .setAutoCancel(true)
-//
-//        // Check for POST_NOTIFICATIONS permission on Android 13 and above
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-//            ActivityCompat.checkSelfPermission(appContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-//
-//            val notificationManager = NotificationManagerCompat.from(appContext)
-//            notificationManager.notify(notificationId, notificationBuilder.build())
-//        } else {
-//            Toast.makeText(appContext, "Please enable notifications for this app in your settings", Toast.LENGTH_LONG).show()
-//            openAppSettings(appContext)
-//        }
-//    }
-//}
-
 object NotificationsUtilInfo  {
     const val NOTIFICATION_ID = "notification_id"
     const val NOTIFICATION_TITLE = "notification_title"
