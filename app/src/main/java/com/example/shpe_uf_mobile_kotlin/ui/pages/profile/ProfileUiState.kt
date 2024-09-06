@@ -4,7 +4,7 @@ data class ProfileUiState(
     val id: String? = null,
     val firstName: String? = null,
     val lastName: String? = null,
-    val fullName: String? = firstName + " " + lastName,
+    val fullName: String? = "$firstName $lastName",
     val userName: String? = null,
     val email: String? = null,
     val gender: String? = null,
