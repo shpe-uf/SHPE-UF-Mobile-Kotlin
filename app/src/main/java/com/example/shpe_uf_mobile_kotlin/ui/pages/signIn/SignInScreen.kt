@@ -166,7 +166,6 @@ fun SignInScreen() {
         }
     }
 
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -186,6 +185,7 @@ fun UserNameInput(
     Column(
         modifier = Modifier
             .padding(horizontal = 24.dp)
+
     ) {
         Text(
             text = "Username",
@@ -197,7 +197,6 @@ fun UserNameInput(
             modifier = Modifier
                 .padding(horizontal = 11.dp, vertical = 6.53.dp)
         )
-
             TextField(
                 shape = RoundedCornerShape(10.dp),
                 colors = TextFieldDefaults.textFieldColors( // These colors match the FIGMA design.
@@ -209,13 +208,14 @@ fun UserNameInput(
                     Icon(
                         painter = painterResource(id = R.drawable.profile_circle),
                         contentDescription = "Person",
+                        modifier = Modifier.size(22.dp)
                     )
                 },
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .width(318.dp),
                 value = value,
                 onValueChange = { onValueChange(it) },
-                textStyle = TextStyle(fontSize = 16.sp, color = Color.Black),
+                textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text
@@ -280,10 +280,10 @@ fun PasswordInput(
                 }
             },
             modifier = Modifier
-                .fillMaxWidth(),
+                .width(318.dp),
             value = value,
             onValueChange = { onValueChange(it) },
-            textStyle = TextStyle(fontSize = 16.sp, color = Color.Black),
+            textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password
