@@ -65,139 +65,226 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel){
 
     val uiState by registerPage1ViewModel.uiState.collectAsState()
 
-    RegistrationPageBaseLayer()
+    RegisterBackground()
 
-    RegistrationPage2ProgressionBar()
-
-    RegistrationPage2PersonalDetailsText()
-
-
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-
-    ){
-        Spacer(modifier = Modifier.height(288.dp))
-
-        Text(
-            text = "First Name",
-            fontSize = 16.sp,
-            color = Color(0xFFFFFFFF),
-            textAlign = TextAlign.Start,
+            .padding(top = 83.dp)
+    ) {
+        Column(
             modifier = Modifier
-                .padding(start = 72.dp)
-                .fillMaxWidth()
-        )
+                .fillMaxSize()
+                .background(Color(0xFF011F35)),
+            horizontalAlignment = Alignment.CenterHorizontally
 
-        Spacer(modifier = Modifier.height(4.dp))
+        ){
+            Spacer(modifier = Modifier.height(42.dp))
 
-        RegisterFirstName(
-            value = uiState.firstName ?: "",
-            isError = uiState.firstNameErrorMessage != null,
-            errorMessage = uiState.firstNameErrorMessage ?: "",
-            onValueChange = { registerPage1ViewModel.onFirstNameChanged(it) })
+            // This is the start of progression bar 2
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Row{
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+                    )
 
-        Text(
-            text = "Last Name",
-            fontSize = 16.sp,
-            color = Color(0xFFFFFFFF),
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .padding(start = 72.dp)
-                .fillMaxWidth()
-        )
+                }
 
-        Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
-        RegisterLastName(
-            value = uiState.lastName ?: "",
-            isError = uiState.lastName != null,
-            errorMessage = uiState.lastNameErrorMessage ?: "",
-            onValueChange = { registerPage1ViewModel.onLastNameChanged(it) }
-        )
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+                    )
 
-        Spacer(modifier = Modifier.height(12.dp))
+                }
 
-        Text(
-            text = "Gender",
-            fontSize = 16.sp,
-            color = Color(0xFFFFFFFF),
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .padding(start = 72.dp)
-                .fillMaxWidth()
-        )
+                Spacer(modifier = Modifier.width(8.dp))
 
-        Spacer(modifier = Modifier.height(4.dp))
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFF999999), shape = RoundedCornerShape(1.dp))
+                    )
+                }
+            }
 
-        GenderDropDownMenu(
-            value = uiState.gender ?: "",
-            isError = uiState.gender != null,
-            errorMessage = uiState.genderErrorMessage ?: "",
-            isGenderMenuExpanded = uiState.isGenderMenuExpanded,
-            onExpandedChange = {registerPage1ViewModel.toggleGenderMenuExpansion()},
-            onValueChange = { registerPage1ViewModel.onGenderChanged(it) }
-        )
+            // This is the end of progression bar 2
 
-        Spacer(modifier = Modifier.height(12.dp))
+            // This is the start of the personal details text with the user profile image
 
-        Text(
-            text = "Ethnicity",
-            fontSize = 16.sp,
-            color = Color(0xFFFFFFFF),
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .padding(start = 72.dp)
-                .fillMaxWidth()
-        )
+            Spacer(modifier = Modifier.height(35.dp))
 
-        Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Enter your info to finalize your profile",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFFFFFFF)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 30.dp)
 
-        EthnicityDropDownMenu(
-            value = uiState.ethnicity ?: "",
-            isError = uiState.ethnicity != null,
-            errorMessage = uiState.ethnicityErrorMessage ?: "",
-            isEthnicityMenuExpanded = uiState.isEthnicityMenuExpanded,
-            onExpandedChange = {registerPage1ViewModel.toggleEthnicityMenuExpansion()},
-            onValueChange = { registerPage1ViewModel.onEthnicityChanged(it) }
-        )
+            )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Row{
+                    Text(
+                        text = "Personal Details",
+                        style = TextStyle(
+                            fontSize = 36.sp,
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFD25917)
+                        )
+                    )
+                }
 
-        Text(
-            text = "Country of Origin",
-            fontSize = 16.sp,
-            color = Color(0xFFFFFFFF),
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .padding(start = 72.dp)
-                .fillMaxWidth()
-        )
+                Spacer(modifier = Modifier.width(32.dp))
 
-        Spacer(modifier = Modifier.height(4.dp))
+                Row{
+                    Image(
+                        painter = painterResource(id = R.drawable.personaldetailsicon),
+                        contentDescription = "PersonalDetailsIcon",
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+            }
 
-        CountryOriginDropDownMenu(
-            value = uiState.countryOrigin ?: "",
-            isError = uiState.countryOrigin != null,
-            errorMessage = uiState.countryOriginErrorMessage ?: "",
-            isCountryOriginMenuExpanded = uiState.isCountryOriginMenuExpanded,
-            onExpandedChange = {registerPage1ViewModel.toggleCountryOriginMenuExpansion()},
-            onValueChange = { registerPage1ViewModel.onCountryOriginChanged(it) }
-        )
+            Spacer(modifier = Modifier.height(64.dp))
 
 
-        Spacer(modifier = Modifier.height(40.dp))
+            Text(
+                text = "First Name",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            RegisterFirstName(
+                value = uiState.firstName ?: "",
+                isError = uiState.firstNameErrorMessage != null,
+                errorMessage = uiState.firstNameErrorMessage ?: "",
+                onValueChange = { registerPage1ViewModel.onFirstNameChanged(it) })
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Last Name",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            RegisterLastName(
+                value = uiState.lastName ?: "",
+                isError = uiState.lastName != null,
+                errorMessage = uiState.lastNameErrorMessage ?: "",
+                onValueChange = { registerPage1ViewModel.onLastNameChanged(it) }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Gender",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            GenderDropDownMenu(
+                value = uiState.gender ?: "",
+                isError = uiState.gender != null,
+                errorMessage = uiState.genderErrorMessage ?: "",
+                isGenderMenuExpanded = uiState.isGenderMenuExpanded,
+                onExpandedChange = {registerPage1ViewModel.toggleGenderMenuExpansion()},
+                onValueChange = { registerPage1ViewModel.onGenderChanged(it) }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Ethnicity",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            EthnicityDropDownMenu(
+                value = uiState.ethnicity ?: "",
+                isError = uiState.ethnicity != null,
+                errorMessage = uiState.ethnicityErrorMessage ?: "",
+                isEthnicityMenuExpanded = uiState.isEthnicityMenuExpanded,
+                onExpandedChange = {registerPage1ViewModel.toggleEthnicityMenuExpansion()},
+                onValueChange = { registerPage1ViewModel.onEthnicityChanged(it) }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Country of Origin",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            CountryOriginDropDownMenu(
+                value = uiState.countryOrigin ?: "",
+                isError = uiState.countryOrigin != null,
+                errorMessage = uiState.countryOriginErrorMessage ?: "",
+                isCountryOriginMenuExpanded = uiState.isCountryOriginMenuExpanded,
+                onExpandedChange = {registerPage1ViewModel.toggleCountryOriginMenuExpansion()},
+                onValueChange = { registerPage1ViewModel.onCountryOriginChanged(it) }
+            )
 
 
-        ContinueButton(
+            Spacer(modifier = Modifier.height(40.dp))
+
+
+            ContinueButton(
 //            onClick = { // TODO Navigate to final registration page
-              // This on click should be used for very final view when slicking complete registration button
-            onClick = { registerPage1ViewModel.validateAndRegisterUser()
-            })
+                // This on click should be used for very final view when slicking complete registration button
+                onClick = { registerPage1ViewModel.validateAndRegisterUser()
+                })
+        }
+
+
     }
+
+
+
 }
 
 
