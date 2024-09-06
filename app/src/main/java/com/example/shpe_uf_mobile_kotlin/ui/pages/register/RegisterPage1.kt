@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -73,6 +74,7 @@ Function is used to preview the whole UI of the page but also to pass in
 the viewModel into the RegistrationPage1 function to make the
  */
 
+
 @Composable
 fun RegistrationPage1Preview(navController: NavController){
 
@@ -92,143 +94,234 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
     val uiState by registerPage1ViewModel.uiState.collectAsState()
 
-    RegistrationPageBaseLayer()
+    RegisterBackground()
 
-    RegistrationPage1ProgressionBar()
-
-    RegistrationPage1WelcomeText()
-
-
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(top = 83.dp)
+    ) {
 
-    ){
-        Spacer(modifier = Modifier.height(288.dp))
-
-        Text(
-            text = "UF Email",
-            fontSize = 16.sp,
-            color = Color(0xFFFFFFFF),
-            textAlign = TextAlign.Start,
+        Column(
             modifier = Modifier
-                .padding(start = 72.dp)
-                .fillMaxWidth()
+                .fillMaxSize()
+                .background(Color(0xFF011F35)),
+            horizontalAlignment = Alignment.CenterHorizontally
+
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
+        {
+            Spacer(modifier = Modifier.height(42.dp))
 
-        RegisterEmail(
-            value = uiState.email ?: "",
-            isError = uiState.emailErrorMessage != null,
-            errorMessage = uiState.emailErrorMessage ?: "",
-            onValueChange = { registerPage1ViewModel.onEmailChanged(it) })
+            // This is the progression bar
+            Row{
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+                    )
 
-        Spacer(modifier = Modifier.height(12.dp))
+                }
 
-        Text(
-            text = "Username",
-            fontSize = 16.sp,
-            color = Color(0xFFFFFFFF),
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .padding(start = 72.dp)
-                .fillMaxWidth()
-        )
+                Spacer(modifier = Modifier.width(8.dp))
 
-        Spacer(modifier = Modifier.height(4.dp))
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFF999999), shape = RoundedCornerShape(1.dp))
+                    )
 
-        RegisterUsername(
-            value = uiState.username ?: "",
-            isError = uiState.usernameErrorMessage != null,
-            errorMessage = uiState.usernameErrorMessage ?: "",
-            onValueChange = { registerPage1ViewModel.onUsernameChanged(it) }
-        )
+                }
 
-        Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
-        Text(
-            text = "Password",
-            fontSize = 16.sp,
-            color = Color(0xFFFFFFFF),
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .padding(start = 72.dp)
-                .fillMaxWidth()
-        )
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFF999999), shape = RoundedCornerShape(1.dp))
+                    )
+                }
+            }
+            // End of progression bar
 
-        Spacer(modifier = Modifier.height(4.dp))
+            // Start of Welcome text and SHPE Logo component
+            Spacer(modifier = Modifier.height(42.dp))
 
-        RegisterPassword(
-            value = uiState.password ?: "",
-            isPasswordVisible = uiState.isPasswordVisible,
-            isError = uiState.passwordErrorMessage != null,
-            errorMessage = uiState.passwordErrorMessage ?: "",
-            onValueChange = { registerPage1ViewModel.onPasswordChanged(it) },
-            onTogglePasswordVisibility = { registerPage1ViewModel.togglePasswordVisibility() }
-        )
 
-        Spacer(modifier = Modifier.height(12.dp))
 
-        Text(
-            text = "Confirm Password",
-            fontSize = 16.sp,
-            color = Color(0xFFFFFFFF),
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .padding(start = 72.dp)
-                .fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        RegisterConfirmPassword(
-            value = uiState.confirmPassword ?: "",
-            isConfirmPasswordVisible = uiState.isConfirmPasswordVisible,
-            isError = uiState.confirmPasswordErrorMessage != null,
-            errorMessage = uiState.confirmPasswordErrorMessage ?: "",
-            onValueChange = { registerPage1ViewModel.onConfirmPasswordChanged(it) },
-            onToggleConfirmPasswordVisibility = { registerPage1ViewModel.toggleConfirmPasswordVisibility() }
-        )
-
-        Spacer(modifier = Modifier.height(64.dp))
-
-        CreateAccountButton(
-
-            onClick = { navController.navigate("register_Page2") }
-//            onClick = { registerPage1ViewModel.validateAndRegisterUser() }
-        )
-
-        // BELOW CREATES TEXT AND SIGN IN LINK TO NAVIGATE TO LOGIN PAGE
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
             Text(
-                text = "Already have an account?",
-                color = Color(0xFFFFFFFF),
-                fontSize = 18.sp,
-                style = MaterialTheme.typography.labelLarge
+                text = "Welcome to SHPE!",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFFFFFFF),
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 30.dp)
             )
-            TextButton(onClick = {
 
-                //TODO Navigate to the sign-in page for users that already have an account
 
-            }) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Row{
+                    Text(
+                        text = "REGISTER",
+                        style = TextStyle(
+                            fontSize = 46.sp,
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFD25917)
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(76.dp))
+
+                Row{
+                    Image(
+                        painter = painterResource(id = R.drawable.shpe_logo_full_color),
+                        contentDescription = "shpeLogo",
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+            }
+            // End of welcome text and shpe logo component
+
+
+            Spacer(modifier = Modifier.height(58.dp))
+
+            Text(
+                text = "UF Email",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            RegisterEmail(
+                value = uiState.email ?: "",
+                isError = uiState.emailErrorMessage != null,
+                errorMessage = uiState.emailErrorMessage ?: "",
+                onValueChange = { registerPage1ViewModel.onEmailChanged(it) })
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Username",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            RegisterUsername(
+                value = uiState.username ?: "",
+                isError = uiState.usernameErrorMessage != null,
+                errorMessage = uiState.usernameErrorMessage ?: "",
+                onValueChange = { registerPage1ViewModel.onUsernameChanged(it) }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Password",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            RegisterPassword(
+                value = uiState.password ?: "",
+                isPasswordVisible = uiState.isPasswordVisible,
+                isError = uiState.passwordErrorMessage != null,
+                errorMessage = uiState.passwordErrorMessage ?: "",
+                onValueChange = { registerPage1ViewModel.onPasswordChanged(it) },
+                onTogglePasswordVisibility = { registerPage1ViewModel.togglePasswordVisibility() }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Confirm Password",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            RegisterConfirmPassword(
+                value = uiState.confirmPassword ?: "",
+                isConfirmPasswordVisible = uiState.isConfirmPasswordVisible,
+                isError = uiState.confirmPasswordErrorMessage != null,
+                errorMessage = uiState.confirmPasswordErrorMessage ?: "",
+                onValueChange = { registerPage1ViewModel.onConfirmPasswordChanged(it) },
+                onToggleConfirmPasswordVisibility = { registerPage1ViewModel.toggleConfirmPasswordVisibility() }
+            )
+
+            Spacer(modifier = Modifier.height(82.dp))
+
+            CreateAccountButton(
+
+                onClick = { navController.navigate("register_Page2") }
+//            onClick = { registerPage1ViewModel.validateAndRegisterUser() }
+            )
+
+            // BELOW CREATES TEXT AND SIGN IN LINK TO NAVIGATE TO LOGIN PAGE
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
                 Text(
-                    text = "Sign In",
-                    color = Color(0XFF93E1FF),
+                    text = "Already have an account?",
+                    color = Color(0xFFFFFFFF),
                     fontSize = 18.sp,
                     style = MaterialTheme.typography.labelLarge
                 )
+                TextButton(onClick = {
+
+                    //TODO Navigate to the sign-in page for users that already have an account
+
+                }) {
+                    Text(
+                        text = "Sign In",
+                        color = Color(0XFF93E1FF),
+                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
             }
+
         }
 
     }
+
+
+
+
+
 }
 
 
@@ -277,103 +370,123 @@ fun RegistrationPageBaseLayer(modifier: Modifier = Modifier) {
 }
 
 
-
 @Preview
 @Composable
-fun RegistrationPage1ProgressionBar(modifier: Modifier = Modifier){
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-
-    ){
-
-        Spacer(modifier = Modifier.height(132.dp))
-
-        Row{
-            Row{
-                Box(
-                    modifier = Modifier
-                        .size(width = 106.dp, height = 5.dp)
-                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
-                )
-
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Row{
-                Box(
-                    modifier = Modifier
-                        .size(width = 106.dp, height = 5.dp)
-                        .background(Color(0xFF999999), shape = RoundedCornerShape(1.dp))
-                )
-
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Row{
-                Box(
-                    modifier = Modifier
-                        .size(width = 106.dp, height = 5.dp)
-                        .background(Color(0xFF999999), shape = RoundedCornerShape(1.dp))
-                )
-            }
-        }
-    }
-}
-
-
-
-@Preview
-@Composable
-fun RegistrationPage1WelcomeText(modifier: Modifier = Modifier){
+fun RegisterBackground() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = 30.dp)
-
-    ){
-
-        Spacer(modifier = Modifier.height(174.dp))
-
-        Text(
-            text = "Welcome to SHPE!",
-            style = TextStyle(
-                fontSize = 14.sp,
-                fontWeight = FontWeight(400),
-                color = Color(0xFFFFFFFF)
-            )
+            .background(Color(0xFFD25917))
+    ) {
+        Image(
+            painter = painterResource(R.drawable.gatordark),
+            contentDescription = "Gator",
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 48.dp)
         )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Row{
-                Text(
-                    text = "REGISTER",
-                    style = TextStyle(
-                        fontSize = 46.sp,
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFFD25917)
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.width(76.dp))
-
-            Row{
-                Image(
-                    painter = painterResource(id = R.drawable.shpe_logo_full_color),
-                    contentDescription = "shpeLogo",
-                    modifier = Modifier.size(50.dp)
-                )
-            }
-        }
     }
 }
+
+
+
+//@Preview
+//@Composable
+//fun RegistrationPage1ProgressionBar(modifier: Modifier = Modifier){
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize(),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//
+//    ){
+//
+//        Spacer(modifier = Modifier.height(132.dp))
+//
+//        Row{
+//            Row{
+//                Box(
+//                    modifier = Modifier
+//                        .size(width = 106.dp, height = 5.dp)
+//                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+//                )
+//
+//            }
+//
+//            Spacer(modifier = Modifier.width(8.dp))
+//
+//            Row{
+//                Box(
+//                    modifier = Modifier
+//                        .size(width = 106.dp, height = 5.dp)
+//                        .background(Color(0xFF999999), shape = RoundedCornerShape(1.dp))
+//                )
+//
+//            }
+//
+//            Spacer(modifier = Modifier.width(8.dp))
+//
+//            Row{
+//                Box(
+//                    modifier = Modifier
+//                        .size(width = 106.dp, height = 5.dp)
+//                        .background(Color(0xFF999999), shape = RoundedCornerShape(1.dp))
+//                )
+//            }
+//        }
+//    }
+//}
+
+
+
+//@Preview
+//@Composable
+//fun RegistrationPage1WelcomeText(modifier: Modifier = Modifier){
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(start = 30.dp)
+//
+//    ){
+//
+//        Spacer(modifier = Modifier.height(174.dp))
+//
+//        Text(
+//            text = "Welcome to SHPE!",
+//            style = TextStyle(
+//                fontSize = 14.sp,
+//                fontWeight = FontWeight(400),
+//                color = Color(0xFFFFFFFF)
+//            )
+//        )
+//
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically
+//        ){
+//            Row{
+//                Text(
+//                    text = "REGISTER",
+//                    style = TextStyle(
+//                        fontSize = 46.sp,
+//                        fontWeight = FontWeight(400),
+//                        color = Color(0xFFD25917)
+//                    )
+//                )
+//            }
+//
+//            Spacer(modifier = Modifier.width(76.dp))
+//
+//            Row{
+//                Image(
+//                    painter = painterResource(id = R.drawable.shpe_logo_full_color),
+//                    contentDescription = "shpeLogo",
+//                    modifier = Modifier.size(50.dp)
+//                )
+//            }
+//        }
+//    }
+//}
 
 
 
