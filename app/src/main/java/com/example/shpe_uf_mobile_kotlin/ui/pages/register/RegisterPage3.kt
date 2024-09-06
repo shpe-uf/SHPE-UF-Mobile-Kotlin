@@ -57,194 +57,278 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel){
 
     val uiState by registerPage1ViewModel.uiState.collectAsState()
 
-    RegistrationPageBaseLayer()
+    RegisterBackground()
 
-    RegistrationPage3ProgressionBar()
-
-    RegistrationPage3AcademicInfoText()
-
-
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-
-    ){
-        Spacer(modifier = Modifier.height(288.dp))
-
-        Text(
-            text = "Major",
-            fontSize = 16.sp,
-            color = Color(0xFFFFFFFF),
-            textAlign = TextAlign.Start,
+            .padding(top = 83.dp)
+    ) {
+        Column(
             modifier = Modifier
-                .padding(start = 72.dp)
-                .fillMaxWidth()
-        )
+                .fillMaxSize()
+                .background(Color(0xFF011F35)),
+            horizontalAlignment = Alignment.CenterHorizontally
 
-        Spacer(modifier = Modifier.height(4.dp))
-
-        MajorDropDownMenu(
-            value = uiState.major ?: "",
-            isError = uiState.major != null,
-            errorMessage = uiState.majorErrorMessage ?: "",
-            isMajorMenuExpanded = uiState.isMajorMenuExpanded,
-            onExpandedChange = {registerPage1ViewModel.toggleMajorMenuExpansion()},
-            onValueChange = { registerPage1ViewModel.onMajorChanged(it) }
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-            text = "Year",
-            fontSize = 16.sp,
-            color = Color(0xFFFFFFFF),
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .padding(start = 72.dp)
-                .fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        YearDropDownMenu(
-            value = uiState.year ?: "",
-            isError = uiState.year != null,
-            errorMessage = uiState.yearErrorMessage ?: "",
-            isYearMenuExpanded = uiState.isYearMenuExpanded,
-            onExpandedChange = {registerPage1ViewModel.toggleYearMenuExpansion()},
-            onValueChange = { registerPage1ViewModel.onYearChanged(it) }
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-            text = "Graduation Year",
-            fontSize = 16.sp,
-            color = Color(0xFFFFFFFF),
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .padding(start = 72.dp)
-                .fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        GraduationYearDropDownMenu(
-            value = uiState.graduationYear ?: "",
-            isError = uiState.graduationYear != null,
-            errorMessage = uiState.graduationYearErrorMessage ?: "",
-            isGraduationMenuExpanded = uiState.isGraduationMenuExpanded,
-            onExpandedChange = {registerPage1ViewModel.toggleGraduationMenuExpansion()},
-            onValueChange = { registerPage1ViewModel.onGraduationYearChanged(it) }
-        )
-
-        Spacer(modifier = Modifier.height(170.dp))
-
-        CompleteRegistrationButton(
-//            onClick = { // TODO call GraplQL mutation so that regisstration detailes are pushed to the database
-            onClick = { registerPage1ViewModel.validateAndRegisterUser()
-            })
-
-    }
-
-
-}
-
-@Preview
-@Composable
-fun RegistrationPage3ProgressionBar(modifier: Modifier = Modifier){
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-
-    ){
-
-        Spacer(modifier = Modifier.height(132.dp))
-
-        Row{
-            Row{
-                Box(
-                    modifier = Modifier
-                        .size(width = 106.dp, height = 5.dp)
-                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
-                )
-
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Row{
-                Box(
-                    modifier = Modifier
-                        .size(width = 106.dp, height = 5.dp)
-                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
-                )
-
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Row{
-                Box(
-                    modifier = Modifier
-                        .size(width = 106.dp, height = 5.dp)
-                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
-                )
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun RegistrationPage3AcademicInfoText(modifier: Modifier = Modifier){
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 30.dp)
-
-    ){
-
-        Spacer(modifier = Modifier.height(174.dp))
-
-        Text(
-            text = "Enter your current education details",
-            style = TextStyle(
-                fontSize = 14.sp,
-                fontWeight = FontWeight(400),
-                color = Color(0xFFFFFFFF)
-            )
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
         ){
+            Spacer(modifier = Modifier.height(42.dp))
+
+            // This is the start of the third page progression bar
             Row{
-                Text(
-                    text = "Academic Info",
-                    style = TextStyle(
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFFD25917)
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
                     )
-                )
-            }
 
-            Spacer(modifier = Modifier.width(54.dp))
+                }
 
-            Row{
-                Image(
-                    painter = painterResource(id = R.drawable.bookicon),
-                    contentDescription = "bookIcon",
-                    modifier = Modifier.size(50.dp)
-                )
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+                    )
+                }
             }
+            // This is the end of the third page progression bar
+
+            Spacer(modifier = Modifier.height(35.dp))
+
+
+            // This is the academic info text section
+            Text(
+                text = "Enter your current education details",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFFFFFFF)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 30.dp)
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Row{
+                    Text(
+                        text = "Academic Info",
+                        style = TextStyle(
+                            fontSize = 36.sp,
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFD25917)
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(54.dp))
+
+                Row{
+                    Image(
+                        painter = painterResource(id = R.drawable.bookicon),
+                        contentDescription = "bookIcon",
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+            }
+            // end of academic info section
+
+            Spacer(modifier = Modifier.height(55.dp))
+
+            Text(
+                text = "Major",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            MajorDropDownMenu(
+                value = uiState.major ?: "",
+                isError = uiState.major != null,
+                errorMessage = uiState.majorErrorMessage ?: "",
+                isMajorMenuExpanded = uiState.isMajorMenuExpanded,
+                onExpandedChange = {registerPage1ViewModel.toggleMajorMenuExpansion()},
+                onValueChange = { registerPage1ViewModel.onMajorChanged(it) }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Year",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            YearDropDownMenu(
+                value = uiState.year ?: "",
+                isError = uiState.year != null,
+                errorMessage = uiState.yearErrorMessage ?: "",
+                isYearMenuExpanded = uiState.isYearMenuExpanded,
+                onExpandedChange = {registerPage1ViewModel.toggleYearMenuExpansion()},
+                onValueChange = { registerPage1ViewModel.onYearChanged(it) }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Graduation Year",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            GraduationYearDropDownMenu(
+                value = uiState.graduationYear ?: "",
+                isError = uiState.graduationYear != null,
+                errorMessage = uiState.graduationYearErrorMessage ?: "",
+                isGraduationMenuExpanded = uiState.isGraduationMenuExpanded,
+                onExpandedChange = {registerPage1ViewModel.toggleGraduationMenuExpansion()},
+                onValueChange = { registerPage1ViewModel.onGraduationYearChanged(it) }
+            )
+
+            Spacer(modifier = Modifier.height(207.dp))
+
+            CompleteRegistrationButton(
+//            onClick = { // TODO call GraplQL mutation so that regisstration detailes are pushed to the database
+                onClick = { registerPage1ViewModel.validateAndRegisterUser()
+                })
+
         }
+
     }
+
+
+
+
+
 }
+
+//@Preview
+//@Composable
+//fun RegistrationPage3ProgressionBar(modifier: Modifier = Modifier){
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize(),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//
+//    ){
+//
+//        Spacer(modifier = Modifier.height(132.dp))
+//
+//        Row{
+//            Row{
+//                Box(
+//                    modifier = Modifier
+//                        .size(width = 106.dp, height = 5.dp)
+//                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+//                )
+//
+//            }
+//
+//            Spacer(modifier = Modifier.width(8.dp))
+//
+//            Row{
+//                Box(
+//                    modifier = Modifier
+//                        .size(width = 106.dp, height = 5.dp)
+//                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+//                )
+//
+//            }
+//
+//            Spacer(modifier = Modifier.width(8.dp))
+//
+//            Row{
+//                Box(
+//                    modifier = Modifier
+//                        .size(width = 106.dp, height = 5.dp)
+//                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+//                )
+//            }
+//        }
+//    }
+//}
+
+
+//@Preview
+//@Composable
+//fun RegistrationPage3AcademicInfoText(modifier: Modifier = Modifier){
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(start = 30.dp)
+//
+//    ){
+//
+//        Spacer(modifier = Modifier.height(174.dp))
+//
+//        Text(
+//            text = "Enter your current education details",
+//            style = TextStyle(
+//                fontSize = 14.sp,
+//                fontWeight = FontWeight(400),
+//                color = Color(0xFFFFFFFF)
+//            )
+//        )
+//
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically
+//        ){
+//            Row{
+//                Text(
+//                    text = "Academic Info",
+//                    style = TextStyle(
+//                        fontSize = 36.sp,
+//                        fontWeight = FontWeight(400),
+//                        color = Color(0xFFD25917)
+//                    )
+//                )
+//            }
+//
+//            Spacer(modifier = Modifier.width(54.dp))
+//
+//            Row{
+//                Image(
+//                    painter = painterResource(id = R.drawable.bookicon),
+//                    contentDescription = "bookIcon",
+//                    modifier = Modifier.size(50.dp)
+//                )
+//            }
+//        }
+//    }
+//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

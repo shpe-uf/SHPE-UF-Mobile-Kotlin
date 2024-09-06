@@ -289,101 +289,101 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 }
 
 
-@Preview
-@Composable
-fun RegistrationPage2ProgressionBar(modifier: Modifier = Modifier){
+//@Preview
+//@Composable
+//fun RegistrationPage2ProgressionBar(modifier: Modifier = Modifier){
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize(),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//
+//    ){
+//
+//        Spacer(modifier = Modifier.height(132.dp))
+//
+//        Row{
+//            Row{
+//                Box(
+//                    modifier = Modifier
+//                        .size(width = 106.dp, height = 5.dp)
+//                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+//                )
+//
+//            }
+//
+//            Spacer(modifier = Modifier.width(8.dp))
+//
+//            Row{
+//                Box(
+//                    modifier = Modifier
+//                        .size(width = 106.dp, height = 5.dp)
+//                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+//                )
+//
+//            }
+//
+//            Spacer(modifier = Modifier.width(8.dp))
+//
+//            Row{
+//                Box(
+//                    modifier = Modifier
+//                        .size(width = 106.dp, height = 5.dp)
+//                        .background(Color(0xFF999999), shape = RoundedCornerShape(1.dp))
+//                )
+//            }
+//        }
+//    }
+//}
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
 
-    ){
-
-        Spacer(modifier = Modifier.height(132.dp))
-
-        Row{
-            Row{
-                Box(
-                    modifier = Modifier
-                        .size(width = 106.dp, height = 5.dp)
-                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
-                )
-
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Row{
-                Box(
-                    modifier = Modifier
-                        .size(width = 106.dp, height = 5.dp)
-                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
-                )
-
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Row{
-                Box(
-                    modifier = Modifier
-                        .size(width = 106.dp, height = 5.dp)
-                        .background(Color(0xFF999999), shape = RoundedCornerShape(1.dp))
-                )
-            }
-        }
-    }
-}
-
-
-@Preview
-@Composable
-fun RegistrationPage2PersonalDetailsText(modifier: Modifier = Modifier){
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 30.dp)
-
-    ){
-
-        Spacer(modifier = Modifier.height(174.dp))
-
-        Text(
-            text = "Enter your info to finalize your profile",
-            style = TextStyle(
-                fontSize = 14.sp,
-                fontWeight = FontWeight(400),
-                color = Color(0xFFFFFFFF)
-            )
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Row{
-                Text(
-                    text = "Personal Details",
-                    style = TextStyle(
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFFD25917)
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.width(32.dp))
-
-            Row{
-                Image(
-                    painter = painterResource(id = R.drawable.personaldetailsicon),
-                    contentDescription = "PersonalDetailsIcon",
-                    modifier = Modifier.size(50.dp)
-                )
-            }
-        }
-    }
-}
+//@Preview
+//@Composable
+//fun RegistrationPage2PersonalDetailsText(modifier: Modifier = Modifier){
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(start = 30.dp)
+//
+//    ){
+//
+//        Spacer(modifier = Modifier.height(174.dp))
+//
+//        Text(
+//            text = "Enter your info to finalize your profile",
+//            style = TextStyle(
+//                fontSize = 14.sp,
+//                fontWeight = FontWeight(400),
+//                color = Color(0xFFFFFFFF)
+//            )
+//        )
+//
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically
+//        ){
+//            Row{
+//                Text(
+//                    text = "Personal Details",
+//                    style = TextStyle(
+//                        fontSize = 36.sp,
+//                        fontWeight = FontWeight(400),
+//                        color = Color(0xFFD25917)
+//                    )
+//                )
+//            }
+//
+//            Spacer(modifier = Modifier.width(32.dp))
+//
+//            Row{
+//                Image(
+//                    painter = painterResource(id = R.drawable.personaldetailsicon),
+//                    contentDescription = "PersonalDetailsIcon",
+//                    modifier = Modifier.size(50.dp)
+//                )
+//            }
+//        }
+//    }
+//}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
