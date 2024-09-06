@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -42,16 +41,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.R
 
 
-@Preview
+//@Preview
 @Composable
-fun RegistrationPage2Preview(){
+fun RegistrationPage2Preview(navController: NavController){
 
     val viewModel = RegisterPage1ViewModel()
 
-    RegistrationPage2(registerPage1ViewModel = viewModel)
+    RegistrationPage2(registerPage1ViewModel = viewModel, navController = navController)
 
 }
 
@@ -61,7 +61,7 @@ Function is used for housing all the different separate components that
 ultimately make up the final UI
  */
 @Composable
-fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel){
+fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navController: NavController){
 
     val uiState by registerPage1ViewModel.uiState.collectAsState()
 
@@ -276,8 +276,9 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel){
             ContinueButton(
 //            onClick = { // TODO Navigate to final registration page
                 // This on click should be used for very final view when slicking complete registration button
-                onClick = { registerPage1ViewModel.validateAndRegisterUser()
-                })
+                onClick = { navController.navigate("register_Page3") }
+//                onClick = { registerPage1ViewModel.validateAndRegisterUser() }
+            )
         }
 
 
