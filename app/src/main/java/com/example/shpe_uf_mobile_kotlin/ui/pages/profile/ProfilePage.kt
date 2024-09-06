@@ -100,81 +100,81 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
                     value = uiState.email ?: "",
                     onValueChange = profileViewModel::onEmailChanged
                 )
-                ProfileGender(
-                    selectedGender = uiState.gender ?: "",
-                    onGenderSelected = profileViewModel::onGenderChanged,
-                    genders = listOf("Male", "Female", "Other")
-                )
-                ProfileEthnicity(
-                    selectedEthnicity = uiState.ethnicity ?: "",
-                    onEthnicitySelected = profileViewModel::onEthnicityChanged,
-                    ethnicities = listOf("Hispanic", "Black/African American", "Asian", "White", "Native American", "Native Hawaiian", "Two or More Races", "Other")
-                )
-                ProfileCountry(
-                    selectedCountry = uiState.country ?: "",
-                    onCountrySelected = profileViewModel::onCountryChanged,
-                    countries = listOf(
-                        "Argentina",
-                        "Australia",
-                        "Austria",
-                        "Belgium",
-                        "Brazil",
-                        "Canada",
-                        "Chile",
-                        "China",
-                        "Czech Republic",
-                        "Denmark",
-                        "Egypt",
-                        "Finland",
-                        "France",
-                        "Germany",
-                        "Greece",
-                        "Hungary",
-                        "India",
-                        "Indonesia",
-                        "Ireland",
-                        "Israel",
-                        "Italy",
-                        "Japan",
-                        "Kenya",
-                        "Malaysia",
-                        "Mexico",
-                        "Netherlands",
-                        "New Zealand",
-                        "Nigeria",
-                        "Norway",
-                        "Pakistan",
-                        "Philippines",
-                        "Poland",
-                        "Portugal",
-                        "Romania",
-                        "Russia",
-                        "Saudi Arabia",
-                        "Singapore",
-                        "South Africa",
-                        "South Korea",
-                        "Spain",
-                        "Sweden",
-                        "Switzerland",
-                        "Thailand",
-                        "Turkey",
-                        "Ukraine",
-                        "United Arab Emirates",
-                        "United Kingdom",
-                        "United States",
-                        "Vietnam"
-                    )
-                )
-                ProfileYear(
-                    selectedYear = uiState.year ?: "",
-                    onYearSelected = profileViewModel::onYearChanged,
-                    years = listOf("First", "Second", "Third", "Fourth", "Fifth", "Grad")
-                )
-                ProfileGradYear(
-                    selectedYear = uiState.gradYear ?: "",
-                    onYearSelected = profileViewModel::onGradYearChanged,
-                    years = listOf("2024", "2025", "2026", "2027")
-                )
+//                ProfileGender(
+//                    selectedGender = uiState.gender ?: "",
+//                    onGenderSelected = profileViewModel::onGenderChanged,
+//                    genders = listOf("Male", "Female", "Other")
+//                )
+//                ProfileEthnicity(
+//                    selectedEthnicity = uiState.ethnicity ?: "",
+//                    onEthnicitySelected = profileViewModel::onEthnicityChanged,
+//                    ethnicities = listOf("Hispanic", "Black/African American", "Asian", "White", "Native American", "Native Hawaiian", "Two or More Races", "Other")
+//                )
+//                ProfileCountry(
+//                    selectedCountry = uiState.country ?: "",
+//                    onCountrySelected = profileViewModel::onCountryChanged,
+//                    countries = listOf(
+//                        "Argentina",
+//                        "Australia",
+//                        "Austria",
+//                        "Belgium",
+//                        "Brazil",
+//                        "Canada",
+//                        "Chile",
+//                        "China",
+//                        "Czech Republic",
+//                        "Denmark",
+//                        "Egypt",
+//                        "Finland",
+//                        "France",
+//                        "Germany",
+//                        "Greece",
+//                        "Hungary",
+//                        "India",
+//                        "Indonesia",
+//                        "Ireland",
+//                        "Israel",
+//                        "Italy",
+//                        "Japan",
+//                        "Kenya",
+//                        "Malaysia",
+//                        "Mexico",
+//                        "Netherlands",
+//                        "New Zealand",
+//                        "Nigeria",
+//                        "Norway",
+//                        "Pakistan",
+//                        "Philippines",
+//                        "Poland",
+//                        "Portugal",
+//                        "Romania",
+//                        "Russia",
+//                        "Saudi Arabia",
+//                        "Singapore",
+//                        "South Africa",
+//                        "South Korea",
+//                        "Spain",
+//                        "Sweden",
+//                        "Switzerland",
+//                        "Thailand",
+//                        "Turkey",
+//                        "Ukraine",
+//                        "United Arab Emirates",
+//                        "United Kingdom",
+//                        "United States",
+//                        "Vietnam"
+//                    )
+//                )
+//                ProfileYear(
+//                    selectedYear = uiState.year ?: "",
+//                    onYearSelected = profileViewModel::onYearChanged,
+//                    years = listOf("First", "Second", "Third", "Fourth", "Fifth", "Grad")
+//                )
+//                ProfileGradYear(
+//                    selectedYear = uiState.gradYear ?: "",
+//                    onYearSelected = profileViewModel::onGradYearChanged,
+//                    years = listOf("2024", "2025", "2026", "2027")
+//                )
             }
         }
     }
@@ -246,207 +246,207 @@ fun ProfilePageBackground(modifier: Modifier = Modifier) {
     }
 }
 
-//TODO: fix dropdown fields disappearing once an option is clicked
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ProfileGradYear(selectedYear: String, onYearSelected: (String) -> Unit, years: List<String>) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        TextField(
-            value = selectedYear,
-            onValueChange = {},
-            label = { Text("GRADUATION YEAR", fontSize = 15.sp) },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_cap),
-                    contentDescription = null,
-                )
-            },
-            shape = RoundedCornerShape(12.dp),
-            readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            years.forEach { year ->
-                DropdownMenuItem(onClick = {
-                    onYearSelected(year)
-                    expanded = false
-                }) {
-                    Text(text = year)
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ProfileYear(selectedYear: String, onYearSelected: (String) -> Unit, years: List<String>) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        TextField(
-            value = selectedYear,
-            onValueChange = {},
-            label = { Text("YEAR", fontSize = 15.sp) },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_year),
-                    contentDescription = null,
-                )
-            },
-            shape = RoundedCornerShape(12.dp),
-            readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            years.forEach { year ->
-                DropdownMenuItem(onClick = {
-                    onYearSelected(year)
-                    expanded = false
-                }) {
-                    Text(text = year)
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ProfileCountry(selectedCountry: String, onCountrySelected: (String) -> Unit, countries: List<String>) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        TextField(
-            value = selectedCountry,
-            onValueChange = {},
-            label = { Text("COUNTRY OF ORIGIN", fontSize = 15.sp) },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_globe),
-                    contentDescription = null,
-                )
-            },
-            shape = RoundedCornerShape(12.dp),
-            readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            countries.forEach { country ->
-                DropdownMenuItem(onClick = {
-                    onCountrySelected(country)
-                    expanded = false
-                }) {
-                    Text(text = country)
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ProfileEthnicity(selectedEthnicity: String, onEthnicitySelected: (String) -> Unit, ethnicities: List<String>) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        TextField(
-            value = selectedEthnicity,
-            onValueChange = {},
-            label = { Text("ETHNICITY", fontSize = 15.sp) },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_globe),
-                    contentDescription = null,
-                )
-            },
-            shape = RoundedCornerShape(12.dp),
-            readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            ethnicities.forEach { ethnicity ->
-                DropdownMenuItem(onClick = {
-                    onEthnicitySelected(ethnicity)
-                    expanded = false
-                }) {
-                    Text(text = ethnicity)
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ProfileGender(selectedGender: String, onGenderSelected: (String) -> Unit, genders: List<String>) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        TextField(
-            value = selectedGender,
-            onValueChange = {},
-            label = { Text("GENDER", fontSize = 15.sp) },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_gender_equality),
-                    contentDescription = null,
-                )
-            },
-            shape = RoundedCornerShape(12.dp),
-            readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth(0.7f)
-                .menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            genders.forEach { gender ->
-                DropdownMenuItem(onClick = {
-                    onGenderSelected(gender)
-                    expanded = false
-                }) {
-                    Text(text = gender)
-                }
-            }
-        }
-    }
-}
+////TODO: fix dropdown fields disappearing once an option is clicked
+//
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun ProfileGradYear(selectedYear: String, onYearSelected: (String) -> Unit, years: List<String>) {
+//    var expanded by remember { mutableStateOf(false) }
+//    ExposedDropdownMenuBox(
+//        expanded = expanded,
+//        onExpandedChange = { expanded = !expanded }
+//    ) {
+//        TextField(
+//            value = selectedYear,
+//            onValueChange = {},
+//            label = { Text("GRADUATION YEAR", fontSize = 15.sp) },
+//            leadingIcon = {
+//                Image(
+//                    painter = painterResource(id = R.drawable.profile_cap),
+//                    contentDescription = null,
+//                )
+//            },
+//            shape = RoundedCornerShape(12.dp),
+//            readOnly = true,
+//            modifier = Modifier
+//                .fillMaxWidth(0.8f)
+//                .menuAnchor()
+//        )
+//        ExposedDropdownMenu(
+//            expanded = expanded,
+//            onDismissRequest = { expanded = false }
+//        ) {
+//            years.forEach { year ->
+//                DropdownMenuItem(onClick = {
+//                    onYearSelected(year)
+//                    expanded = false
+//                }) {
+//                    Text(text = year)
+//                }
+//            }
+//        }
+//    }
+//}
+//
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun ProfileYear(selectedYear: String, onYearSelected: (String) -> Unit, years: List<String>) {
+//    var expanded by remember { mutableStateOf(false) }
+//    ExposedDropdownMenuBox(
+//        expanded = expanded,
+//        onExpandedChange = { expanded = !expanded }
+//    ) {
+//        TextField(
+//            value = selectedYear,
+//            onValueChange = {},
+//            label = { Text("YEAR", fontSize = 15.sp) },
+//            leadingIcon = {
+//                Image(
+//                    painter = painterResource(id = R.drawable.profile_year),
+//                    contentDescription = null,
+//                )
+//            },
+//            shape = RoundedCornerShape(12.dp),
+//            readOnly = true,
+//            modifier = Modifier
+//                .fillMaxWidth(0.8f)
+//                .menuAnchor()
+//        )
+//        ExposedDropdownMenu(
+//            expanded = expanded,
+//            onDismissRequest = { expanded = false }
+//        ) {
+//            years.forEach { year ->
+//                DropdownMenuItem(onClick = {
+//                    onYearSelected(year)
+//                    expanded = false
+//                }) {
+//                    Text(text = year)
+//                }
+//            }
+//        }
+//    }
+//}
+//
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun ProfileCountry(selectedCountry: String, onCountrySelected: (String) -> Unit, countries: List<String>) {
+//    var expanded by remember { mutableStateOf(false) }
+//    ExposedDropdownMenuBox(
+//        expanded = expanded,
+//        onExpandedChange = { expanded = !expanded }
+//    ) {
+//        TextField(
+//            value = selectedCountry,
+//            onValueChange = {},
+//            label = { Text("COUNTRY OF ORIGIN", fontSize = 15.sp) },
+//            leadingIcon = {
+//                Image(
+//                    painter = painterResource(id = R.drawable.profile_globe),
+//                    contentDescription = null,
+//                )
+//            },
+//            shape = RoundedCornerShape(12.dp),
+//            readOnly = true,
+//            modifier = Modifier
+//                .fillMaxWidth(0.8f)
+//                .menuAnchor()
+//        )
+//        ExposedDropdownMenu(
+//            expanded = expanded,
+//            onDismissRequest = { expanded = false }
+//        ) {
+//            countries.forEach { country ->
+//                DropdownMenuItem(onClick = {
+//                    onCountrySelected(country)
+//                    expanded = false
+//                }) {
+//                    Text(text = country)
+//                }
+//            }
+//        }
+//    }
+//}
+//
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun ProfileEthnicity(selectedEthnicity: String, onEthnicitySelected: (String) -> Unit, ethnicities: List<String>) {
+//    var expanded by remember { mutableStateOf(false) }
+//    ExposedDropdownMenuBox(
+//        expanded = expanded,
+//        onExpandedChange = { expanded = !expanded }
+//    ) {
+//        TextField(
+//            value = selectedEthnicity,
+//            onValueChange = {},
+//            label = { Text("ETHNICITY", fontSize = 15.sp) },
+//            leadingIcon = {
+//                Image(
+//                    painter = painterResource(id = R.drawable.profile_globe),
+//                    contentDescription = null,
+//                )
+//            },
+//            shape = RoundedCornerShape(12.dp),
+//            readOnly = true,
+//            modifier = Modifier
+//                .fillMaxWidth(0.8f)
+//                .menuAnchor()
+//        )
+//        ExposedDropdownMenu(
+//            expanded = expanded,
+//            onDismissRequest = { expanded = false }
+//        ) {
+//            ethnicities.forEach { ethnicity ->
+//                DropdownMenuItem(onClick = {
+//                    onEthnicitySelected(ethnicity)
+//                    expanded = false
+//                }) {
+//                    Text(text = ethnicity)
+//                }
+//            }
+//        }
+//    }
+//}
+//
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun ProfileGender(selectedGender: String, onGenderSelected: (String) -> Unit, genders: List<String>) {
+//    var expanded by remember { mutableStateOf(false) }
+//    ExposedDropdownMenuBox(
+//        expanded = expanded,
+//        onExpandedChange = { expanded = !expanded }
+//    ) {
+//        TextField(
+//            value = selectedGender,
+//            onValueChange = {},
+//            label = { Text("GENDER", fontSize = 15.sp) },
+//            leadingIcon = {
+//                Image(
+//                    painter = painterResource(id = R.drawable.profile_gender_equality),
+//                    contentDescription = null,
+//                )
+//            },
+//            shape = RoundedCornerShape(12.dp),
+//            readOnly = true,
+//            modifier = Modifier
+//                .fillMaxWidth(0.7f)
+//                .menuAnchor()
+//        )
+//        ExposedDropdownMenu(
+//            expanded = expanded,
+//            onDismissRequest = { expanded = false }
+//        ) {
+//            genders.forEach { gender ->
+//                DropdownMenuItem(onClick = {
+//                    onGenderSelected(gender)
+//                    expanded = false
+//                }) {
+//                    Text(text = gender)
+//                }
+//            }
+//        }
+//    }
+//}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
