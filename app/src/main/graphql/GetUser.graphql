@@ -12,5 +12,6 @@ query GetUser($userId: ID!) {
         classes
         internships
         socialMedia
+        photo
     }
 }
