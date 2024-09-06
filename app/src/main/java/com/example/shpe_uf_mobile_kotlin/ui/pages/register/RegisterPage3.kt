@@ -44,7 +44,7 @@ import com.example.shpe_uf_mobile_kotlin.R
 
 @Preview
 @Composable
-fun ResgistrationPage3Preview(){
+fun RegistrationPage3Preview(){
 
     val viewModel = RegisterPage1ViewModel()
 

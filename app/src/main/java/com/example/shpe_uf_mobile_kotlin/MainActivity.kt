@@ -13,6 +13,8 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewMode
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1Preview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2Preview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3Preview
+
 //import android.util.Log
 //import androidx.compose.foundation.layout.fillMaxSize
 //import androidx.compose.material3.MaterialTheme
@@ -34,10 +36,13 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             NavHost(navController = navController, startDestination = "register_Page1", builder = {
                 composable("register_Page1"){
-                    RegistrationPage1Preview(navController = navController)
+                    RegistrationPage1Preview(navController)
                 }
                 composable("register_Page2"){
-                    RegistrationPage2Preview()
+                    RegistrationPage2Preview(navController)
+                }
+                composable("register_Page3"){
+                    RegistrationPage3Preview()
                 }
             })
 
