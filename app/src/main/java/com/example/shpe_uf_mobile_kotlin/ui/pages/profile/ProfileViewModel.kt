@@ -71,6 +71,7 @@ class ProfileViewModel:ViewModel() {
     }
 
     // Function to update the user profile with values from the database given the user's ID.
+    // Just call getUserInfo("64ea79b9f2051e00149c75b7") once, and it should populate the fields.
     private fun getUserInfo(id: String){
         viewModelScope.launch{
             val userInfo = getUserInfoCoroutine(id)
