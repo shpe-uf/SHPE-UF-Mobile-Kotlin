@@ -1,5 +1,5 @@
-mutation Mutation($editUserProfileInput: EditUserProfileInput) {
+mutation EditUser($editUserProfileInput: EditUserProfileInput) {
     editUserProfile(editUserProfileInput: $editUserProfileInput) {
-        firstName
+        id
     }
 }
