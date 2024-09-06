@@ -1,6 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
 data class ProfileUiState(
+    val id: String? = null,
     val firstName: String? = null,
     val lastName: String? = null,
     val fullName: String? = firstName + " " + lastName,
