@@ -118,8 +118,32 @@ object NotificationsUtil {
     }
 
     fun cancelNotification(event: HomeViewModel.Event) {
+        val alarmManager = appContext.getSystemService(AlarmManager::class.java)
+        val notificationManager = NotificationManagerCompat.from(appContext)
 
-        Log.d("HomeViewModel", "Cancelling notification for event: ${event.summary}")
+        val notificationId = event.id.hashCode()
+
+        Log.d("HomeViewModel", "Notification ID: $notificationId")
+
+        // Create the exact same intent used to schedule the notification
+        val intent = Intent(appContext, AlarmReceiver::class.java)
+            .putExtra(NotificationsUtilInfo.NOTIFICATION_ID, notificationId)
+            .putExtra(NotificationsUtilInfo.NOTIFICATION_TITLE, "UF SHPE Event!")
+            .putExtra(NotificationsUtilInfo.NOTIFICATION_MESSAGE, "${event.summary} is starting soon!")
+
+        // Recreate the exact same PendingIntent used to schedule the notification
+        val pendingIntent = PendingIntent.getBroadcast(
+            appContext,
+            notificationId,  // The request code must be the same
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        alarmManager.cancel(pendingIntent)
+        notificationManager.cancel(notificationId)
+        pendingIntent.cancel()
+
+        Log.d("HomeViewModel", "Notification, alarm, pending intent cancelled ${event.summary}")
     }
 }
 

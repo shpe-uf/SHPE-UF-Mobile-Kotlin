@@ -134,16 +134,13 @@ class HomeViewModel(
         _homeUIState.value = homeState.value.copy(events = updatedEvents, notificationSettings = updatedNotificationSettings)
 
         // Handle scheduling or canceling notifications
-        handleNotificationsForEvents(context,updatedEvents, type, isEnabled)
+        handleNotificationsForEvents(updatedEvents, type, isEnabled)
         saveNotificationSettings(context, type, isEnabled)
     }
 
     fun toggleAllNotifications(context: Context) {
         Log.d("HomeViewModel", "Currently all notifications are ${homeState.value.notificationSettings.allNotificationSelection}")
         Log.d ("HomeViewModel", "Toggled all notifications")
-
-
-
 
         // all starts as false
         val allNotificationOn = homeState.value.notificationSettings.allNotificationSelection
@@ -167,27 +164,19 @@ class HomeViewModel(
 
             // schedule all notifications
             homeState.value.events.forEach { event ->
-                if (shouldScheduleNotification(event)) {
-                    NotificationsUtil.scheduleNotification(event)
-                }
+                NotificationsUtil.scheduleNotification(event)
             }
-
-
-        } else {
+        }
+        else {
             // update color
             _homeUIState.update { currentState ->
                 currentState.copy(allNotificationCurrentColor = allNotificationsOff)
             }
-
             // cancel all notifications
             homeState.value.events.forEach { event ->
-                if (shouldScheduleNotification(event)) {
-                    NotificationsUtil.cancelNotification(event)
-                }
+                NotificationsUtil.cancelNotification(event)
             }
         }
-
-
 
         // save the settings
         saveNotificationSettings(context, EventType.GBM, !allNotificationOn)
@@ -205,18 +194,15 @@ class HomeViewModel(
         }
     }
 
-    private fun handleNotificationsForEvents(context: Context, events: List<Event>, type: EventType, isEnabled: Boolean) {
+    private fun handleNotificationsForEvents(events: List<Event>, type: EventType, isEnabled: Boolean) {
         val notificationsUtil = NotificationsUtil
 
         events.filter { it.eventType == type && it.notificationEnabled == isEnabled }.forEach { event ->
             if (isEnabled) {
-                // Schedule notification
                 notificationsUtil.scheduleNotification(event)
-            } else {
-                // Assume cancelNotification is implemented and event.id is a unique identifier
-                //notificationsUtil.cancelNotification(event.id)
-                // Log for debugging
-                Log.d("HomeViewModel", "Canceled notification for ${event.summary}")
+            }
+            else {
+                notificationsUtil.cancelNotification(event)
             }
         }
     }
@@ -231,7 +217,6 @@ class HomeViewModel(
             else -> false
         } || _homeUIState.value.notificationSettings.allNotificationSelection
     }
-
 
     // Saving States for reboot
     private fun saveNotificationSettings(context: Context, eventType: EventType, isEnabled: Boolean){
@@ -296,7 +281,7 @@ class HomeViewModel(
         }
     }
 
-    fun fetchEventsMonths(localDate: LocalDate = LocalDate.now(), monthsToFetch: Int) {
+    private fun fetchEventsMonths(localDate: LocalDate = LocalDate.now(), monthsToFetch: Int) {
         val zoneId = ZoneId.of("America/New_York")
 
           // yearMonth is time timeMin begins
