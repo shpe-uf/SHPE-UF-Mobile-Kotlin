@@ -1,7 +1,5 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
-import androidx.compose.ui.graphics.Color
-
 data class SignInState(
 
     // By default, username and password are null.
@@ -14,5 +12,5 @@ data class SignInState(
     val loginErrorMessage: String? = null,
 
     // By default password should be invisible.
-    val isPasswordInvisible: Boolean = true
+    val isPasswordVisible: Boolean = false
 )
