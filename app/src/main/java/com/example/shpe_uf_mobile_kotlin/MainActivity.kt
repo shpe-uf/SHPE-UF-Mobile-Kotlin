@@ -17,6 +17,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.LoadingScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPageViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
 class MainActivity : ComponentActivity() {
