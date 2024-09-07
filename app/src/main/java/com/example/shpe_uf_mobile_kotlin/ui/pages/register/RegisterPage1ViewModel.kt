@@ -17,7 +17,7 @@ class RegisterPage1ViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(RegisterPage1State())
     val uiState: StateFlow<RegisterPage1State> = _uiState.asStateFlow()
 
-
+    // Validation Function for each Separate Text Field
     fun validateEmailField(){
         val emailFieldState = _uiState.value
 
@@ -25,6 +25,16 @@ class RegisterPage1ViewModel: ViewModel() {
 
         _uiState.value = emailFieldState.copy(emailErrorMessage = isValidEmail)
     }
+
+    fun validateUsernameField(){
+        val usernameFieldState = _uiState.value
+
+        val isValidUsername = validateUsername(usernameFieldState.username ?: "")
+
+        _uiState.value = usernameFieldState.copy(usernameErrorMessage = isValidUsername)
+    }
+
+
 
     //Function to validate and register the user
 
@@ -248,6 +258,7 @@ class RegisterPage1ViewModel: ViewModel() {
     //Functions to update the state for each input field
     fun onUsernameChanged(username: String) {
         _uiState.value = _uiState.value.copy(username = username)
+        validateUsernameField()
     }
 
     fun onFirstNameChanged(firstName: String) {
