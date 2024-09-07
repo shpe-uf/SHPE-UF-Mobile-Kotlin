@@ -1,11 +1,9 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,31 +17,23 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -56,9 +46,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shpe_uf_mobile_kotlin.R
-import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
+import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
-import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 
 @Preview
 @Composable
@@ -144,12 +133,13 @@ fun SignInScreen() {
                     onValueChange = { signInViewModel.onUsernameChanged(it) }
                 )
             }
+            Spacer(Modifier.height(24.dp))
             Row {
                 PasswordInput(
                     value = uiState.password ?: "",
                     onValueChange = { signInViewModel.onPasswordChanged(it) },
-                    isPasswordInvisible = uiState.isPasswordInvisible,
-                    signInViewModel
+                    isPasswordVisible = uiState.isPasswordVisible,
+                    viewModel = signInViewModel
                 )
             }
             Spacer(modifier = Modifier.height(85.dp))
@@ -159,7 +149,6 @@ fun SignInScreen() {
                     onClick = { signInViewModel.validateAndLoginUser() }
                 )
             }
-
             SignUp()
         }
     }
@@ -172,53 +161,14 @@ fun UserNameInput(
     value: String,
     onValueChange: (String) -> Unit,
 ) {
-    // Dark mode support
-    val labelColor = if (isSystemInDarkTheme()) {
-        Color.White
-    } else {
-        Color.Black
-    }
-
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 24.dp)
-
-    ) {
-        Text(
-            text = "Username",
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight(400)
-            ),
-            color = labelColor,
-            modifier = Modifier
-                .padding(horizontal = 11.dp, vertical = 6.53.dp)
-        )
-        TextField(
-            shape = RoundedCornerShape(10.dp),
-            colors = TextFieldDefaults.textFieldColors( // These colors match the FIGMA design.
-                containerColor = Color.White,
-                focusedIndicatorColor = Color.Transparent, // Transparent to not show.
-                unfocusedIndicatorColor = Color.Transparent // Transparent to not show.
-            ),
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.profile_circle),
-                    contentDescription = "Person",
-                    modifier = Modifier.size(22.dp)
-                )
-            },
-            modifier = Modifier
-                .width(318.dp),
-            value = value,
-            onValueChange = { onValueChange(it) },
-            textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text
-            )
-        )
-    }
+    SuperiorTextField(
+        label = "Username",
+        labelModifier = Modifier.padding(horizontal = 11.dp, vertical = 6.53.dp),
+        value = value,
+        onValueChange = onValueChange,
+        leadingIcon = R.drawable.profile_circle,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+    )
 
 }
 
@@ -227,67 +177,27 @@ fun UserNameInput(
 fun PasswordInput(
     value: String,
     onValueChange: (String) -> Unit,
-    isPasswordInvisible: Boolean,
+    isPasswordVisible: Boolean,
     viewModel: SignInViewModel,
 ) {
-    // Dark mode support
-    val labelColor = if (isSystemInDarkTheme()) {
-        Color.White
-    } else {
-        Color.Black
-    }
 
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 24.dp)
-    ) {
-        Text(
-            text = "Password",
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight(400)
-            ),
-            color = labelColor,
-            modifier = Modifier
-                .padding(horizontal = 9.22.dp, vertical = 5.53.dp)
-        )
+    val image = if (isPasswordVisible)
+        R.drawable.state_selected
+    else
+        R.drawable.state_default
 
-        TextField(
-            shape = RoundedCornerShape(10.dp),
-            colors = TextFieldDefaults.textFieldColors( // These colors match the FIGMA design.
-                containerColor = Color.White,
-                focusedIndicatorColor = Color.Transparent, // Transparent to not show.
-                unfocusedIndicatorColor = Color.Transparent // Transparent to not show.
-            ),
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(R.drawable.lock_3),
-                    contentDescription = "Lock",
-                )
-            },
-            trailingIcon = {
-                val image = if (isPasswordInvisible)
-                    painterResource(R.drawable.state_default)
-                else
-                    painterResource(R.drawable.state_selected)
-
-                IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
-                    Icon(painter = image, contentDescription = image.toString())
-                }
-            },
-            modifier = Modifier
-                .width(318.dp),
-            value = value,
-            onValueChange = { onValueChange(it) },
-            textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password
-            ),
-            visualTransformation =
-            if (isPasswordInvisible) PasswordVisualTransformation() else VisualTransformation.None
-        )
-    }
+    // Custom built text field that matches figma design.
+    SuperiorTextField(
+        label = "Password",
+        labelModifier = Modifier.padding(horizontal = 9.22.dp, vertical = 5.53.dp),
+        onValueChange = onValueChange,
+        value = value,
+        leadingIcon = R.drawable.lock_3,
+        trailingIcon = image,
+        trailingIconOnClick = { viewModel.togglePasswordVisibility() },
+        visualTransformation = { if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation() },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+    )
 }
 
 @Composable
@@ -313,11 +223,6 @@ fun SignInButton(onClick: () -> Unit) {
             )
         )
     }
-}
-
-@Composable
-fun LoginErrorMessage(value: String) {
-    Text(value)
 }
 
 @Composable
