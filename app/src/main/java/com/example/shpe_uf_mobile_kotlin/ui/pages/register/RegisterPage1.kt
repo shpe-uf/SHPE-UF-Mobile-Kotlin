@@ -607,7 +607,7 @@ private fun RegisterPassword(
 
     TextField(
         modifier = Modifier
-            .height(50.dp)
+//            .height(50.dp)
             .fillMaxWidth(0.7f),
         value = value,
         onValueChange = { onValueChange(it) },
