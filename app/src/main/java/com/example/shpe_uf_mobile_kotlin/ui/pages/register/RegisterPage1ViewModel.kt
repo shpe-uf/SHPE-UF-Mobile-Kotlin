@@ -18,9 +18,13 @@ class RegisterPage1ViewModel: ViewModel() {
     val uiState: StateFlow<RegisterPage1State> = _uiState.asStateFlow()
 
 
-//    fun validateEmailField(){
-//        val emailFieldState = _uiState.value
-//    }
+    fun validateEmailField(){
+        val emailFieldState = _uiState.value
+
+        val isValidEmail = validateEmail(emailFieldState.email ?: "")
+
+        _uiState.value = emailFieldState.copy(emailErrorMessage = isValidEmail)
+    }
 
     //Function to validate and register the user
 
@@ -256,6 +260,7 @@ class RegisterPage1ViewModel: ViewModel() {
 
     fun onEmailChanged(email: String) {
         _uiState.value = _uiState.value.copy(email = email)
+        validateEmailField()
     }
 
     fun onPasswordChanged(password: String) {
