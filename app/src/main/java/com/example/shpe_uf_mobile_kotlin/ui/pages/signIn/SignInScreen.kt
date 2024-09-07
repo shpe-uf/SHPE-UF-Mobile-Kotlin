@@ -37,6 +37,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -47,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
+import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
 @Preview
@@ -121,9 +124,12 @@ fun SignInScreen() {
             Row {
                 Text(
                     text = "SIGN IN",
-                    style = MaterialTheme.typography.displayLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFD25917)
+                    style = TextStyle(
+                      fontSize = 50.sp,
+                        fontFamily = FontFamily(Font(R.font.viga)),
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFFD25917)
+                    )
                 )
             }
             Spacer(modifier = Modifier.height(88.dp))
