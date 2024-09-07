@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.shpe_uf_mobile_kotlin.ui.custom.TextFields
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.LoadingScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
@@ -30,15 +31,17 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = Routes.loading, builder= {
-                        composable(Routes.loading, ){
-                            LoadingScreen(navController)
-                        }
-                        composable(Routes.login, ){
-                            SignIn()
-                        }
-                    })
+                    SignIn()
+                    //TextFields()
+//                    val navController = rememberNavController()
+//                    NavHost(navController = navController, startDestination = Routes.loading, builder= {
+//                        composable(Routes.loading, ){
+//                            LoadingScreen(navController)
+//                        }
+//                        composable(Routes.login, ){
+//                            SignIn()
+//                        }
+//                    })
                 }
             }
         }
