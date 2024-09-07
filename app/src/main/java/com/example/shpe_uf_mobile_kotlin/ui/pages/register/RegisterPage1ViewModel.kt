@@ -34,6 +34,14 @@ class RegisterPage1ViewModel: ViewModel() {
         _uiState.value = usernameFieldState.copy(usernameErrorMessage = isValidUsername)
     }
 
+    fun validatePasswordField(){
+        val passwordFieldState = _uiState.value
+
+        val isValidPassword = validatePassword(passwordFieldState.password ?: "")
+
+        _uiState.value = passwordFieldState.copy(passwordErrorMessage = isValidPassword)
+    }
+
 
 
     //Function to validate and register the user
@@ -276,6 +284,7 @@ class RegisterPage1ViewModel: ViewModel() {
 
     fun onPasswordChanged(password: String) {
         _uiState.value = _uiState.value.copy(password = password)
+        validatePasswordField()
     }
 
     fun onConfirmPasswordChanged(confirmPassword: String) {
