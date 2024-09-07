@@ -109,38 +109,35 @@ fun SignInScreen() {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(41.dp))
-            Row {
-                Image(
-                    painter = painterResource(shpeLogo),
-                    contentDescription = shpeLogo.toString(),
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .height(93.dp)
-                        .width(86.dp)
+            Image(
+                painter = painterResource(shpeLogo),
+                contentDescription = shpeLogo.toString(),
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .height(93.dp)
+                    .width(86.dp)
+            )
+            //Spacer(modifier = Modifier.height(30.dp))
+            Text(
+                modifier = Modifier.padding(top = 30.dp),
+                text = "SIGN IN",
+                style = TextStyle(
+                    fontSize = 50.sp,
+                    //fontFamily = FontFamily(Font(R.font.viga)),
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFD25917)
                 )
-            }
-            Spacer(modifier = Modifier.height(30.dp))
-            Row {
-                Text(
-                    text = "SIGN IN",
-                    style = TextStyle(
-                      fontSize = 50.sp,
-                        fontFamily = FontFamily(Font(R.font.viga)),
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFFD25917)
-                    )
-                )
-            }
-            Spacer(modifier = Modifier.height(88.dp))
-            Row {
+            )
+            //Spacer(modifier = Modifier.height(88.dp))
+            Row(modifier = Modifier.padding(top = 88.dp)) {
                 UserNameInput(
                     value = uiState.username ?: "",
                     onValueChange = { signInViewModel.onUsernameChanged(it) }
                 )
             }
-            Spacer(Modifier.height(24.dp))
-            Row {
+
+            //Spacer(Modifier.height(24.dp))
+            Row(modifier = Modifier.padding(top = 24.dp)) {
                 PasswordInput(
                     value = uiState.password ?: "",
                     onValueChange = { signInViewModel.onPasswordChanged(it) },
@@ -148,14 +145,16 @@ fun SignInScreen() {
                     viewModel = signInViewModel
                 )
             }
-            Spacer(modifier = Modifier.height(85.dp))
 
-            Row {
+            //Spacer(modifier = Modifier.height(85.dp))
+            Row(modifier = Modifier.padding(top = 85.dp)) {
                 SignInButton(
                     onClick = { signInViewModel.validateAndLoginUser() }
                 )
             }
-            SignUp()
+            Row(modifier = Modifier.padding(top = 20.dp)) {
+                SignUp()
+            }
         }
     }
 

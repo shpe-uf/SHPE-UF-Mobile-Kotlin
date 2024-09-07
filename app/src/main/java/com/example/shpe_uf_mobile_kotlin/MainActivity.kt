@@ -32,9 +32,9 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     NavHost(navController = navController, startDestination = Routes.loading, builder= {
-                        composable(Routes.loading, ){
-                            LoadingScreen(navController)
-                        }
+//                        composable(Routes.loading, ){
+//                            LoadingScreen(navController)
+//                        }
                         composable(Routes.login, ){
                             SignIn()
                         }
