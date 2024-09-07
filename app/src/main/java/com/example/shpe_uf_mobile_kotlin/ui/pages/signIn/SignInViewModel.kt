@@ -1,7 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -140,6 +139,6 @@ class SignInViewModel : ViewModel() {
     // Changes the password's visibility.
     fun togglePasswordVisibility() {
         _uiState.value =
-            _uiState.value.copy(isPasswordInvisible = !_uiState.value.isPasswordInvisible)
+            _uiState.value.copy(isPasswordVisible = !_uiState.value.isPasswordVisible)
     }
 }
