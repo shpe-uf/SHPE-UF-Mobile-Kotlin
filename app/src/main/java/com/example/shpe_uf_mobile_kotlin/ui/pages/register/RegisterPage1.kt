@@ -76,11 +76,11 @@ the viewModel into the RegistrationPage1 function to make the
 
 
 @Composable
-fun RegistrationPage1Preview(navController: NavController){
+fun RegistrationPage1Preview(navController: NavController, registerPage1ViewModel: RegisterPage1ViewModel){
 
-    val viewModel = RegisterPage1ViewModel()
+//    val viewModel = RegisterPage1ViewModel()
 
-    RegistrationPage1(registerPage1ViewModel = viewModel, navController = navController)
+    RegistrationPage1(registerPage1ViewModel = registerPage1ViewModel, navController = navController)
 
 }
 
@@ -282,7 +282,7 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
             CreateAccountButton(
 
-                onClick = { navController.navigate("register_Page2") }
+                onClick = { navController.navigate(RegisterRoutes.registerPage2) }
 //            onClick = { registerPage1ViewModel.validateAndRegisterUser() }
             )
 
@@ -330,44 +330,44 @@ RegistrationPageBaseLayer is a composable made up of the split color blue and or
 with the gator image, so it can be repurposed in the other two views for registration page
  */
 
-@Preview
-@Composable
-fun RegistrationPageBaseLayer(modifier: Modifier = Modifier) {
-
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-
-    val orangeHeight = screenHeight * (1.01f/11f)
-
-    val blueHeight = screenHeight * (10f/11f)
-
-
-    Box(modifier = modifier
-        .fillMaxSize()
-    ){
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(orangeHeight)
-                .background(Color(0xFFD25917))
-        )
-
-        Image(
-            painter = painterResource(id = R.drawable.gatordark),
-            contentDescription = "SHPE GATOR DARK",
-            modifier = Modifier
-                .fillMaxWidth()
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(blueHeight)
-                .align(Alignment.BottomCenter)
-                .background(Color(0xFF011F35))
-        )
-    }
-
-}
+//@Preview
+//@Composable
+//fun RegistrationPageBaseLayer(modifier: Modifier = Modifier) {
+//
+//    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+//
+//    val orangeHeight = screenHeight * (1.01f/11f)
+//
+//    val blueHeight = screenHeight * (10f/11f)
+//
+//
+//    Box(modifier = modifier
+//        .fillMaxSize()
+//    ){
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(orangeHeight)
+//                .background(Color(0xFFD25917))
+//        )
+//
+//        Image(
+//            painter = painterResource(id = R.drawable.gatordark),
+//            contentDescription = "SHPE GATOR DARK",
+//            modifier = Modifier
+//                .fillMaxWidth()
+//        )
+//
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(blueHeight)
+//                .align(Alignment.BottomCenter)
+//                .background(Color(0xFF011F35))
+//        )
+//    }
+//
+//}
 
 
 @Preview

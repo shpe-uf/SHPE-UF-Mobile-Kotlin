@@ -47,11 +47,11 @@ import com.example.shpe_uf_mobile_kotlin.R
 
 //@Preview
 @Composable
-fun RegistrationPage2Preview(navController: NavController){
+fun RegistrationPage2Preview(navController: NavController, registerPage1ViewModel: RegisterPage1ViewModel){
 
-    val viewModel = RegisterPage1ViewModel()
+//    val viewModel = RegisterPage1ViewModel()
 
-    RegistrationPage2(registerPage1ViewModel = viewModel, navController = navController)
+    RegistrationPage2(registerPage1ViewModel = registerPage1ViewModel, navController = navController)
 
 }
 
@@ -276,7 +276,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             ContinueButton(
 //            onClick = { // TODO Navigate to final registration page
                 // This on click should be used for very final view when slicking complete registration button
-                onClick = { navController.navigate("register_Page3") }
+                onClick = { navController.navigate(RegisterRoutes.registerPage3) }
 //                onClick = { registerPage1ViewModel.validateAndRegisterUser() }
             )
         }
