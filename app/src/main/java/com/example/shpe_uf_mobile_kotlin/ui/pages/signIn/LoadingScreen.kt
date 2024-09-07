@@ -47,8 +47,10 @@ import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.dark_bg
 
+
+@Preview(showBackground = true)
 @Composable
-fun LoadingScreen(navController: NavController) {
+fun LoadingScreen() {
 
     // Dark mode support
     val gator = if (isSystemInDarkTheme()) {
@@ -62,8 +64,8 @@ fun LoadingScreen(navController: NavController) {
         modifier = Modifier
             .background(OrangeSHPE)
             .fillMaxSize()
+            .padding(top = 204.dp)
     ) {
-        Spacer(Modifier.height(204.dp))
         Image(
             painter = gator,
             contentDescription = "Gator",
@@ -72,18 +74,19 @@ fun LoadingScreen(navController: NavController) {
                 .width(312.dp)
                 .height(210.dp)
         )
-        Spacer(Modifier.height(30.dp))
         Text(
+            modifier = Modifier.padding(top = 30.dp),
             text = "SHPE UF",
             style = TextStyle(
                 fontSize = 64.sp,
-                fontFamily = FontFamily(Font(R.font.viga)),
+                //fontFamily = FontFamily(Font(R.font.viga)),
                 fontWeight = FontWeight(400),
                 color = Color.White
             )
         )
-        Spacer(Modifier.height(150.dp))
-        ButtonSHPE { navController.navigate(Routes.login) }
+        Spacer(Modifier.padding(top = 100.dp))
+        ButtonSHPE { TODO("Something") }
+//        ButtonSHPE { navController.navigate(Routes.login) }
 
     }
 }
@@ -96,13 +99,12 @@ fun ButtonSHPE(onClick: () -> Unit) {
     val color = if (isPressed) dark_bg else Color.White
 
     Button(
-        onClick =  onClick,
+        onClick = onClick,
         interactionSource = interactionSource,
         modifier = Modifier
             .width(129.dp)
             .height(126.dp)
             .clip(CircleShape),
-        //.padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()),
         colors = ButtonDefaults.buttonColors(
             containerColor = color,
         ),
