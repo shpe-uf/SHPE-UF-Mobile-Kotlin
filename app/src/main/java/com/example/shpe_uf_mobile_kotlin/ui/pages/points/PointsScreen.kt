@@ -1,5 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.points
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -38,23 +41,59 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import apolloClient
+import com.example.shpe_uf_mobile_kotlin.EventsQuery
 import com.example.shpe_uf_mobile_kotlin.ExampleQuery
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.shpe_uf_mobile_kotlin.EventsQuery.Event
+import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.Month
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+
 
 @Composable
-fun TopSection(modifier: Modifier = Modifier) {
+fun FullView(pointsPageViewModel: PointsPageViewModel) {
+
+    SHPEUFMobileKotlinTheme {
+        Column(modifier = Modifier.fillMaxSize()) {
+            TopSection()
+
+            LazyColumn(
+                modifier = Modifier.weight(1f)
+            ) {
+                item {
+                    PointsPercentile(pointsPageViewModel,"642f7f80e8839f0014e8be9b")
+                }
+                item {
+                    PointsCalendar("642f7f80e8839f0014e8be9b")
+                }
+            }
+
+            BottomBar()
+        }
+    }
+}
+
+@Composable
+fun TopSection() {
     Column (
         modifier = Modifier
             .background(color = Color(0xFF004C73))
@@ -64,7 +103,6 @@ fun TopSection(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .width(500.dp)
                 .height(100.dp)
-
         ) {
             Row (
             ){
@@ -96,30 +134,36 @@ fun TopSection(modifier: Modifier = Modifier) {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RedeemPoints(modifier: Modifier = Modifier) {
-    var guests by remember { mutableStateOf(0) }
-    val guestsStr: String = guests.toString()
-    var text by remember { mutableStateOf("") }
+fun RedeemPoints(
+    pointsPageViewModel: PointsPageViewModel,
+    id: String,
+    onCloseBottomSheet: () -> Unit
+) {
+    val uiState by pointsPageViewModel.uiState.collectAsState()
+    var guests = uiState.guestsCount
+    var text = uiState.eventCode
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
 
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .background(color = Color(0xFFFFFFFF))
+            .background(color = Color(0xFF004C73))
             .fillMaxSize()
 
     ){
-        Column (
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-        }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .width(1500.dp)
                 .height(750.dp)
-                .background(color = Color(0xFF004C73), shape = RoundedCornerShape(size = 10.dp))
+                .background(color = Color(0xFF004C73), shape = RoundedCornerShape(
+                    topStart = 10.dp,
+                    topEnd = 10.dp,
+                    bottomStart = 0.dp,
+                    bottomEnd = 0.dp
+                ))
         ) {
             Spacer(modifier = Modifier.height(30.dp))
             Box(
@@ -148,28 +192,44 @@ fun RedeemPoints(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = text,
-                onValueChange = { text = it },
-                label = {
+                onValueChange = {newText ->
+                    text = newText
+                    pointsPageViewModel.updateEventCode(newText) },
+                placeholder = {
                     Text(
-                        text = "Event Code ",
+                        "Event Code",
                         style = TextStyle(
                             fontSize = 25.sp,
-                            color = Color(0xFF72AAC0),
+                            fontStyle = FontStyle.Italic,
+                            color = Color(0xFF004C73),
                             textAlign = TextAlign.Center
-
                         ),
-                        modifier = Modifier
-//                                .padding(bottom = 10.dp)
-//                                .fillMaxSize()
-//                            .align(Alignment.CenterHorizontally)
-                    ) },
-                maxLines = 1,
-                textStyle = TextStyle(color = Color.Red, fontWeight = FontWeight.Bold),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                singleLine = true,
+                textStyle = TextStyle(
+                    textAlign = TextAlign.Center,
+                    fontSize = 20.sp,
+                    color = Color.Black
+                ),
                 modifier = Modifier
                     .width(340.dp)
-                    .height(50.dp)
+                    .height(60.dp)
+                    .background(Color.White)
             )
-
+            if(errorMessage == "null") {
+                onCloseBottomSheet()
+            }else {
+                errorMessage?.let {
+                    Text(
+                        text = it,
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(50.dp))
 
             Text(
@@ -189,7 +249,8 @@ fun RedeemPoints(modifier: Modifier = Modifier) {
                     .height(80.dp)
                     .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 8.dp))
             ){
-                Button(onClick = {if (guests > 0) guests -= 1 },
+                Button(onClick = {val newCount = uiState.guestsCount - 1
+                    if (uiState.guestsCount > 0) pointsPageViewModel.updateGuestsCount(newCount)},
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFFFFFFF),
                         contentColor = Color(0xFFFFFFFF)
@@ -221,7 +282,7 @@ fun RedeemPoints(modifier: Modifier = Modifier) {
                         )
                 )
                 Text(
-                    text = guestsStr,
+                    text = guests.toString(),
                     style = TextStyle(
                         fontSize = 35.sp,
                         color = Color(0xB5474545),
@@ -240,7 +301,8 @@ fun RedeemPoints(modifier: Modifier = Modifier) {
                             shape = RoundedCornerShape(size = 8.dp)
                         )
                 )
-                Button(onClick = {if (guests < 5) guests += 1},
+                Button(onClick = {val newCount = uiState.guestsCount + 1
+                    if (uiState.guestsCount < 5) pointsPageViewModel.updateGuestsCount(newCount)},
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFFFFFFF),
                         contentColor = Color(0xFFFFFFFF)
@@ -260,7 +322,11 @@ fun RedeemPoints(modifier: Modifier = Modifier) {
                 }
             }
             Spacer(modifier = Modifier.height(60.dp))
-            Button(onClick = {},
+            Button(onClick = {
+                coroutineScope.launch {
+                errorMessage = pointsPageViewModel.redeemEvent(id).toString()
+                }
+            },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFD33C20),
                     contentColor = Color(0xFFFFFFFF)
@@ -284,9 +350,33 @@ fun RedeemPoints(modifier: Modifier = Modifier) {
         }
     }
 }
-@Preview
+
+
+
 @Composable
-fun PointsCalendar(modifier: Modifier = Modifier){
+fun PointsCalendar(id: String){
+    var cabinetMeeting by remember { mutableStateOf<List<Event>>(emptyList()) }
+    var misc by remember { mutableStateOf<List<Event>>(emptyList()) }
+    var social by remember { mutableStateOf<List<Event>>(emptyList()) }
+    var gbm by remember { mutableStateOf<List<Event>>(emptyList()) }
+
+
+    LaunchedEffect(Unit) {
+        val response = apolloClient.query(EventsQuery(id)).execute()
+
+
+        // Extract events from the response
+        val events = response.data?.getUser?.events?.filterNotNull()?.map {
+            it.copy(createdAt = formatDate(it.createdAt))
+        } ?: emptyList()
+
+        // Separate events into different lists based on their category
+        cabinetMeeting = events.filter { it.category == "Cabinet Meeting" }
+        misc = events.filter { it.category == "Miscellaneous" }
+        social = events.filter { it.category == "Social" }
+        gbm = events.filter { it.category == "General Body Meeting" }
+    }
+
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -306,7 +396,67 @@ fun PointsCalendar(modifier: Modifier = Modifier){
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFD25917)),
             )
-            Spacer(modifier = Modifier.height(30.dp))
+            Box(modifier = Modifier
+                .width(310.dp)
+                .height(70.dp)
+                .border(
+                    width = 0.36665.dp,
+                    color = Color(0xFF011F35),
+                    shape = RoundedCornerShape(
+                        topStart = 10.dp,
+                        topEnd = 10.dp,
+                        bottomStart = 0.dp,
+                        bottomEnd = 0.dp
+                    )
+                )
+                .background(color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
+                    topStart = 10.dp,
+                    topEnd = 10.dp,
+                    bottomStart = 0.dp,
+                    bottomEnd = 0.dp
+                ))
+            ){
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ){
+                    Text(
+                        text = "EVENT",
+                        style = TextStyle(
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF002E50),)
+
+                    )
+                    Spacer(modifier = Modifier.width(22.dp))
+                    Text(
+                        text = "DATE",
+                        style = TextStyle(
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF002E50),)
+                    )
+                    Spacer(modifier = Modifier.width(20.dp))
+
+                    Text(
+                        text = "POINTS",
+                        style = TextStyle(
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF002E50),)
+
+                    )
+                }
+
+            }
+
+            EventTable(events = gbm)
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+
             Text(text = "CABINET " +
                     "MEETING",
                 style = TextStyle(
@@ -314,14 +464,205 @@ fun PointsCalendar(modifier: Modifier = Modifier){
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFD25917)),
             )
+            Box(modifier = Modifier
+                .width(310.dp)
+                .height(70.dp)
+                .border(
+                    width = 0.36665.dp,
+                    color = Color(0xFF011F35),
+                    shape = RoundedCornerShape(
+                        topStart = 10.dp,
+                        topEnd = 10.dp,
+                        bottomStart = 0.dp,
+                        bottomEnd = 0.dp
+                    )
+                )
+                .background(color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
+                    topStart = 10.dp,
+                    topEnd = 10.dp,
+                    bottomStart = 0.dp,
+                    bottomEnd = 0.dp
+                ))
+            ){
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ){
+                    Text(
+                        text = "EVENT",
+                        style = TextStyle(
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF002E50),)
+
+                    )
+                    Spacer(modifier = Modifier.width(22.dp))
+                    Text(
+                        text = "DATE",
+                        style = TextStyle(
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF002E50),)
+                    )
+                    Spacer(modifier = Modifier.width(20.dp))
+
+                    Text(
+                        text = "POINTS",
+                        style = TextStyle(
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF002E50),)
+
+                    )
+                }
+
+
+            }
+
+            EventTable(events = cabinetMeeting)
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+
+            Text(text = "SOCIAL",
+                style = TextStyle(
+                    fontSize = 60.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFD25917)),
+            )
+            Box(modifier = Modifier
+                .width(310.dp)
+                .height(70.dp)
+                .border(
+                    width = 0.36665.dp,
+                    color = Color(0xFF011F35),
+                    shape = RoundedCornerShape(
+                        topStart = 10.dp,
+                        topEnd = 10.dp,
+                        bottomStart = 0.dp,
+                        bottomEnd = 0.dp
+                    )
+                )
+                .background(color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
+                    topStart = 10.dp,
+                    topEnd = 10.dp,
+                    bottomStart = 0.dp,
+                    bottomEnd = 0.dp
+                ))
+            ){
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ){
+                    Text(
+                        text = "EVENT",
+                        style = TextStyle(
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF002E50),)
+
+                    )
+                    Spacer(modifier = Modifier.width(22.dp))
+                    Text(
+                        text = "DATE",
+                        style = TextStyle(
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF002E50),)
+                    )
+                    Spacer(modifier = Modifier.width(20.dp))
+
+                    Text(
+                        text = "POINTS",
+                        style = TextStyle(
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF002E50),)
+
+                    )
+                }
+            }
+
+            EventTable(events = social)
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(text = "MISC",
+                style = TextStyle(
+                    fontSize = 60.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFD25917)),
+            )
+            Box(modifier = Modifier
+                .width(310.dp)
+                .height(70.dp)
+                .border(
+                    width = 0.36665.dp,
+                    color = Color(0xFF011F35),
+                    shape = RoundedCornerShape(
+                        topStart = 10.dp,
+                        topEnd = 10.dp,
+                        bottomStart = 0.dp,
+                        bottomEnd = 0.dp
+                    )
+                )
+                .background(color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
+                    topStart = 10.dp,
+                    topEnd = 10.dp,
+                    bottomStart = 0.dp,
+                    bottomEnd = 0.dp
+                ))
+            ){
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ){
+                    Text(
+                        text = "EVENT",
+                        style = TextStyle(
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF002E50),)
+
+                    )
+                    Spacer(modifier = Modifier.width(22.dp))
+                    Text(
+                        text = "DATE",
+                        style = TextStyle(
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF002E50),)
+                    )
+                    Spacer(modifier = Modifier.width(20.dp))
+
+                    Text(
+                        text = "POINTS",
+                        style = TextStyle(
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight(700),
+                            color = Color(0xFF002E50),)
+
+                    )
+                }
+            }
+            EventTable(events = misc)
+
         }
     }
 }
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PointsPercentile(modifier: Modifier = Modifier){
+fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String){
         var datas by remember { mutableStateOf(emptyList<ExampleQuery.GetUser>()) }
+
         LaunchedEffect(Unit) {
-            val response = apolloClient.query(ExampleQuery("6130025242d0a000173d47fc")).execute()
+            val response = apolloClient.query(ExampleQuery(id)).execute()
             response.data?.getUser?.let { user ->
                 datas += user
             } ?: run {
@@ -329,6 +670,23 @@ fun PointsPercentile(modifier: Modifier = Modifier){
             }
         }
 
+    var openBottomSheet by remember { mutableStateOf(false)}
+    val semester = getSemester()
+    val percentile: Int
+
+    if(semester == "FALL")
+        percentile = datas.sumOf { it.fallPercentile }
+    else if(semester == "SPRING")
+        percentile = datas.sumOf { it.springPercentile }
+    else
+        percentile = datas.sumOf { it.summerPercentile }
+
+    val animatedDegree by animateFloatAsState(
+        targetValue = percentile.toFloat() / 100,
+        animationSpec = tween(durationMillis = 1500), label = ""
+    )
+
+    val sweepAngle = 360 * animatedDegree
 
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -352,22 +710,22 @@ fun PointsPercentile(modifier: Modifier = Modifier){
                 contentAlignment = Alignment.Center
             ) {
                 Canvas(modifier = Modifier.matchParentSize()) {
-                    val thickness = size.minDimension * 0.28f // Adjust the thickness here
-                    val degree = datas.sumBy { it.fallPercentile }.toFloat() / 100
-                    val sweepAngle = 360 * degree // Assuming 93% for the example
+                    val thickness = size.minDimension * 0.28f
+
                     drawPieChartSegment(startAngle = -90f, sweepAngle = sweepAngle, color = Color(0xFF0A2059), thickness = thickness)
                     drawPieChartSegment(startAngle = -90f + sweepAngle, sweepAngle = 360 - sweepAngle, color = Color(0xFFC5CAE9), thickness = thickness)
                     drawCenterCircle(color = Color.White, thickness = thickness)
                 }
+
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "FALL:",
+                        text = "$semester:",
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
                     Text(
-                        text = "${datas.sumBy { it.fallPercentile }}",
+                        text = getOrdinal(percentile),
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -382,9 +740,9 @@ fun PointsPercentile(modifier: Modifier = Modifier){
                 }
             }
             Spacer(modifier = Modifier.height(52.dp))
-            Button(onClick = {},
+            Button(onClick = {openBottomSheet = true},
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF004C73),
+                    containerColor = Color(0xFF0A2059),
                     contentColor = Color(0xFFFFFFFF)
                 ),
                 shape = RoundedCornerShape(40.dp),
@@ -402,10 +760,27 @@ fun PointsPercentile(modifier: Modifier = Modifier){
                     modifier = Modifier
                 )
             }
+            if(openBottomSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        openBottomSheet = false
+                        pointsPageViewModel.updateGuestsCount(0)
+                        pointsPageViewModel.updateEventCode("")
+                                       },
+                    dragHandle = {
+                        Modifier.background(Color.Blue)
+                    }
+                ) {
+                    RedeemPoints(pointsPageViewModel, "642f7f80e8839f0014e8be9b") {
+                        openBottomSheet = false
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(44.dp))
 
             Text(
-                text = "Total Points: ${datas.sumBy { it.points }}",
+                text = "Total Points: ${datas.sumOf { it.points }}",
                 style = TextStyle(
                     fontSize = 20.sp,
                     color = Color(0xFF004C73),
@@ -424,8 +799,8 @@ fun PointsPercentile(modifier: Modifier = Modifier){
             ) {
                 PercentIndicator(
                     label = "FALL",
-                    percent = "TOP ${datas.sumBy { it.fallPercentile }}%",
-                    number = datas.sumBy { it.fallPoints },
+                    percent = "TOP ${datas.sumOf { it.fallPercentile }}%",
+                    number = datas.sumOf { it.fallPoints },
                     modifier = Modifier.fillMaxWidth(),
                     firstGradient = Color(0xFF0A2059),
                     secondGradient = Color(0xFF2E619E)
@@ -442,8 +817,8 @@ fun PointsPercentile(modifier: Modifier = Modifier){
             ) {
                 PercentIndicator(
                     label = "SPRING",
-                    percent = "TOP ${datas.sumBy { it.springPercentile }}%",
-                    number = datas.sumBy {it.springPoints},
+                    percent = "TOP ${datas.sumOf { it.springPercentile }}%",
+                    number = datas.sumOf {it.springPoints},
                     modifier = Modifier.fillMaxWidth(),
                     firstGradient = Color(0xFF981F14),
                     secondGradient = Color(0xFFDE5026)
@@ -459,8 +834,8 @@ fun PointsPercentile(modifier: Modifier = Modifier){
             ) {
                 PercentIndicator(
                     label = "SUMMER",
-                    percent = "TOP ${datas.sumBy { it.summerPercentile }}%",
-                    number = datas.sumBy {it.summerPoints},
+                    percent = "TOP ${datas.sumOf { it.summerPercentile }}%",
+                    number = datas.sumOf {it.summerPoints},
                     modifier = Modifier.fillMaxWidth(),
                     firstGradient = Color(0xFF0B70BA),
                     secondGradient = Color(0xFF84CBFF)
@@ -471,10 +846,10 @@ fun PointsPercentile(modifier: Modifier = Modifier){
 }
 
 @Composable
-fun BottomBar(modifier: Modifier = Modifier){
-    var calendar = ColorFilter.tint(Color.Black)
-    var leaderboard = ColorFilter.tint(Color.Black)
-    var profile = ColorFilter.tint(Color.Black)
+fun BottomBar(){
+    var calendar by remember { mutableStateOf(ColorFilter.tint(Color.Black)) }
+    var leaderboard by remember { mutableStateOf(ColorFilter.tint(Color.Black)) }
+    var profile by remember { mutableStateOf(ColorFilter.tint(Color.Black)) }
 
     Column(
         modifier = Modifier
@@ -561,25 +936,6 @@ fun BottomBar(modifier: Modifier = Modifier){
         }
     }
 }
-
-fun DrawScope.drawPieChartSegment(startAngle: Float, sweepAngle: Float, color: Color, thickness: Float) {
-    val stroke = Stroke(width = thickness)
-    drawArc(
-        color = color,
-        startAngle = startAngle,
-        sweepAngle = sweepAngle,
-        useCenter = false,
-        style = stroke
-    )
-}
-
-fun DrawScope.drawCenterCircle(color: Color, thickness: Float) {
-    val innerCircleRadius = (size.minDimension / 2f) - (thickness / 2f)
-    drawCircle(
-        color = color,
-        radius = innerCircleRadius
-    )
-}
 @Composable
 fun PercentIndicator(
     label: String,
@@ -613,7 +969,7 @@ fun PercentIndicator(
             ),
             color = Color.White,
             modifier = Modifier
-                .weight(1.4f) // Use weight to allow this to expand
+                .weight(1.4f)
         )
 
         // Divider
@@ -658,79 +1014,165 @@ fun PercentIndicator(
                 color = Color(0xFF004C73),
                 textAlign = TextAlign.Center,
             ),
-            modifier = Modifier.weight(1f) // Use weight to allow this to expand
+            modifier = Modifier.weight(1f)
         )
     }
 }
 
+
+
 @Composable
-fun SampleUsage() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .border(2.dp, Color.Blue, RectangleShape)
-            .background(Color.Blue),
-        contentAlignment = Alignment.Center
-    ) {
-        PercentIndicator(
-            label = "FALL",
-            percent = "TOP",
-            number = 12,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun FullView() {
-    SHPEUFMobileKotlinTheme {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopSection()
-
-            LazyColumn(
-                modifier = Modifier.weight(1f)
-            ) {
-                item {
-                    PointsPercentile()
-                }
-                item {
-                    PointsCalendar()
-                }
-            }
-
-            BottomBar()
+fun EventTable(events: List<Event>) {
+    Column {
+        events.forEachIndexed { index, event ->
+            val backgroundColor = if (index % 2 == 0) Color.White else Color.LightGray
+            EventRow(event, backgroundColor)
         }
     }
 }
-@Preview(showBackground = true)
+
+
 @Composable
-fun TopSectionPreview() {
-    SHPEUFMobileKotlinTheme {
-        TopSection()
+fun EventRow(event: Event , backgroundColor : Color) {
+    Row(
+        modifier = Modifier
+            .width(310.dp)
+//            .height(80.dp)
+            .background(color = backgroundColor)
+            .border(
+                width = 0.36665.dp,
+                color = Color(0xFF011F35),
+            )
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = event.name,
+            style = TextStyle(
+                fontSize = 17.sp,
+                fontWeight = FontWeight(400),
+                color = Color(0xFF002E50),
+
+                ),
+            modifier = Modifier
+                .weight(0.8f)
+                .fillMaxSize()
+                .wrapContentWidth(Alignment.Start)
+//            maxLines = 2,
+//            overflow = TextOverflow.Ellipsis
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = event.createdAt,
+            style = TextStyle(
+                fontSize = 17.sp,
+                fontWeight = FontWeight(400),
+                color = Color(0xFF002E50),
+
+                ),
+            modifier = Modifier
+                .weight(1f)
+                .wrapContentWidth(Alignment.CenterHorizontally),
+            maxLines = 1
+        )
+        Text(
+            text = event.points.toString(),
+            style = TextStyle(
+                fontSize = 17.sp,
+                fontWeight = FontWeight(400),
+                color = Color(0xFF002E50),
+
+                ),
+            modifier = Modifier
+                .weight(0.5f)
+                .wrapContentWidth(Alignment.End),
+            maxLines = 1
+        )
+        Spacer(modifier = Modifier.width(50.dp))
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun RedeemPointsPreview() {
-    SHPEUFMobileKotlinTheme {
-        RedeemPoints()
-    }
+
+
+
+
+fun formatDate(createdAt: String): String {
+    val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
+    val instant = Instant.parse(createdAt)
+    val dateTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC)
+    return dateTime.format(formatter)
 }
-@Preview(showBackground = true)
-@Composable
-fun PointsPercentilPreview() {
-    SHPEUFMobileKotlinTheme {
-        PointsPercentile()
+
+fun getOrdinal(number: Int): String {
+    val suffixes = arrayOf("th", "st", "nd", "rd") + Array(16) { "th" }
+    val centuryRemainder = number % 100
+    val tenRemainder = number % 10
+    return if (centuryRemainder in 11..13) {
+        "${number}th"
+    } else {
+        "${number}${suffixes[tenRemainder]}"
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun BottomBarPreview() {
-    SHPEUFMobileKotlinTheme {
-        BottomBar()
+fun DrawScope.drawPieChartSegment( startAngle: Float, sweepAngle: Float, color: Color, thickness: Float) {
+    val stroke = Stroke(width = thickness)
+    drawArc(
+        color = color,
+        startAngle = startAngle,
+        sweepAngle = sweepAngle,
+        useCenter = false,
+        style = stroke,
+    )
+}
+
+fun DrawScope.drawCenterCircle(color: Color, thickness: Float) {
+    val innerCircleRadius = (size.minDimension / 2f) - (thickness / 2f)
+    drawCircle(
+        color = color,
+        radius = innerCircleRadius,
+    )
+}
+
+fun getSemester(): String {
+    val currentDate = LocalDate.now()
+    val currentMonth = currentDate.month
+
+    return when (currentMonth) {
+        Month.JANUARY, Month.FEBRUARY, Month.MARCH, Month.APRIL -> "SPRING"
+        Month.MAY, Month.JUNE, Month.JULY -> "SUMMER"
+        Month.AUGUST, Month.SEPTEMBER, Month.OCTOBER, Month.NOVEMBER, Month.DECEMBER -> "FALL"
     }
 }
+
+//@Preview(showBackground = true)
+//@Composable
+//fun TopSectionPreview() {
+//    SHPEUFMobileKotlinTheme {
+//        TopSection()
+//    }
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun RedeemPointsPreview() {
+//    SHPEUFMobileKotlinTheme {
+//        RedeemPoints()
+//    }
+//}
+//@Preview(showBackground = true)
+//@Composable
+//fun PointsPercentilPreview() {
+//    SHPEUFMobileKotlinTheme {
+//        PointsPercentile()
+//    }
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun BottomBarPreview() {
+//    SHPEUFMobileKotlinTheme {
+//        BottomBar()
+//    }
+//}
