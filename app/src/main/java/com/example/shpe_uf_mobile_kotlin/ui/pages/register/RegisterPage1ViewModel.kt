@@ -1,5 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.register
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import apolloClient
@@ -16,7 +17,13 @@ class RegisterPage1ViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(RegisterPage1State())
     val uiState: StateFlow<RegisterPage1State> = _uiState.asStateFlow()
 
+
+//    fun validateEmailField(){
+//        val emailFieldState = _uiState.value
+//    }
+
     //Function to validate and register the user
+
     fun validateAndRegisterUser() {
 
         val currentState = _uiState.value
@@ -103,9 +110,12 @@ class RegisterPage1ViewModel: ViewModel() {
                     year = currentState.year,
                     graduating = currentState.graduationYear,
                     listServ = "false")
+                Log.d("Hello", "yOu are in the validate and function")
 
 
                 performRegister(Optional.presentIfNotNull(registerInput))
+
+                Log.d("Hello", "yOu completed the performRegister()")
 
 
 
@@ -142,10 +152,10 @@ class RegisterPage1ViewModel: ViewModel() {
 
         if (!response.hasErrors()) {
             val id = response.data?.register?.id
-            println("GraphQL: $id")
+            Log.d("GraphQL:", " $id")
             return true
         } else { // Else, the user provided incorrect credentials.
-            println("GraphQL: Could not login.")
+            Log.d("GraphQL:", "Could not login.")
             return false
         }
     }

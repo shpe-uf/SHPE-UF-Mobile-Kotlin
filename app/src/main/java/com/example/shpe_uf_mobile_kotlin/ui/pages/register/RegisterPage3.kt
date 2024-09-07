@@ -42,13 +42,13 @@ import com.example.shpe_uf_mobile_kotlin.R
 
 
 
-@Preview
+//@Preview
 @Composable
-fun RegistrationPage3Preview(){
+fun RegistrationPage3Preview(registerPage1ViewModel: RegisterPage1ViewModel){
 
-    val viewModel = RegisterPage1ViewModel()
+//    val viewModel = RegisterPage1ViewModel()
 
-    RegistrationPage3(registerPage1ViewModel = viewModel)
+    RegistrationPage3(registerPage1ViewModel = registerPage1ViewModel)
 
 }
 
@@ -220,9 +220,8 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel){
             Spacer(modifier = Modifier.height(207.dp))
 
             CompleteRegistrationButton(
-//            onClick = { // TODO call GraplQL mutation so that regisstration detailes are pushed to the database
-                onClick = { registerPage1ViewModel.validateAndRegisterUser()
-                })
+                onClick = { registerPage1ViewModel.validateAndRegisterUser() }
+            )
 
         }
 

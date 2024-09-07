@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterRoutes
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1Preview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2Preview
@@ -34,15 +35,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            NavHost(navController = navController, startDestination = "register_Page1", builder = {
-                composable("register_Page1"){
-                    RegistrationPage1Preview(navController)
+            val registerPageViewModel = RegisterPage1ViewModel()
+            NavHost(navController = navController, startDestination = RegisterRoutes.registerPage1, builder = {
+                composable(RegisterRoutes.registerPage1){
+                    RegistrationPage1Preview(navController, registerPageViewModel)
                 }
-                composable("register_Page2"){
-                    RegistrationPage2Preview(navController)
+                composable(RegisterRoutes.registerPage2){
+                    RegistrationPage2Preview(navController, registerPageViewModel)
                 }
-                composable("register_Page3"){
-                    RegistrationPage3Preview()
+                composable(RegisterRoutes.registerPage3){
+                    RegistrationPage3Preview(registerPageViewModel)
                 }
             })
 
