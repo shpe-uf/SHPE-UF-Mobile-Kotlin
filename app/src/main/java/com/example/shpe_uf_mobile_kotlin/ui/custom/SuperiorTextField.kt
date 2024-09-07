@@ -39,55 +39,22 @@ import androidx.compose.ui.unit.sp
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 
-@Composable
-fun TextFields() {
-    Column(
-        modifier = Modifier
-            .background(OrangeSHPE)
-            .fillMaxSize()
-            .padding(top = 250.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        UsernameTextField()
-        PasswordTextField()
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun UsernameTextField() {
-
-    SuperiorTextField(
-        label = "Username",
-        labelModifier = Modifier.padding(horizontal = 11.dp, vertical = 6.53.dp),
-        value = "",
-        leadingIcon = R.drawable.profile_circle,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PasswordTextField() {
-
-    var isPasswordVisible by remember { mutableStateOf(false) }
-    val image = if(isPasswordVisible)
-        R.drawable.state_selected
-    else
-        R.drawable.state_default
-
-    SuperiorTextField(
-        label = "Password",
-        labelModifier = Modifier.padding(horizontal = 9.22.dp, vertical = 5.53.dp),
-        value = "",
-        leadingIcon = R.drawable.lock_3,
-        trailingIcon = image,
-        trailingIconOnClick = {isPasswordVisible = !isPasswordVisible},
-        visualTransformation = {if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation() },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-    )
-
-}
+/**
+ * @author Andrei Ursu & google.com
+ * @date September 6, 2024
+ *
+ * A custom text field with optional leading and trailing icons, label, and visual transformation.
+ *
+ * @param label The text displayed above the input field.
+ * @param labelModifier Modifier for styling the label text.
+ * @param value The current value of the text field.
+ * @param onValueChange Callback invoked when the text field value changes.
+ * @param leadingIcon Resource ID of the leading icon (optional).
+ * @param trailingIcon Resource ID of the trailing icon (optional).
+ * @param visualTransformation Optional transformation applied to the displayed text.
+ * @param trailingIconOnClick Callback invoked when the trailing icon is clicked (optional).
+ * @param keyboardOptions Options that control the keyboard behavior.
+ */
 
 @Composable
 fun SuperiorTextField(
@@ -178,4 +145,54 @@ fun SuperiorTextField(
 
 
 }
+
+//@Composable
+//fun TextFields() {
+//    Column(
+//        modifier = Modifier
+//            .background(OrangeSHPE)
+//            .fillMaxSize()
+//            .padding(top = 250.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        UsernameTextField()
+//        PasswordTextField()
+//    }
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun UsernameTextField() {
+//
+//    SuperiorTextField(
+//        label = "Username",
+//        labelModifier = Modifier.padding(horizontal = 11.dp, vertical = 6.53.dp),
+//        value = "",
+//        leadingIcon = R.drawable.profile_circle,
+//        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+//    )
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun PasswordTextField() {
+//
+//    var isPasswordVisible by remember { mutableStateOf(false) }
+//    val image = if(isPasswordVisible)
+//        R.drawable.state_selected
+//    else
+//        R.drawable.state_default
+//
+//    SuperiorTextField(
+//        label = "Password",
+//        labelModifier = Modifier.padding(horizontal = 9.22.dp, vertical = 5.53.dp),
+//        value = "",
+//        leadingIcon = R.drawable.lock_3,
+//        trailingIcon = image,
+//        trailingIconOnClick = {isPasswordVisible = !isPasswordVisible},
+//        visualTransformation = {if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation() },
+//        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+//    )
+//
+//}
 

@@ -31,17 +31,15 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SignIn()
-                    //TextFields()
-//                    val navController = rememberNavController()
-//                    NavHost(navController = navController, startDestination = Routes.loading, builder= {
-//                        composable(Routes.loading, ){
-//                            LoadingScreen(navController)
-//                        }
-//                        composable(Routes.login, ){
-//                            SignIn()
-//                        }
-//                    })
+                    val navController = rememberNavController()
+                    NavHost(navController = navController, startDestination = Routes.loading, builder= {
+                        composable(Routes.loading, ){
+                            LoadingScreen(navController)
+                        }
+                        composable(Routes.login, ){
+                            SignIn()
+                        }
+                    })
                 }
             }
         }
