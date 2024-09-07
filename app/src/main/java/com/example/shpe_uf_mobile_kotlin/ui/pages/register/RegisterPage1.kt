@@ -282,8 +282,18 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
             CreateAccountButton(
 
-                onClick = { navController.navigate(RegisterRoutes.registerPage2) }
-//            onClick = { registerPage1ViewModel.validateAndRegisterUser() }
+                onClick = {
+                    if (registerPage1ViewModel.validateRegisterPage1Fields() == true) {
+                    navController.navigate(RegisterRoutes.registerPage2)
+                }
+                    else {
+                    // Do nothing don't go to next page
+                    }
+                }
+
+
+//                onClick = {navController.navigate(RegisterRoutes.registerPage2)}
+//                onClick = { registerPage1ViewModel.validateAndRegisterUser() }
             )
 
             // BELOW CREATES TEXT AND SIGN IN LINK TO NAVIGATE TO LOGIN PAGE
@@ -665,7 +675,7 @@ private fun RegisterConfirmPassword(
 
     TextField(
         modifier = Modifier
-            .height(50.dp)
+//            .height(50.dp)
             .fillMaxWidth(0.7f),
         value = value,
         onValueChange = { onValueChange(it) },

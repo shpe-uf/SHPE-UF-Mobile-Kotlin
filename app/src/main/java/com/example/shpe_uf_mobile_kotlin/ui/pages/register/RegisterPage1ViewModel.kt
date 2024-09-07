@@ -42,6 +42,52 @@ class RegisterPage1ViewModel: ViewModel() {
         _uiState.value = passwordFieldState.copy(passwordErrorMessage = isValidPassword)
     }
 
+    fun validateConfirmPasswordField(){
+        val passwordFieldState = _uiState.value
+
+        val confirmPasswordFieldState = _uiState.value
+
+        val isValidConfirmPassword = validateConfirmPassword(passwordFieldState.password ?: "",confirmPasswordFieldState.confirmPassword ?: "")
+
+        _uiState.value = confirmPasswordFieldState.copy(confirmPasswordErrorMessage = isValidConfirmPassword)
+
+    }
+
+    fun validateRegisterPage1Fields(): Boolean {
+
+        val emailFieldState = _uiState.value
+
+        val usernameFieldState = _uiState.value
+
+        val passwordFieldState = _uiState.value
+
+        val confirmPasswordFieldState = _uiState.value
+
+        validateEmailField()
+        validateUsernameField()
+        validatePasswordField()
+        validateConfirmPasswordField()
+
+        Log.d("validate Page 1", "You hit the end of the validatePage1Fields function")
+
+        if (validateEmail(emailFieldState.email ?: "") == null &&
+            validateUsername(usernameFieldState.username ?: "") == null &&
+            validatePassword(passwordFieldState.password ?: "") == null &&
+            validateConfirmPassword(passwordFieldState.password ?: "",confirmPasswordFieldState.confirmPassword ?: "") == null
+            ){
+            return true
+        }
+        else return false
+
+
+    }
+
+
+
+
+
+
+
 
 
     //Function to validate and register the user
@@ -289,6 +335,7 @@ class RegisterPage1ViewModel: ViewModel() {
 
     fun onConfirmPasswordChanged(confirmPassword: String) {
         _uiState.value = _uiState.value.copy(confirmPassword = confirmPassword)
+        validateConfirmPasswordField()
     }
 
     fun togglePasswordVisibility() {
