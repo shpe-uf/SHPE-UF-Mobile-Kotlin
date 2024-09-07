@@ -67,6 +67,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
+import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.LoadingScreen
+import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
 import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPageViewModel
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -92,6 +98,15 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val pointsPageViewModel = PointsPageViewModel()
                     FullView(pointsPageViewModel = pointsPageViewModel)
+//                    val navController = rememberNavController()
+//                    NavHost(navController = navController, startDestination = Routes.loading, builder= {
+////                        composable(Routes.loading, ){
+////                            LoadingScreen(navController)
+////                        }
+//                        composable(Routes.login, ){
+//                            SignIn()
+//                        }
+//                    })
                 }
             }
         }

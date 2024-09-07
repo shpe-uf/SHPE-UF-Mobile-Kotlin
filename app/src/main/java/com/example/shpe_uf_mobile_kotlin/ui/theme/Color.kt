@@ -10,6 +10,23 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-val WHITE = Color(0xFFFFFFFF)
-val LIGHT_GRAY = Color(0xB0B0B0)
-val GREY = Color(0xFFB0B0B0)
+val OrangeSHPE = Color(0xFFD25917)
+val WhiteSHPE = Color(0xFFEDEDED)
+
+val dark_bg = Color(0xFF011F35)
+val light_bg = Color(0xFFEDEDED)
+
+sealed class ThemeColors(
+    val background: Color,
+    val text: Color,
+) {
+    object Night : ThemeColors(
+        background = dark_bg,
+        text = Color.White
+    )
+
+    object Day : ThemeColors(
+        background = light_bg,
+        text = Color.Black
+    )
+}
