@@ -116,6 +116,15 @@ class RegisterPage1ViewModel: ViewModel() {
 
     }
 
+    fun validateCountryOriginDropdownField(){
+        val countryOriginDropdownFieldState = _uiState.value
+
+        val possibleCountryOriginError = validateCountryOrigin(countryOriginDropdownFieldState.countryOrigin ?: "")
+
+        _uiState.value = countryOriginDropdownFieldState.copy(countryOriginErrorMessage = possibleCountryOriginError)
+
+    }
+
 
     fun validateRegisterPage2Fields(): Boolean {
         val firstNameFieldState = _uiState.value
@@ -126,10 +135,13 @@ class RegisterPage1ViewModel: ViewModel() {
 
         val ethnicityDropdownFieldState = _uiState.value
 
+        val countryOriginDropdownFieldState = _uiState.value
+
         validateFirstNameField()
         validateLastNameField()
         validateGenderDropdownField()
         validateEthnicityDropdownField()
+        validateCountryOriginDropdownField()
 
 
         Log.d("validate Page 2", "You hit the end of the validatePage2Fields function")
@@ -139,8 +151,8 @@ class RegisterPage1ViewModel: ViewModel() {
         if (validateFirstName(firstNameFieldState.firstName ?: "") == null &&
             validateLastName(lastNameFieldState.lastName ?: "") == null &&
             validateGender(genderDropdownFieldState.gender ?: "") == null &&
-            validateEthnicity(ethnicityDropdownFieldState.ethnicity ?: "") == null
-
+            validateEthnicity(ethnicityDropdownFieldState.ethnicity ?: "") == null &&
+            validateCountryOrigin(countryOriginDropdownFieldState.countryOrigin ?: "") == null
 
         ){
             return true
@@ -443,6 +455,7 @@ class RegisterPage1ViewModel: ViewModel() {
 
     fun onCountryOriginChanged(countryOrigin: String){
         _uiState.value = _uiState.value.copy(countryOrigin = countryOrigin)
+        validateCountryOriginDropdownField()
     }
 
     fun toggleCountryOriginMenuExpansion(){
