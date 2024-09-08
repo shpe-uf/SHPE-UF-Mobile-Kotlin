@@ -169,18 +169,31 @@ class RegisterPage1ViewModel: ViewModel() {
 
     }
 
+    fun validateYearDropdownField(){
+        val yearDropdownFieldState = _uiState.value
+
+        val possibleYearError = validateYear(yearDropdownFieldState.year ?: "")
+
+        _uiState.value = yearDropdownFieldState.copy(yearErrorMessage = possibleYearError)
+
+    }
+
 
 
 
     fun validateRegisterPage3Fields(): Boolean {
         val majorDropdownFieldState = _uiState.value
 
+        val yearDropdownFieldState = _uiState.value
+
         validateMajorDropdownField()
+        validateYearDropdownField()
 
 
         Log.d("validate Page 3", "You hit the end of the validatePage3Fields function")
 
-        if (validateMajor(majorDropdownFieldState.major ?: "") == null
+        if (validateMajor(majorDropdownFieldState.major ?: "") == null &&
+            validateYear(yearDropdownFieldState.year ?: "") == null
 
         ){
             return true
@@ -505,6 +518,7 @@ class RegisterPage1ViewModel: ViewModel() {
 
     fun onYearChanged(year: String){
         _uiState.value = _uiState.value.copy(year = year)
+        validateYearDropdownField()
     }
 
     fun toggleYearMenuExpansion(){
