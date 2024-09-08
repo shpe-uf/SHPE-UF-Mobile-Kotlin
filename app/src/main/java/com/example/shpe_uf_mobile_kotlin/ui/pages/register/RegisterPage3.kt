@@ -189,7 +189,7 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel){
 
             YearDropDownMenu(
                 value = uiState.year ?: "",
-                isError = uiState.year != null,
+                isError = uiState.yearErrorMessage != null,
                 errorMessage = uiState.yearErrorMessage ?: "",
                 isYearMenuExpanded = uiState.isYearMenuExpanded,
                 onExpandedChange = {registerPage1ViewModel.toggleYearMenuExpansion()},
@@ -453,6 +453,7 @@ private fun YearDropDownMenu(
         TextField(
             value = value,
             onValueChange = {},
+            isError = isError,
             readOnly = true,
             leadingIcon = {
                 Image(
@@ -463,12 +464,23 @@ private fun YearDropDownMenu(
             },
             shape = RoundedCornerShape(10.dp),
 
+            supportingText = {
+
+                if (isError) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isYearMenuExpanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
-                .height(50.dp)
+//                .height(50.dp)
                 .fillMaxWidth(0.7f)
                 .menuAnchor()
         )
