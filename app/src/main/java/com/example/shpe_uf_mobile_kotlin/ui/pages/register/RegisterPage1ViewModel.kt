@@ -107,6 +107,15 @@ class RegisterPage1ViewModel: ViewModel() {
 
     }
 
+    fun validateEthnicityDropdownField(){
+        val ethnicityDropdownFieldState = _uiState.value
+
+        val possibleEthnicityError = validateEthnicity(ethnicityDropdownFieldState.ethnicity ?: "")
+
+        _uiState.value = ethnicityDropdownFieldState.copy(ethnicityErrorMessage = possibleEthnicityError)
+
+    }
+
 
     fun validateRegisterPage2Fields(): Boolean {
         val firstNameFieldState = _uiState.value
@@ -115,9 +124,12 @@ class RegisterPage1ViewModel: ViewModel() {
 
         val genderDropdownFieldState = _uiState.value
 
+        val ethnicityDropdownFieldState = _uiState.value
+
         validateFirstNameField()
         validateLastNameField()
         validateGenderDropdownField()
+        validateEthnicityDropdownField()
 
 
         Log.d("validate Page 2", "You hit the end of the validatePage2Fields function")
@@ -126,7 +138,8 @@ class RegisterPage1ViewModel: ViewModel() {
 
         if (validateFirstName(firstNameFieldState.firstName ?: "") == null &&
             validateLastName(lastNameFieldState.lastName ?: "") == null &&
-            validateGender(genderDropdownFieldState.gender ?: "") == null
+            validateGender(genderDropdownFieldState.gender ?: "") == null &&
+            validateEthnicity(ethnicityDropdownFieldState.ethnicity ?: "") == null
 
 
         ){
@@ -419,6 +432,7 @@ class RegisterPage1ViewModel: ViewModel() {
 
     fun onEthnicityChanged(ethnicity: String){
         _uiState.value = _uiState.value.copy(ethnicity = ethnicity)
+        validateEthnicityDropdownField()
     }
 
     fun toggleEthnicityMenuExpansion(){
