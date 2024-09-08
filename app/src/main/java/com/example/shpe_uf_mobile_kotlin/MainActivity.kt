@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.SHPEUFNavController
 import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.LoadingScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
@@ -30,21 +31,23 @@ class MainActivity : ComponentActivity() {
                 ) {
 //                    val pointsPageViewModel = PointsPageViewModel()
 //                    FullView(pointsPageViewModel = pointsPageViewModel)
-                    val navController = rememberNavController()
-                    NavHost(
-                        navController = navController,
-                        startDestination = Routes.opening,
-                        builder = {
-                            composable(Routes.loading) {
-                                LoadingScreen(navController)
-                            }
-                            composable(Routes.login) {
-                                SignIn()
-                            }
-                            composable(Routes.opening){
-                                OpeningPage(navController)
-                            }
-                        })
+//                    val navController = rememberNavController()
+//                    NavHost(
+//                        navController = navController,
+//                        startDestination = Routes.opening,
+//                        builder = {
+//                            composable(Routes.loading) {
+//                                LoadingScreen(navController)
+//                            }
+//                            composable(Routes.login) {
+//                                SignIn()
+//                            }
+//                            composable(Routes.opening){
+//                                OpeningPage(navController)
+//                            }
+//                        })
+                    val navController = SHPEUFNavController()
+                    navController.Navigation()
                 }
             }
         }
