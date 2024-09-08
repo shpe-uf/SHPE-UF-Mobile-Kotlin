@@ -160,6 +160,34 @@ class RegisterPage1ViewModel: ViewModel() {
         else return false
     }
 
+    fun validateMajorDropdownField(){
+        val majorDropdownFieldState = _uiState.value
+
+        val possibleMajorError = validateMajor(majorDropdownFieldState.major ?: "")
+
+        _uiState.value = majorDropdownFieldState.copy(majorErrorMessage = possibleMajorError)
+
+    }
+
+
+
+
+    fun validateRegisterPage3Fields(): Boolean {
+        val majorDropdownFieldState = _uiState.value
+
+        validateMajorDropdownField()
+
+
+        Log.d("validate Page 3", "You hit the end of the validatePage3Fields function")
+
+        if (validateMajor(majorDropdownFieldState.major ?: "") == null
+
+        ){
+            return true
+        }
+        else return false
+    }
+
 
 
 
@@ -466,6 +494,7 @@ class RegisterPage1ViewModel: ViewModel() {
 
     fun onMajorChanged(major: String){
         _uiState.value = _uiState.value.copy(major = major)
+        validateMajorDropdownField()
     }
 
     fun toggleMajorMenuExpansion(){
