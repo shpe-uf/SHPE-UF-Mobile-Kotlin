@@ -21,25 +21,25 @@ class RegisterPage1ViewModel: ViewModel() {
     fun validateEmailField(){
         val emailFieldState = _uiState.value
 
-        val isValidEmail = validateEmail(emailFieldState.email ?: "")
+        val possibleEmailError = validateEmail(emailFieldState.email ?: "")
 
-        _uiState.value = emailFieldState.copy(emailErrorMessage = isValidEmail)
+        _uiState.value = emailFieldState.copy(emailErrorMessage = possibleEmailError)
     }
 
     fun validateUsernameField(){
         val usernameFieldState = _uiState.value
 
-        val isValidUsername = validateUsername(usernameFieldState.username ?: "")
+        val possibleUsernameError = validateUsername(usernameFieldState.username ?: "")
 
-        _uiState.value = usernameFieldState.copy(usernameErrorMessage = isValidUsername)
+        _uiState.value = usernameFieldState.copy(usernameErrorMessage = possibleUsernameError)
     }
 
     fun validatePasswordField(){
         val passwordFieldState = _uiState.value
 
-        val isValidPassword = validatePassword(passwordFieldState.password ?: "")
+        val possiblePasswordError = validatePassword(passwordFieldState.password ?: "")
 
-        _uiState.value = passwordFieldState.copy(passwordErrorMessage = isValidPassword)
+        _uiState.value = passwordFieldState.copy(passwordErrorMessage = possiblePasswordError)
     }
 
     fun validateConfirmPasswordField(){
@@ -47,9 +47,9 @@ class RegisterPage1ViewModel: ViewModel() {
 
         val confirmPasswordFieldState = _uiState.value
 
-        val isValidConfirmPassword = validateConfirmPassword(passwordFieldState.password ?: "",confirmPasswordFieldState.confirmPassword ?: "")
+        val possibleConfirmPasswordError = validateConfirmPassword(passwordFieldState.password ?: "",confirmPasswordFieldState.confirmPassword ?: "")
 
-        _uiState.value = confirmPasswordFieldState.copy(confirmPasswordErrorMessage = isValidConfirmPassword)
+        _uiState.value = confirmPasswordFieldState.copy(confirmPasswordErrorMessage = possibleConfirmPasswordError)
 
     }
 
@@ -78,9 +78,28 @@ class RegisterPage1ViewModel: ViewModel() {
             return true
         }
         else return false
+    }
 
+    fun validateFirstNameField(){
+        val firstNameFieldState = _uiState.value
+
+        val possibleFirstNameError = validateFirstName(firstNameFieldState.firstName ?: "")
+
+        _uiState.value = firstNameFieldState.copy(firstNameErrorMessage = possibleFirstNameError)
 
     }
+
+    fun validateLastNameField(){
+        val lastNameFieldState = _uiState.value
+
+        val possibleLastNameError = validateLastName(lastNameFieldState.lastName ?: "")
+
+        _uiState.value = lastNameFieldState.copy(lastNameErrorMessage = possibleLastNameError)
+
+    }
+
+
+
 
 
 
@@ -317,10 +336,12 @@ class RegisterPage1ViewModel: ViewModel() {
 
     fun onFirstNameChanged(firstName: String) {
         _uiState.value = _uiState.value.copy(firstName = firstName)
+        validateFirstNameField()
     }
 
     fun onLastNameChanged(lastName: String) {
         _uiState.value = _uiState.value.copy(lastName = lastName)
+        validateLastNameField()
     }
 
     fun onEmailChanged(email: String) {

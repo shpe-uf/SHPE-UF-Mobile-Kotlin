@@ -406,7 +406,7 @@ private fun RegisterFirstName(
 
 
     TextField(modifier = Modifier
-        .height(50.dp)
+//        .height(50.dp)
         .fillMaxWidth(0.7f),
         value = value,
         onValueChange = {onValueChange(it)},
@@ -452,7 +452,7 @@ private fun RegisterLastName(
 ) {
     TextField(
         modifier = Modifier
-            .height(50.dp)
+//            .height(50.dp)
             .fillMaxWidth(0.7f),
         value = value,
         onValueChange = {onValueChange(it)},
