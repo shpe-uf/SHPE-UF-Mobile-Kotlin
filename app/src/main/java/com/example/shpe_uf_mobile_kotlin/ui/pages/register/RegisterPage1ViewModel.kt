@@ -299,29 +299,29 @@ class RegisterPage1ViewModel: ViewModel() {
     }
 
 
-    // TODO: IMPLEMENT VALIDATE FUNCTIONS for remaining "special" fields needed in sign up
+
     private fun validateGender(gender: String): String? {
-        return null
+        return if (gender.isBlank()) "Gender is required." else null
     }
 
     private fun validateEthnicity(ethnicity: String): String? {
-        return null
+        return if (ethnicity.isBlank()) "Ethnicity is required." else null
     }
 
     private fun validateCountryOrigin(countryOrigin: String): String? {
-        return null
+        return if (countryOrigin.isBlank()) "Country of origin is required." else null
     }
 
     private fun validateMajor(major: String): String? {
-        return null
+        return if (major.isBlank()) "Major is required." else null
     }
 
     private fun validateYear(year: String): String? {
-        return null
+        return if (year.isBlank()) "Year is required." else null
     }
 
     private fun validateGraduationYear(graduationYear: String): String? {
-        return null
+        return if (graduationYear.isBlank()) "Graduation year is required." else null
     }
 
 
