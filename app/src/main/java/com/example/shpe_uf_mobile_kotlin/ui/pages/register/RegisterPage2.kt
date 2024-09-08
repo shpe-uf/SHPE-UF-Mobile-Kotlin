@@ -158,7 +158,9 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 }
             }
 
-            Spacer(modifier = Modifier.height(64.dp))
+            Spacer(modifier = Modifier.height(54.dp))
+            // Ideal OG Figma padding made it less so that the bottom continue button would be visible.
+//            Spacer(modifier = Modifier.height(64.dp))
 
 
             Text(
@@ -728,6 +730,7 @@ private fun CountryOriginDropDownMenu(
         TextField(
             value = value,
             onValueChange = {},
+            isError = isError,
             readOnly = true,
             leadingIcon = {
                 Image(
@@ -738,12 +741,23 @@ private fun CountryOriginDropDownMenu(
             },
             shape = RoundedCornerShape(10.dp),
 
+            supportingText = {
+
+                if (isError) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isCountryOriginMenuExpanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
-                .height(50.dp)
+//                .height(50.dp)
                 .fillMaxWidth(0.7f)
                 .menuAnchor()
         )
