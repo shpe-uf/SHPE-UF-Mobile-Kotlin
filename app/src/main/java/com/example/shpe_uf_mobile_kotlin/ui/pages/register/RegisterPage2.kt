@@ -239,7 +239,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
             EthnicityDropDownMenu(
                 value = uiState.ethnicity ?: "",
-                isError = uiState.ethnicity != null,
+                isError = uiState.ethnicityErrorMessage != null,
                 errorMessage = uiState.ethnicityErrorMessage ?: "",
                 isEthnicityMenuExpanded = uiState.isEthnicityMenuExpanded,
                 onExpandedChange = {registerPage1ViewModel.toggleEthnicityMenuExpansion()},
@@ -262,7 +262,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
             CountryOriginDropDownMenu(
                 value = uiState.countryOrigin ?: "",
-                isError = uiState.countryOrigin != null,
+                isError = uiState.countryOriginErrorMessage != null,
                 errorMessage = uiState.countryOriginErrorMessage ?: "",
                 isCountryOriginMenuExpanded = uiState.isCountryOriginMenuExpanded,
                 onExpandedChange = {registerPage1ViewModel.toggleCountryOriginMenuExpansion()},
@@ -599,6 +599,7 @@ private fun EthnicityDropDownMenu(
         TextField(
             value = value,
             onValueChange = {},
+            isError = isError,
             readOnly = true,
             leadingIcon = {
                 Image(
@@ -609,12 +610,23 @@ private fun EthnicityDropDownMenu(
             },
             shape = RoundedCornerShape(10.dp),
 
+            supportingText = {
+
+                if (isError) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isEthnicityMenuExpanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
-                .height(50.dp)
+//                .height(50.dp)
                 .fillMaxWidth(0.7f)
                 .menuAnchor()
         )
