@@ -195,7 +195,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
             RegisterLastName(
                 value = uiState.lastName ?: "",
-                isError = uiState.lastName != null,
+                isError = uiState.lastNameErrorMessage != null,
                 errorMessage = uiState.lastNameErrorMessage ?: "",
                 onValueChange = { registerPage1ViewModel.onLastNameChanged(it) }
             )
@@ -216,7 +216,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
             GenderDropDownMenu(
                 value = uiState.gender ?: "",
-                isError = uiState.gender != null,
+                isError = uiState.genderErrorMessage != null,
                 errorMessage = uiState.genderErrorMessage ?: "",
                 isGenderMenuExpanded = uiState.isGenderMenuExpanded,
                 onExpandedChange = {registerPage1ViewModel.toggleGenderMenuExpansion()},
@@ -276,7 +276,19 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             ContinueButton(
 //            onClick = { // TODO Navigate to final registration page
                 // This on click should be used for very final view when slicking complete registration button
-                onClick = { navController.navigate(RegisterRoutes.registerPage3) }
+
+                onClick = {
+                    if (registerPage1ViewModel.validateRegisterPage2Fields() == true) {
+                        navController.navigate(RegisterRoutes.registerPage3)
+                    }
+                    else {
+                        // Do nothing don't go to next page
+                    }
+                }
+
+
+
+//                onClick = { navController.navigate(RegisterRoutes.registerPage3) }
 //                onClick = { registerPage1ViewModel.validateAndRegisterUser() }
             )
         }
@@ -470,6 +482,7 @@ private fun RegisterLastName(
             keyboardType = KeyboardType.Text
         ),
         supportingText = {
+
             if (isError) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -503,6 +516,7 @@ private fun GenderDropDownMenu(
         TextField(
             value = value,
             onValueChange = {},
+            isError = isError,
             readOnly = true,
             leadingIcon = {
                 Image(
@@ -512,13 +526,23 @@ private fun GenderDropDownMenu(
                 )
             },
             shape = RoundedCornerShape(10.dp),
+            supportingText = {
+
+                if (isError) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
 
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isGenderMenuExpanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
-                .height(50.dp)
+//                .height(50.dp)
                 .fillMaxWidth(0.7f)
                 .menuAnchor()
         )
