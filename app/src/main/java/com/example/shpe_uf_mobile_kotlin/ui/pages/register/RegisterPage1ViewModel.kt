@@ -98,6 +98,43 @@ class RegisterPage1ViewModel: ViewModel() {
 
     }
 
+    fun validateGenderDropdownField(){
+        val genderDropdownFieldState = _uiState.value
+
+        val possibleGenderError = validateGender(genderDropdownFieldState.gender ?: "")
+
+        _uiState.value = genderDropdownFieldState.copy(genderErrorMessage = possibleGenderError)
+
+    }
+
+
+    fun validateRegisterPage2Fields(): Boolean {
+        val firstNameFieldState = _uiState.value
+
+        val lastNameFieldState = _uiState.value
+
+        val genderDropdownFieldState = _uiState.value
+
+        validateFirstNameField()
+        validateLastNameField()
+        validateGenderDropdownField()
+
+
+        Log.d("validate Page 2", "You hit the end of the validatePage2Fields function")
+
+        Log.d("validate Page 2 Last name", "$")
+
+        if (validateFirstName(firstNameFieldState.firstName ?: "") == null &&
+            validateLastName(lastNameFieldState.lastName ?: "") == null &&
+            validateGender(genderDropdownFieldState.gender ?: "") == null
+
+
+        ){
+            return true
+        }
+        else return false
+    }
+
 
 
 
@@ -371,6 +408,7 @@ class RegisterPage1ViewModel: ViewModel() {
     // New adddtion by me
     fun onGenderChanged(gender: String){
         _uiState.value = _uiState.value.copy(gender = gender)
+        validateGenderDropdownField()
     }
 
     fun toggleGenderMenuExpansion(){
