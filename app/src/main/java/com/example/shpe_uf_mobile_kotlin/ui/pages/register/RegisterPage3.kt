@@ -1,5 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.register
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -164,7 +166,7 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel){
 
             MajorDropDownMenu(
                 value = uiState.major ?: "",
-                isError = uiState.major != null,
+                isError = uiState.majorErrorMessage != null,
                 errorMessage = uiState.majorErrorMessage ?: "",
                 isMajorMenuExpanded = uiState.isMajorMenuExpanded,
                 onExpandedChange = {registerPage1ViewModel.toggleMajorMenuExpansion()},
@@ -220,7 +222,19 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel){
             Spacer(modifier = Modifier.height(207.dp))
 
             CompleteRegistrationButton(
-                onClick = { registerPage1ViewModel.validateAndRegisterUser() }
+                onClick = {
+                    if (registerPage1ViewModel.validateRegisterPage3Fields() == true) {
+                        registerPage1ViewModel.validateAndRegisterUser()
+                    }
+                    else {
+                        Log.d("Error", "The input validation for the page works, only Major for now")
+                        // Do nothing don't go to next page
+                    }
+                }
+
+
+
+//                onClick = { registerPage1ViewModel.validateAndRegisterUser() }
             )
 
         }
@@ -346,6 +360,7 @@ private fun MajorDropDownMenu(
         TextField(
             value = value,
             onValueChange = {},
+            isError = isError,
             readOnly = true,
             leadingIcon = {
                 Image(
@@ -356,12 +371,23 @@ private fun MajorDropDownMenu(
             },
             shape = RoundedCornerShape(10.dp),
 
+            supportingText = {
+
+                if (isError) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isMajorMenuExpanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
-                .height(50.dp)
+//                .height(50.dp)
                 .fillMaxWidth(0.7f)
                 .menuAnchor()
         )
