@@ -1,5 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.points
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,10 +11,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.apollographql.apollo3.api.Optional
 import apolloClient
+import com.example.shpe_uf_mobile_kotlin.data.SHPE_DataStore
 import kotlinx.coroutines.launch
 
 
-class PointsPageViewModel : ViewModel() {
+class PointsPageViewModel() : ViewModel() {
     // Initial state
     private val _uiState = MutableStateFlow(PointsPageState())
     val uiState: StateFlow<PointsPageState> = _uiState.asStateFlow()

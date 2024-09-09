@@ -52,6 +52,8 @@ android {
 }
 
 dependencies {
+    implementation("androidx.datastore:datastore-core-android:1.1.1")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.5")
     val nav_version = "2.8.0"
     implementation("androidx.navigation:navigation-compose:$nav_version")
 
@@ -81,6 +83,8 @@ dependencies {
     implementation("androidx.compose.ui:ui:$version")
 
     implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.4")
+
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }
 
 apollo {

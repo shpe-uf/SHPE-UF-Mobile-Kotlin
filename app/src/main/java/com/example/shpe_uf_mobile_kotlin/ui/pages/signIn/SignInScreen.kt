@@ -31,23 +31,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.data.SHPE_DataStore
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
-@Preview
 @Composable
-fun SignIn() {
+fun SignIn(navController: NavController, dataStoreManager: SHPE_DataStore) {
     SignInBackground()
-    SignInScreen()
+    SignInScreen(navController, dataStoreManager)
 }
 
 @Composable
@@ -77,7 +79,7 @@ fun SignInBackground() {
 }
 
 @Composable
-fun SignInScreen() {
+fun SignInScreen(navController: NavController, dataStoreManager: SHPE_DataStore) {
 
     val signInViewModel = remember { SignInViewModel() }
     val uiState by signInViewModel.uiState.collectAsState()
@@ -114,7 +116,7 @@ fun SignInScreen() {
                 text = "SIGN IN",
                 style = TextStyle(
                     fontSize = 50.sp,
-                    //fontFamily = FontFamily(Font(R.font.viga)),
+                    fontFamily = FontFamily(Font(R.font.viga)),
                     fontWeight = FontWeight(400),
                     color = Color(0xFFD25917)
                 )
@@ -140,7 +142,7 @@ fun SignInScreen() {
             //Spacer(modifier = Modifier.height(85.dp))
             Row(modifier = Modifier.padding(top = 85.dp)) {
                 SignInButton(
-                    onClick = { signInViewModel.validateAndLoginUser() }
+                    onClick = { signInViewModel.validateAndLoginUser(navController, dataStoreManager) }
                 )
             }
             Row(modifier = Modifier.padding(top = 20.dp)) {

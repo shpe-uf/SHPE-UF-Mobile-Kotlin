@@ -7,4 +7,5 @@ object Routes {
     var opening = "opening"
     var profile = "profile"
     var calendar = "calendar"
+    var points = "points"
 }
