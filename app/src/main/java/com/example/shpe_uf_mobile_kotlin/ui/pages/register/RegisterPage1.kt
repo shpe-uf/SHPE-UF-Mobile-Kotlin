@@ -257,7 +257,8 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 onToggleConfirmPasswordVisibility = { registerPage1ViewModel.toggleConfirmPasswordVisibility() }
             )
 
-            Spacer(modifier = Modifier.height(82.dp))
+//            Spacer(modifier = Modifier.height(82.dp))
+            Spacer(modifier = Modifier.height(72.dp))
 
             CreateAccountButton(
 

@@ -2,6 +2,7 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,11 +34,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -63,7 +66,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
     val uiState by registerPage1ViewModel.uiState.collectAsState()
 
-    RegisterBackground()
+    RegisterPage2Background(navController)
+
 
     Box(
         modifier = Modifier
@@ -269,8 +273,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 onValueChange = { registerPage1ViewModel.onCountryOriginChanged(it) }
             )
 
-
-            Spacer(modifier = Modifier.height(40.dp))
+//            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
 
             ContinueButton(
@@ -287,9 +291,42 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
 
     }
+}
 
 
+//@Preview
+@Composable
+fun RegisterPage2Background(navController: NavController) {
 
+    // Used boxes to layer things on top of each other to help arrange things as needed
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFD25917))
+    ) {
+        // Image centered at the top
+        Image(
+            painter = painterResource(R.drawable.gatordark),
+            contentDescription = "Gator",
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 48.dp)
+                .align(Alignment.TopCenter)
+        )
+
+        // BackButton positioned with padding
+        Box(
+            modifier = Modifier
+                .padding(start = 22.dp, top = 35.dp)
+                .align(Alignment.TopStart)
+        ) {
+            BackButtonPage2(
+                onClick = { navController.navigate(RegisterRoutes.registerPage1) }
+            )
+        }
+    }
 }
 
 
@@ -832,4 +869,16 @@ private fun ContinueButton(
             )
         }
     }
+}
+
+@Composable
+private fun BackButtonPage2(onClick: () -> Unit) {
+
+    Image(
+        painter = painterResource(id = R.drawable.backbuttonicon),
+        contentDescription = "BackButtonIcon",
+        modifier = Modifier
+            .size(43.dp)
+            .clickable(onClick = onClick)
+    )
 }
