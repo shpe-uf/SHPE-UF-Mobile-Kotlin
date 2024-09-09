@@ -42,11 +42,13 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val dataStoreContext = LocalContext.current
                     val dataStoreManager = SHPE_DataStore(dataStoreContext)
+                    val navController = SHPEUFNavController()
 
                     AppContent(
                         this@MainActivity,
                         preferenceDataStore,
-                        dataStoreManager
+                        dataStoreManager,
+                        navController
                     )
 
 //                    val pointsPageViewModel = PointsPageViewModel()
@@ -66,8 +68,6 @@ class MainActivity : ComponentActivity() {
 //                                OpeningPage(navController)
 //                            }
 //                        })
-                    val navController = SHPEUFNavController()
-                    navController.Navigation()
                 }
             }
         }
@@ -77,7 +77,9 @@ class MainActivity : ComponentActivity() {
     fun AppContent(
         mainActivity: MainActivity,
         preferenceDataStore: DataStore<Preferences>,
-        dataStoreManager: SHPE_DataStore) {
+        dataStoreManager: SHPE_DataStore,
+        navController: SHPEUFNavController
+    ) {
 
         var isLoggedIn by remember {
             mutableStateOf(false)
@@ -98,11 +100,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        if(isLoggedIn){
-            FullView(rememberNavController(), dataStoreManager)
-        } else {
-            SignIn(rememberNavController(), dataStoreManager)
-        }
+        navController.Navigation(isLoggedIn, dataStoreManager)
     }
 }
 

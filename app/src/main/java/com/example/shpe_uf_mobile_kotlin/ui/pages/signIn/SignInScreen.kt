@@ -20,9 +20,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,19 +42,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.R
-import com.example.shpe_uf_mobile_kotlin.data.SHPE_DataStore
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
-fun SignIn(navController: NavController, dataStoreManager: SHPE_DataStore) {
+fun SignIn(navController: NavController, isLoggedIn: Boolean, viewModel: SignInViewModel, goToPoints:() -> Unit) {
+    if(isLoggedIn){
+        goToPoints.invoke()
+    }
+
+    if(viewModel.isLoggedIn){
+        LaunchedEffect(Unit){
+            delay(100.milliseconds)
+            goToPoints.invoke()
+        }
+    }
+
     SignInBackground()
-    SignInScreen(navController, dataStoreManager)
+    SignInScreen(navController, viewModel)
 }
 
 @Composable
 fun SignInBackground() {
-
     // Dark mode support
     val gator = if (isSystemInDarkTheme()) {
         painterResource(R.drawable.gator)
@@ -79,9 +90,12 @@ fun SignInBackground() {
 }
 
 @Composable
-fun SignInScreen(navController: NavController, dataStoreManager: SHPE_DataStore) {
+fun SignInScreen(
+    navController: NavController,
+    viewModel: SignInViewModel
+) {
 
-    val signInViewModel = remember { SignInViewModel() }
+    val signInViewModel = viewModel
     val uiState by signInViewModel.uiState.collectAsState()
     val shpeLogo = R.drawable.shpe_logo_full_color
 
@@ -142,7 +156,7 @@ fun SignInScreen(navController: NavController, dataStoreManager: SHPE_DataStore)
             //Spacer(modifier = Modifier.height(85.dp))
             Row(modifier = Modifier.padding(top = 85.dp)) {
                 SignInButton(
-                    onClick = { signInViewModel.validateAndLoginUser(navController, dataStoreManager) }
+                    onClick = { signInViewModel.validateAndLoginUser() }
                 )
             }
             Row(modifier = Modifier.padding(top = 20.dp)) {

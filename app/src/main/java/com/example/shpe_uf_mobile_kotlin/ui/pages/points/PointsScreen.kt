@@ -71,7 +71,11 @@ import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun FullView(navController: NavController, dataStoreManager: SHPE_DataStore) {
+fun FullView(navController: NavController, dataStoreManager: SHPE_DataStore, isLoggedIn: Boolean, goToLogin: () -> Unit) {
+
+    if(!isLoggedIn){
+        goToLogin.invoke()
+    }
 
     val pointsPageViewModel = remember { PointsPageViewModel() }
 

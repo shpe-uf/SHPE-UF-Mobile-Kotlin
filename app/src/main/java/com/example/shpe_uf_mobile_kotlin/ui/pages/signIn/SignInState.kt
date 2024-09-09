@@ -1,5 +1,9 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class SignInState(
 
     // By default, username and password are null.
@@ -13,4 +17,4 @@ data class SignInState(
 
     // By default password should be invisible.
     val isPasswordVisible: Boolean = false
-)
+) : Parcelable

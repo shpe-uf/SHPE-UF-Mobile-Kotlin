@@ -1,6 +1,9 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,13 +12,19 @@ import androidx.navigation.NavController
 import apolloClient
 import com.example.shpe_uf_mobile_kotlin.LoginMutation
 import com.example.shpe_uf_mobile_kotlin.data.SHPE_DataStore
+import com.example.shpe_uf_mobile_kotlin.data.Session
 import com.example.shpe_uf_mobile_kotlin.data.Shpeito
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SignInViewModel : ViewModel() {
+@HiltViewModel
+class SignInViewModel @Inject constructor(
+    private val session: Session
+) : ViewModel() {
 
     // Contains the ui state, the UI is composed of its state and visual components.
     private val _uiState = MutableStateFlow(SignInState())
@@ -31,7 +40,9 @@ class SignInViewModel : ViewModel() {
         Of course, if the username or password is not found, it won't login.
     */
 
-    fun validateAndLoginUser(navController: NavController, dataStoreManager: SHPE_DataStore) {
+    var isLoggedIn by mutableStateOf(false)
+
+    fun validateAndLoginUser() {
         val currentState = getCurrentState()
 
         // Validate user input fields.
@@ -53,7 +64,7 @@ class SignInViewModel : ViewModel() {
             Log.d("Validating", "$username | $password")
 
             // Calls a function to perform login.
-            performLogin(username.toString(), password.toString(), navController, dataStoreManager)
+            performLogin(username.toString(), password.toString())
 
         } else {
             _toastMessage.value = "Username and password is required."
@@ -66,9 +77,7 @@ class SignInViewModel : ViewModel() {
 
     private fun performLogin(
         username: String,
-        password: String,
-        navController: NavController,
-        dataStoreManager: SHPE_DataStore,
+        password: String
     ) {
         /*
             Launches a new coroutine in the viewModelScope, provided by the ViewModel.
@@ -77,23 +86,16 @@ class SignInViewModel : ViewModel() {
         viewModelScope.launch {// Everything in the {} runs asynchronously.
             val loginSuccess = loginUser(
                 username,
-                password,
-                dataStoreManager
+                password
             ) // This call will suspend the coroutine until the login operation is complete.
-
-            if (loginSuccess) {
-                navController.navigate(Routes.points)
-            }
         }
         // If login is unsuccessful, do nothing, else change it to logged in.
     }
 
-
     // It's defined as a suspend function b/c it uses a network request which could take some time, and we don't want to pause the UI while the mutation is run.
     private suspend fun loginUser(
         username: String,
-        password: String,
-        dataStoreManager: SHPE_DataStore,
+        password: String
     ): Boolean {
         // Mutation for logging in, returns the user's id on success.
         val response = apolloClient.mutation(LoginMutation(username, password, "true")).execute()
@@ -103,7 +105,9 @@ class SignInViewModel : ViewModel() {
             val id = response.data?.login?.id
 
             if (id != null) {
-                dataStoreManager.saveToDataStore(id)
+                session.setID(id)
+                session.setShpeitoLoggedIn(true)
+                isLoggedIn = true
             }
 
             Log.d("GraphQL", "$id")

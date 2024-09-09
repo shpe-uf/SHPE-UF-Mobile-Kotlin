@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.apollographql.apollo3").version("4.0.0-beta.4")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -85,6 +86,7 @@ dependencies {
     implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.4")
 
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 }
 
 apollo {

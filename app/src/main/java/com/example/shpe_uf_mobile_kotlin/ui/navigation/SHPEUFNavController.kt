@@ -14,15 +14,16 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 class SHPEUFNavController {
 
     @Composable
-    fun Navigation(isLoggedIn: Boolean){
+    fun Navigation(isLoggedIn: Boolean, dataStoreManager: SHPE_DataStore){
         val navController = rememberNavController()
 
         val dataStoreContext = LocalContext.current
-        val dataStoreManager = SHPE_DataStore(dataStoreContext)
+
+        val start: String = if(isLoggedIn) Routes.login else Routes.opening
 
         NavHost(
             navController = navController,
-            startDestination = Routes.opening,
+            startDestination = start,
             builder = {
                 composable(Routes.loading) {
                     LoadingScreen(navController)
