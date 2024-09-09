@@ -47,16 +47,18 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
-@Preview
+//@Preview
 @Composable
-fun SignIn() {
+fun SignIn(navController: NavController) {
     SignInBackground()
-    SignInScreen()
+    SignInScreen(navController)
 }
 
 @Composable
@@ -86,7 +88,7 @@ fun SignInBackground() {
 }
 
 @Composable
-fun SignInScreen() {
+fun SignInScreen(navController: NavController) {
 
     val signInViewModel = remember { SignInViewModel() }
     val uiState by signInViewModel.uiState.collectAsState()
@@ -153,7 +155,7 @@ fun SignInScreen() {
                 )
             }
             Row(modifier = Modifier.padding(top = 20.dp)) {
-                SignUp()
+                SignUp(navController)
             }
         }
     }
@@ -231,7 +233,7 @@ fun SignInButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun SignUp() {
+fun SignUp(navController: NavController) {
     // Dark mode support
     val labelColor = if (isSystemInDarkTheme()) {
         Color.White
@@ -268,15 +270,21 @@ fun SignUp() {
         pop()
     }
 
-    ClickableText(text = annotatedText, onClick = { offset ->
-        // We check if there is an *URL* annotation attached to the text
-        // at the clicked position
-        annotatedText.getStringAnnotations(
-            tag = "URL", start = offset, end = offset
-        ).firstOrNull()?.let { annotation ->
-            // If yes, we log its value
-            Log.d("Clicked URL", annotation.item)
-        }
-    })
+//    ClickableText(text = annotatedText, onClick = { offset ->
+//        // We check if there is an *URL* annotation attached to the text
+//        // at the clicked position
+//        annotatedText.getStringAnnotations(
+//            tag = "URL", start = offset, end = offset
+//        ).firstOrNull()?.let { annotation ->
+//            // If yes, we log its value
+//            Log.d("Clicked URL", annotation.item)
+//        }
+//    })
+
+
+    ClickableText(text = annotatedText, onClick = {navController.navigate(Routes.registerPage1)})
+
+
+
 }
 

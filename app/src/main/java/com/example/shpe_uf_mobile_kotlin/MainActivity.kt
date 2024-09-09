@@ -35,6 +35,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.FullView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsPageViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
 class MainActivity : ComponentActivity() {
@@ -121,10 +122,15 @@ class MainActivity : ComponentActivity() {
 //                val navController = rememberNavController()
 //                val registerPageViewModel = RegisterPage1ViewModel()
 
-                NavHost(navController = navController, startDestination = Routes.registerPage1, builder = {
+                NavHost(navController = navController, startDestination = Routes.login, builder = {
                     composable(Routes.registerPage1){
                         RegistrationPage1Preview(navController, registerPageViewModel)
                     }
+
+                    composable(Routes.login){
+                        SignIn(navController)
+                    }
+
                     composable(Routes.registerPage2){
                         RegistrationPage2Preview(navController, registerPageViewModel)
                     }

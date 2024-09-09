@@ -290,9 +290,7 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                     style = MaterialTheme.typography.labelLarge
                 )
                 TextButton(onClick = {
-
-                    //TODO Navigate to the sign-in page for users that already have an account
-
+                    navController.navigate(Routes.login)
                 }) {
                     Text(
                         text = "Sign In",
