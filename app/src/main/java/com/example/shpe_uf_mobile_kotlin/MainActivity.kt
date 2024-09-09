@@ -33,8 +33,11 @@ import com.example.shpe_uf_mobile_kotlin.repository.EventRepository
 import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPageViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.FullView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsPageViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.LoadingScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
@@ -62,6 +65,8 @@ class MainActivity : ComponentActivity() {
 
                 // Viewmodel for Register Pages
                 val registerPageViewModel = RegisterPage1ViewModel()
+
+                val openingPageViewModel = OpeningPageViewModel()
 
 
 
@@ -122,13 +127,22 @@ class MainActivity : ComponentActivity() {
 //                val navController = rememberNavController()
 //                val registerPageViewModel = RegisterPage1ViewModel()
 
-                NavHost(navController = navController, startDestination = Routes.login, builder = {
-                    composable(Routes.registerPage1){
-                        RegistrationPage1Preview(navController, registerPageViewModel)
+                NavHost(navController = navController, startDestination = Routes.opening, builder = {
+
+                    composable(Routes.opening){
+                        OpeningPage(openingPageViewModel, navController)
+                    }
+
+                    composable(Routes.loading){
+                        LoadingScreen(navController)
                     }
 
                     composable(Routes.login){
                         SignIn(navController)
+                    }
+
+                    composable(Routes.registerPage1){
+                        RegistrationPage1Preview(navController, registerPageViewModel)
                     }
 
                     composable(Routes.registerPage2){
@@ -144,9 +158,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(text = "Hello $name!", modifier = modifier)
 }

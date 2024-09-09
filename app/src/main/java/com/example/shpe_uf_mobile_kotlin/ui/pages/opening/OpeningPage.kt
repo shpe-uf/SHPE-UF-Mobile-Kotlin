@@ -45,22 +45,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
+
 //import com.example.shpe_uf_mobile_kotlin.ui.theme.GREY
 //import com.example.shpe_uf_mobile_kotlin.ui.theme.WHITE
 
 
-@Preview
+//@Preview
 @Composable
-fun OpeningPagePreview() {
+fun OpeningPagePreview(navController: NavController) {
     val viewModel = OpeningPageViewModel()
-    OpeningPage(viewModel)
+    OpeningPage(viewModel, navController)
 }
 
 // The goat source: https://blog.protein.tech/jetpack-compose-auto-image-slider-with-dots-indicator-45dfeba37712
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun OpeningPage(viewModel: OpeningPageViewModel) {
+fun OpeningPage(viewModel: OpeningPageViewModel, navController: NavController) {
 
     val pagerState = viewModel.updatePage()
 
@@ -85,7 +89,7 @@ fun OpeningPage(viewModel: OpeningPageViewModel) {
         }
         Spacer(Modifier.weight(1f)) // Space between caption and button.
         Row {
-            GettingStartedButton(onClick = { Log.d("Button", "Pressed") }) // Button is fourth.
+            GettingStartedButton(onClick = { navController.navigate(Routes.loading) }) // Button is fourth.
         }
         Spacer(Modifier.height(23.dp))
         Row {
@@ -176,10 +180,10 @@ fun AnimatedCaption(pagerState: PagerState, viewModel: OpeningPageViewModel) {
 // Button
 @Composable
 fun GettingStartedButton(
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) { // TODO: Implement navigation to Login page when pressing this button.
     Button(
-        onClick = { onClick() },
+        onClick = onClick,
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF011F35)),
         modifier = Modifier
             .shadow(
