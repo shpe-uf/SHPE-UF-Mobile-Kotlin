@@ -60,6 +60,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import com.example.shpe_uf_mobile_kotlin.EventsQuery.Event
+import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -70,7 +71,7 @@ import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun FullView(pointsPageViewModel: PointsPageViewModel) {
+fun FullView(pointsPageViewModel: PointsPageViewModel, shpeufAppViewModel: SHPEUFAppViewModel) {
 
     SHPEUFMobileKotlinTheme {
         Column(modifier = Modifier.fillMaxSize()) {
