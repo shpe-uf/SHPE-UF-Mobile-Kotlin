@@ -12,7 +12,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 class SHPEUFNavController {
 
     @Composable
-    fun Navigation(){
+    fun Navigation(isLoggedIn: Boolean){
         val navController = rememberNavController()
 
         NavHost(
