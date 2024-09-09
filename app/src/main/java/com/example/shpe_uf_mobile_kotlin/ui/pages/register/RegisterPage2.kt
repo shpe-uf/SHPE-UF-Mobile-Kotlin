@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 
 
 //@Preview
@@ -160,7 +161,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 }
             }
 
-            Spacer(modifier = Modifier.height(54.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             // Ideal OG Figma padding made it less so that the bottom continue button would be visible.
 //            Spacer(modifier = Modifier.height(64.dp))
 
@@ -183,7 +184,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 errorMessage = uiState.firstNameErrorMessage ?: "",
                 onValueChange = { registerPage1ViewModel.onFirstNameChanged(it) })
 
-            Spacer(modifier = Modifier.height(12.dp))
+//            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             Text(
                 text = "Last Name",
@@ -204,7 +206,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 onValueChange = { registerPage1ViewModel.onLastNameChanged(it) }
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+//            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
             Text(
                 text = "Gender",
@@ -227,7 +230,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 onValueChange = { registerPage1ViewModel.onGenderChanged(it) }
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+//            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
             Text(
                 text = "Ethnicity",
@@ -250,7 +254,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 onValueChange = { registerPage1ViewModel.onEthnicityChanged(it) }
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+//            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
             Text(
                 text = "Country of Origin",
@@ -274,13 +279,13 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             )
 
 //            Spacer(modifier = Modifier.height(40.dp))
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
 
             ContinueButton(
                 onClick = {
                     if (registerPage1ViewModel.validateRegisterPage2Fields() == true) {
-                        navController.navigate(RegisterRoutes.registerPage3)
+                        navController.navigate(Routes.registerPage3)
                     }
                     else {
                         // Do nothing don't go to next page
@@ -323,7 +328,7 @@ fun RegisterPage2Background(navController: NavController) {
                 .align(Alignment.TopStart)
         ) {
             BackButtonPage2(
-                onClick = { navController.navigate(RegisterRoutes.registerPage1) }
+                onClick = { navController.navigate(Routes.registerPage1) }
             )
         }
     }
@@ -686,7 +691,7 @@ private fun EthnicityDropDownMenu(
                     Text(text = "Black or African American")
                 },
                 onClick = {
-                    onValueChange("Other")
+                    onValueChange("Black or African American")
                     onExpandedChange(false)
                 }
             )

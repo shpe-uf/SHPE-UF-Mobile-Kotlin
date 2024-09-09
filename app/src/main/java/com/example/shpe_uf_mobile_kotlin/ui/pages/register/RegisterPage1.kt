@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 
 
 /*
@@ -170,7 +171,8 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             // End of welcome text and shpe logo component
 
 
-            Spacer(modifier = Modifier.height(58.dp))
+//            Spacer(modifier = Modifier.height(58.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
             Text(
                 text = "UF Email",
@@ -258,13 +260,13 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             )
 
 //            Spacer(modifier = Modifier.height(82.dp))
-            Spacer(modifier = Modifier.height(72.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             CreateAccountButton(
 
                 onClick = {
                     if (registerPage1ViewModel.validateRegisterPage1Fields() == true) {
-                    navController.navigate(RegisterRoutes.registerPage2)
+                    navController.navigate(Routes.registerPage2)
                 }
                     else {
                     // Do nothing don't go to next page

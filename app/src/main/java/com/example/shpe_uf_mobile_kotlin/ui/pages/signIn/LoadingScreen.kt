@@ -48,9 +48,9 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.dark_bg
 
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
-fun LoadingScreen() {
+fun LoadingScreen(navController: NavController) {
 
     // Dark mode support
     val gator = if (isSystemInDarkTheme()) {
@@ -85,8 +85,8 @@ fun LoadingScreen() {
             )
         )
         Spacer(Modifier.padding(top = 100.dp))
-        ButtonSHPE { TODO("Something") }
-//        ButtonSHPE { navController.navigate(Routes.login) }
+//        ButtonSHPE { TODO("Something") }
+        ButtonSHPE { navController.navigate(Routes.login) }
 
     }
 }

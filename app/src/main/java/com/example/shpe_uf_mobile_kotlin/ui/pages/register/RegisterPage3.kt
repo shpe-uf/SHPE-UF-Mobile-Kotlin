@@ -40,10 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.R
-
-
-
-
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 
 
 //@Preview
@@ -221,7 +218,7 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             )
 
 //            Spacer(modifier = Modifier.height(207.dp))
-            Spacer(modifier = Modifier.height(197.dp))
+            Spacer(modifier = Modifier.height(180.dp))
 
             CompleteRegistrationButton(
                 onClick = {
@@ -274,7 +271,7 @@ fun RegisterPage3Background(navController: NavController) {
                 .align(Alignment.TopStart)
         ) {
             BackButtonPage3(
-                onClick = { navController.navigate(RegisterRoutes.registerPage2) }
+                onClick = { navController.navigate(Routes.registerPage2) }
             )
         }
     }
