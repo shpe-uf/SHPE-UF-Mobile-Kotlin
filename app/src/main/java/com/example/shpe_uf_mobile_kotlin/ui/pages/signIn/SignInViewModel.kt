@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import apolloClient
 import com.example.shpe_uf_mobile_kotlin.LoginMutation
+import com.example.shpe_uf_mobile_kotlin.data.SHPE_DataStore
+import com.example.shpe_uf_mobile_kotlin.data.Shpeito
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +31,7 @@ class SignInViewModel : ViewModel() {
         Of course, if the username or password is not found, it won't login.
     */
 
-    fun validateAndLoginUser(navController: NavController) {
+    fun validateAndLoginUser(navController: NavController, dataStoreManager: SHPE_DataStore) {
         val currentState = getCurrentState()
 
         // Validate user input fields.
@@ -51,7 +53,7 @@ class SignInViewModel : ViewModel() {
             Log.d("Validating", "$username | $password")
 
             // Calls a function to perform login.
-            performLogin(username.toString(), password.toString(), navController)
+            performLogin(username.toString(), password.toString(), navController, dataStoreManager)
 
         } else {
             _toastMessage.value = "Username and password is required."
@@ -62,7 +64,12 @@ class SignInViewModel : ViewModel() {
         }
     }
 
-    private fun performLogin(username: String, password: String, navController: NavController) {
+    private fun performLogin(
+        username: String,
+        password: String,
+        navController: NavController,
+        dataStoreManager: SHPE_DataStore,
+    ) {
         /*
             Launches a new coroutine in the viewModelScope, provided by the ViewModel.
             Ensures the coroutine is cancelled when the ViewModel is cleared. Important for avoiding memory leaks.
@@ -70,22 +77,34 @@ class SignInViewModel : ViewModel() {
         viewModelScope.launch {// Everything in the {} runs asynchronously.
             val loginSuccess = loginUser(
                 username,
-                password
+                password,
+                dataStoreManager
             ) // This call will suspend the coroutine until the login operation is complete.
 
-            if(loginSuccess) { navController.navigate(Routes.points) }
-            // If login is unsuccessful, do nothing, else change it to logged in.
+            if (loginSuccess) {
+                navController.navigate(Routes.points)
+            }
         }
+        // If login is unsuccessful, do nothing, else change it to logged in.
     }
 
+
     // It's defined as a suspend function b/c it uses a network request which could take some time, and we don't want to pause the UI while the mutation is run.
-    private suspend fun loginUser(username: String, password: String): Boolean {
+    private suspend fun loginUser(
+        username: String,
+        password: String,
+        dataStoreManager: SHPE_DataStore,
+    ): Boolean {
         // Mutation for logging in, returns the user's id on success.
         val response = apolloClient.mutation(LoginMutation(username, password, "true")).execute()
 
         // If the response doesn't throw an error, then it successfully logged in.
         if (!response.hasErrors()) {
             val id = response.data?.login?.id
+
+            if (id != null) {
+                dataStoreManager.saveToDataStore(id)
+            }
 
             Log.d("GraphQL", "$id")
 
