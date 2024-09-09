@@ -67,6 +67,10 @@ class ProfileViewModel:ViewModel() {
         _uiState.value = _uiState.value.copy(photo = photo)
     }
 
+    fun getUsername(): String? {
+        return _uiState.value.userName
+    }
+
     fun saveProfileChanges() {
         TODO("Not yet implemented")
     }
@@ -80,11 +84,11 @@ class ProfileViewModel:ViewModel() {
     }
 
     // Should load the user's profile, will be called when the user logs in and the id is collected and stored in the app.
-    fun loadProfile(): Boolean{
+    fun loadProfile(id: String): Boolean{
         val current = uiState.value
 
-        if(current.firstName == null && current.id != null){
-            getUserInfo(current.id)
+        if(current.firstName == null){
+            getUserInfo(id)
             return true
         }
 
