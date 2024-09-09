@@ -1,5 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin
 
+
 import android.graphics.fonts.FontStyle
 import android.os.Bundle
 import android.util.Log
@@ -49,7 +50,30 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterRoutes
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1Preview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2Preview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3Preview
+
+//import android.util.Log
+//import androidx.compose.foundation.layout.fillMaxSize
+//import androidx.compose.material3.MaterialTheme
+//import androidx.compose.material3.Surface
+//import androidx.compose.material3.Text
+//import androidx.compose.runtime.Composable
+//import androidx.compose.runtime.LaunchedEffect
+//import androidx.compose.ui.Modifier
+//import androidx.compose.ui.tooling.preview.Preview
+//import apolloClient
+//import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
+//import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -105,11 +129,22 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SHPEUFMobileKotlinTheme {
-                val viewModelFactory = HomeViewModelFactory(NotificationRepository(applicationContext), EventRepository(applicationContext))
+                val viewModelFactory = HomeViewModelFactory(
+                    NotificationRepository(applicationContext),
+                    EventRepository(applicationContext)
+                )
                 val navController = rememberNavController()
 
-                enableEdgeToEdge(statusBarStyle = SystemBarStyle.light( Color(0xFFD25917).toArgb(), Color(0xFFD25917).toArgb()),
-                     navigationBarStyle = SystemBarStyle.light( blueDarkModeBackground.toArgb(), blueDarkModeBackground.toArgb()))
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.light(
+                        Color(0xFFD25917).toArgb(),
+                        Color(0xFFD25917).toArgb()
+                    ),
+                    navigationBarStyle = SystemBarStyle.light(
+                        blueDarkModeBackground.toArgb(),
+                        blueDarkModeBackground.toArgb()
+                    )
+                )
 
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -119,8 +154,9 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         bottomBar = { BottomNavigationBar(navController) }
                     ) {
-                        Box (modifier = Modifier
-                            .padding(it),
+                        Box(
+                            modifier = Modifier
+                                .padding(it),
                         ) {
                             NavHostContainer(navController, viewModelFactory)
                         }
@@ -136,6 +172,22 @@ class MainActivity : ComponentActivity() {
 //                            SignIn()
 //                        }
 //                    })
+
+
+//                val navController = rememberNavController()
+//                val registerPageViewModel = RegisterPage1ViewModel()
+//                NavHost(navController = navController, startDestination = RegisterRoutes.registerPage1, builder = {
+//                    composable(RegisterRoutes.registerPage1){
+//                        RegistrationPage1Preview(navController, registerPageViewModel)
+//                    }
+//                    composable(RegisterRoutes.registerPage2){
+//                        RegistrationPage2Preview(navController, registerPageViewModel)
+
+//                    composable(RegisterRoutes.registerPage3){
+//                        RegistrationPage3Preview(navController, registerPageViewModel)
+//                    }
+//                })
+
                 }
             }
         }
