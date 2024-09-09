@@ -36,18 +36,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
-@Preview
 @Composable
-fun SignIn() {
+fun SignIn(navController: NavController) {
     SignInBackground()
-    SignInScreen()
+    SignInScreen(navController)
 }
 
 @Composable
@@ -77,7 +77,7 @@ fun SignInBackground() {
 }
 
 @Composable
-fun SignInScreen() {
+fun SignInScreen(navController: NavController) {
 
     val signInViewModel = remember { SignInViewModel() }
     val uiState by signInViewModel.uiState.collectAsState()
@@ -140,7 +140,7 @@ fun SignInScreen() {
             //Spacer(modifier = Modifier.height(85.dp))
             Row(modifier = Modifier.padding(top = 85.dp)) {
                 SignInButton(
-                    onClick = { signInViewModel.validateAndLoginUser() }
+                    onClick = { signInViewModel.validateAndLoginUser(navController) }
                 )
             }
             Row(modifier = Modifier.padding(top = 20.dp)) {

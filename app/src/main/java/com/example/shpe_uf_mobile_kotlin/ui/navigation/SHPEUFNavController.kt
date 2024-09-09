@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
+import com.example.shpe_uf_mobile_kotlin.ui.pages.points.FullView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.LoadingScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 
@@ -23,10 +24,13 @@ class SHPEUFNavController {
                     LoadingScreen(navController)
                 }
                 composable(Routes.login) {
-                    SignIn()
+                    SignIn(navController)
                 }
                 composable(Routes.opening){
                     OpeningPage(navController)
+                }
+                composable(Routes.points){
+                    FullView(navController)
                 }
             })
     }

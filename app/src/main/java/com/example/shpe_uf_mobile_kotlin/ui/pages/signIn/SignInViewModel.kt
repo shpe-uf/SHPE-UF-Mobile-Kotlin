@@ -5,8 +5,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import apolloClient
 import com.example.shpe_uf_mobile_kotlin.LoginMutation
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -27,7 +29,7 @@ class SignInViewModel : ViewModel() {
         Of course, if the username or password is not found, it won't login.
     */
 
-    fun validateAndLoginUser() {
+    fun validateAndLoginUser(navController: NavController) {
         val currentState = getCurrentState()
 
         // Validate user input fields.
@@ -49,7 +51,8 @@ class SignInViewModel : ViewModel() {
             Log.d("Validating", "$username | $password")
 
             // Calls a function to perform login.
-            performLogin(username.toString(), password.toString())
+            performLogin(username.toString(), password.toString(), navController)
+
         } else {
             _toastMessage.value = "Username and password is required."
             Log.w(
@@ -59,8 +62,7 @@ class SignInViewModel : ViewModel() {
         }
     }
 
-    private fun performLogin(username: String, password: String) {
-
+    private fun performLogin(username: String, password: String, navController: NavController) {
         /*
             Launches a new coroutine in the viewModelScope, provided by the ViewModel.
             Ensures the coroutine is cancelled when the ViewModel is cleared. Important for avoiding memory leaks.
@@ -71,8 +73,8 @@ class SignInViewModel : ViewModel() {
                 password
             ) // This call will suspend the coroutine until the login operation is complete.
 
+            if(loginSuccess) { navController.navigate(Routes.points) }
             // If login is unsuccessful, do nothing, else change it to logged in.
-            if (loginSuccess) updateErrorMessage("Logged in.") else updateErrorMessage("Could not login.")
         }
     }
 
