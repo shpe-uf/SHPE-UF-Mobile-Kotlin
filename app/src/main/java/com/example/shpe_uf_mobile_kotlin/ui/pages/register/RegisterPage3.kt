@@ -3,6 +3,7 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.register
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,12 +31,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.R
 
 
@@ -45,19 +48,19 @@ import com.example.shpe_uf_mobile_kotlin.R
 
 //@Preview
 @Composable
-fun RegistrationPage3Preview(registerPage1ViewModel: RegisterPage1ViewModel){
+fun RegistrationPage3Preview(navController: NavController, registerPage1ViewModel: RegisterPage1ViewModel){
 
 
-    RegistrationPage3(registerPage1ViewModel = registerPage1ViewModel)
+    RegistrationPage3(registerPage1ViewModel = registerPage1ViewModel, navController = navController)
 
 }
 
 @Composable
-fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel){
+fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel, navController: NavController){
 
     val uiState by registerPage1ViewModel.uiState.collectAsState()
 
-    RegisterBackground()
+    RegisterPage3Background(navController)
 
     Box(
         modifier = Modifier
@@ -217,7 +220,8 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel){
                 onValueChange = { registerPage1ViewModel.onGraduationYearChanged(it) }
             )
 
-            Spacer(modifier = Modifier.height(207.dp))
+//            Spacer(modifier = Modifier.height(207.dp))
+            Spacer(modifier = Modifier.height(197.dp))
 
             CompleteRegistrationButton(
                 onClick = {
@@ -236,14 +240,48 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel){
             )
 
         }
-
     }
-
-
-
-
-
 }
+
+
+
+
+@Composable
+fun RegisterPage3Background(navController: NavController) {
+
+    // Used boxes to layer things on top of each other to help arrange things as needed
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFD25917))
+    ) {
+        // Image centered at the top
+        Image(
+            painter = painterResource(R.drawable.gatordark),
+            contentDescription = "Gator",
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 48.dp)
+                .align(Alignment.TopCenter)
+        )
+
+        // BackButton positioned with padding
+        Box(
+            modifier = Modifier
+                .padding(start = 22.dp, top = 35.dp)
+                .align(Alignment.TopStart)
+        ) {
+            BackButtonPage3(
+                onClick = { navController.navigate(RegisterRoutes.registerPage2) }
+            )
+        }
+    }
+}
+
+
+
 
 //@Preview
 //@Composable
@@ -661,4 +699,17 @@ private fun CompleteRegistrationButton(
             )
         }
     }
+}
+
+
+@Composable
+private fun BackButtonPage3(onClick: () -> Unit) {
+
+    Image(
+        painter = painterResource(id = R.drawable.backbuttonicon),
+        contentDescription = "BackButtonIcon",
+        modifier = Modifier
+            .size(43.dp)
+            .clickable(onClick = onClick)
+    )
 }

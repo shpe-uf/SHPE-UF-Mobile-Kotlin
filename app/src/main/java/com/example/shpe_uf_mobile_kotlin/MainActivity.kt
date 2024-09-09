@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     RegistrationPage2Preview(navController, registerPageViewModel)
                 }
                 composable(RegisterRoutes.registerPage3){
-                    RegistrationPage3Preview(registerPageViewModel)
+                    RegistrationPage3Preview(navController, registerPageViewModel)
                 }
             })
 
