@@ -38,7 +38,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -49,7 +48,6 @@ import com.example.shpe_uf_mobile_kotlin.R
 @Composable
 fun RegistrationPage2Preview(navController: NavController, registerPage1ViewModel: RegisterPage1ViewModel){
 
-//    val viewModel = RegisterPage1ViewModel()
 
     RegistrationPage2(registerPage1ViewModel = registerPage1ViewModel, navController = navController)
 
@@ -276,9 +274,6 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
 
             ContinueButton(
-//            onClick = { // TODO Navigate to final registration page
-                // This on click should be used for very final view when slicking complete registration button
-
                 onClick = {
                     if (registerPage1ViewModel.validateRegisterPage2Fields() == true) {
                         navController.navigate(RegisterRoutes.registerPage3)
@@ -287,11 +282,6 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                         // Do nothing don't go to next page
                     }
                 }
-
-
-
-//                onClick = { navController.navigate(RegisterRoutes.registerPage3) }
-//                onClick = { registerPage1ViewModel.validateAndRegisterUser() }
             )
         }
 
