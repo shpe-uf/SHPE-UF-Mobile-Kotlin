@@ -163,6 +163,8 @@ class MainActivity : ComponentActivity() {
                     }
                     val pointsPageViewModel = PointsPageViewModel()
                     FullView(pointsPageViewModel = pointsPageViewModel)
+
+
 //                    val navController = rememberNavController()
 //                    NavHost(navController = navController, startDestination = Routes.loading, builder= {
 ////                        composable(Routes.loading, ){
