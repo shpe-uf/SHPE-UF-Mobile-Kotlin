@@ -4,7 +4,10 @@ import android.graphics.fonts.FontStyle
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,6 +23,9 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -36,7 +42,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,10 +57,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -67,6 +73,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.example.shpe_uf_mobile_kotlin.repository.EventRepository
+import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.BottomNavigationBar
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavHostContainer
+import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -84,18 +96,35 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsCalendar
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsPageViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.RedeemPoints
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
+import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             SHPEUFMobileKotlinTheme {
+                val viewModelFactory = HomeViewModelFactory(NotificationRepository(applicationContext), EventRepository(applicationContext))
+                val navController = rememberNavController()
+
+                enableEdgeToEdge(statusBarStyle = SystemBarStyle.light( Color(0xFFD25917).toArgb(), Color(0xFFD25917).toArgb()),
+                     navigationBarStyle = SystemBarStyle.light( blueDarkModeBackground.toArgb(), blueDarkModeBackground.toArgb()))
+
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = blueDarkModeBackground,
                 ) {
+                    Scaffold(
+                        bottomBar = { BottomNavigationBar(navController) }
+                    ) {
+                        Box (modifier = Modifier
+                            .padding(it),
+                        ) {
+                            NavHostContainer(navController, viewModelFactory)
+                        }
+                    }
                     val pointsPageViewModel = PointsPageViewModel()
                     FullView(pointsPageViewModel = pointsPageViewModel)
 //                    val navController = rememberNavController()
@@ -111,4 +140,9 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Text(text = "Hello $name!", modifier = modifier)
 }

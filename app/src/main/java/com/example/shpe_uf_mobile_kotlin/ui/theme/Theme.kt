@@ -65,6 +65,7 @@ fun SHPEUFMobileKotlinTheme(
 //            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
 //        }
 //    }
+    //edge to edge
 
     MaterialTheme(
         colorScheme = colorScheme,
