@@ -45,8 +45,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
-import com.example.shpe_uf_mobile_kotlin.ui.theme.GREY
-import com.example.shpe_uf_mobile_kotlin.ui.theme.WHITE
+//import com.example.shpe_uf_mobile_kotlin.ui.theme.GREY
+//import com.example.shpe_uf_mobile_kotlin.ui.theme.WHITE
 
 
 @Preview
@@ -231,7 +231,7 @@ fun IndicatorDots(pagerState: PagerState) {
 
         repeat(pagerState.pageCount) { iteration ->
             val color =
-                if (pagerState.currentPage == iteration) WHITE else GREY
+                if (pagerState.currentPage == iteration) Color.White else Color.LightGray
             IndicatorDot(color = color)
 
 
