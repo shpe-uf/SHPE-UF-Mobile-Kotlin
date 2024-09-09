@@ -282,17 +282,17 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
             CreateAccountButton(
 
-//                onClick = {
-//                    if (registerPage1ViewModel.validateRegisterPage1Fields() == true) {
-//                    navController.navigate(RegisterRoutes.registerPage2)
-//                }
-//                    else {
-//                    // Do nothing don't go to next page
-//                    }
-//                }
+                onClick = {
+                    if (registerPage1ViewModel.validateRegisterPage1Fields() == true) {
+                    navController.navigate(RegisterRoutes.registerPage2)
+                }
+                    else {
+                    // Do nothing don't go to next page
+                    }
+                }
 
 
-                onClick = {navController.navigate(RegisterRoutes.registerPage2)}
+//                onClick = {navController.navigate(RegisterRoutes.registerPage2)}
 //                onClick = { registerPage1ViewModel.validateAndRegisterUser() }
             )
 

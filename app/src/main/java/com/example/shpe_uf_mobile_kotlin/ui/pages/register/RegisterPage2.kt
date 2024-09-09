@@ -279,18 +279,18 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 //            onClick = { // TODO Navigate to final registration page
                 // This on click should be used for very final view when slicking complete registration button
 
-//                onClick = {
-//                    if (registerPage1ViewModel.validateRegisterPage2Fields() == true) {
-//                        navController.navigate(RegisterRoutes.registerPage3)
-//                    }
-//                    else {
-//                        // Do nothing don't go to next page
-//                    }
-//                }
+                onClick = {
+                    if (registerPage1ViewModel.validateRegisterPage2Fields() == true) {
+                        navController.navigate(RegisterRoutes.registerPage3)
+                    }
+                    else {
+                        // Do nothing don't go to next page
+                    }
+                }
 
 
 
-                onClick = { navController.navigate(RegisterRoutes.registerPage3) }
+//                onClick = { navController.navigate(RegisterRoutes.registerPage3) }
 //                onClick = { registerPage1ViewModel.validateAndRegisterUser() }
             )
         }
