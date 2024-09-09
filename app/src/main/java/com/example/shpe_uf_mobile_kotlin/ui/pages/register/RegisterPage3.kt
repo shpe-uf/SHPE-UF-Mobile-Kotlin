@@ -212,7 +212,7 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel){
 
             GraduationYearDropDownMenu(
                 value = uiState.graduationYear ?: "",
-                isError = uiState.graduationYear != null,
+                isError = uiState.graduationYearErrorMessage != null,
                 errorMessage = uiState.graduationYearErrorMessage ?: "",
                 isGraduationMenuExpanded = uiState.isGraduationMenuExpanded,
                 onExpandedChange = {registerPage1ViewModel.toggleGraduationMenuExpansion()},
@@ -546,6 +546,7 @@ private fun GraduationYearDropDownMenu(
         TextField(
             value = value,
             onValueChange = {},
+            isError = isError,
             readOnly = true,
             leadingIcon = {
                 Image(
@@ -556,12 +557,23 @@ private fun GraduationYearDropDownMenu(
             },
             shape = RoundedCornerShape(10.dp),
 
+            supportingText = {
+
+                if (isError) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isGraduationMenuExpanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
-                .height(50.dp)
+//                .height(50.dp)
                 .fillMaxWidth(0.7f)
                 .menuAnchor()
         )
