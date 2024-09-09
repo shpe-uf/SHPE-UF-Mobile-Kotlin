@@ -34,7 +34,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shpe_uf_mobile_kotlin.R
@@ -48,7 +47,6 @@ import com.example.shpe_uf_mobile_kotlin.R
 @Composable
 fun RegistrationPage3Preview(registerPage1ViewModel: RegisterPage1ViewModel){
 
-//    val viewModel = RegisterPage1ViewModel()
 
     RegistrationPage3(registerPage1ViewModel = registerPage1ViewModel)
 

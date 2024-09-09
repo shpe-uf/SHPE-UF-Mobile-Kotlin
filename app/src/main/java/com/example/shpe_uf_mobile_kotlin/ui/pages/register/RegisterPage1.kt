@@ -1,62 +1,42 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.register
 
-import android.graphics.Paint.Align
-import android.util.Log
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalMapOf
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -78,7 +58,6 @@ the viewModel into the RegistrationPage1 function to make the
 @Composable
 fun RegistrationPage1Preview(navController: NavController, registerPage1ViewModel: RegisterPage1ViewModel){
 
-//    val viewModel = RegisterPage1ViewModel()
 
     RegistrationPage1(registerPage1ViewModel = registerPage1ViewModel, navController = navController)
 
@@ -291,9 +270,6 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                     }
                 }
 
-
-//                onClick = {navController.navigate(RegisterRoutes.registerPage2)}
-//                onClick = { registerPage1ViewModel.validateAndRegisterUser() }
             )
 
             // BELOW CREATES TEXT AND SIGN IN LINK TO NAVIGATE TO LOGIN PAGE
@@ -327,57 +303,7 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
         }
 
     }
-
-
-
-
-
 }
-
-
-/*
-RegistrationPageBaseLayer is a composable made up of the split color blue and orange
-with the gator image, so it can be repurposed in the other two views for registration page
- */
-
-//@Preview
-//@Composable
-//fun RegistrationPageBaseLayer(modifier: Modifier = Modifier) {
-//
-//    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-//
-//    val orangeHeight = screenHeight * (1.01f/11f)
-//
-//    val blueHeight = screenHeight * (10f/11f)
-//
-//
-//    Box(modifier = modifier
-//        .fillMaxSize()
-//    ){
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(orangeHeight)
-//                .background(Color(0xFFD25917))
-//        )
-//
-//        Image(
-//            painter = painterResource(id = R.drawable.gatordark),
-//            contentDescription = "SHPE GATOR DARK",
-//            modifier = Modifier
-//                .fillMaxWidth()
-//        )
-//
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(blueHeight)
-//                .align(Alignment.BottomCenter)
-//                .background(Color(0xFF011F35))
-//        )
-//    }
-//
-//}
 
 
 @Preview
@@ -599,7 +525,6 @@ private fun RegisterEmail(
         }
 
     )
-//    Log.d(errorMessage)
 }
 
 

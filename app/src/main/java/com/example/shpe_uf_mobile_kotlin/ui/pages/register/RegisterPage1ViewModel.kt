@@ -17,7 +17,9 @@ class RegisterPage1ViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(RegisterPage1State())
     val uiState: StateFlow<RegisterPage1State> = _uiState.asStateFlow()
 
-    // Validation Function for each Separate Text Field
+
+
+    // Validation Functions for each Separate Text Field
     fun validateEmailField(){
         val emailFieldState = _uiState.value
 
@@ -53,6 +55,7 @@ class RegisterPage1ViewModel: ViewModel() {
 
     }
 
+    // Function to validate all fields on page 1 before being able to proceed
     fun validateRegisterPage1Fields(): Boolean {
 
         val emailFieldState = _uiState.value
@@ -125,7 +128,7 @@ class RegisterPage1ViewModel: ViewModel() {
 
     }
 
-
+    // Function to validate all fields on page 2 before being able to proceed
     fun validateRegisterPage2Fields(): Boolean {
         val firstNameFieldState = _uiState.value
 
@@ -189,7 +192,7 @@ class RegisterPage1ViewModel: ViewModel() {
 
 
 
-
+    // Function to validate all fields on page 3 before being able to proceed
     fun validateRegisterPage3Fields(): Boolean {
         val majorDropdownFieldState = _uiState.value
 
@@ -213,13 +216,6 @@ class RegisterPage1ViewModel: ViewModel() {
         }
         else return false
     }
-
-
-
-
-
-
-
 
 
 
@@ -257,8 +253,6 @@ class RegisterPage1ViewModel: ViewModel() {
             emailErrorMessage = isValidEmail,
             passwordErrorMessage = isValidPassword,
             confirmPasswordErrorMessage = isPasswordConfirmed,
-
-            // ADD IN FOR GENDER and other Dropdown menus
             genderErrorMessage = isValidGender,
             ethnicityErrorMessage = isValidEthnicity,
             countryOriginErrorMessage = isValidCountryOrigin,
@@ -274,7 +268,6 @@ class RegisterPage1ViewModel: ViewModel() {
             && currentState.emailErrorMessage == null
             && currentState.passwordErrorMessage == null
             && currentState.confirmPasswordErrorMessage == null
-            // ADD IN FOR GENDER and other dropdown menus
             && currentState.genderErrorMessage == null
             && currentState.ethnicityErrorMessage == null
             && currentState.countryOriginErrorMessage == null
@@ -282,11 +275,6 @@ class RegisterPage1ViewModel: ViewModel() {
             && currentState.yearErrorMessage == null
             && currentState.graduationYearErrorMessage == null
             ) {
-            // pass in individual fields into the performRegister function
-            // TODO: Here is space after validation has been done checking for errors
-            // TODO: Need to make create a map/array so that it can be passed in as input to the graphQL function
-            // TODO: Call performRegister function w/ input to make the
-
             if (currentState.firstName is String
                 && currentState.lastName is String
                 && currentState.username is String
@@ -330,7 +318,6 @@ class RegisterPage1ViewModel: ViewModel() {
 
     }
 
-// TODO UNCOMMENT THE STUFF THAT MAKES ERRORS AND FIX BY MAKING MAP TO PASS THROUGH FUNCTION ASK ANDREI
 // Add all inputs needed firstname, lastname, country, password, etc. and pass into registerUser
 
 
@@ -341,15 +328,10 @@ class RegisterPage1ViewModel: ViewModel() {
         */
         viewModelScope.launch {// Everything in the {} runs asynchronously.
             val registerSuccess = registerUser(registerInput)
-
-//            if(!loginSuccess) updateErrorMessage("Could not login.") else updateErrorMessage("Logged in.")
-//            // make a compose function updateErrorMessage to know whether or not it registered using UI
-
         }
     }
 
     // Handles user login using graphQL.
-    // use a map with key and values to have a vector of strings to input
     private suspend fun registerUser(registerInput: Optional<RegisterInput?>): Boolean {
         val response = apolloClient.mutation(RegisterMutation(registerInput)).execute()
 
@@ -440,9 +422,6 @@ class RegisterPage1ViewModel: ViewModel() {
         return if (graduationYear.isBlank()) "Graduation year is required." else null
     }
 
-
-
-    //TODO IMPLEMENT THE VALIDATE GENDER FUNCTION FROM SHPE SERVER and others for all dropdown menus
 
     //Functions to update the state for each input field
     fun onUsernameChanged(username: String) {
@@ -537,7 +516,6 @@ class RegisterPage1ViewModel: ViewModel() {
     fun toggleYearMenuExpansion(){
         _uiState.value = _uiState.value.copy(isYearMenuExpanded = !_uiState.value.isYearMenuExpanded)
     }
-
 
 
 
