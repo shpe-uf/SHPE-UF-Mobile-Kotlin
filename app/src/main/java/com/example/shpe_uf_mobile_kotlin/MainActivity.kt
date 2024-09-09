@@ -66,20 +66,16 @@ class MainActivity : ComponentActivity() {
                 // Viewmodel for Register Pages
                 val registerPageViewModel = RegisterPage1ViewModel()
 
+                // Viewmodel for Opening Page
                 val openingPageViewModel = OpeningPageViewModel()
 
 
-
-
+                // Jake's point page
                 FullView(pointsPageViewModel = pointsPageViewModel)
 
 
 
-
-
-
-
-
+// DO NOT DELETE PLEASE THIS IS CODE FOR JOSUE FOR CALENDER
 //                enableEdgeToEdge(
 //                    statusBarStyle = SystemBarStyle.light(
 //                        Color(0xFFD25917).toArgb(),
@@ -109,24 +105,6 @@ class MainActivity : ComponentActivity() {
 //                }
 
 
-
-
-//                    val navController = rememberNavController()
-//                    NavHost(navController = navController, startDestination = Routes.loading, builder= {
-//                        composable(Routes.loading, ){
-//                            LoadingScreen(navController)
-//                        }
-//                        composable(Routes.login, ){
-//                            SignIn()
-//                        }
-//                    })
-
-
-
-
-//                val navController = rememberNavController()
-//                val registerPageViewModel = RegisterPage1ViewModel()
-
                 NavHost(navController = navController, startDestination = Routes.opening, builder = {
 
                     composable(Routes.opening){
@@ -152,8 +130,6 @@ class MainActivity : ComponentActivity() {
                     composable(Routes.registerPage3){
                         RegistrationPage3Preview(navController, registerPageViewModel)
                     }
-
-
                 })
             }
         }
