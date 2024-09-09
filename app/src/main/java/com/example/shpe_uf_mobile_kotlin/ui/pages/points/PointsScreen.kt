@@ -59,7 +59,9 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.EventsQuery.Event
+import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignInViewModel
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -70,7 +72,9 @@ import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun FullView(pointsPageViewModel: PointsPageViewModel) {
+fun FullView(navController: NavController) {
+
+    val pointsPageViewModel = remember { PointsPageViewModel() }
 
     SHPEUFMobileKotlinTheme {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -93,7 +97,7 @@ fun FullView(pointsPageViewModel: PointsPageViewModel) {
 }
 
 @Composable
-fun TopSection() {
+private fun TopSection() {
     Column (
         modifier = Modifier
             .background(color = Color(0xFF004C73))
@@ -134,7 +138,7 @@ fun TopSection() {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RedeemPoints(
+private fun RedeemPoints(
     pointsPageViewModel: PointsPageViewModel,
     id: String,
     onCloseBottomSheet: () -> Unit
@@ -354,7 +358,7 @@ fun RedeemPoints(
 
 
 @Composable
-fun PointsCalendar(id: String){
+private fun PointsCalendar(id: String){
     var cabinetMeeting by remember { mutableStateOf<List<Event>>(emptyList()) }
     var misc by remember { mutableStateOf<List<Event>>(emptyList()) }
     var social by remember { mutableStateOf<List<Event>>(emptyList()) }
@@ -658,7 +662,7 @@ fun PointsCalendar(id: String){
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String){
+private fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String){
         var datas by remember { mutableStateOf(emptyList<ExampleQuery.GetUser>()) }
 
         LaunchedEffect(Unit) {
@@ -846,7 +850,7 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String){
 }
 
 @Composable
-fun BottomBar(){
+private fun BottomBar(){
     var calendar by remember { mutableStateOf(ColorFilter.tint(Color.Black)) }
     var leaderboard by remember { mutableStateOf(ColorFilter.tint(Color.Black)) }
     var profile by remember { mutableStateOf(ColorFilter.tint(Color.Black)) }
@@ -937,7 +941,7 @@ fun BottomBar(){
     }
 }
 @Composable
-fun PercentIndicator(
+private fun PercentIndicator(
     label: String,
     percent: String,
     number: Int,
@@ -1022,7 +1026,7 @@ fun PercentIndicator(
 
 
 @Composable
-fun EventTable(events: List<Event>) {
+private fun EventTable(events: List<Event>) {
     Column {
         events.forEachIndexed { index, event ->
             val backgroundColor = if (index % 2 == 0) Color.White else Color.LightGray
@@ -1033,7 +1037,7 @@ fun EventTable(events: List<Event>) {
 
 
 @Composable
-fun EventRow(event: Event , backgroundColor : Color) {
+private fun EventRow(event: Event , backgroundColor : Color) {
     Row(
         modifier = Modifier
             .width(310.dp)
@@ -1098,14 +1102,14 @@ fun EventRow(event: Event , backgroundColor : Color) {
 
 
 
-fun formatDate(createdAt: String): String {
+private fun formatDate(createdAt: String): String {
     val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
     val instant = Instant.parse(createdAt)
     val dateTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC)
     return dateTime.format(formatter)
 }
 
-fun getOrdinal(number: Int): String {
+private fun getOrdinal(number: Int): String {
     val suffixes = arrayOf("th", "st", "nd", "rd") + Array(16) { "th" }
     val centuryRemainder = number % 100
     val tenRemainder = number % 10
@@ -1116,7 +1120,7 @@ fun getOrdinal(number: Int): String {
     }
 }
 
-fun DrawScope.drawPieChartSegment( startAngle: Float, sweepAngle: Float, color: Color, thickness: Float) {
+private fun DrawScope.drawPieChartSegment( startAngle: Float, sweepAngle: Float, color: Color, thickness: Float) {
     val stroke = Stroke(width = thickness)
     drawArc(
         color = color,
@@ -1127,7 +1131,7 @@ fun DrawScope.drawPieChartSegment( startAngle: Float, sweepAngle: Float, color: 
     )
 }
 
-fun DrawScope.drawCenterCircle(color: Color, thickness: Float) {
+private fun DrawScope.drawCenterCircle(color: Color, thickness: Float) {
     val innerCircleRadius = (size.minDimension / 2f) - (thickness / 2f)
     drawCircle(
         color = color,
@@ -1135,7 +1139,7 @@ fun DrawScope.drawCenterCircle(color: Color, thickness: Float) {
     )
 }
 
-fun getSemester(): String {
+private fun getSemester(): String {
     val currentDate = LocalDate.now()
     val currentMonth = currentDate.month
 
