@@ -1,7 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("com.apollographql.apollo3").version("4.0.0-beta.4")
+    id("com.apollographql.apollo3").version("4.0.0-beta.5")
 }
 
 android {
@@ -70,7 +70,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
-    implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.4")
+    implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.5")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
 }
 
