@@ -28,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +37,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.shpe_uf_mobile_kotlin.data.AppState
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.repository.EventRepository
 import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
@@ -44,10 +46,12 @@ import com.example.shpe_uf_mobile_kotlin.ui.navigation.BottomNavigationBar
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavHostContainer
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
+import com.example.shpe_uf_mobile_kotlin.ui.pages.loading.mainLoadingScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.FullView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
+import kotlinx.coroutines.delay
 
 class MainActivity() : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,31 +96,20 @@ class MainActivity() : ComponentActivity() {
 //                    }
 //                }
 
-                val start = remember { mutableStateOf<String?>(null) }
-
-                LaunchedEffect(UserState.isLoggedIn) {
-                    start.value = if (UserState.isLoggedIn) {
-                        Routes.points
-                    } else {
-                        Routes.login
+                NavHost(
+                    navController = navController,
+                    startDestination = Routes.loading,
+                ) {
+                    composable(Routes.loading){
+                        mainLoadingScreen()
+                    }
+                    composable(Routes.login) {
+                        SignIn(navController, shpeUFAppViewModel = mainViewModel)
+                    }
+                    composable(Routes.points) {
+                        FullView(shpeufAppViewModel = mainViewModel)
                     }
                 }
-
-                start.value?.let { start ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = start
-                    ) {
-                        composable(Routes.login) {
-                            SignIn(navController, shpeUFAppViewModel = mainViewModel)
-                        }
-                        composable(Routes.points) {
-                            FullView(shpeufAppViewModel = mainViewModel)
-                        }
-                    }
-
-                }
-
             }
         }
     }

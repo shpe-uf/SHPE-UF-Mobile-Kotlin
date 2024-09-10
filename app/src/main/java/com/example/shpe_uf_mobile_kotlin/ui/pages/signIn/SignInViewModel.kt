@@ -81,9 +81,6 @@ class SignInViewModel : ViewModel() {
             if(id != null){
                 shpeUFAppViewModel.saveUserId(id)
                 shpeUFAppViewModel.saveLoggedIn(true)
-                _uiState.value = getCurrentState().copy(
-                    loginSuccess = true
-                )
             }
         }
     }

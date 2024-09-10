@@ -15,57 +15,66 @@ class UserRepository(private val dataStore: DataStore<Preferences>) {
         val LOGGED_OUT = booleanPreferencesKey("logged_out")
         val IS_REGISTERED = booleanPreferencesKey("is_registered")
         val DARK_MODE = booleanPreferencesKey("dark_mode") // true = dark mode, false = light mode
+        val LOADING = booleanPreferencesKey("loading")
     }
 
     val currentUserId: Flow<String> = dataStore.data.map { preferences ->
         preferences[USER_ID] ?: ""
     }
 
-    suspend fun saveUserId(id: String){
+    suspend fun saveUserId(id: String) {
         dataStore.edit { preferences ->
             preferences[USER_ID] = id
         }
     }
 
-    val currentLoggedIn: Flow<Boolean> = dataStore.data.map{ preferences ->
+    val currentLoggedIn: Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[LOGGED_IN] ?: false
     }
 
-    suspend fun saveLoggedIn(isLoggedIn: Boolean){
-        dataStore.edit{ preferences ->
+    suspend fun saveLoggedIn(isLoggedIn: Boolean) {
+        dataStore.edit { preferences ->
             preferences[LOGGED_IN] = isLoggedIn
         }
     }
 
-    val currentRegistered: Flow<Boolean> = dataStore.data.map{ preferences ->
+    val currentRegistered: Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[IS_REGISTERED] ?: false
     }
 
-    suspend fun saveRegistered(isRegistered: Boolean){
-        dataStore.edit{ preferences ->
+    suspend fun saveRegistered(isRegistered: Boolean) {
+        dataStore.edit { preferences ->
             preferences[IS_REGISTERED] = isRegistered
         }
     }
 
-    val currentDarkMode: Flow<Boolean> = dataStore.data.map{ preferences ->
+    val currentDarkMode: Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[DARK_MODE] ?: false
     }
 
-    suspend fun saveDarkMode(darkMode: Boolean){
-        dataStore.edit{ preferences ->
+    suspend fun saveDarkMode(darkMode: Boolean) {
+        dataStore.edit { preferences ->
             preferences[DARK_MODE] = darkMode
         }
     }
 
-    val currentLoggedOut: Flow<Boolean> = dataStore.data.map{ preferences ->
+    val currentLoggedOut: Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[LOGGED_OUT] ?: false
     }
 
-    suspend fun saveLoggedOut(isLoggedOut: Boolean){
-        dataStore.edit{ preferences ->
+    suspend fun saveLoggedOut(isLoggedOut: Boolean) {
+        dataStore.edit { preferences ->
             preferences[LOGGED_OUT] = isLoggedOut
         }
     }
 
+    val currentLoading: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[LOADING] ?: false
+    }
 
+    suspend fun saveLoading(isLoading: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[LOADING] = isLoading
+        }
+    }
 }
