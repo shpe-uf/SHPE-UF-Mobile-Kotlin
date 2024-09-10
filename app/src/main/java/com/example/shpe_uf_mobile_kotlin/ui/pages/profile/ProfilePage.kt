@@ -117,17 +117,30 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
             }
 
             item{
+                Spacer(modifier = Modifier.height(5.dp))
+            }
+
+            item{
                 ProfileUserName(
                     value = uiState.userName ?: "",
                     onValueChange = profileViewModel::onUserNameChanged
                 )
             }
+
+            item{
+                Spacer(modifier = Modifier.height(5.dp))
+            }
+
             item{
                 ProfileEmail(
                     value = uiState.email ?: "",
                     onValueChange = profileViewModel::onEmailChanged
                 )
 
+            }
+
+            item{
+                Spacer(modifier = Modifier.height(5.dp))
             }
 
             item{
@@ -140,12 +153,20 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
             }
 
             item{
+                Spacer(modifier = Modifier.height(5.dp))
+            }
+
+            item{
                 ProfileEthnicity(
                     selectedEthnicity = uiState.ethnicity ?: "",
                     onEthnicitySelected = profileViewModel::onEthnicityChanged,
                     ethnicities = listOf("Hispanic", "Black/African American", "Asian", "White", "Native American", "Native Hawaiian", "Two or More Races", "Other")
                 )
 
+            }
+
+            item{
+                Spacer(modifier = Modifier.height(5.dp))
             }
 
             item{
@@ -208,6 +229,10 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
             }
 
             item{
+                Spacer(modifier = Modifier.height(5.dp))
+            }
+
+            item{
 
                 ProfileYear(
                     selectedYear = uiState.year ?: "",
@@ -218,11 +243,19 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
             }
 
             item{
+                Spacer(modifier = Modifier.height(5.dp))
+            }
+
+            item{
                 ProfileGradYear(
                     selectedYear = uiState.gradYear ?: "",
                     onYearSelected = profileViewModel::onGradYearChanged,
                     years = listOf("2024", "2025", "2026", "2027")
                 )
+            }
+
+            item{
+                Spacer(modifier = Modifier.height(86.dp))
             }
 
 
@@ -433,6 +466,33 @@ fun ProfileCountry(selectedCountry: String, onCountrySelected: (String) -> Unit,
 @Composable
 fun ProfileEthnicity(selectedEthnicity: String, onEthnicitySelected: (String) -> Unit, ethnicities: List<String>) {
     var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .padding(vertical = 8.dp)
+    ) {
+        // Row for Icon and Field Name
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 4.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.profile_globe),
+                contentDescription = "Globe Icon",
+                modifier = Modifier.size(26.dp) // Set size for the icon
+            )
+            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
+            Text(
+                text = "ETHNICITY",
+                color = Color(0xFFD25917), // Orange color
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+
+
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
@@ -440,12 +500,8 @@ fun ProfileEthnicity(selectedEthnicity: String, onEthnicitySelected: (String) ->
         TextField(
             value = selectedEthnicity,
             onValueChange = {},
-            label = { Text("ETHNICITY", fontSize = 15.sp) },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_globe),
-                    contentDescription = null,
-                )
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             shape = RoundedCornerShape(12.dp),
             readOnly = true,
@@ -488,7 +544,7 @@ fun ProfileGender(selectedGender: String, onGenderSelected: (String) -> Unit, ge
             Image(
                 painter = painterResource(id = R.drawable.profile_gender_equality),
                 contentDescription = "GenderIcon",
-                modifier = Modifier.size(24.dp) // Set size for the icon
+                modifier = Modifier.size(26.dp) // Set size for the icon
             )
             Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
             Text(
