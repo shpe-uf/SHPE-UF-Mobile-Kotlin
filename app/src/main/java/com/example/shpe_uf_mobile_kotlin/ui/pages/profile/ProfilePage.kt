@@ -340,6 +340,31 @@ fun ProfilePageBackground(modifier: Modifier = Modifier) {
 fun ProfileGradYear(selectedYear: String, onYearSelected: (String) -> Unit, years: List<String>) {
     var expanded by remember { mutableStateOf(false) }
 
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .padding(vertical = 8.dp)
+    ) {
+        // Row for Icon and Field Name
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 4.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.profile_cap),
+                contentDescription = "GradCapIcon",
+                modifier = Modifier.size(26.dp) // Set size for the icon
+            )
+            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
+            Text(
+                text = "GRADUATION YEAR",
+                color = Color(0xFFD25917), // Orange color
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
@@ -348,12 +373,8 @@ fun ProfileGradYear(selectedYear: String, onYearSelected: (String) -> Unit, year
         TextField(
             value = selectedYear,
             onValueChange = {},
-            label = { Text("GRADUATION YEAR", fontSize = 15.sp) },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_cap),
-                    contentDescription = null,
-                )
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             shape = RoundedCornerShape(12.dp),
             readOnly = true, // Prevents manual input
