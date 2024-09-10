@@ -36,19 +36,20 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
 @Composable
-fun SignIn(shpeUFAppViewModel: SHPEUFAppViewModel) {
+fun SignIn(navController: NavHostController, shpeUFAppViewModel: SHPEUFAppViewModel) {
     SignInBackground()
-    SignInScreen(shpeUFAppViewModel)
+    SignInScreen(navController, shpeUFAppViewModel)
 }
 
 @Composable
@@ -78,7 +79,7 @@ fun SignInBackground() {
 }
 
 @Composable
-fun SignInScreen(shpeUFAppViewModel: SHPEUFAppViewModel) {
+fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFAppViewModel) {
 
     val signInViewModel = remember { SignInViewModel() }
     val uiState by signInViewModel.uiState.collectAsState()
@@ -141,7 +142,7 @@ fun SignInScreen(shpeUFAppViewModel: SHPEUFAppViewModel) {
             //Spacer(modifier = Modifier.height(85.dp))
             Row(modifier = Modifier.padding(top = 85.dp)) {
                 SignInButton(
-                    onClick = { signInViewModel.validateAndLoginUser(shpeUFAppViewModel) }
+                    onClick = { OnSignInClick(navController,signInViewModel, shpeUFAppViewModel) }
                 )
             }
             Row(modifier = Modifier.padding(top = 20.dp)) {
@@ -150,6 +151,12 @@ fun SignInScreen(shpeUFAppViewModel: SHPEUFAppViewModel) {
         }
     }
 
+}
+
+fun OnSignInClick(navController: NavHostController, signInViewModel: SignInViewModel, shpeUFAppViewModel: SHPEUFAppViewModel){
+    signInViewModel.validateAndLoginUser(shpeUFAppViewModel)
+    val success = signInViewModel.uiState.value
+    if(success.loginSuccess){ navController.navigate(Routes.points) }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

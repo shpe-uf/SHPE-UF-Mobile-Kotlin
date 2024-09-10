@@ -5,4 +5,7 @@ object Routes {
     var register = "register"
     var loading = "loading"
     var opening = "opening"
+    var points = "points"
+
+
 }
