@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.shpe_uf_mobile_kotlin.SHPEUFApp
 import com.example.shpe_uf_mobile_kotlin.repository.UserRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -94,4 +95,10 @@ class SHPEUFAppViewModel(
             userRepository.saveDarkMode(isDarkMode)
         }
     }
+}
+
+sealed class ViewState {
+    object Loading: ViewState()
+    object LoggedIn: ViewState()
+    object NotLoggedIn: ViewState()
 }
