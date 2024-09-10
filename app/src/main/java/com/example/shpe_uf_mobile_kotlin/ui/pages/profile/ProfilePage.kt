@@ -88,6 +88,26 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
             }
 
             item{
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            item {
+                Text(
+                    text = "ACCOUNT INFO",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 36.dp),
+                    color = Color(0xFFC6C6C6),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            item{
+                Spacer(modifier = Modifier.height(27.dp))
+            }
+
+            item{
                 ProfileName(
                     value = uiState.fullName ?: "",
                     onValueChange = profileViewModel::onFullNameChanged
@@ -205,18 +225,6 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
             }
 
 
-
-
-
-
-//            Column (
-//                modifier = Modifier
-//                    .fillMaxHeight()
-//                    .fillMaxWidth(),
-//                horizontalAlignment = Alignment.CenterHorizontally,
-//                verticalArrangement = Arrangement.spacedBy(5.dp)
-//            ) {
-//            }
 
 
         }
