@@ -110,9 +110,8 @@ fun StaticProfileScreen(profileViewModel: ProfileViewModel){
 
             item{
                 StaticProfileGender(
-                    selectedGender = uiState.gender ?: "",
-                    onGenderSelected = profileViewModel::onGenderChanged,
-                    genders = listOf("Male", "Female", "Other")
+                    value = uiState.email ?: "",
+                    onValueChange = profileViewModel::onGenderChanged
                 )
             }
 
@@ -439,46 +438,58 @@ fun StaticProfileEthnicity(selectedEthnicity: String, onEthnicitySelected: (Stri
     }
 }
 
+
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticProfileGender(selectedGender: String, onGenderSelected: (String) -> Unit, genders: List<String>) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+fun StaticProfileGender(value: String, onValueChange: (String) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .padding(vertical = 8.dp)
     ) {
-        TextField(
-            value = selectedGender,
-            onValueChange = {},
-            label = { Text("GENDER", fontSize = 15.sp) },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_gender_equality),
-                    contentDescription = null,
-                )
-            },
-            shape = RoundedCornerShape(12.dp),
-            readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
+        // Row for Icon and Field Name
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 4.dp)
         ) {
-            genders.forEach { gender ->
-                DropdownMenuItem(
-                    text = { Text(text = gender) }, // Updated to use the new API
-                    onClick = {
-                        onGenderSelected(gender)
-                        expanded = false
-                    }
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.profile_gender_equality),
+                contentDescription = "GenderIcon",
+                modifier = Modifier.size(26.dp) // Set size for the icon
+            )
+            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
+            Text(
+                text = "GENDER",
+                color = Color(0xFFD25917), // Orange color
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
+        // Outlined Text Field for Input
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = value,
+            onValueChange = { newValue -> onValueChange(newValue) },
+            enabled = false,
+            readOnly = true,
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                textColor = Color.White,
+                placeholderColor = Color.Gray
+            )
+        )
     }
 }
+
+
+
+
+
 
 
 
