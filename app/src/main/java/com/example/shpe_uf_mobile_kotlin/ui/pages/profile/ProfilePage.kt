@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -66,55 +67,67 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
     SHPEUFMobileKotlinTheme{
         val uiState by profileViewModel.uiState.collectAsState()
         profileViewModel.loadProfile("64ea79b9f2051e00149c75b7")
+
         ProfilePageBackground()
-        Column(
+
+        LazyColumn(
             modifier = Modifier
                 //TODO: fix disappearing profile fields
-                .padding(horizontal = 15.dp, vertical = 210.dp)
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .verticalScroll(rememberScrollState()),
+                .padding(horizontal = 15.dp)
+                .padding(top = 206.dp)
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(40.dp)
         ) {
-            Column (
-                modifier = Modifier
-                    .fillMaxWidth(),
-            ){
+
+            item{
                 SaveCancelButtons(
                     onSaveClick = { profileViewModel.saveProfileChanges() },
                     onCancelClick = { profileViewModel.cancelProfileChanges() }
                 )
+
             }
-            Column (
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
+
+            item{
                 ProfileName(
                     value = uiState.fullName ?: "",
                     onValueChange = profileViewModel::onFullNameChanged
                 )
+
+            }
+
+            item{
                 ProfileUserName(
                     value = uiState.userName ?: "",
                     onValueChange = profileViewModel::onUserNameChanged
                 )
+            }
+            item{
                 ProfileEmail(
                     value = uiState.email ?: "",
                     onValueChange = profileViewModel::onEmailChanged
                 )
+
+            }
+
+            item{
                 ProfileGender(
                     selectedGender = uiState.gender ?: "",
                     onGenderSelected = profileViewModel::onGenderChanged,
                     genders = listOf("Male", "Female", "Other")
                 )
+
+            }
+
+            item{
                 ProfileEthnicity(
                     selectedEthnicity = uiState.ethnicity ?: "",
                     onEthnicitySelected = profileViewModel::onEthnicityChanged,
                     ethnicities = listOf("Hispanic", "Black/African American", "Asian", "White", "Native American", "Native Hawaiian", "Two or More Races", "Other")
                 )
+
+            }
+
+            item{
                 ProfileCountry(
                     selectedCountry = uiState.country ?: "",
                     onCountrySelected = profileViewModel::onCountryChanged,
@@ -170,17 +183,42 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
                         "Vietnam"
                     )
                 )
+
+            }
+
+            item{
+
                 ProfileYear(
                     selectedYear = uiState.year ?: "",
                     onYearSelected = profileViewModel::onYearChanged,
                     years = listOf("First", "Second", "Third", "Fourth", "Fifth", "Grad")
                 )
+
+            }
+
+            item{
                 ProfileGradYear(
                     selectedYear = uiState.gradYear ?: "",
                     onYearSelected = profileViewModel::onGradYearChanged,
                     years = listOf("2024", "2025", "2026", "2027")
                 )
             }
+
+
+
+
+
+
+//            Column (
+//                modifier = Modifier
+//                    .fillMaxHeight()
+//                    .fillMaxWidth(),
+//                horizontalAlignment = Alignment.CenterHorizontally,
+//                verticalArrangement = Arrangement.spacedBy(5.dp)
+//            ) {
+//            }
+
+
         }
     }
 }
@@ -247,8 +285,8 @@ fun ProfilePageBackground(modifier: Modifier = Modifier) {
                 contentDescription = "BLUE CURVE",
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .width(95.dp) // Fixed width
-                    .height(95.dp) // Fixed height
+                    .width(116.dp) // Fixed width
+                    .height(110.dp) // Fixed height
             )
         }
     }
@@ -444,7 +482,7 @@ fun ProfileGender(selectedGender: String, onGenderSelected: (String) -> Unit, ge
             shape = RoundedCornerShape(12.dp),
             readOnly = true,
             modifier = Modifier
-                .fillMaxWidth(0.7f)
+                .fillMaxWidth(0.8f)
                 .menuAnchor()
         )
         ExposedDropdownMenu(
@@ -498,6 +536,8 @@ fun ProfileEmail(value: String, onValueChange: (String) -> Unit) {
             value = value,
             onValueChange = { newValue -> onValueChange(newValue) },
             singleLine = true,
+            enabled = false,
+            readOnly = true,
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
