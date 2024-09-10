@@ -80,6 +80,7 @@ class SignInViewModel : ViewModel() {
             //if (loginSuccess) updateErrorMessage("Logged in.") else updateErrorMessage("Could not login.")
             if(id != null){
                 shpeUFAppViewModel.saveUserId(id)
+                shpeUFAppViewModel.saveLoggedIn(true)
                 _uiState.value = getCurrentState().copy(
                     loginSuccess = true
                 )
