@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -67,55 +68,63 @@ fun StaticProfileScreen(profileViewModel: ProfileViewModel){
     SHPEUFMobileKotlinTheme{
         val uiState by profileViewModel.uiState.collectAsState()
         profileViewModel.loadProfile("64ea79b9f2051e00149c75b7")
+
         StaticProfilePageBackground()
-        Column(
+
+
+        LazyColumn(
             modifier = Modifier
-                //TODO: fix disappearing profile fields
-                .padding(horizontal = 15.dp, vertical = 210.dp)
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .verticalScroll(rememberScrollState()),
+                .padding(horizontal = 15.dp)
+                .padding(top = 252.dp)
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(40.dp)
+            verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            Column (
-                modifier = Modifier
-                    .fillMaxWidth(),
-            ){
+            item {
                 EditProfileButton(
                     // TODO NEED TO ADD THE ROUTE TO PROFILEPAGE.KT
                     onClick = {  },
                 )
             }
-            Column (
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
+
+            item{
                 StaticProfileName(
                     value = uiState.fullName ?: "",
                     onValueChange = profileViewModel::onFullNameChanged
                 )
+            }
+
+            item{
                 StaticProfileUserName(
                     value = uiState.userName ?: "",
                     onValueChange = profileViewModel::onUserNameChanged
                 )
+            }
+
+            item{
                 StaticProfileEmail(
                     value = uiState.email ?: "",
                     onValueChange = profileViewModel::onEmailChanged
                 )
+            }
+
+            item{
                 StaticProfileGender(
                     selectedGender = uiState.gender ?: "",
                     onGenderSelected = profileViewModel::onGenderChanged,
                     genders = listOf("Male", "Female", "Other")
                 )
+            }
+
+            item{
                 StaticProfileEthnicity(
                     selectedEthnicity = uiState.ethnicity ?: "",
                     onEthnicitySelected = profileViewModel::onEthnicityChanged,
                     ethnicities = listOf("Hispanic", "Black/African American", "Asian", "White", "Native American", "Native Hawaiian", "Two or More Races", "Other")
                 )
+            }
+
+            item{
                 StaticProfileCountry(
                     selectedCountry = uiState.country ?: "",
                     onCountrySelected = profileViewModel::onCountryChanged,
@@ -171,11 +180,17 @@ fun StaticProfileScreen(profileViewModel: ProfileViewModel){
                         "Vietnam"
                     )
                 )
+            }
+
+            item{
                 StaticProfileYear(
                     selectedYear = uiState.year ?: "",
                     onYearSelected = profileViewModel::onYearChanged,
                     years = listOf("First", "Second", "Third", "Fourth", "Fifth", "Grad")
                 )
+            }
+
+            item{
                 StaticProfileGradYear(
                     selectedYear = uiState.gradYear ?: "",
                     onYearSelected = profileViewModel::onGradYearChanged,
@@ -445,7 +460,7 @@ fun StaticProfileGender(selectedGender: String, onGenderSelected: (String) -> Un
             shape = RoundedCornerShape(12.dp),
             readOnly = true,
             modifier = Modifier
-                .fillMaxWidth(0.7f)
+                .fillMaxWidth(0.8f)
                 .menuAnchor()
         )
         ExposedDropdownMenu(
@@ -498,6 +513,8 @@ fun StaticProfileEmail(value: String, onValueChange: (String) -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             value = value,
             onValueChange = { newValue -> onValueChange(newValue) },
+            enabled = false,
+            readOnly = true,
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
