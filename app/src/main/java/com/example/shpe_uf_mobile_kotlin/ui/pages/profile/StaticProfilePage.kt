@@ -161,9 +161,8 @@ fun StaticProfileScreen(profileViewModel: ProfileViewModel){
 
             item{
                 StaticProfileYear(
-                    selectedYear = uiState.year ?: "",
-                    onYearSelected = profileViewModel::onYearChanged,
-                    years = listOf("First", "Second", "Third", "Fourth", "Fifth", "Grad")
+                    value = uiState.year ?: "",
+                    onValueChange = profileViewModel::onYearChanged
                 )
             }
 
@@ -293,62 +292,21 @@ fun StaticProfileGradYear(selectedYear: String, onYearSelected: (String) -> Unit
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun StaticProfileYear(selectedYear: String, onYearSelected: (String) -> Unit, years: List<String>) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        TextField(
-            value = selectedYear,
-            onValueChange = {},
-            label = { Text("YEAR", fontSize = 15.sp) },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_year),
-                    contentDescription = null,
-                )
-            },
-            shape = RoundedCornerShape(12.dp),
-            readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            years.forEach { year ->
-                DropdownMenuItem(
-                    text = { Text(text = year) }, // Updated to use the new API
-                    onClick = {
-                        onYearSelected(year)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-
 //@OptIn(ExperimentalMaterial3Api::class)
 //@Composable
-//fun StaticProfileCountry(selectedCountry: String, onCountrySelected: (String) -> Unit, countries: List<String>) {
+//fun StaticProfileYear(selectedYear: String, onYearSelected: (String) -> Unit, years: List<String>) {
 //    var expanded by remember { mutableStateOf(false) }
 //    ExposedDropdownMenuBox(
 //        expanded = expanded,
 //        onExpandedChange = { expanded = !expanded }
 //    ) {
 //        TextField(
-//            value = selectedCountry,
+//            value = selectedYear,
 //            onValueChange = {},
-//            label = { Text("COUNTRY OF ORIGIN", fontSize = 15.sp) },
+//            label = { Text("YEAR", fontSize = 15.sp) },
 //            leadingIcon = {
 //                Image(
-//                    painter = painterResource(id = R.drawable.profile_globe),
+//                    painter = painterResource(id = R.drawable.profile_year),
 //                    contentDescription = null,
 //                )
 //            },
@@ -362,11 +320,11 @@ fun StaticProfileYear(selectedYear: String, onYearSelected: (String) -> Unit, ye
 //            expanded = expanded,
 //            onDismissRequest = { expanded = false }
 //        ) {
-//            countries.forEach { country ->
+//            years.forEach { year ->
 //                DropdownMenuItem(
-//                    text = { Text(text = country) }, // Updated to use the new API
+//                    text = { Text(text = year) }, // Updated to use the new API
 //                    onClick = {
-//                        onCountrySelected(country)
+//                        onYearSelected(year)
 //                        expanded = false
 //                    }
 //                )
@@ -374,6 +332,54 @@ fun StaticProfileYear(selectedYear: String, onYearSelected: (String) -> Unit, ye
 //        }
 //    }
 //}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StaticProfileYear(value: String, onValueChange: (String) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .padding(vertical = 8.dp)
+    ) {
+        // Row for Icon and Field Name
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 4.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.profile_year),
+                contentDescription = "CalenderIcon",
+                modifier = Modifier.size(26.dp) // Set size for the icon
+            )
+            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
+            Text(
+                text = "YEAR",
+                color = Color(0xFFD25917), // Orange color
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        // Outlined Text Field for Input
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = value,
+            onValueChange = { newValue -> onValueChange(newValue) },
+            enabled = false,
+            readOnly = true,
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                textColor = Color.White,
+                placeholderColor = Color.Gray
+            )
+        )
+    }
+}
+
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
