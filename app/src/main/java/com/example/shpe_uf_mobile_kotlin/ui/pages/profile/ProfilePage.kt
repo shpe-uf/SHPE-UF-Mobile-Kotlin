@@ -384,6 +384,32 @@ fun ProfileGradYear(selectedYear: String, onYearSelected: (String) -> Unit, year
 @Composable
 fun ProfileYear(selectedYear: String, onYearSelected: (String) -> Unit, years: List<String>) {
     var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .padding(vertical = 8.dp)
+    ) {
+        // Row for Icon and Field Name
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 4.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.profile_year),
+                contentDescription = "YearIcon",
+                modifier = Modifier.size(26.dp) // Set size for the icon
+            )
+            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
+            Text(
+                text = "YEAR",
+                color = Color(0xFFD25917), // Orange color
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
@@ -391,12 +417,8 @@ fun ProfileYear(selectedYear: String, onYearSelected: (String) -> Unit, years: L
         TextField(
             value = selectedYear,
             onValueChange = {},
-            label = { Text("YEAR", fontSize = 15.sp) },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_year),
-                    contentDescription = null,
-                )
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             shape = RoundedCornerShape(12.dp),
             readOnly = true,
@@ -438,7 +460,7 @@ fun ProfileCountry(selectedCountry: String, onCountrySelected: (String) -> Unit,
         ) {
             Image(
                 painter = painterResource(id = R.drawable.profile_globe),
-                contentDescription = "Globe Icon",
+                contentDescription = "GlobeIcon",
                 modifier = Modifier.size(26.dp) // Set size for the icon
             )
             Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
@@ -501,7 +523,7 @@ fun ProfileEthnicity(selectedEthnicity: String, onEthnicitySelected: (String) ->
         ) {
             Image(
                 painter = painterResource(id = R.drawable.profile_globe),
-                contentDescription = "Globe Icon",
+                contentDescription = "GlobeIcon",
                 modifier = Modifier.size(26.dp) // Set size for the icon
             )
             Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
