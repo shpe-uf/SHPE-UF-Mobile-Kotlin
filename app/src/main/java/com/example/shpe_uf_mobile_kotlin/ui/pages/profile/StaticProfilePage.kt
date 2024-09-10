@@ -75,16 +75,46 @@ fun StaticProfileScreen(profileViewModel: ProfileViewModel){
         LazyColumn(
             modifier = Modifier
                 .padding(horizontal = 15.dp)
-                .padding(top = 252.dp)
+                .padding(top = 206.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(5.dp)
+//            verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
+            item{
+                Text(
+                    text = uiState.fullName ?: "",
+                    color = Color(0xFFFFFFFF),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+            }
+
             item {
                 EditProfileButton(
                     // TODO NEED TO ADD THE ROUTE TO PROFILEPAGE.KT
                     onClick = {  },
                 )
+            }
+
+            item{
+                Spacer(modifier = Modifier.height(39.dp))
+            }
+
+            item {
+                Text(
+                    text = "ACCOUNT INFO",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 36.dp),
+                    color = Color(0xFFC6C6C6),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            item{
+                Spacer(modifier = Modifier.height(27.dp))
             }
 
             item{
@@ -124,59 +154,8 @@ fun StaticProfileScreen(profileViewModel: ProfileViewModel){
 
             item{
                 StaticProfileCountry(
-                    selectedCountry = uiState.country ?: "",
-                    onCountrySelected = profileViewModel::onCountryChanged,
-                    countries = listOf(
-                        "Argentina",
-                        "Australia",
-                        "Austria",
-                        "Belgium",
-                        "Brazil",
-                        "Canada",
-                        "Chile",
-                        "China",
-                        "Czech Republic",
-                        "Denmark",
-                        "Egypt",
-                        "Finland",
-                        "France",
-                        "Germany",
-                        "Greece",
-                        "Hungary",
-                        "India",
-                        "Indonesia",
-                        "Ireland",
-                        "Israel",
-                        "Italy",
-                        "Japan",
-                        "Kenya",
-                        "Malaysia",
-                        "Mexico",
-                        "Netherlands",
-                        "New Zealand",
-                        "Nigeria",
-                        "Norway",
-                        "Pakistan",
-                        "Philippines",
-                        "Poland",
-                        "Portugal",
-                        "Romania",
-                        "Russia",
-                        "Saudi Arabia",
-                        "Singapore",
-                        "South Africa",
-                        "South Korea",
-                        "Spain",
-                        "Sweden",
-                        "Switzerland",
-                        "Thailand",
-                        "Turkey",
-                        "Ukraine",
-                        "United Arab Emirates",
-                        "United Kingdom",
-                        "United States",
-                        "Vietnam"
-                    )
+                    value = uiState.country ?: "",
+                    onValueChange = profileViewModel::onCountryChanged
                 )
             }
 
@@ -261,8 +240,8 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier) {
                 contentDescription = "BLUE CURVE",
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .width(95.dp) // Fixed width
-                    .height(95.dp) // Fixed height
+                    .width(116.dp) // Fixed width
+                    .height(110.dp) // Fixed height
             )
         }
     }
@@ -355,59 +334,18 @@ fun StaticProfileYear(selectedYear: String, onYearSelected: (String) -> Unit, ye
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun StaticProfileCountry(selectedCountry: String, onCountrySelected: (String) -> Unit, countries: List<String>) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        TextField(
-            value = selectedCountry,
-            onValueChange = {},
-            label = { Text("COUNTRY OF ORIGIN", fontSize = 15.sp) },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_globe),
-                    contentDescription = null,
-                )
-            },
-            shape = RoundedCornerShape(12.dp),
-            readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            countries.forEach { country ->
-                DropdownMenuItem(
-                    text = { Text(text = country) }, // Updated to use the new API
-                    onClick = {
-                        onCountrySelected(country)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-
 //@OptIn(ExperimentalMaterial3Api::class)
 //@Composable
-//fun StaticProfileEthnicity(selectedEthnicity: String, onEthnicitySelected: (String) -> Unit, ethnicities: List<String>) {
+//fun StaticProfileCountry(selectedCountry: String, onCountrySelected: (String) -> Unit, countries: List<String>) {
 //    var expanded by remember { mutableStateOf(false) }
 //    ExposedDropdownMenuBox(
 //        expanded = expanded,
 //        onExpandedChange = { expanded = !expanded }
 //    ) {
 //        TextField(
-//            value = selectedEthnicity,
+//            value = selectedCountry,
 //            onValueChange = {},
-//            label = { Text("ETHNICITY", fontSize = 15.sp) },
+//            label = { Text("COUNTRY OF ORIGIN", fontSize = 15.sp) },
 //            leadingIcon = {
 //                Image(
 //                    painter = painterResource(id = R.drawable.profile_globe),
@@ -424,11 +362,11 @@ fun StaticProfileCountry(selectedCountry: String, onCountrySelected: (String) ->
 //            expanded = expanded,
 //            onDismissRequest = { expanded = false }
 //        ) {
-//            ethnicities.forEach { ethnicity ->
+//            countries.forEach { country ->
 //                DropdownMenuItem(
-//                    text = { Text(text = ethnicity) }, // Updated to use the new API
+//                    text = { Text(text = country) }, // Updated to use the new API
 //                    onClick = {
-//                        onEthnicitySelected(ethnicity)
+//                        onCountrySelected(country)
 //                        expanded = false
 //                    }
 //                )
@@ -436,6 +374,54 @@ fun StaticProfileCountry(selectedCountry: String, onCountrySelected: (String) ->
 //        }
 //    }
 //}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StaticProfileCountry(value: String, onValueChange: (String) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .padding(vertical = 8.dp)
+    ) {
+        // Row for Icon and Field Name
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 4.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.profile_globe),
+                contentDescription = "GlobeIcon",
+                modifier = Modifier.size(26.dp) // Set size for the icon
+            )
+            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
+            Text(
+                text = "COUNTRY OF ORIGIN",
+                color = Color(0xFFD25917), // Orange color
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        // Outlined Text Field for Input
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = value,
+            onValueChange = { newValue -> onValueChange(newValue) },
+            enabled = false,
+            readOnly = true,
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                textColor = Color.White,
+                placeholderColor = Color.Gray
+            )
+        )
+    }
+}
+
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -453,7 +439,7 @@ fun StaticProfileEthnicity(value: String, onValueChange: (String) -> Unit) {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.profile_globe),
-                contentDescription = "EthnicityIcon",
+                contentDescription = "GlobeIcon",
                 modifier = Modifier.size(26.dp) // Set size for the icon
             )
             Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
@@ -523,6 +509,7 @@ fun StaticProfileGender(value: String, onValueChange: (String) -> Unit) {
             shape = RoundedCornerShape(12.dp),
             textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
 
+
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 textColor = Color.White,
                 placeholderColor = Color.Gray
@@ -575,14 +562,7 @@ fun StaticProfileEmail(value: String, onValueChange: (String) -> Unit) {
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
-            placeholder = {
-                if (value.isEmpty()) { // Show placeholder only when value is empty
-                    Text(
-                        text = "Enter Email", // Placeholder text
-                        color = Color.Gray
-                    )
-                }
-            },
+
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
@@ -630,14 +610,7 @@ fun StaticProfileUserName(value: String, onValueChange: (String) -> Unit) {
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
-            placeholder = {
-                if (value.isEmpty()) { // Show placeholder only when value is empty
-                    Text(
-                        text = "Enter Username", // Placeholder text
-                        color = Color.Gray
-                    )
-                }
-            },
+
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
@@ -686,14 +659,7 @@ fun StaticProfileName(value: String, onValueChange: (String) -> Unit) {
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
-            placeholder = {
-                if (value.isEmpty()) { // Show placeholder only when value is empty
-                    Text(
-                        text = "Enter Name", // Placeholder text
-                        color = Color.Gray
-                    )
-                }
-            },
+
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
