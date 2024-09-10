@@ -71,15 +71,19 @@ class SignInViewModel : ViewModel() {
             Ensures the coroutine is cancelled when the ViewModel is cleared. Important for avoiding memory leaks.
         */
         viewModelScope.launch {// Everything in the {} runs asynchronously.
-            val loginSuccess = loginUser(
+            val id = loginUser(
                 username,
                 password
             ) // This call will suspend the coroutine until the login operation is complete.
 
             // If login is unsuccessful, do nothing, else change it to logged in.
             //if (loginSuccess) updateErrorMessage("Logged in.") else updateErrorMessage("Could not login.")
-            if(loginSuccess != null) shpeUFAppViewModel.saveUserId(loginSuccess)
-
+            if(id != null){
+                shpeUFAppViewModel.saveUserId(id)
+                _uiState.value = getCurrentState().copy(
+                    loginSuccess = true
+                )
+            }
         }
     }
 

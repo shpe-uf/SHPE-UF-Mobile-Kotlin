@@ -1,5 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.points
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -70,8 +71,15 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
-fun FullView(pointsPageViewModel: PointsPageViewModel, shpeufAppViewModel: SHPEUFAppViewModel) {
+fun FullView(shpeufAppViewModel: SHPEUFAppViewModel) {
+
+    val pointsPageViewModel = remember { PointsPageViewModel() }
+
+    val UserState by shpeufAppViewModel.uiState.collectAsState()
+
+    val id = UserState.id
 
     SHPEUFMobileKotlinTheme {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -81,10 +89,10 @@ fun FullView(pointsPageViewModel: PointsPageViewModel, shpeufAppViewModel: SHPEU
                 modifier = Modifier.weight(1f)
             ) {
                 item {
-                    PointsPercentile(pointsPageViewModel,"642f7f80e8839f0014e8be9b")
+                    PointsPercentile(pointsPageViewModel,id)
                 }
                 item {
-                    PointsCalendar("642f7f80e8839f0014e8be9b")
+                    PointsCalendar(id)
                 }
             }
 
