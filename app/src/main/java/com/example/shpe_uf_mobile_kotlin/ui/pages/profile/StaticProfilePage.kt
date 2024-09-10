@@ -110,16 +110,15 @@ fun StaticProfileScreen(profileViewModel: ProfileViewModel){
 
             item{
                 StaticProfileGender(
-                    value = uiState.email ?: "",
+                    value = uiState.gender ?: "",
                     onValueChange = profileViewModel::onGenderChanged
                 )
             }
 
             item{
                 StaticProfileEthnicity(
-                    selectedEthnicity = uiState.ethnicity ?: "",
-                    onEthnicitySelected = profileViewModel::onEthnicityChanged,
-                    ethnicities = listOf("Hispanic", "Black/African American", "Asian", "White", "Native American", "Native Hawaiian", "Two or More Races", "Other")
+                    value = uiState.ethnicity ?: "",
+                    onValueChange = profileViewModel::onEthnicityChanged
                 )
             }
 
@@ -397,44 +396,90 @@ fun StaticProfileCountry(selectedCountry: String, onCountrySelected: (String) ->
     }
 }
 
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun StaticProfileEthnicity(selectedEthnicity: String, onEthnicitySelected: (String) -> Unit, ethnicities: List<String>) {
+//    var expanded by remember { mutableStateOf(false) }
+//    ExposedDropdownMenuBox(
+//        expanded = expanded,
+//        onExpandedChange = { expanded = !expanded }
+//    ) {
+//        TextField(
+//            value = selectedEthnicity,
+//            onValueChange = {},
+//            label = { Text("ETHNICITY", fontSize = 15.sp) },
+//            leadingIcon = {
+//                Image(
+//                    painter = painterResource(id = R.drawable.profile_globe),
+//                    contentDescription = null,
+//                )
+//            },
+//            shape = RoundedCornerShape(12.dp),
+//            readOnly = true,
+//            modifier = Modifier
+//                .fillMaxWidth(0.8f)
+//                .menuAnchor()
+//        )
+//        ExposedDropdownMenu(
+//            expanded = expanded,
+//            onDismissRequest = { expanded = false }
+//        ) {
+//            ethnicities.forEach { ethnicity ->
+//                DropdownMenuItem(
+//                    text = { Text(text = ethnicity) }, // Updated to use the new API
+//                    onClick = {
+//                        onEthnicitySelected(ethnicity)
+//                        expanded = false
+//                    }
+//                )
+//            }
+//        }
+//    }
+//}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticProfileEthnicity(selectedEthnicity: String, onEthnicitySelected: (String) -> Unit, ethnicities: List<String>) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+fun StaticProfileEthnicity(value: String, onValueChange: (String) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .padding(vertical = 8.dp)
     ) {
-        TextField(
-            value = selectedEthnicity,
-            onValueChange = {},
-            label = { Text("ETHNICITY", fontSize = 15.sp) },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_globe),
-                    contentDescription = null,
-                )
-            },
-            shape = RoundedCornerShape(12.dp),
-            readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
+        // Row for Icon and Field Name
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 4.dp)
         ) {
-            ethnicities.forEach { ethnicity ->
-                DropdownMenuItem(
-                    text = { Text(text = ethnicity) }, // Updated to use the new API
-                    onClick = {
-                        onEthnicitySelected(ethnicity)
-                        expanded = false
-                    }
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.profile_globe),
+                contentDescription = "EthnicityIcon",
+                modifier = Modifier.size(26.dp) // Set size for the icon
+            )
+            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
+            Text(
+                text = "ETHNICITY",
+                color = Color(0xFFD25917), // Orange color
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
+        // Outlined Text Field for Input
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = value,
+            onValueChange = { newValue -> onValueChange(newValue) },
+            enabled = false,
+            readOnly = true,
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                textColor = Color.White,
+                placeholderColor = Color.Gray
+            )
+        )
     }
 }
 
