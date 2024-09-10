@@ -13,6 +13,7 @@ class UserRepository(private val dataStore: DataStore<Preferences>) {
         val USER_ID = stringPreferencesKey("user_id")
         val LOGGED_IN = booleanPreferencesKey("logged_in")
         val LOGGED_OUT = booleanPreferencesKey("logged_out")
+        val IS_REGISTERED = booleanPreferencesKey("is_registered")
         val DARK_MODE = booleanPreferencesKey("dark_mode") // true = dark mode, false = light mode
     }
 
@@ -33,6 +34,16 @@ class UserRepository(private val dataStore: DataStore<Preferences>) {
     suspend fun saveLoggedIn(isLoggedIn: Boolean){
         dataStore.edit{ preferences ->
             preferences[LOGGED_IN] = isLoggedIn
+        }
+    }
+
+    val currentRegistered: Flow<Boolean> = dataStore.data.map{ preferences ->
+        preferences[IS_REGISTERED] ?: false
+    }
+
+    suspend fun saveRegistered(isRegistered: Boolean){
+        dataStore.edit{ preferences ->
+            preferences[IS_REGISTERED] = isRegistered
         }
     }
 
