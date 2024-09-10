@@ -2,46 +2,33 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -52,6 +39,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
+
+//import androidx.compose.foundation.border
+//import androidx.compose.foundation.layout.Arrangement
+//import androidx.compose.foundation.layout.fillMaxHeight
+//import androidx.compose.foundation.layout.offset
+//import androidx.compose.foundation.verticalScroll
+//import androidx.compose.foundation.rememberScrollState
+//import androidx.compose.material3.DropdownMenuItem
+//import androidx.compose.material3.ExposedDropdownMenuBox
+//import androidx.compose.material3.OutlinedTextField
+//import androidx.compose.runtime.LaunchedEffect
+//import androidx.compose.runtime.mutableStateOf
+//import androidx.compose.runtime.remember
+//import androidx.compose.runtime.setValue
+//import androidx.compose.ui.modifier.modifierLocalConsumer
 
 //TODO: add bottom bar functionality
 
@@ -168,10 +170,13 @@ fun StaticProfileScreen(profileViewModel: ProfileViewModel){
 
             item{
                 StaticProfileGradYear(
-                    selectedYear = uiState.gradYear ?: "",
-                    onYearSelected = profileViewModel::onGradYearChanged,
-                    years = listOf("2024", "2025", "2026", "2027")
+                    value = uiState.gradYear ?: "",
+                    onValueChange = profileViewModel::onGradYearChanged
                 )
+            }
+
+            item{
+                Spacer(modifier = Modifier.height(86.dp))
             }
         }
     }
@@ -227,7 +232,6 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier) {
             )
         }
         //TODO: display user's profile picture when they upload it
-        //TODO: display user's name under profile picture
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -246,92 +250,52 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier) {
     }
 }
 
-////TODO: fix dropdown fields disappearing once an option is clicked
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticProfileGradYear(selectedYear: String, onYearSelected: (String) -> Unit, years: List<String>) {
-    var expanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+fun StaticProfileGradYear(value: String, onValueChange: (String) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .padding(vertical = 8.dp)
     ) {
-        // The text field showing the selected year
-        TextField(
-            value = selectedYear,
-            onValueChange = {},
-            label = { Text("GRADUATION YEAR", fontSize = 15.sp) },
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_cap),
-                    contentDescription = null,
-                )
-            },
-            shape = RoundedCornerShape(12.dp),
-            readOnly = true, // Prevents manual input
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .menuAnchor()
-        )
-
-        // Dropdown menu
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
+        // Row for Icon and Field Name
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 4.dp)
         ) {
-            years.forEach { year ->
-                DropdownMenuItem(
-                    text = { Text(text = year) }, // Updated format
-                    onClick = {
-                        onYearSelected(year)
-                        expanded = false
-                    }
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.profile_cap),
+                contentDescription = "GradCapIcon",
+                modifier = Modifier.size(26.dp) // Set size for the icon
+            )
+            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
+            Text(
+                text = "GRADUATION YEAR",
+                color = Color(0xFFD25917), // Orange color
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
+        // Outlined Text Field for Input
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = value,
+            onValueChange = { newValue -> onValueChange(newValue) },
+            enabled = false,
+            readOnly = true,
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                textColor = Color.White,
+                placeholderColor = Color.Gray
+            )
+        )
     }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun StaticProfileYear(selectedYear: String, onYearSelected: (String) -> Unit, years: List<String>) {
-//    var expanded by remember { mutableStateOf(false) }
-//    ExposedDropdownMenuBox(
-//        expanded = expanded,
-//        onExpandedChange = { expanded = !expanded }
-//    ) {
-//        TextField(
-//            value = selectedYear,
-//            onValueChange = {},
-//            label = { Text("YEAR", fontSize = 15.sp) },
-//            leadingIcon = {
-//                Image(
-//                    painter = painterResource(id = R.drawable.profile_year),
-//                    contentDescription = null,
-//                )
-//            },
-//            shape = RoundedCornerShape(12.dp),
-//            readOnly = true,
-//            modifier = Modifier
-//                .fillMaxWidth(0.8f)
-//                .menuAnchor()
-//        )
-//        ExposedDropdownMenu(
-//            expanded = expanded,
-//            onDismissRequest = { expanded = false }
-//        ) {
-//            years.forEach { year ->
-//                DropdownMenuItem(
-//                    text = { Text(text = year) }, // Updated to use the new API
-//                    onClick = {
-//                        onYearSelected(year)
-//                        expanded = false
-//                    }
-//                )
-//            }
-//        }
-//    }
-//}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -715,7 +679,6 @@ private fun EditProfileButton(
                     contentDescription = "EditPencilIcon",
                     modifier = Modifier.size(20.dp)
                 )
-
             }
         }
     }
