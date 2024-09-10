@@ -540,7 +540,7 @@ fun ProfileEmail(value: String, onValueChange: (String) -> Unit) {
             readOnly = true,
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+            textStyle = TextStyle(fontSize = 15.sp, color = Color.LightGray),
             placeholder = {
                 if (value.isEmpty()) { // Show placeholder only when value is empty
                     Text(
