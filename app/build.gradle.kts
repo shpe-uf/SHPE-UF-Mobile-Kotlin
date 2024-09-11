@@ -4,8 +4,7 @@ import java.util.Properties
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("com.apollographql.apollo3").version("4.0.0-beta.4")
-
+    id("com.apollographql.apollo3").version("4.0.0-beta.5")
     id("com.google.devtools.ksp")
 }
 
@@ -125,7 +124,9 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-    implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.4")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+    implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.5")
+    implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.5")
     // Might remove in the future.
     implementation ("com.google.accompanist:accompanist-pager:0.27.1")
 
@@ -133,12 +134,13 @@ dependencies {
     implementation("androidx.compose.ui:ui-util:$version")
     implementation("androidx.compose.ui:ui:$version")
 
-    implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.4")
+    implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.5")
 
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
 
-    implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.4")
+    implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.5")
 }
+
 
 apollo {
     service("service") {
