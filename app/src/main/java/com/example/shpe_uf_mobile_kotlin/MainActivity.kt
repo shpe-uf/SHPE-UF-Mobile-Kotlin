@@ -36,6 +36,7 @@ import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.BottomNavigationBar
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavHostContainer
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 
@@ -48,6 +49,7 @@ class MainActivity() : ComponentActivity() {
             SHPEUFMobileKotlinTheme {
                 val mainViewModel = initializeViewModel()
                 val UserState by mainViewModel.uiState.collectAsState()
+                val registerViewModel = RegisterPage1ViewModel()
 
                 val viewModelFactory = HomeViewModelFactory(
                     NotificationRepository(applicationContext),
@@ -84,21 +86,21 @@ class MainActivity() : ComponentActivity() {
 //                }
 
                 // A surface container using the 'background' color from the theme
-//                Surface(
-//                    modifier = Modifier.fillMaxSize(),
-//                    color = blueDarkModeBackground,
-//                ) {
-//                    Scaffold(
-//                        bottomBar = { if(!UserState.isLoggedIn && UserState.isLoggedOut) null else BottomNavigationBar(navController) }
-//                    ) {
-//                        Box(
-//                            modifier = Modifier
-//                                .padding(it),
-//                        ) {
-//                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState)
-//                        }
-//                    }
-//                }
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = blueDarkModeBackground,
+                ) {
+                    Scaffold(
+                        bottomBar = { if(!UserState.isLoggedIn && UserState.isLoggedOut) null else BottomNavigationBar(navController) }
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .padding(it),
+                        ) {
+                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState, registerViewModel)
+                        }
+                    }
+                }
             }
         }
     }

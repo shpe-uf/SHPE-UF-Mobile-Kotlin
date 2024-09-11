@@ -1,6 +1,5 @@
 package com.example.shpe_uf_mobile_kotlin.ui.navigation
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -36,9 +34,10 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
-import kotlinx.coroutines.async
 
 object NavRoute {
     const val HOME = "home"
@@ -46,6 +45,7 @@ object NavRoute {
     const val PROFILE = "profile"
     const val LOGIN = "login"
     const val OPENING = "opening"
+    const val REGISTER = "register"
 }
 
 data class BottomNavigationItem(
@@ -130,13 +130,14 @@ fun NavHostContainer(
     navHostController: NavHostController,
     homeViewModelFactory: HomeViewModelFactory,
     mainViewModel: SHPEUFAppViewModel,
-    UserState: AppState
+    userState: AppState,
+    registerViewModel: RegisterPage1ViewModel
 ) {
     val homeViewModel: HomeViewModel =
         viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
 
-    LaunchedEffect(UserState.isLoggedIn){
-        val isLoggedIn = UserState.isLoggedIn
+    LaunchedEffect(userState.isLoggedIn){
+        val isLoggedIn = userState.isLoggedIn
         Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
         navHostController.navigate(if(isLoggedIn) NavRoute.HOME else NavRoute.LOGIN)
     }
@@ -145,11 +146,11 @@ fun NavHostContainer(
         navController = navHostController,
         startDestination = NavRoute.LOGIN
     ) {
-        composable(NavRoute.HOME) {
-            HomeScreen(homeViewModel)
-        }
         composable(NavRoute.LOGIN) {
             SignIn(navHostController, mainViewModel)
+        }
+        composable(NavRoute.REGISTER){
+            RegistrationPage1(registerPage1ViewModel = registerViewModel, navController = navHostController)
         }
         composable(NavRoute.HOME)
         {

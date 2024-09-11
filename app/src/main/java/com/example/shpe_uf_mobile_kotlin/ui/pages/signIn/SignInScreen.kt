@@ -146,7 +146,7 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
                 )
             }
             Row(modifier = Modifier.padding(top = 20.dp)) {
-                SignUp()
+                SignUp(navController)
             }
         }
     }
@@ -157,6 +157,10 @@ fun OnSignInClick(navController: NavHostController, signInViewModel: SignInViewM
     signInViewModel.validateAndLoginUser(shpeUFAppViewModel)
     val success = shpeUFAppViewModel.uiState.value
     if(success.isLoggedIn){ navController.navigate(Routes.points) }
+}
+
+fun onSignUpClick(navController: NavHostController){
+    navController.navigate(Routes.register)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -232,7 +236,7 @@ fun SignInButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun SignUp() {
+fun SignUp(navController: NavHostController) {
     // Dark mode support
     val labelColor = if (isSystemInDarkTheme()) {
         Color.White
@@ -269,15 +273,8 @@ fun SignUp() {
         pop()
     }
 
-    ClickableText(text = annotatedText, onClick = { offset ->
-        // We check if there is an *URL* annotation attached to the text
-        // at the clicked position
-        annotatedText.getStringAnnotations(
-            tag = "URL", start = offset, end = offset
-        ).firstOrNull()?.let { annotation ->
-            // If yes, we log its value
-            Log.d("Clicked URL", annotation.item)
-        }
+    ClickableText(text = annotatedText, onClick = {
+        onSignUpClick(navController)
     })
 }
 

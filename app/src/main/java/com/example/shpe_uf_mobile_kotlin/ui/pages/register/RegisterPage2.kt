@@ -344,6 +344,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 text = "Enter your info to finalize your profile",
                 style = TextStyle(
                     fontSize = 14.sp,
+                    fontFamily = FontFamily(Font(R.font.universltstd)),
                     fontWeight = FontWeight(400),
                     color = Color(0xFFFFFFFF)
                 ),
@@ -361,6 +362,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                         text = "Personal Details",
                         style = TextStyle(
                             fontSize = 36.sp,
+                            fontFamily = FontFamily(Font(R.font.viga)),
                             fontWeight = FontWeight(400),
                             color = Color(0xFFD25917)
                         )
@@ -427,6 +429,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             Text(
                 text = "Gender",
                 fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
+                fontWeight = FontWeight(400),
                 color = Color(0xFFFFFFFF),
                 textAlign = TextAlign.Start,
                 modifier = Modifier
@@ -450,6 +454,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             Text(
                 text = "Ethnicity",
                 fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
+                fontWeight = FontWeight(400),
                 color = Color(0xFFFFFFFF),
                 textAlign = TextAlign.Start,
                 modifier = Modifier
@@ -473,6 +479,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             Text(
                 text = "Country of Origin",
                 fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
+                fontWeight = FontWeight(400),
                 color = Color(0xFFFFFFFF),
                 textAlign = TextAlign.Start,
                 modifier = Modifier
