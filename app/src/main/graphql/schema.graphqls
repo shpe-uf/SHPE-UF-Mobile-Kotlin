@@ -1,235 +1,3 @@
-type Alumni {
-  id: ID!
-
-  firstName: String!
-
-  lastName: String!
-
-  email: String!
-
-  undergrad: Undergrad!
-
-  grad: Grad!
-
-  employer: String!
-
-  position: String!
-
-  location: Location
-
-  coordinates: Coordinates!
-
-  linkedin: String!
-}
-
-type ContactRequest {
-  firstName: String!
-
-  lastName: String!
-
-  email: String!
-
-  messageType: String!
-
-  message: String!
-}
-
-type Corporation {
-  id: ID!
-
-  name: String!
-
-  logo: String!
-
-  slogan: String!
-
-  majors: [String!]!
-
-  industries: [String!]!
-
-  overview: String!
-
-  mission: String!
-
-  goals: String!
-
-  businessModel: String!
-
-  newsLink: String!
-
-  applyLink: String!
-
-  academia: Boolean!
-
-  govContractor: Boolean!
-
-  nonProfit: Boolean!
-
-  visaSponsor: Boolean!
-
-  shpeSponsor: Boolean!
-
-  industryPartnership: Boolean!
-
-  fallBBQ: Boolean!
-
-  springBBQ: Boolean!
-
-  nationalConvention: Boolean!
-
-  recruitmentDay: Boolean!
-
-  signUpLink: String
-}
-
-type Event {
-  id: ID!
-
-  name: String!
-
-  code: String!
-
-  category: String!
-
-  points: Int!
-
-  attendance: Int!
-
-  expiration: String!
-
-  request: Boolean!
-
-  semester: String!
-
-  createdAt: String!
-
-  users: [User]!
-}
-
-type Reimbursement {
-  id: ID!
-
-  firstName: String!
-
-  lastName: String!
-
-  email: String!
-
-  studentId: Int!
-
-  address: String!
-
-  company: String!
-
-  event: String!
-
-  description: String!
-
-  reimbursed: String!
-
-  amount: String!
-
-  ufEmployee: Boolean!
-
-  receiptPhoto: String!
-
-  eventFlyer: String!
-}
-
-type Receipt {
-  id: ID!
-
-  username: String!
-
-  item: String!
-
-  quantity: Int!
-
-  email: String!
-
-  dateCheckedOut: String!
-
-  datePickedUp: String
-
-  dateClosed: String
-
-  deleted: Boolean
-}
-
-type Rentable {
-  item: String!
-
-  quantity: Int!
-
-  level: Int!
-
-  description: String
-
-  link: String
-
-  renters: [String]!
-
-  category: String!
-
-  image: String!
-}
-
-type Request {
-  id: ID!
-
-  name: String!
-
-  type: String!
-
-  points: String!
-
-  firstName: String!
-
-  lastName: String!
-
-  username: String!
-
-  createdAt: String!
-}
-
-type Resource {
-  id: ID!
-
-  title: String!
-
-  link: String!
-
-  description: String
-
-  image: String!
-
-  createdAt: String!
-
-  podcast: Boolean!
-}
-
-type Task {
-  id: ID!
-
-  name: String!
-
-  startDate: String!
-
-  endDate: String!
-
-  description: String!
-
-  points: Int!
-
-  attendance: Int!
-
-  semester: String!
-
-  createdAt: String!
-
-  users: [User]
-}
-
 type User {
   id: ID!
 
@@ -300,26 +68,232 @@ type User {
   socialMedia: [String]
 }
 
-type Coordinates {
-  latitude: Float!
+type Event {
+  id: ID!
 
-  longitude: Float!
+  name: String!
+
+  code: String!
+
+  category: String!
+
+  points: Int!
+
+  attendance: Int!
+
+  expiration: String!
+
+  request: Boolean!
+
+  semester: String!
+
+  createdAt: String!
+
+  users: [User]!
 }
 
-type Grad {
-  university: String!
+type Task {
+  id: ID!
 
-  year: Int!
+  name: String!
 
-  major: String!
+  startDate: String!
+
+  endDate: String!
+
+  description: String!
+
+  points: Int!
+
+  attendance: Int!
+
+  semester: String!
+
+  createdAt: String!
+
+  users: [User]
 }
 
-type Location {
-  city: String!
+type Resource {
+  id: ID!
 
-  state: String!
+  title: String!
 
-  country: String!
+  link: String!
+
+  description: String
+
+  image: String!
+
+  createdAt: String!
+
+  podcast: Boolean!
+}
+
+type Corporation {
+  id: ID!
+
+  name: String!
+
+  logo: String!
+
+  slogan: String!
+
+  majors: [String!]!
+
+  industries: [String!]!
+
+  overview: String!
+
+  mission: String!
+
+  goals: String!
+
+  businessModel: String!
+
+  newsLink: String!
+
+  applyLink: String!
+
+  academia: Boolean!
+
+  govContractor: Boolean!
+
+  nonProfit: Boolean!
+
+  visaSponsor: Boolean!
+
+  shpeSponsor: Boolean!
+
+  industryPartnership: Boolean!
+
+  fallBBQ: Boolean!
+
+  springBBQ: Boolean!
+
+  nationalConvention: Boolean!
+}
+
+type Request {
+  id: ID!
+
+  name: String!
+
+  type: String!
+
+  points: String!
+
+  firstName: String!
+
+  lastName: String!
+
+  username: String!
+
+  createdAt: String!
+}
+
+type Alumni {
+  id: ID!
+
+  firstName: String!
+
+  lastName: String!
+
+  email: String!
+
+  undergrad: Undergrad!
+
+  grad: Grad!
+
+  employer: String!
+
+  position: String!
+
+  location: Location
+
+  coordinates: Coordinates!
+
+  linkedin: String!
+}
+
+type Reimbursement {
+  id: ID!
+
+  firstName: String!
+
+  lastName: String!
+
+  email: String!
+
+  studentId: Int!
+
+  address: String!
+
+  company: String!
+
+  event: String!
+
+  description: String!
+
+  reimbursed: String!
+
+  amount: String!
+
+  ufEmployee: Boolean!
+
+  receiptPhoto: String!
+
+  eventFlyer: String!
+}
+
+type Rentable {
+  item: String!
+
+  quantity: Int!
+
+  level: Int!
+
+  description: String
+
+  link: String
+
+  renters: [String]!
+
+  category: String!
+
+  image: String!
+}
+
+type Receipt {
+  id: ID!
+
+  username: String!
+
+  item: String!
+
+  quantity: Int!
+
+  email: String!
+
+  dateCheckedOut: String!
+
+  datePickedUp: String
+
+  dateClosed: String
+
+  deleted: Boolean
+}
+
+type ContactRequest {
+  firstName: String!
+
+  lastName: String!
+
+  email: String!
+
+  messageType: String!
+
+  message: String!
 }
 
 type StatData {
@@ -340,18 +314,102 @@ type Undergrad {
   major: String!
 }
 
-input ApproveRejectRequestInput {
-  username: String!
+type Grad {
+  university: String!
 
-  name: String!
+  year: Int!
 
-  type: String!
+  major: String!
 }
 
-input BookmarkTaskInput {
-  name: String!
+type Location {
+  city: String!
+
+  state: String!
+
+  country: String!
+}
+
+type Coordinates {
+  latitude: Float!
+
+  longitude: Float!
+}
+
+input RegisterInput {
+  firstName: String!
+
+  lastName: String!
+
+  major: String!
+
+  year: String!
+
+  graduating: String!
+
+  country: String!
+
+  ethnicity: String!
+
+  sex: String!
 
   username: String!
+
+  email: String!
+
+  password: String!
+
+  confirmPassword: String!
+
+  listServ: String!
+}
+
+input CreateEventInput {
+  name: String!
+
+  code: String!
+
+  category: String!
+
+  points: String!
+
+  expiration: String!
+
+  request: String!
+}
+
+input CreateTaskInput {
+  name: String!
+
+  startDate: String!
+
+  endDate: String!
+
+  description: String!
+
+  points: Int!
+}
+
+input CreateResourceInput {
+  title: String!
+
+  description: String
+
+  link: String!
+
+  image: String
+
+  podcast: Boolean!
+}
+
+input TransactionData {
+  item: String!
+
+  username: String!
+
+  numberOfItems: Int!
+
+  email: String!
 }
 
 input CreateCorporationInput {
@@ -394,48 +452,6 @@ input CreateCorporationInput {
   springBBQ: String!
 
   nationalConvention: String!
-
-  recruitmentDay: String!
-
-  signUpLink: String
-}
-
-input CreateEventInput {
-  name: String!
-
-  code: String!
-
-  category: String!
-
-  points: String!
-
-  expiration: String!
-
-  request: String!
-}
-
-input CreateResourceInput {
-  title: String!
-
-  description: String
-
-  link: String!
-
-  image: String
-
-  podcast: Boolean!
-}
-
-input CreateTaskInput {
-  name: String!
-
-  startDate: String!
-
-  endDate: String!
-
-  description: String!
-
-  points: Int!
 }
 
 input EditCorporationInput {
@@ -480,16 +496,72 @@ input EditCorporationInput {
   springBBQ: String!
 
   nationalConvention: String!
-
-  recruitmentDay: String!
-
-  signUpLink: String
 }
 
-input EditUpdatedAtInput {
+input RedeemPointsInput {
+  code: String!
+
+  username: String!
+
+  guests: Int!
+}
+
+input bookmarkTaskInput {
+  name: String!
+
+  username: String!
+}
+
+input unBookmarkTaskInput {
+  name: String!
+
+  username: String!
+}
+
+input RedeemTasksPointsInput {
+  name: String!
+
+  username: String!
+}
+
+input ApproveRejectRequestInput {
+  username: String!
+
+  name: String!
+
+  type: String!
+}
+
+input ManualInputInput {
+  username: String!
+
+  eventName: String!
+}
+
+input ManualTaskInputInput {
+  username: String!
+
+  taskName: String!
+}
+
+input RegisterAlumniInput {
+  firstName: String!
+
+  lastName: String!
+
   email: String!
 
-  updatedAt: String!
+  undergrad: UndergradInput!
+
+  grad: GradInput!
+
+  employer: String!
+
+  position: String!
+
+  location: LocationInput!
+
+  linkedin: String!
 }
 
 input EditUserProfileInput {
@@ -520,78 +592,10 @@ input EditUserProfileInput {
   socialMedia: [String]
 }
 
-input ManualInputInput {
-  username: String!
-
-  eventName: String!
-}
-
-input ManualTaskInputInput {
-  username: String!
-
-  taskName: String!
-}
-
-input RedeemPointsInput {
-  code: String!
-
-  username: String!
-
-  guests: Int!
-}
-
-input RedeemTasksPointsInput {
-  name: String!
-
-  username: String!
-}
-
-input RegisterAlumniInput {
-  firstName: String!
-
-  lastName: String!
-
+input EditUpdatedAtInput {
   email: String!
 
-  undergrad: UndergradInput!
-
-  grad: GradInput!
-
-  employer: String!
-
-  position: String!
-
-  location: LocationInput!
-
-  linkedin: String!
-}
-
-input RegisterInput {
-  firstName: String!
-
-  lastName: String!
-
-  major: String!
-
-  year: String!
-
-  graduating: String!
-
-  country: String!
-
-  ethnicity: String!
-
-  sex: String!
-
-  username: String!
-
-  email: String!
-
-  password: String!
-
-  confirmPassword: String!
-
-  listServ: String!
+  updatedAt: String!
 }
 
 input ReimbursementInput {
@@ -624,20 +628,12 @@ input ReimbursementInput {
   execute: Boolean!
 }
 
-input TransactionData {
-  item: String!
+input UndergradInput {
+  university: String!
 
-  username: String!
+  year: String!
 
-  numberOfItems: Int!
-
-  email: String!
-}
-
-input UnBookmarkTaskInput {
-  name: String!
-
-  username: String!
+  major: String!
 }
 
 input GradInput {
@@ -656,144 +652,134 @@ input LocationInput {
   country: String!
 }
 
-input UndergradInput {
-  university: String!
-
-  year: String!
-
-  major: String!
-}
-
 type Query {
-  getAlumnis: [Alumni]
+  getUsers: [User]
 
-  getCorporations: [Corporation]
-
-  getCountryStat: [StatData]
-
-  getEthnicityStat: [StatData]
+  getUser(userId: ID!): User
 
   getEvents: [Event]
 
   getEventsReversed: [Event]
 
+  getTasks: [Task]
+
+  getResources: [Resource]
+
+  getRequests: [Request]
+
+  getMatches(username: String!): [User]
+
+  getCorporations: [Corporation]
+
+  getMajorStat: [StatData]
+
+  getCountryStat: [StatData]
+
+  getYearStat: [StatData]
+
+  getSexStat: [StatData]
+
+  getEthnicityStat: [StatData]
+
+  getAlumnis: [Alumni]
+
+  getReimbursements: [Reimbursement]
+
   getInventory: [Rentable]
 
   getItem(item: String): Rentable
 
-  getMajorStat: [StatData]
-
-  getMatches(username: String!): [User]
-
   getReceipts: [Receipt]
-
-  getReimbursements: [Reimbursement]
-
-  getRequests: [Request]
-
-  getResources: [Resource]
-
-  getSexStat: [StatData]
-
-  getTasks: [Task]
-
-  getUser(userId: ID!): User
-
-  getUsers: [User]
-
-  getYearStat: [StatData]
 }
 
 type Mutation {
-  approveRequest(approveRejectRequestInput: ApproveRejectRequestInput): [Request]
-
-  bookmark(company: String!, username: String!): User!
-
-  bookmarkTask(bookmarkTaskInput: BookmarkTaskInput): User!
-
-  cancelReimbursement(id: ID!, email: String!): Reimbursement!
-
-  changePermission(email: String!, currentEmail: String!, permission: String!): User!
-
-  checkOutItem(data: TransactionData): [Rentable]
-
-  confirmUser(id: String!): User!
-
-  createCorporation(createCorporationInput: CreateCorporationInput): [Corporation]
-
-  createEvent(createEventInput: CreateEventInput): [Event]
-
-  createResource(createResourceInput: CreateResourceInput): [Resource]
-
-  createTask(createTaskInput: CreateTaskInput): Task!
-
-  deleteBookmark(company: String!, username: String!): User!
-
-  deleteCorporation(corporationId: ID!): [Corporation]!
-
-  deleteEvent(eventName: String!): [Event]
-
-  deleteReceipt(receiptID: ID!): Receipt
-
-  deleteResource(resourceId: ID!): [Resource!]
-
-  deleteTask(taskId: ID!): [Task]
-
-  deleteUser(email: String!): Boolean
-
-  editCorporation(editCorporationInput: EditCorporationInput): Corporation!
-
-  editUpdatedAt(editUpdatedAtInput: EditUpdatedAtInput): User!
-
-  editUserProfile(editUserProfileInput: EditUserProfileInput): User!
-
-  forgotPassword(email: String!): User!
+  register(registerInput: RegisterInput): User!
 
   login(username: String!, password: String!, remember: String!): User!
 
-  manualInput(manualInputInput: ManualInputInput): [Event]
+  createCorporation(createCorporationInput: CreateCorporationInput): [Corporation]
 
-  manualTaskInput(manualTaskInputInput: ManualTaskInputInput): Task
+  editCorporation(editCorporationInput: EditCorporationInput): Corporation!
 
-  pickUpItem(receiptID: ID!): Receipt
+  deleteCorporation(corporationId: ID!): [Corporation]!
 
-  register(registerInput: RegisterInput): User!
+  createEvent(createEventInput: CreateEventInput): [Event]
 
-  registerAlumni(registerAlumniInput: RegisterAlumniInput): Alumni!
+  redeemPoints(redeemPointsInput: RedeemPointsInput): User!
+
+  createTask(createTaskInput: CreateTaskInput): Task!
+
+  createResource(createResourceInput: CreateResourceInput): [Resource]
+
+  deleteResource(resourceId: ID!): [Resource!]
+
+  bookmarkTask(bookmarkTaskInput: bookmarkTaskInput): User!
+
+  unBookmarkTask(unBookmarkTaskInput: unBookmarkTaskInput): User!
+
+  redeemTasksPoints(redeemTasksPointsInput: RedeemTasksPointsInput): User!
+
+  approveRequest(approveRejectRequestInput: ApproveRejectRequestInput): [Request]
 
   rejectRequest(approveRejectRequestInput: ApproveRejectRequestInput): [Request]
 
-  reimbursementRequest(reimbursementInput: ReimbursementInput): Reimbursement!
+  manualInput(manualInputInput: ManualInputInput): [Event]
+
+  deleteEvent(eventName: String!): [Event]
 
   removeUserFromEvent(manualInputInput: ManualInputInput): Event
 
+  manualTaskInput(manualTaskInputInput: ManualTaskInputInput): Task
+
   removeUserFromTask(manualTaskInputInput: ManualTaskInputInput): Task
+
+  deleteTask(taskId: ID!): [Task]
+
+  forgotPassword(email: String!): User!
 
   resetPassword(password: String!, confirmPassword: String!, token: String!): Token!
 
-  resetPercentile(semester: String!): Int!
+  confirmUser(id: String!): User!
+
+  bookmark(company: String!, username: String!): User!
+
+  deleteBookmark(company: String!, username: String!): User!
+
+  registerAlumni(registerAlumniInput: RegisterAlumniInput): Alumni!
+
+  changePermission(email: String!, currentEmail: String!, permission: String!): User!
+
+  editUserProfile(editUserProfileInput: EditUserProfileInput): User!
+
+  editUpdatedAt(editUpdatedAtInput: EditUpdatedAtInput): User!
+
+  updateYears: [User]
+
+  reimbursementRequest(reimbursementInput: ReimbursementInput): Reimbursement!
 
   resolveReimbursement(id: ID!, email: String!): Reimbursement!
 
+  unresolveReimbursement(id: ID!, email: String!): Reimbursement!
+
+  cancelReimbursement(id: ID!, email: String!): Reimbursement!
+
+  uncancelReimbursement(id: ID!, email: String!): Reimbursement!
+
+  checkOutItem(data: TransactionData): [Rentable]
+
+  pickUpItem(receiptID: ID!): Receipt
+
   returnItem(receiptID: ID!): Receipt
-
-  submitContactRequest(firstName: String!, lastName: String!, email: String!, messageType: String!, message: String!): ContactRequest!
-
-  unBookmarkTask(unBookmarkTaskInput: UnBookmarkTaskInput): User!
 
   unPickUpItem(receiptID: ID!): Receipt
 
   unReturnItem(receiptID: ID!): Receipt
 
-  uncancelReimbursement(id: ID!, email: String!): Reimbursement!
+  deleteReceipt(receiptID: ID!): Receipt
 
-  unresolveReimbursement(id: ID!, email: String!): Reimbursement!
+  submitContactRequest(firstName: String!, lastName: String!, email: String!, messageType: String!, message: String!): ContactRequest!
 
-  updateYears: [User]
-
-  redeemPoints(redeemPointsInput: RedeemPointsInput): User!
-
-  redeemTasksPoints(redeemTasksPointsInput: RedeemTasksPointsInput): User!
+  resetPercentile(semester: String!): Int!
 }
 
 # See https://github.com/JetBrains/js-graphql-intellij-plugin/issues/665
