@@ -18,7 +18,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,22 +34,14 @@ import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.Opening2
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
-import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
-
-object NavRoute {
-    const val HOME = "home"
-    const val POINTS = "points"
-    const val PROFILE = "profile"
-    const val LOGIN = "login"
-    const val OPENING = "opening"
-    const val REGISTER = "register"
-}
 
 data class BottomNavigationItem(
     val title: String,
@@ -145,13 +136,24 @@ fun NavHostContainer(
     LaunchedEffect(userState.isLoggedIn){
         val isLoggedIn = userState.isLoggedIn
         Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
-        navHostController.navigate(if(isLoggedIn) NavRoute.HOME else NavRoute.LOGIN)
+
+        if(isLoggedIn){
+            navHostController.popBackStack(NavRoute.LOGIN, inclusive = true)
+        }
+
+        navHostController.navigate(if (isLoggedIn && userState.isLoggedOut) NavRoute.HOME else NavRoute.OPENING)
     }
 
     NavHost(
         navController = navHostController,
-        startDestination = NavRoute.LOGIN
+        startDestination = NavRoute.OPENING,
     ) {
+        composable(NavRoute.OPENING){
+            OpeningPage(navHostController)
+        }
+        composable(NavRoute.OPENING_2){
+            Opening2(navHostController)
+        }
         composable(NavRoute.LOGIN) {
             SignIn(navHostController, mainViewModel)
         }
