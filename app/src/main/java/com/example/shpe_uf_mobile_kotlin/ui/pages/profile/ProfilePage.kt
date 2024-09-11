@@ -104,8 +104,12 @@ fun ProfileScreen(profileViewModel: ProfileViewModel, navController: NavHostCont
 
             item{
                 SaveCancelButtons(
-                    onSaveClick = { profileViewModel.saveProfileChanges() },
-                    onCancelClick = { navController.navigate(NavRoute.PROFILE) }
+                    onSaveClick = {
+                        profileViewModel.saveProfileChanges()
+                        navController.navigate(NavRoute.PROFILE) },
+                    onCancelClick = {
+                        profileViewModel.cancelProfileChanges()
+                        navController.navigate(NavRoute.PROFILE) }
                 )
 
             }
