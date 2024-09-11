@@ -7,6 +7,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,6 +68,9 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.example.shpe_uf_mobile_kotlin.EventsQuery.Event
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
+import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
+import com.example.shpe_uf_mobile_kotlin.ui.theme.dark_bg
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -390,6 +394,11 @@ fun PointsCalendar(id: String) {
     var social by remember { mutableStateOf<List<Event>>(emptyList()) }
     var gbm by remember { mutableStateOf<List<Event>>(emptyList()) }
 
+    val background = if (isSystemInDarkTheme()) {
+        ThemeColors.Night.background
+    } else {
+        ThemeColors.Day.background
+    }
 
     LaunchedEffect(Unit) {
         val response = apolloClient.query(EventsQuery(id)).execute()
@@ -410,18 +419,18 @@ fun PointsCalendar(id: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(background)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(start = 40.dp)
-                .background(Color.White)
+                .background(background)
         )
         {
             Spacer(modifier = Modifier.height(30.dp))
 
-            if (gbm.isNotEmpty()) {
+//            if (gbm.isNotEmpty()) {
                 Text(
                     text = "GBM",
                     style = TextStyle(
@@ -497,7 +506,7 @@ fun PointsCalendar(id: String) {
                 EventTable(events = gbm)
 
                 Spacer(modifier = Modifier.height(20.dp))
-            }
+//            }
 
             if (cabinetMeeting.isNotEmpty()) {
                 Text(
@@ -739,6 +748,8 @@ fun PointsCalendar(id: String) {
 fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String) {
     var datas by remember { mutableStateOf(emptyList<ExampleQuery.GetUser>()) }
 
+
+
     LaunchedEffect(Unit) {
         val response = apolloClient.query(ExampleQuery(id)).execute()
         response.data?.getUser?.let { user ->
@@ -764,12 +775,24 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String) {
         animationSpec = tween(durationMillis = 1500), label = ""
     )
 
+    val background = if (isSystemInDarkTheme()) {
+        ThemeColors.Night.background
+    } else {
+        ThemeColors.Day.background
+    }
+    val textColor = if(isSystemInDarkTheme()){
+        Color.White
+
+    } else {
+        Color.Black
+    }
+
     val sweepAngle = 360 * animatedDegree
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .background(color = Color(0xFF004C73))
+            .background(color = background)
             .fillMaxSize()
     ) {
         Column(
@@ -777,7 +800,7 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String) {
             modifier = Modifier
                 .width(1500.dp)
                 .height(750.dp)
-                .background(color = Color(0xFFFFFFFF))
+                .background(color = background)
         ) {
             Spacer(modifier = Modifier.height(60.dp))
             Box(
@@ -802,7 +825,7 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String) {
                         color = Color(0xFFC5CAE9),
                         thickness = thickness
                     )
-                    drawCenterCircle(color = Color.White, thickness = thickness)
+                    drawCenterCircle(color = background, thickness = thickness)
                 }
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -810,28 +833,34 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String) {
                         text = "$semester:",
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = textColor
                     )
                     Text(
                         text = getOrdinal(percentile),
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = textColor
                     )
                     Text(
                         text = "Percentile",
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = textColor
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                 }
             }
             Spacer(modifier = Modifier.height(52.dp))
+            val buttonColor = if(isSystemInDarkTheme()){
+                OrangeSHPE
+
+            } else {
+                dark_bg
+            }
             Button(
                 onClick = { openBottomSheet = true },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF0A2059),
+                    containerColor = buttonColor,
                     contentColor = Color(0xFFFFFFFF)
                 ),
                 shape = RoundedCornerShape(40.dp),
@@ -881,7 +910,7 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String) {
                     fontSize = 20.61.sp,
                     fontFamily = FontFamily(Font(R.font.universltstd_bold)),
                     fontWeight = FontWeight(700),
-                    color = Color(0xFF011F35),
+                    color = textColor,
                     textAlign = TextAlign.Center,
                 ),
                 modifier = Modifier
@@ -921,7 +950,7 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String) {
                     modifier = Modifier.fillMaxWidth(),
                     firstGradient = Color(0xFF981F14),
                     secondGradient = Color(0xFFDE5026),
-                    dividerColor = Color(0xFF0B70BA)
+                    dividerColor = Color(0xFF981F14)
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -939,7 +968,7 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String) {
                     modifier = Modifier.fillMaxWidth(),
                     firstGradient = Color(0xFF0B70BA),
                     secondGradient = Color(0xFF84CBFF),
-                    dividerColor = Color(0xFF981F14)
+                    dividerColor = Color(0xFF0B70BA)
                 )
             }
         }
