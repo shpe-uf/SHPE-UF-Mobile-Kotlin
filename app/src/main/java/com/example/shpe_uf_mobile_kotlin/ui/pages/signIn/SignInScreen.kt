@@ -1,6 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -43,7 +45,9 @@ import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
-import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
+import androidx.compose.foundation.layout.size
+//import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
 @Composable
@@ -84,6 +88,7 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
     val signInViewModel = remember { SignInViewModel() }
     val uiState by signInViewModel.uiState.collectAsState()
     val shpeLogo = R.drawable.shpe_logo_full_color
+    val context = LocalContext.current
 
     // Dark mode support
     val background = if (isSystemInDarkTheme()) {
@@ -148,6 +153,19 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
             Row(modifier = Modifier.padding(top = 20.dp)) {
                 SignUp(navController)
             }
+
+            // display toast if the login fails
+            if (uiState.loginErrorMessage != null) {
+                uiState.loginErrorMessage?.let { it ->
+                    val text = it
+                    val duration = Toast.LENGTH_SHORT
+
+                    val toast = Toast.makeText(context, text, duration)
+                    toast.show()
+
+                    signInViewModel.updateErrorMessage(null)
+                }
+            }
         }
     }
 
@@ -156,11 +174,11 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
 fun OnSignInClick(navController: NavHostController, signInViewModel: SignInViewModel, shpeUFAppViewModel: SHPEUFAppViewModel){
     signInViewModel.validateAndLoginUser(shpeUFAppViewModel)
     val success = shpeUFAppViewModel.uiState.value
-    if(success.isLoggedIn){ navController.navigate(Routes.points) }
+    if(success.isLoggedIn){ navController.navigate(NavRoute.POINTS) }
 }
 
 fun onSignUpClick(navController: NavHostController){
-    navController.navigate(Routes.register)
+    navController.navigate(NavRoute.REGISTER)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
