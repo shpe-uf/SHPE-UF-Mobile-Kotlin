@@ -141,6 +141,7 @@ dependencies {
     implementation("com.apollographql.apollo3:apollo-runtime:4.0.0-beta.4")
 
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
+
 }
 
 
