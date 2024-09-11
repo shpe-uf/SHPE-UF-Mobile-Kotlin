@@ -1,3 +1,5 @@
+package com.example.shpe_uf_mobile_kotlin
+
 import com.apollographql.apollo3.ApolloClient
 
 val apolloClient = ApolloClient.Builder()

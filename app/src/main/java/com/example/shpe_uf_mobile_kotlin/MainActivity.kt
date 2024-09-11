@@ -37,6 +37,22 @@ import com.example.shpe_uf_mobile_kotlin.ui.navigation.BottomNavigationBar
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavHostContainer
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
+import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.LoadingScreen
+import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPageViewModel
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.shpe_uf_mobile_kotlin.apolloClient
+import com.example.shpe_uf_mobile_kotlin.ui.pages.points.FullView
+import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsCalendar
+import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsPageViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.points.RedeemPoints
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 

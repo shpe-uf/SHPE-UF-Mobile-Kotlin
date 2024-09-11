@@ -51,7 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import apolloClient
+import com.example.shpe_uf_mobile_kotlin.apolloClient
 import com.example.shpe_uf_mobile_kotlin.EventsQuery
 import com.example.shpe_uf_mobile_kotlin.ExampleQuery
 import com.example.shpe_uf_mobile_kotlin.R
@@ -100,8 +100,6 @@ fun PointsView(shpeufAppViewModel: SHPEUFAppViewModel) {
                     PointsCalendar(id)
                 }
             }
-
-            //BottomBar()
         }
     }
 }
