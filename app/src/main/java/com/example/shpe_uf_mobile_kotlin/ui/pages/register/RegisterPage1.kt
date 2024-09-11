@@ -43,6 +43,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -54,6 +55,11 @@ Function is used to preview the whole UI of the page but also to pass in
 the viewModel into the RegistrationPage1 function to make the
  */
 
+@Preview
+@Composable
+fun regPreview(){
+    RegistrationPage1()
+}
 
 @Composable
 fun RegistrationPage1Preview(navController: NavController, registerPage1ViewModel: RegisterPage1ViewModel){
@@ -61,6 +67,242 @@ fun RegistrationPage1Preview(navController: NavController, registerPage1ViewMode
 
     RegistrationPage1(registerPage1ViewModel = registerPage1ViewModel, navController = navController)
 
+}
+
+@Composable
+fun RegistrationPage1(){
+
+    RegisterBackground()
+
+    Box(
+        modifier = Modifier
+            .padding(top = 83.dp)
+    ) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF011F35)),
+            horizontalAlignment = Alignment.CenterHorizontally
+
+        )
+
+        {
+            Spacer(modifier = Modifier.height(42.dp))
+
+            // This is the progression bar
+            Row{
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFF999999), shape = RoundedCornerShape(1.dp))
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFF999999), shape = RoundedCornerShape(1.dp))
+                    )
+                }
+            }
+            // End of progression bar
+
+            // Start of Welcome text and SHPE Logo component
+            Spacer(modifier = Modifier.height(42.dp))
+
+
+
+            Text(
+                text = "Welcome to SHPE!",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFFFFFFF),
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 30.dp)
+            )
+
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Row{
+                    Text(
+                        text = "REGISTER",
+                        style = TextStyle(
+                            fontSize = 46.sp,
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFD25917)
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(76.dp))
+
+                Row{
+                    Image(
+                        painter = painterResource(id = R.drawable.shpe_logo_full_color),
+                        contentDescription = "shpeLogo",
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+            }
+            // End of welcome text and shpe logo component
+
+
+            Spacer(modifier = Modifier.height(58.dp))
+
+            Text(
+                text = "UF Email",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            RegisterEmail(
+                value = "ursuandrei@ufl.edu",
+                isError = true,
+                errorMessage = "Error!",
+                onValueChange = { TODO() })
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Username",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            RegisterUsername(
+                value = "ursuandrei",
+                isError = true,
+                errorMessage = "Error!",
+                onValueChange = { TODO() }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Password",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            RegisterPassword(
+                value = "Password1!",
+                isPasswordVisible = true,
+                isError = true,
+                errorMessage = "Error!",
+                onValueChange = { TODO() },
+                onTogglePasswordVisibility = { TODO() }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Confirm Password",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            RegisterConfirmPassword(
+                value = "Password1!",
+                isConfirmPasswordVisible = true,
+                isError = true,
+                errorMessage = "Error",
+                onValueChange = { TODO() },
+                onToggleConfirmPasswordVisibility = { TODO() }
+            )
+
+//            Spacer(modifier = Modifier.height(82.dp))
+            Spacer(modifier = Modifier.height(72.dp))
+
+            CreateAccountButton(
+
+                onClick = {
+//                    if (registerPage1ViewModel.validateRegisterPage1Fields() == true) {
+//                        navController.navigate(RegisterRoutes.registerPage2)
+//                    }
+//                    else {
+//                        // Do nothing don't go to next page
+//                    }
+                }
+
+            )
+
+            // BELOW CREATES TEXT AND SIGN IN LINK TO NAVIGATE TO LOGIN PAGE
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Already have an account?",
+                    color = Color(0xFFFFFFFF),
+                    fontSize = 18.sp,
+                    style = MaterialTheme.typography.labelLarge
+                )
+                TextButton(onClick = {
+
+                    //TODO Navigate to the sign-in page for users that already have an account
+
+                }) {
+                    Text(
+                        text = "Sign In",
+                        color = Color(0XFF93E1FF),
+                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+            }
+
+        }
+
+    }
 }
 
 
@@ -306,8 +548,6 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
     }
 }
 
-
-@Preview
 @Composable
 fun RegisterBackground() {
     Column(
