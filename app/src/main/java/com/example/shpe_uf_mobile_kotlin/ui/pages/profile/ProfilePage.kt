@@ -629,13 +629,23 @@ fun ProfileGender(selectedGender: String, onGenderSelected: (String) -> Unit, ge
             value = selectedGender,
             onValueChange = {},
             trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                ExposedDropdownMenuDefaults.TrailingIcon(
+                    expanded = expanded,
+                )
             },
             shape = RoundedCornerShape(12.dp),
             readOnly = true,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .menuAnchor()
+                .menuAnchor(),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.Gray,
+                unfocusedBorderColor = Color.Gray,
+                textColor = Color.White,
+                placeholderColor = Color.Gray,
+                focusedTrailingIconColor = Color.White,
+                unfocusedTrailingIconColor = Color.White
+            )
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -739,13 +749,16 @@ fun ProfileUserName(value: String, onValueChange: (String) -> Unit) {
         }
         // Outlined Text Field for Input
         TextField(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             value = value,
             onValueChange = { newValue -> onValueChange(newValue) },
+            enabled = false,
+            readOnly = true,
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+            textStyle = TextStyle(fontSize = 15.sp, color = Color.LightGray),
             placeholder = {
                 if (value.isEmpty()) { // Show placeholder only when value is empty
                     Text(
