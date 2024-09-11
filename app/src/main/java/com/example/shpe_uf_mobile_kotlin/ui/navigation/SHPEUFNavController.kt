@@ -12,13 +12,11 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,6 +34,9 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfilePagePreview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePreview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
@@ -43,14 +44,15 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 
-object NavRoute {
-    const val HOME = "home"
-    const val POINTS = "points"
-    const val PROFILE = "profile"
-    const val LOGIN = "login"
-    const val OPENING = "opening"
-    const val REGISTER = "register"
-}
+//object NavRoute {
+//    const val HOME = "home"
+//    const val POINTS = "points"
+//    const val PROFILE = "profile"
+//    const val EDITPROFILE = "editprofile"
+//    const val LOGIN = "login"
+//    const val OPENING = "opening"
+//    const val REGISTER = "register"
+//}
 
 data class BottomNavigationItem(
     val title: String,
@@ -137,7 +139,8 @@ fun NavHostContainer(
     homeViewModelFactory: HomeViewModelFactory,
     mainViewModel: SHPEUFAppViewModel,
     userState: AppState,
-    registerViewModel: RegisterPage1ViewModel
+    registerViewModel: RegisterPage1ViewModel,
+    profileViewModel: ProfileViewModel
 ) {
     val homeViewModel: HomeViewModel =
         viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
@@ -170,9 +173,11 @@ fun NavHostContainer(
         }
         composable(NavRoute.PROFILE)
         {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Text(text = "Profile")
-            }
+            StaticProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
+        }
+        composable(NavRoute.EDITPROFILE)
+        {
+            ProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
         }
     }
 }
