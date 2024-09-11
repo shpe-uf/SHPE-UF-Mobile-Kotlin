@@ -1,6 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.custom
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -71,16 +72,11 @@ fun SuperiorTextField(
     errorMessage: String? = null,
     leadingIconModifier: Modifier = Modifier,
 ) {
-
-    //var text by remember { mutableStateOf("") }
-
-//    val labelColor = if (isSystemInDarkTheme()) {
-//        Color.White
-//    } else {
-//        Color.Black
-//    }
-
-    val labelColor = Color.White
+    val labelColor = if (isSystemInDarkTheme()) {
+        Color.White
+    } else {
+        Color.Black
+    }
 
     Column(
         modifier = Modifier

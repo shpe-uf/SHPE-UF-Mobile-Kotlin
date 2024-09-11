@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 
 
 /*
@@ -420,9 +421,8 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             Spacer(modifier = Modifier.height(72.dp))
 
             CreateAccountButton(
-
                 onClick = {
-                    if (registerPage1ViewModel.validateRegisterPage1Fields() == true) {
+                    if (registerPage1ViewModel.validateRegisterPage1Fields()) {
                     navController.navigate(RegisterRoutes.registerPage2)
                 }
                     else {
@@ -447,9 +447,7 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                     style = MaterialTheme.typography.labelLarge
                 )
                 TextButton(onClick = {
-
-                    //TODO Navigate to the sign-in page for users that already have an account
-
+                    navController.navigate(NavRoute.LOGIN)
                 }) {
                     Text(
                         text = "Sign In",
@@ -459,9 +457,7 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                     )
                 }
             }
-
         }
-
     }
 }
 
