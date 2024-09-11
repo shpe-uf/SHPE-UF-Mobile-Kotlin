@@ -38,7 +38,10 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.Opening2
 import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterRoutes
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
@@ -159,6 +162,12 @@ fun NavHostContainer(
         }
         composable(NavRoute.REGISTER){
             RegistrationPage1(registerPage1ViewModel = registerViewModel, navController = navHostController)
+        }
+        composable(RegisterRoutes.registerPage2){
+            RegistrationPage2()
+        }
+        composable(RegisterRoutes.registerPage3){
+            RegistrationPage3()
         }
         composable(NavRoute.HOME)
         {
