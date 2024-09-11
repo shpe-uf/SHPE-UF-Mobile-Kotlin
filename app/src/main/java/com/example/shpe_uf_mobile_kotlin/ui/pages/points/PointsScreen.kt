@@ -90,6 +90,10 @@ fun PointsView(shpeufAppViewModel: SHPEUFAppViewModel) {
 
     val id = UserState.id
 
+    val UsernameState by shpeufAppViewModel.userState.collectAsState()
+
+    val username = UsernameState.username
+
     SHPEUFMobileKotlinTheme {
         Column(modifier = Modifier.fillMaxSize()) {
             TopSection()
@@ -98,7 +102,7 @@ fun PointsView(shpeufAppViewModel: SHPEUFAppViewModel) {
                 modifier = Modifier.weight(1f)
             ) {
                 item {
-                    PointsPercentile(pointsPageViewModel, id)
+                    PointsPercentile(pointsPageViewModel, id, username)
                 }
                 item {
                     PointsCalendar(id)
@@ -155,6 +159,7 @@ fun TopSection() {
 fun RedeemPoints(
     pointsPageViewModel: PointsPageViewModel,
     id: String,
+    username : String,
     onCloseBottomSheet: () -> Unit
 ) {
     val uiState by pointsPageViewModel.uiState.collectAsState()
@@ -358,7 +363,7 @@ fun RedeemPoints(
             Button(
                 onClick = {
                     coroutineScope.launch {
-                        errorMessage = pointsPageViewModel.redeemEvent(id).toString()
+                        errorMessage = pointsPageViewModel.redeemEvent(username).toString()
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -393,6 +398,10 @@ fun PointsCalendar(id: String) {
     var misc by remember { mutableStateOf<List<Event>>(emptyList()) }
     var social by remember { mutableStateOf<List<Event>>(emptyList()) }
     var gbm by remember { mutableStateOf<List<Event>>(emptyList()) }
+    var volunteering by remember { mutableStateOf<List<Event>>(emptyList()) }
+    var corporateEvent by remember { mutableStateOf<List<Event>>(emptyList()) }
+    var workshop by remember { mutableStateOf<List<Event>>(emptyList()) }
+
 
     val background = if (isSystemInDarkTheme()) {
         ThemeColors.Night.background
@@ -414,6 +423,9 @@ fun PointsCalendar(id: String) {
         misc = events.filter { it.category == "Miscellaneous" }
         social = events.filter { it.category == "Social" }
         gbm = events.filter { it.category == "General Body Meeting" }
+        volunteering = events.filter { it.category == "Volunteering" }
+        workshop = events.filter { it.category == "Workshop" }
+        corporateEvent = events.filter { it.category == "Corporate Event" }
     }
 
     Column(
@@ -430,7 +442,7 @@ fun PointsCalendar(id: String) {
         {
             Spacer(modifier = Modifier.height(30.dp))
 
-//            if (gbm.isNotEmpty()) {
+            if (gbm.isNotEmpty()) {
                 Text(
                     text = "GBM",
                     style = TextStyle(
@@ -506,7 +518,7 @@ fun PointsCalendar(id: String) {
                 EventTable(events = gbm)
 
                 Spacer(modifier = Modifier.height(20.dp))
-//            }
+            }
 
             if (cabinetMeeting.isNotEmpty()) {
                 Text(
@@ -739,13 +751,250 @@ fun PointsCalendar(id: String) {
                 }
                 EventTable(events = misc)
             }
+            Spacer(modifier = Modifier.height(30.dp))
+
+            if (workshop.isNotEmpty()) {
+                Text(
+                    text = "WORKSHOP",
+                    style = TextStyle(
+                        fontSize = 50.6.sp,
+                        fontFamily = FontFamily(Font(R.font.universltstd)),
+                        fontStyle = FontStyle.Italic,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFD25917)
+                    ),
+                )
+                Box(
+                    modifier = Modifier
+                        .width(310.dp)
+                        .height(70.dp)
+                        .border(
+                            width = 0.36665.dp,
+                            color = Color(0xFF011F35),
+                            shape = RoundedCornerShape(
+                                topStart = 10.dp,
+                                topEnd = 10.dp,
+                                bottomStart = 0.dp,
+                                bottomEnd = 0.dp
+                            )
+                        )
+                        .background(
+                            color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
+                                topStart = 10.dp,
+                                topEnd = 10.dp,
+                                bottomStart = 0.dp,
+                                bottomEnd = 0.dp
+                            )
+                        )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "EVENT",
+                            style = TextStyle(
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight(700),
+                                color = Color(0xFF002E50),
+                            )
+
+                        )
+                        Spacer(modifier = Modifier.width(22.dp))
+                        Text(
+                            text = "DATE",
+                            style = TextStyle(
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight(700),
+                                color = Color(0xFF002E50),
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(20.dp))
+
+                        Text(
+                            text = "POINTS",
+                            style = TextStyle(
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight(700),
+                                color = Color(0xFF002E50),
+                            )
+
+                        )
+                    }
+
+                }
+
+                EventTable(events = workshop)
+
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+
+            if (volunteering.isNotEmpty()) {
+                Text(
+                    text = "VOLUNTEERING",
+                    style = TextStyle(
+                        fontSize = 50.6.sp,
+                        fontFamily = FontFamily(Font(R.font.universltstd)),
+                        fontStyle = FontStyle.Italic,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFD25917)
+                    ),
+                )
+                Box(
+                    modifier = Modifier
+                        .width(310.dp)
+                        .height(70.dp)
+                        .border(
+                            width = 0.36665.dp,
+                            color = Color(0xFF011F35),
+                            shape = RoundedCornerShape(
+                                topStart = 10.dp,
+                                topEnd = 10.dp,
+                                bottomStart = 0.dp,
+                                bottomEnd = 0.dp
+                            )
+                        )
+                        .background(
+                            color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
+                                topStart = 10.dp,
+                                topEnd = 10.dp,
+                                bottomStart = 0.dp,
+                                bottomEnd = 0.dp
+                            )
+                        )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "EVENT",
+                            style = TextStyle(
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight(700),
+                                color = Color(0xFF002E50),
+                            )
+
+                        )
+                        Spacer(modifier = Modifier.width(22.dp))
+                        Text(
+                            text = "DATE",
+                            style = TextStyle(
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight(700),
+                                color = Color(0xFF002E50),
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(20.dp))
+
+                        Text(
+                            text = "POINTS",
+                            style = TextStyle(
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight(700),
+                                color = Color(0xFF002E50),
+                            )
+
+                        )
+                    }
+
+                }
+
+                EventTable(events = volunteering)
+
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+
+            if (corporateEvent.isNotEmpty()) {
+                Text(
+                    text = "CORPORATE EVENT",
+                    style = TextStyle(
+                        fontSize = 50.6.sp,
+                        fontFamily = FontFamily(Font(R.font.universltstd)),
+                        fontStyle = FontStyle.Italic,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFD25917)
+                    ),
+                )
+                Box(
+                    modifier = Modifier
+                        .width(310.dp)
+                        .height(70.dp)
+                        .border(
+                            width = 0.36665.dp,
+                            color = Color(0xFF011F35),
+                            shape = RoundedCornerShape(
+                                topStart = 10.dp,
+                                topEnd = 10.dp,
+                                bottomStart = 0.dp,
+                                bottomEnd = 0.dp
+                            )
+                        )
+                        .background(
+                            color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
+                                topStart = 10.dp,
+                                topEnd = 10.dp,
+                                bottomStart = 0.dp,
+                                bottomEnd = 0.dp
+                            )
+                        )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "EVENT",
+                            style = TextStyle(
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight(700),
+                                color = Color(0xFF002E50),
+                            )
+
+                        )
+                        Spacer(modifier = Modifier.width(22.dp))
+                        Text(
+                            text = "DATE",
+                            style = TextStyle(
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight(700),
+                                color = Color(0xFF002E50),
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(20.dp))
+
+                        Text(
+                            text = "POINTS",
+                            style = TextStyle(
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight(700),
+                                color = Color(0xFF002E50),
+                            )
+
+                        )
+                    }
+
+                }
+
+                EventTable(events = corporateEvent)
+
+                Spacer(modifier = Modifier.height(20.dp))
+            }
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String) {
+fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, username: String) {
     var datas by remember { mutableStateOf(emptyList<ExampleQuery.GetUser>()) }
 
 
@@ -894,7 +1143,7 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String) {
                     sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        RedeemPoints(pointsPageViewModel, "642f7f80e8839f0014e8be9b") {
+                        RedeemPoints(pointsPageViewModel, id, username) {
                             openBottomSheet = false
                         }
                     }

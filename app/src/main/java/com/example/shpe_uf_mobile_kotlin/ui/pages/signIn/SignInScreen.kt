@@ -43,7 +43,7 @@ import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
-import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
 @Composable
@@ -156,11 +156,11 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
 fun OnSignInClick(navController: NavHostController, signInViewModel: SignInViewModel, shpeUFAppViewModel: SHPEUFAppViewModel){
     signInViewModel.validateAndLoginUser(shpeUFAppViewModel)
     val success = shpeUFAppViewModel.uiState.value
-    if(success.isLoggedIn){ navController.navigate(Routes.points) }
+    if(success.isLoggedIn){ navController.navigate(NavRoute.POINTS) }
 }
 
 fun onSignUpClick(navController: NavHostController){
-    navController.navigate(Routes.register)
+    navController.navigate(NavRoute.REGISTER)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
