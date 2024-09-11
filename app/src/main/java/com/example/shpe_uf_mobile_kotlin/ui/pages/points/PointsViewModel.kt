@@ -8,7 +8,7 @@ import com.example.shpe_uf_mobile_kotlin.type.RedeemPointsInput
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.apollographql.apollo3.api.Optional
-import apolloClient
+import com.example.shpe_uf_mobile_kotlin.apolloClient
 import kotlinx.coroutines.launch
 
 
