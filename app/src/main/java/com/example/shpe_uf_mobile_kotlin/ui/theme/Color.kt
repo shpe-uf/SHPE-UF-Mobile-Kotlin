@@ -42,14 +42,20 @@ val light_bg = Color(0xFFEDEDED)
 sealed class ThemeColors(
     val background: Color,
     val text: Color,
+    val topBar: Color,
+    val navBar: Color,
 ) {
     object Night : ThemeColors(
         background = dark_bg,
+        topBar = headerOrange,
+        navBar = blueDarkModeBackground,
         text = Color.White
     )
 
     object Day : ThemeColors(
         background = light_bg,
+        topBar = headerOrange,
+        navBar = Color.White,
         text = Color.Black
     )
 }

@@ -15,3 +15,5 @@
 local.properties
 app
 app/build
+/.idea/.name
+/.idea/render.experimental.xml

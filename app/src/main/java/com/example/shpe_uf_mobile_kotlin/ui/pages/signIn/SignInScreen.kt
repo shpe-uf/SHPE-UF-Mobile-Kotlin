@@ -21,8 +21,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,26 +34,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
-import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
-@Preview
 @Composable
-fun SignIn() {
+fun SignIn(navController: NavHostController, shpeUFAppViewModel: SHPEUFAppViewModel) {
     SignInBackground()
-    SignInScreen()
+    SignInScreen(navController, shpeUFAppViewModel)
 }
 
 @Composable
@@ -85,7 +81,7 @@ fun SignInBackground() {
 }
 
 @Composable
-fun SignInScreen() {
+fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFAppViewModel) {
 
     val signInViewModel = remember { SignInViewModel() }
     val uiState by signInViewModel.uiState.collectAsState()
@@ -149,11 +145,11 @@ fun SignInScreen() {
             //Spacer(modifier = Modifier.height(85.dp))
             Row(modifier = Modifier.padding(top = 85.dp)) {
                 SignInButton(
-                    onClick = { signInViewModel.validateAndLoginUser() }
+                    onClick = { OnSignInClick(navController,signInViewModel, shpeUFAppViewModel) }
                 )
             }
             Row(modifier = Modifier.padding(top = 20.dp)) {
-                SignUp()
+                SignUp(navController)
             }
 
             // display toast if the login fails
@@ -173,6 +169,16 @@ fun SignInScreen() {
 
 }
 
+fun OnSignInClick(navController: NavHostController, signInViewModel: SignInViewModel, shpeUFAppViewModel: SHPEUFAppViewModel){
+    signInViewModel.validateAndLoginUser(shpeUFAppViewModel)
+    val success = shpeUFAppViewModel.uiState.value
+    if(success.isLoggedIn){ navController.navigate(Routes.points) }
+}
+
+fun onSignUpClick(navController: NavHostController){
+    navController.navigate(Routes.register)
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserNameInput(
@@ -185,7 +191,8 @@ fun UserNameInput(
         value = value,
         onValueChange = onValueChange,
         leadingIcon = R.drawable.profile_circle,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        leadingIconModifier = Modifier.size(28.dp).padding(start = 12.dp)
     )
 
 }
@@ -208,13 +215,14 @@ fun PasswordInput(
     SuperiorTextField(
         label = "Password",
         labelModifier = Modifier.padding(horizontal = 9.22.dp, vertical = 5.53.dp),
-        onValueChange = onValueChange,
         value = value,
+        onValueChange = onValueChange,
         leadingIcon = R.drawable.lock_3,
         trailingIcon = image,
-        trailingIconOnClick = { viewModel.togglePasswordVisibility() },
         visualTransformation = { if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation() },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+        trailingIconOnClick = { viewModel.togglePasswordVisibility() },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        leadingIconModifier = Modifier.size(28.dp).padding(start = 12.dp)
     )
 }
 
@@ -244,7 +252,7 @@ fun SignInButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun SignUp() {
+fun SignUp(navController: NavHostController) {
     // Dark mode support
     val labelColor = if (isSystemInDarkTheme()) {
         Color.White
@@ -281,15 +289,8 @@ fun SignUp() {
         pop()
     }
 
-    ClickableText(text = annotatedText, onClick = { offset ->
-        // We check if there is an *URL* annotation attached to the text
-        // at the clicked position
-        annotatedText.getStringAnnotations(
-            tag = "URL", start = offset, end = offset
-        ).firstOrNull()?.let { annotation ->
-            // If yes, we log its value
-            Log.d("Clicked URL", annotation.item)
-        }
+    ClickableText(text = annotatedText, onClick = {
+        onSignUpClick(navController)
     })
 }
 
