@@ -137,15 +137,15 @@ fun TopSection() {
 
                 )
             }
-//            Spacer(modifier = Modifier.width(24.dp))
-//            Row {
-//                Image(
-//                    painter = painterResource(id = R.drawable.shpe_logo_full_color),
-//                    contentDescription = "SHPE GOAT",
-//                    modifier = Modifier
-//                        .size(98.dp)
-//                )
-//            }
+            Spacer(modifier = Modifier.width(24.dp))
+            Row {
+                Image(
+                    painter = painterResource(id = R.drawable.shpe_logo_full_color),
+                    contentDescription = "SHPE GOAT",
+                    modifier = Modifier
+                        .size(98.dp)
+                )
+            }
         }
     }
 }
@@ -969,101 +969,6 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String) {
                     firstGradient = Color(0xFF0B70BA),
                     secondGradient = Color(0xFF84CBFF),
                     dividerColor = Color(0xFF0B70BA)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun BottomBar() {
-    var calendar by remember { mutableStateOf(ColorFilter.tint(Color.Black)) }
-    var leaderboard by remember { mutableStateOf(ColorFilter.tint(Color.Black)) }
-    var profile by remember { mutableStateOf(ColorFilter.tint(Color.Black)) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(80.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-        ) {
-            Spacer(modifier = Modifier.width(60.dp))
-            Button(
-                onClick = {
-                    calendar = ColorFilter.tint(Color(0xFFD25917))
-                    leaderboard = ColorFilter.tint(Color.Black)
-                    profile = ColorFilter.tint(Color.Black)
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFFFFF),
-                    contentColor = Color(0xFFFFFFFF)
-                ),
-                contentPadding = PaddingValues(0.dp),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .size(50.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.cal),
-                    contentDescription = "Calendar",
-                    colorFilter = calendar,
-                    modifier = Modifier
-                        .size(50.dp)
-                )
-            }
-            Spacer(modifier = Modifier.width(60.dp))
-
-            Button(
-                onClick = {
-                    calendar = ColorFilter.tint(Color.Black)
-                    leaderboard = ColorFilter.tint(Color(0xFFD25917))
-                    profile = ColorFilter.tint(Color.Black)
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFFFFF),
-                    contentColor = Color(0xFFFFFFFF)
-                ),
-                contentPadding = PaddingValues(0.dp),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .size(50.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.leaderboard),
-                    contentDescription = "Leaderboard",
-                    colorFilter = leaderboard,
-                    modifier = Modifier
-                        .size(50.dp)
-                )
-            }
-            Spacer(modifier = Modifier.width(60.dp))
-
-            Button(
-                onClick = {
-                    calendar = ColorFilter.tint(Color.Black)
-                    leaderboard = ColorFilter.tint(Color.Black)
-                    profile = ColorFilter.tint(Color(0xFFD25917))
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFFFFF),
-                    contentColor = Color(0xFFFFFFFF)
-                ),
-                contentPadding = PaddingValues(0.dp),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .size(50.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.profile2),
-                    contentDescription = "Profile",
-                    colorFilter = profile,
-                    modifier = Modifier
-                        .size(50.dp)
                 )
             }
         }
