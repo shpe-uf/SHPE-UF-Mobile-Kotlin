@@ -1,0 +1,5 @@
+mutation EditUser($editUserProfileInput: EditUserProfileInput) {
+    editUserProfile(editUserProfileInput: $editUserProfileInput) {
+        id
+    }
+}

@@ -14,19 +14,26 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -98,6 +105,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
+import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.util.*
 
 //create sample card items
@@ -171,23 +179,30 @@ fun TopHeader(
             .fillMaxWidth()
             .height(83.dp)
             .background(color = headerOrange)
-            .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp),
+            .padding(
+                top = WindowInsets.navigationBars
+                    .asPaddingValues(LocalDensity.current)
+                    .calculateTopPadding()
+            ),
         verticalAlignment = Alignment.CenterVertically
+
     ) {
         // display month together "Month Year"
         Text(
             // I think we should add the year as well
-            text = homeState.monthDisplayedName,
+            text = homeState.monthDisplayedName.lowercase()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
             style = TextStyle(
                 color = Color.White,
                 fontFamily = Viga,
-                fontSize = 26.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight(400)
             ),
             color = Color.White,
             modifier = Modifier
                 .weight(1f)
                 .align(Alignment.Bottom)
+                .padding(vertical = 15.dp, horizontal = 32.dp)
         )
 
         // Icon for bell
@@ -198,9 +213,11 @@ fun TopHeader(
             modifier = Modifier
                 .size(33.dp)
                 .align(Alignment.Bottom)
-                .clickable { viewModel.openNotificationWindow() },
+                .clickable { viewModel.openNotificationWindow() }
+                .offset(y = (-14).dp, x = (-28).dp),
             tint = Color.White
         )
+
 
         // Debug Buttons for Now
 //        Icon(
@@ -499,7 +516,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
         modifier = Modifier
             .fillMaxWidth(1f)
             .fillMaxHeight(),
-        color = blueDarkModeBackground
+        color = if(isSystemInDarkTheme()) ThemeColors.Night.background else ThemeColors.Day.background
     ) {
         // Permissions and Dialogs
         PermissionsAndDialogs(viewModel, context)
@@ -1564,7 +1581,7 @@ fun <T> PullToRefreshLazyColumn(
             state = pullToRefreshState,
             modifier = Modifier
                 .align(Alignment.TopCenter),
-            containerColor = blueDarkModeBackground,
+            containerColor = if(isSystemInDarkTheme()) ThemeColors.Night.background else ThemeColors.Day.background,
         )
     }
 }
@@ -1752,7 +1769,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(),
-        color = blueDarkModeBackground
+        color = if(isSystemInDarkTheme()) Color.Black else Color.White
     ) {
         Box {
             EventCardFeed(viewModel = viewModel)
