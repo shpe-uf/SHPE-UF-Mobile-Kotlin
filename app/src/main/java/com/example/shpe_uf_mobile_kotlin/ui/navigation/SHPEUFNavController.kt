@@ -3,6 +3,7 @@ package com.example.shpe_uf_mobile_kotlin.ui.navigation
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.width
@@ -87,14 +88,15 @@ fun BottomNavigationBar(navController: NavHostController) {
     BottomNavigation(
         modifier = Modifier
             .navigationBarsPadding()
+            .fillMaxWidth()
             .drawWithContent {
                 drawContent()
-                drawLine(
-                    color = Color(0x29FFFFFF),
-                    start = Offset(x = 0f, y = 0f),
-                    end = Offset(x = size.width, y = 0f),
-                    strokeWidth = 1.dp.toPx(),
-                )
+//                drawLine(
+//                    color = Color(0x29FFFFFF),
+//                    start = Offset(x = 0f, y = 0f),
+//                    end = Offset(x = size.width, y = 0f),
+//                    strokeWidth = 1.dp.toPx(),
+//                )
             },
         backgroundColor = blueDarkModeBackground,
         contentColor = MaterialTheme.colorScheme.onSurface,

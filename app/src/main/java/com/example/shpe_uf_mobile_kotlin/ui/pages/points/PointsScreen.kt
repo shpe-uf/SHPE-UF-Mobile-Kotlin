@@ -116,7 +116,7 @@ fun TopSection() {
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier
                 .width(500.dp)
-                .height(100.dp)
+                .height(90.dp)
         ) {
             Row(
             ) {
