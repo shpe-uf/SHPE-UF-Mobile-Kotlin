@@ -1,17 +1,19 @@
 package com.example.shpe_uf_mobile_kotlin.ui.navigation
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -27,15 +29,24 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.data.AppState
+import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
-import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
+import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
+import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 
 object NavRoute {
     const val HOME = "home"
     const val POINTS = "points"
     const val PROFILE = "profile"
+    const val LOGIN = "login"
+    const val OPENING = "opening"
+    const val REGISTER = "register"
 }
 
 data class BottomNavigationItem(
@@ -77,14 +88,15 @@ fun BottomNavigationBar(navController: NavHostController) {
     BottomNavigation(
         modifier = Modifier
             .navigationBarsPadding()
+            .fillMaxWidth()
             .drawWithContent {
                 drawContent()
-                drawLine(
-                    color = Color(0x29FFFFFF),
-                    start = Offset(x = 0f, y = 0f),
-                    end = Offset(x = size.width, y = 0f),
-                    strokeWidth = 1.dp.toPx(),
-                )
+//                drawLine(
+//                    color = Color(0x29FFFFFF),
+//                    start = Offset(x = 0f, y = 0f),
+//                    end = Offset(x = size.width, y = 0f),
+//                    strokeWidth = 1.dp.toPx(),
+//                )
             },
         backgroundColor = blueDarkModeBackground,
         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -92,7 +104,8 @@ fun BottomNavigationBar(navController: NavHostController) {
         items.forEach { item ->
             BottomNavigationItem(
                 icon = {
-                    val icon = if (currentRoute == item.title) item.selectedIcon else item.unselectedIcon
+                    val icon =
+                        if (currentRoute == item.title) item.selectedIcon else item.unselectedIcon
                     Icon(
                         painter = painterResource(id = icon),
                         contentDescription = item.title,
@@ -115,13 +128,32 @@ fun BottomNavigationBar(navController: NavHostController) {
 }
 
 @Composable
-fun NavHostContainer(navHostController: NavHostController, homeViewModelFactory: HomeViewModelFactory) {
-    val homeViewModel: HomeViewModel = viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
+fun NavHostContainer(
+    navHostController: NavHostController,
+    homeViewModelFactory: HomeViewModelFactory,
+    mainViewModel: SHPEUFAppViewModel,
+    userState: AppState,
+    registerViewModel: RegisterPage1ViewModel
+) {
+    val homeViewModel: HomeViewModel =
+        viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
+
+    LaunchedEffect(userState.isLoggedIn){
+        val isLoggedIn = userState.isLoggedIn
+        Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
+        navHostController.navigate(if(isLoggedIn) NavRoute.HOME else NavRoute.LOGIN)
+    }
 
     NavHost(
         navController = navHostController,
-        startDestination = NavRoute.HOME
+        startDestination = NavRoute.LOGIN
     ) {
+        composable(NavRoute.LOGIN) {
+            SignIn(navHostController, mainViewModel)
+        }
+        composable(NavRoute.REGISTER){
+            RegistrationPage1(registerPage1ViewModel = registerViewModel, navController = navHostController)
+        }
         composable(NavRoute.HOME)
         {
             HomeScreen(
@@ -130,9 +162,7 @@ fun NavHostContainer(navHostController: NavHostController, homeViewModelFactory:
         }
         composable(NavRoute.POINTS)
         {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Text(text = "Points")
-            }
+            PointsView(shpeufAppViewModel = mainViewModel)
         }
         composable(NavRoute.PROFILE)
         {

@@ -45,6 +45,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.font.Font
+
 //import com.example.shpe_uf_mobile_kotlin.ui.theme.GREY
 //import com.example.shpe_uf_mobile_kotlin.ui.theme.WHITE
 
@@ -138,6 +140,7 @@ fun SHPEUFText() {
         style = TextStyle(
             fontSize = 48.sp,
             fontStyle = FontStyle.Italic,
+            fontFamily = FontFamily(Font(R.font.universltstd)),
             fontWeight = FontWeight(700),
             color = Color.White,
             shadow = Shadow(
