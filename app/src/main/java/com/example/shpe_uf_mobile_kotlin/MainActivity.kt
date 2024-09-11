@@ -17,6 +17,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -54,12 +55,12 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsCalendar
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsPageViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.RedeemPoints
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
+import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 
 class MainActivity() : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             SHPEUFMobileKotlinTheme {
                 val mainViewModel = initializeViewModel()
@@ -71,6 +72,25 @@ class MainActivity() : ComponentActivity() {
                     EventRepository(applicationContext)
                 )
                 val navController = rememberNavController()
+
+                enableEdgeToEdge(
+                    statusBarStyle = if(isSystemInDarkTheme()) SystemBarStyle.dark(
+                        ThemeColors.Night.topBar.toArgb()
+                    ) else {
+                        SystemBarStyle.light(
+                            ThemeColors.Day.topBar.toArgb(),
+                            ThemeColors.Day.topBar.toArgb()
+                        )
+                    },
+                    navigationBarStyle = if(isSystemInDarkTheme()) SystemBarStyle.dark(
+                        ThemeColors.Night.navBar.toArgb()
+                    ) else {
+                        SystemBarStyle.light(
+                            ThemeColors.Day.navBar.toArgb(),
+                            ThemeColors.Day.navBar.toArgb()
+                        )
+                    }
+                )
 
                 // A surface container using the 'background' color from the theme
                 Surface(
