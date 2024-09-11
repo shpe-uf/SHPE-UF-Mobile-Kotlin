@@ -1,5 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -18,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -83,6 +87,7 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
     val signInViewModel = remember { SignInViewModel() }
     val uiState by signInViewModel.uiState.collectAsState()
     val shpeLogo = R.drawable.shpe_logo_full_color
+    val context = LocalContext.current
 
     // Dark mode support
     val background = if (isSystemInDarkTheme()) {
@@ -146,6 +151,19 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
             }
             Row(modifier = Modifier.padding(top = 1.dp)) {
                 SignUp(navController)
+            }
+
+            // display toast if the login fails
+            if (uiState.loginErrorMessage != null) {
+                uiState.loginErrorMessage?.let { it ->
+                    val text = it
+                    val duration = Toast.LENGTH_SHORT
+
+                    val toast = Toast.makeText(context, text, duration)
+                    toast.show()
+
+                    signInViewModel.updateErrorMessage(null)
+                }
             }
         }
     }

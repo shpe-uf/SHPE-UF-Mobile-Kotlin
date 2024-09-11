@@ -12,7 +12,6 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -37,6 +36,9 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
 import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.Opening2
 import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfilePagePreview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePreview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterRoutes
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
@@ -131,7 +133,8 @@ fun NavHostContainer(
     homeViewModelFactory: HomeViewModelFactory,
     mainViewModel: SHPEUFAppViewModel,
     userState: AppState,
-    registerViewModel: RegisterPage1ViewModel
+    registerViewModel: RegisterPage1ViewModel,
+    profileViewModel: ProfileViewModel
 ) {
     val homeViewModel: HomeViewModel =
         viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
@@ -181,9 +184,11 @@ fun NavHostContainer(
         }
         composable(NavRoute.PROFILE)
         {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Text(text = "Profile")
-            }
+            StaticProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
+        }
+        composable(NavRoute.EDITPROFILE)
+        {
+            ProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
         }
     }
 }
