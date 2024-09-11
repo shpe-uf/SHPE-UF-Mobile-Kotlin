@@ -1,5 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.navigation
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -11,7 +13,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -35,12 +39,14 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 //import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
+import kotlinx.coroutines.async
 
 object NavRoute {
     const val HOME = "home"
     const val POINTS = "points"
     const val PROFILE = "profile"
     const val LOGIN = "login"
+    const val OPENING = "opening"
 }
 
 data class BottomNavigationItem(
@@ -97,7 +103,8 @@ fun BottomNavigationBar(navController: NavHostController) {
         items.forEach { item ->
             BottomNavigationItem(
                 icon = {
-                    val icon = if (currentRoute == item.title) item.selectedIcon else item.unselectedIcon
+                    val icon =
+                        if (currentRoute == item.title) item.selectedIcon else item.unselectedIcon
                     Icon(
                         painter = painterResource(id = icon),
                         contentDescription = item.title,
@@ -126,18 +133,23 @@ fun NavHostContainer(
     mainViewModel: SHPEUFAppViewModel,
     UserState: AppState
 ) {
-    val homeViewModel: HomeViewModel = viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
+    val homeViewModel: HomeViewModel =
+        viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
+
+    LaunchedEffect(UserState.isLoggedIn){
+        val isLoggedIn = UserState.isLoggedIn
+        Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
+        navHostController.navigate(if(isLoggedIn) NavRoute.HOME else NavRoute.LOGIN)
+    }
 
     NavHost(
         navController = navHostController,
-        startDestination = if(UserState.isLoggedIn && !UserState.isLoggedOut) NavRoute.HOME else NavRoute.LOGIN
+        startDestination = NavRoute.LOGIN
     ) {
-        composable(NavRoute.HOME){
-            Box(modifier = Modifier.fillMaxSize()) {
-                Text(text = "Home")
-            }
+        composable(NavRoute.HOME) {
+            HomeScreen(homeViewModel)
         }
-        composable(NavRoute.LOGIN){
+        composable(NavRoute.LOGIN) {
             SignIn(navHostController, mainViewModel)
         }
         composable(NavRoute.HOME)

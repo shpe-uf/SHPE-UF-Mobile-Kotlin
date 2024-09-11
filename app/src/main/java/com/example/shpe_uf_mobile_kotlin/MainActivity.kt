@@ -84,21 +84,21 @@ class MainActivity() : ComponentActivity() {
 //                }
 
                 // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = blueDarkModeBackground,
-                ) {
-                    Scaffold(
-                        bottomBar = { if(!UserState.isLoggedIn && UserState.isLoggedOut) null else BottomNavigationBar(navController) }
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .padding(it),
-                        ) {
-                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState)
-                        }
-                    }
-                }
+//                Surface(
+//                    modifier = Modifier.fillMaxSize(),
+//                    color = blueDarkModeBackground,
+//                ) {
+//                    Scaffold(
+//                        bottomBar = { if(!UserState.isLoggedIn && UserState.isLoggedOut) null else BottomNavigationBar(navController) }
+//                    ) {
+//                        Box(
+//                            modifier = Modifier
+//                                .padding(it),
+//                        ) {
+//                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState)
+//                        }
+//                    }
+//                }
             }
         }
     }
