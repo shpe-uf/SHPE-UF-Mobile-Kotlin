@@ -14,6 +14,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -104,6 +105,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
+import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.util.*
 
 //create sample card items
@@ -177,7 +179,11 @@ fun TopHeader(
             .fillMaxWidth()
             .height(83.dp)
             .background(color = headerOrange)
-            .padding(top = WindowInsets.navigationBars.asPaddingValues(LocalDensity.current).calculateTopPadding()),
+            .padding(
+                top = WindowInsets.navigationBars
+                    .asPaddingValues(LocalDensity.current)
+                    .calculateTopPadding()
+            ),
         verticalAlignment = Alignment.CenterVertically
 
     ) {
@@ -510,7 +516,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
         modifier = Modifier
             .fillMaxWidth(1f)
             .fillMaxHeight(),
-        color = blueDarkModeBackground
+        color = if(isSystemInDarkTheme()) ThemeColors.Night.background else ThemeColors.Day.background
     ) {
         // Permissions and Dialogs
         PermissionsAndDialogs(viewModel, context)
@@ -1575,7 +1581,7 @@ fun <T> PullToRefreshLazyColumn(
             state = pullToRefreshState,
             modifier = Modifier
                 .align(Alignment.TopCenter),
-            containerColor = blueDarkModeBackground,
+            containerColor = if(isSystemInDarkTheme()) ThemeColors.Night.background else ThemeColors.Day.background,
         )
     }
 }
@@ -1763,7 +1769,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(),
-        color = blueDarkModeBackground
+        color = if(isSystemInDarkTheme()) Color.Black else Color.White
     ) {
         Box {
             EventCardFeed(viewModel = viewModel)

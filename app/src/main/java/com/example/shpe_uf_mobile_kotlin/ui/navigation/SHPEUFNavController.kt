@@ -1,6 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.navigation
 
 import android.util.Log
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,6 +39,8 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
+import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
+import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 
 object NavRoute {
@@ -98,9 +101,10 @@ fun BottomNavigationBar(navController: NavHostController) {
 //                    strokeWidth = 1.dp.toPx(),
 //                )
             },
-        backgroundColor = blueDarkModeBackground,
+        backgroundColor = if(isSystemInDarkTheme()) ThemeColors.Night.navBar else ThemeColors.Day.navBar,
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
+
         items.forEach { item ->
             BottomNavigationItem(
                 icon = {
@@ -109,7 +113,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     Icon(
                         painter = painterResource(id = icon),
                         contentDescription = item.title,
-                        tint = Color.Unspecified,
+                        tint = if(currentRoute == item.title) OrangeSHPE else if(isSystemInDarkTheme()) Color.White else Color.Black,
                         modifier = Modifier
                             .height(35.dp)
                             .width(35.dp)
