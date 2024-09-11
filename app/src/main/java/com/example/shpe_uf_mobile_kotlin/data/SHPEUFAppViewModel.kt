@@ -95,6 +95,14 @@ class SHPEUFAppViewModel(
             userRepository.saveDarkMode(isDarkMode)
         }
     }
+
+    fun logoutUser(){
+        saveUserId("")
+        saveLoggedIn(false)
+        saveLoggedOut(true)
+    }
+
+
 }
 
 sealed class ViewState {

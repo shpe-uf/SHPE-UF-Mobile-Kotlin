@@ -200,7 +200,13 @@ fun StaticProfileScreen(
 
             item{
                 LogoutButton (
-                    onClick = {  }
+
+                    onClick = {
+                        mainViewModel.logoutUser()
+
+                        navController.navigate(NavRoute.LOGIN)
+
+                    }
                 )
             }
 
