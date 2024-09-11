@@ -399,8 +399,8 @@ fun ProfileGradYear(selectedYear: String, onYearSelected: (String) -> Unit, year
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                textColor = Color.White,
-                placeholderColor = Color.Gray,
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray,
                 focusedTrailingIconColor = Color.White,
                 unfocusedTrailingIconColor = Color.White
             )
@@ -472,8 +472,8 @@ fun ProfileYear(selectedYear: String, onYearSelected: (String) -> Unit, years: L
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                textColor = Color.White,
-                placeholderColor = Color.Gray,
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray,
                 focusedTrailingIconColor = Color.White,
                 unfocusedTrailingIconColor = Color.White
             )
@@ -543,8 +543,8 @@ fun ProfileCountry(selectedCountry: String, onCountrySelected: (String) -> Unit,
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                textColor = Color.White,
-                placeholderColor = Color.Gray,
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray,
                 focusedTrailingIconColor = Color.White,
                 unfocusedTrailingIconColor = Color.White
             )
@@ -615,8 +615,8 @@ fun ProfileEthnicity(selectedEthnicity: String, onEthnicitySelected: (String) ->
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                textColor = Color.White,
-                placeholderColor = Color.Gray,
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray,
                 focusedTrailingIconColor = Color.White,
                 unfocusedTrailingIconColor = Color.White
             )
@@ -688,8 +688,8 @@ fun ProfileGender(selectedGender: String, onGenderSelected: (String) -> Unit, ge
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                textColor = Color.White,
-                placeholderColor = Color.Gray,
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray,
                 focusedTrailingIconColor = Color.White,
                 unfocusedTrailingIconColor = Color.White
             )
@@ -761,8 +761,8 @@ fun ProfileEmail(value: String, onValueChange: (String) -> Unit) {
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                textColor = Color.White,
-                placeholderColor = Color.Gray
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray
             )
         )
     }
@@ -817,8 +817,8 @@ fun ProfileUserName(value: String, onValueChange: (String) -> Unit) {
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                textColor = Color.White,
-                placeholderColor = Color.Gray
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray
             )
         )
     }
@@ -871,8 +871,8 @@ fun ProfileName(value: String, onValueChange: (String) -> Unit) {
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                textColor = Color.White,
-                placeholderColor = Color.Gray
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray
             )
         )
     }
@@ -908,8 +908,8 @@ fun ProfileTopName(value: String, onValueChange: (String) -> Unit) {
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                textColor = Color.White,
-                placeholderColor = Color.Gray
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray
             ),
             modifier = Modifier.width(IntrinsicSize.Min)
         )

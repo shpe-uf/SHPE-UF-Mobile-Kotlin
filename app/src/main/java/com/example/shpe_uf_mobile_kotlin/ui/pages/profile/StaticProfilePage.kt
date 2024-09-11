@@ -316,8 +316,8 @@ fun StaticProfileGradYear(value: String, onValueChange: (String) -> Unit) {
             textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                textColor = Color.White,
-                placeholderColor = Color.Gray
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray
             )
         )
     }
@@ -363,8 +363,8 @@ fun StaticProfileYear(value: String, onValueChange: (String) -> Unit) {
             textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                textColor = Color.White,
-                placeholderColor = Color.Gray
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray
             )
         )
     }
@@ -411,8 +411,8 @@ fun StaticProfileCountry(value: String, onValueChange: (String) -> Unit) {
             textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                textColor = Color.White,
-                placeholderColor = Color.Gray
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray
             )
         )
     }
@@ -459,8 +459,8 @@ fun StaticProfileEthnicity(value: String, onValueChange: (String) -> Unit) {
             textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                textColor = Color.White,
-                placeholderColor = Color.Gray
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray
             )
         )
     }
@@ -508,8 +508,8 @@ fun StaticProfileGender(value: String, onValueChange: (String) -> Unit) {
 
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                textColor = Color.White,
-                placeholderColor = Color.Gray
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray
             )
         )
     }
@@ -563,8 +563,8 @@ fun StaticProfileEmail(value: String, onValueChange: (String) -> Unit) {
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                textColor = Color.White,
-                placeholderColor = Color.Gray
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray
             )
         )
     }
@@ -611,8 +611,8 @@ fun StaticProfileUserName(value: String, onValueChange: (String) -> Unit) {
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                textColor = Color.White,
-                placeholderColor = Color.Gray
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray
             )
         )
     }
@@ -660,8 +660,8 @@ fun StaticProfileName(value: String, onValueChange: (String) -> Unit) {
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                textColor = Color.White,
-                placeholderColor = Color.Gray
+                focusedTextColor = Color.White,
+                focusedPlaceholderColor = Color.Gray
             )
         )
     }
