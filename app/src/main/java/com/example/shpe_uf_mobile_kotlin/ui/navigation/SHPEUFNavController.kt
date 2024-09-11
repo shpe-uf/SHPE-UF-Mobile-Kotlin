@@ -33,26 +33,20 @@ import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.Opening2
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfilePagePreview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePreview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterRoutes
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
-import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
-
-//object NavRoute {
-//    const val HOME = "home"
-//    const val POINTS = "points"
-//    const val PROFILE = "profile"
-//    const val EDITPROFILE = "editprofile"
-//    const val LOGIN = "login"
-//    const val OPENING = "opening"
-//    const val REGISTER = "register"
-//}
 
 data class BottomNavigationItem(
     val title: String,
@@ -148,18 +142,35 @@ fun NavHostContainer(
     LaunchedEffect(userState.isLoggedIn){
         val isLoggedIn = userState.isLoggedIn
         Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
-        navHostController.navigate(if(isLoggedIn) NavRoute.HOME else NavRoute.LOGIN)
+
+        if(isLoggedIn){
+            navHostController.popBackStack(NavRoute.LOGIN, inclusive = true)
+        }
+
+        navHostController.navigate(if (isLoggedIn && userState.isLoggedOut) NavRoute.HOME else NavRoute.OPENING)
     }
 
     NavHost(
         navController = navHostController,
-        startDestination = NavRoute.LOGIN
+        startDestination = NavRoute.OPENING,
     ) {
+        composable(NavRoute.OPENING){
+            OpeningPage(navHostController)
+        }
+        composable(NavRoute.OPENING_2){
+            Opening2(navHostController)
+        }
         composable(NavRoute.LOGIN) {
             SignIn(navHostController, mainViewModel)
         }
         composable(NavRoute.REGISTER){
             RegistrationPage1(registerPage1ViewModel = registerViewModel, navController = navHostController)
+        }
+        composable(RegisterRoutes.registerPage2){
+            RegistrationPage2()
+        }
+        composable(RegisterRoutes.registerPage3){
+            RegistrationPage3()
         }
         composable(NavRoute.HOME)
         {

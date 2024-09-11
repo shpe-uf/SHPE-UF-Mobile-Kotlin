@@ -1,6 +1,5 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.opening
 
-import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -20,49 +19,50 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.text.font.Font
-
-//import com.example.shpe_uf_mobile_kotlin.ui.theme.GREY
-//import com.example.shpe_uf_mobile_kotlin.ui.theme.WHITE
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 
 
 @Preview
 @Composable
 fun OpeningPagePreview() {
-    val viewModel = OpeningPageViewModel()
-    OpeningPage(viewModel)
+    OpeningPage(TODO())
 }
 
 // The goat source: https://blog.protein.tech/jetpack-compose-auto-image-slider-with-dots-indicator-45dfeba37712
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun OpeningPage(viewModel: OpeningPageViewModel) {
+fun OpeningPage(navController: NavHostController) {
+
+    val viewModel = remember { OpeningPageViewModel() }
 
     val pagerState = viewModel.updatePage()
 
@@ -87,7 +87,7 @@ fun OpeningPage(viewModel: OpeningPageViewModel) {
         }
         Spacer(Modifier.weight(1f)) // Space between caption and button.
         Row {
-            GettingStartedButton(onClick = { Log.d("Button", "Pressed") }) // Button is fourth.
+            GettingStartedButton(navController) // Button is fourth.
         }
         Spacer(Modifier.height(23.dp))
         Row {
@@ -96,7 +96,6 @@ fun OpeningPage(viewModel: OpeningPageViewModel) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImageCarousel(pagerState: PagerState, viewModel: OpeningPageViewModel) {
     // Start Pager
@@ -155,8 +154,6 @@ fun SHPEUFText() {
     )
 }
 
-// TODO: Incorporate animation.
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AnimatedCaption(pagerState: PagerState, viewModel: OpeningPageViewModel) {
 
@@ -179,10 +176,10 @@ fun AnimatedCaption(pagerState: PagerState, viewModel: OpeningPageViewModel) {
 // Button
 @Composable
 fun GettingStartedButton(
-    onClick: () -> Unit
-) { // TODO: Implement navigation to Login page when pressing this button.
+    navController: NavHostController
+) {
     Button(
-        onClick = { onClick() },
+        onClick = { navController.navigate(NavRoute.OPENING_2) },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF011F35)),
         modifier = Modifier
             .shadow(
