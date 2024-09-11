@@ -572,7 +572,15 @@ fun ProfileEthnicity(selectedEthnicity: String, onEthnicitySelected: (String) ->
             readOnly = true,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .menuAnchor()
+                .menuAnchor(),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.Gray,
+                unfocusedBorderColor = Color.Gray,
+                textColor = Color.White,
+                placeholderColor = Color.Gray,
+                focusedTrailingIconColor = Color.White,
+                unfocusedTrailingIconColor = Color.White
+            )
         )
         ExposedDropdownMenu(
             expanded = expanded,
