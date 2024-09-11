@@ -25,6 +25,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,8 +35,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -53,6 +57,197 @@ fun RegistrationPage3Preview(navController: NavController, registerPage1ViewMode
 
     RegistrationPage3(registerPage1ViewModel = registerPage1ViewModel, navController = navController)
 
+}
+
+// Used for testing. Not used in final version
+@Preview
+@Composable
+fun RegistrationPage3(){
+
+    Box(
+        modifier = Modifier
+            .padding(top = 83.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF011F35)),
+            horizontalAlignment = Alignment.CenterHorizontally
+
+        ){
+            Spacer(modifier = Modifier.height(42.dp))
+
+            // This is the start of the third page progression bar
+            Row{
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+                    )
+                }
+            }
+            // This is the end of the third page progression bar
+
+            Spacer(modifier = Modifier.height(35.dp))
+
+
+            // This is the academic info text section
+            Text(
+                text = "Enter your current education details",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = FontFamily(Font(R.font.universltstd)),
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFFFFFFF)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 30.dp)
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Row{
+                    Text(
+                        text = "Academic Info",
+                        style = TextStyle(
+                            fontSize = 36.sp,
+                            fontFamily = FontFamily(Font(R.font.viga)),
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFD25917)
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(54.dp))
+
+                Row{
+                    Image(
+                        painter = painterResource(id = R.drawable.bookicon),
+                        contentDescription = "bookIcon",
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+            }
+            // end of academic info section
+
+            Spacer(modifier = Modifier.height(55.dp))
+
+            Text(
+                text = "Major",
+                fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            MajorDropDownMenu(
+                value = "",
+                isError = null == true,
+                errorMessage = "",
+                isMajorMenuExpanded = false,
+                onExpandedChange = {TODO()},
+                onValueChange = { TODO() }
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "Year",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                fontFamily = FontFamily(Font(R.font.universltstd)),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            YearDropDownMenu(
+                value = "",
+                isError = null == true,
+                errorMessage = "",
+                isYearMenuExpanded = false,
+                onExpandedChange = {TODO()},
+                onValueChange = { TODO() }
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "Graduation Year",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                fontFamily = FontFamily(Font(R.font.universltstd)),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            GraduationYearDropDownMenu(
+                value = "",
+                isError = null == true,
+                errorMessage = "",
+                isGraduationMenuExpanded = false,
+                onExpandedChange = {TODO()},
+                onValueChange = { TODO() }
+            )
+
+//            Spacer(modifier = Modifier.height(207.dp))
+            Spacer(modifier = Modifier.height(197.dp))
+
+            CompleteRegistrationButton(
+                onClick = {
+//                    if (registerPage1ViewModel.validateRegisterPage3Fields() == true) {
+//                        registerPage1ViewModel.validateAndRegisterUser()
+//                    }
+//                    else {
+//                        Log.d("Error", "The input validation for the page works, only Major for now")
+//                        // Do nothing don't go to next page
+//                    }
+                }
+
+
+
+//                onClick = { registerPage1ViewModel.validateAndRegisterUser() }
+            )
+
+        }
+    }
 }
 
 @Composable
@@ -225,7 +420,7 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
             CompleteRegistrationButton(
                 onClick = {
-                    if (registerPage1ViewModel.validateRegisterPage3Fields() == true) {
+                    if (registerPage1ViewModel.validateRegisterPage3Fields()) {
                         registerPage1ViewModel.validateAndRegisterUser()
                     }
                     else {
@@ -421,9 +616,14 @@ private fun MajorDropDownMenu(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isMajorMenuExpanded)
             },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
+            ),
             modifier = Modifier
 //                .height(50.dp)
+                .height(37.64706.dp)
+                .width(270.dp)
                 .fillMaxWidth(0.7f)
                 .menuAnchor()
         )
@@ -514,9 +714,14 @@ private fun YearDropDownMenu(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isYearMenuExpanded)
             },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
+            ),
             modifier = Modifier
 //                .height(50.dp)
+                .height(37.64706.dp)
+                .width(270.dp)
                 .fillMaxWidth(0.7f)
                 .menuAnchor()
         )
@@ -607,9 +812,14 @@ private fun GraduationYearDropDownMenu(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isGraduationMenuExpanded)
             },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
+            ),
             modifier = Modifier
 //                .height(50.dp)
+                .height(37.64706.dp)
+                .width(270.dp)
                 .fillMaxWidth(0.7f)
                 .menuAnchor()
         )
@@ -694,7 +904,12 @@ private fun CompleteRegistrationButton(
         ) {
             Text(
                 text = "Complete Registration",
-                fontSize = 20.sp,
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily(Font(R.font.universltstd)),
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFFFFFFF)
+                ),
                 color = Color.White
             )
         }
