@@ -41,7 +41,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewMode
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
+//import com.example.shpe_uf_mobile_kotlin.ui.navigation.Routes
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.LoadingScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
@@ -54,6 +54,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsCalendar
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsPageViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.RedeemPoints
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
@@ -66,6 +67,8 @@ class MainActivity() : ComponentActivity() {
                 val mainViewModel = initializeViewModel()
                 val UserState by mainViewModel.uiState.collectAsState()
                 val registerViewModel = RegisterPage1ViewModel()
+
+                val profileViewModel = ProfileViewModel()
 
                 val viewModelFactory = HomeViewModelFactory(
                     NotificationRepository(applicationContext),
@@ -104,7 +107,7 @@ class MainActivity() : ComponentActivity() {
                             modifier = Modifier
                                 .padding(it),
                         ) {
-                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState, registerViewModel)
+                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState, registerViewModel, profileViewModel)
                         }
                     }
                 }

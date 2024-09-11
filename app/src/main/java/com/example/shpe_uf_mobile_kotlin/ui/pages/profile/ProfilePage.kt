@@ -58,24 +58,31 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
 //TODO: add bottom bar functionality
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
-fun ProfilePagePreview() {
-    val viewModel = ProfileViewModel()
-    ProfileScreen(viewModel)
+fun ProfilePagePreview(viewModel: ProfileViewModel, navController: NavHostController, mainViewModel: SHPEUFAppViewModel) {
+
+    ProfileScreen(viewModel, navController, mainViewModel)
 }
 
 
 @Composable
-fun ProfileScreen(profileViewModel: ProfileViewModel){
+fun ProfileScreen(profileViewModel: ProfileViewModel, navController: NavHostController, mainViewModel: SHPEUFAppViewModel){
     SHPEUFMobileKotlinTheme{
         val uiState by profileViewModel.uiState.collectAsState()
-        profileViewModel.loadProfile("64ea79b9f2051e00149c75b7")
+        val mainState by mainViewModel.uiState.collectAsState()
+
+
+        profileViewModel.loadProfile(mainState.id)
 
         ProfilePageBackground()
 
@@ -97,8 +104,12 @@ fun ProfileScreen(profileViewModel: ProfileViewModel){
 
             item{
                 SaveCancelButtons(
-                    onSaveClick = { profileViewModel.saveProfileChanges() },
-                    onCancelClick = { profileViewModel.cancelProfileChanges() }
+                    onSaveClick = {
+                        profileViewModel.saveProfileChanges()
+                        navController.navigate(NavRoute.PROFILE) },
+                    onCancelClick = {
+                        profileViewModel.cancelProfileChanges()
+                        navController.navigate(NavRoute.PROFILE) }
                 )
 
             }
