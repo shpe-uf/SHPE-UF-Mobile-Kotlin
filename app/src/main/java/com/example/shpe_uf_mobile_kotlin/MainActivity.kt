@@ -49,7 +49,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shpe_uf_mobile_kotlin.apolloClient
-import com.example.shpe_uf_mobile_kotlin.ui.pages.points.FullView
+import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsCalendar
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsPageViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.RedeemPoints
