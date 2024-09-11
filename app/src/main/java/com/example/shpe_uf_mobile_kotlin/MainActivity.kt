@@ -43,9 +43,8 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 class MainActivity() : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //enableEdgeToEdge()
+        enableEdgeToEdge()
         setContent {
-            //enableEdgeToEdge()
             SHPEUFMobileKotlinTheme {
                 val mainViewModel = initializeViewModel()
                 val UserState by mainViewModel.uiState.collectAsState()
@@ -56,34 +55,6 @@ class MainActivity() : ComponentActivity() {
                     EventRepository(applicationContext)
                 )
                 val navController = rememberNavController()
-
-                enableEdgeToEdge(
-                    statusBarStyle = SystemBarStyle.light(
-                        Color(0xFFD25917).toArgb(),
-                        Color(0xFFD25917).toArgb()
-                    ),
-                    navigationBarStyle = SystemBarStyle.light(
-                        blueDarkModeBackground.toArgb(),
-                        blueDarkModeBackground.toArgb()
-                    )
-                )
-
-//                val start = if(UserState.isLoggedIn) Routes.points else Routes.login
-//
-//                NavHost(
-//                    navController = navController,
-//                    startDestination = start,
-//                ) {
-//                    composable(Routes.loading){
-//                        mainLoadingScreen()
-//                    }
-//                    composable(Routes.login) {
-//                        SignIn(navController, shpeUFAppViewModel = mainViewModel)
-//                    }
-//                    composable(Routes.points) {
-//                        FullView(shpeufAppViewModel = mainViewModel)
-//                    }
-//                }
 
                 // A surface container using the 'background' color from the theme
                 Surface(

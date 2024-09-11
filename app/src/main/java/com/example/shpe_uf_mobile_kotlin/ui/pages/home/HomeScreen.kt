@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -171,7 +172,7 @@ fun TopHeader(
             .fillMaxWidth()
             .height(83.dp)
             .background(color = headerOrange)
-            .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp),
+            .statusBarsPadding(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // display month together "Month Year"
