@@ -49,7 +49,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import apolloClient
@@ -58,8 +57,13 @@ import com.example.shpe_uf_mobile_kotlin.ExampleQuery
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import com.example.shpe_uf_mobile_kotlin.EventsQuery.Event
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import kotlinx.coroutines.launch
@@ -73,7 +77,7 @@ import java.time.format.DateTimeFormatter
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
-fun FullView(shpeufAppViewModel: SHPEUFAppViewModel) {
+fun PointsView(shpeufAppViewModel: SHPEUFAppViewModel) {
 
     val pointsPageViewModel = remember { PointsPageViewModel() }
 
@@ -96,7 +100,7 @@ fun FullView(shpeufAppViewModel: SHPEUFAppViewModel) {
                 }
             }
 
-            BottomBar()
+            //BottomBar()
         }
     }
 }
@@ -105,7 +109,7 @@ fun FullView(shpeufAppViewModel: SHPEUFAppViewModel) {
 fun TopSection() {
     Column (
         modifier = Modifier
-            .background(color = Color(0xFF004C73))
+            .background(color = Color(0xFFD25917))
     ){
         Row(
             verticalAlignment = Alignment.Bottom,
@@ -119,6 +123,7 @@ fun TopSection() {
                     text = "Points Program",
                     style = TextStyle(
                         fontSize = 35.sp,
+                        fontFamily = FontFamily(Font(R.font.viga)),
                         fontWeight = FontWeight.Bold,
                         color = Color.White
 
@@ -129,15 +134,15 @@ fun TopSection() {
 
                 )
             }
-            Spacer(modifier = Modifier.width(24.dp))
-            Row {
-                Image(
-                    painter = painterResource(id = R.drawable.shpe_logo_full_color),
-                    contentDescription = "SHPE GOAT",
-                    modifier = Modifier
-                        .size(98.dp)
-                )
-            }
+//            Spacer(modifier = Modifier.width(24.dp))
+//            Row {
+//                Image(
+//                    painter = painterResource(id = R.drawable.shpe_logo_full_color),
+//                    contentDescription = "SHPE GOAT",
+//                    modifier = Modifier
+//                        .size(98.dp)
+//                )
+//            }
         }
     }
 }
@@ -167,12 +172,14 @@ fun RedeemPoints(
             modifier = Modifier
                 .width(1500.dp)
                 .height(750.dp)
-                .background(color = Color(0xFF004C73), shape = RoundedCornerShape(
-                    topStart = 10.dp,
-                    topEnd = 10.dp,
-                    bottomStart = 0.dp,
-                    bottomEnd = 0.dp
-                ))
+                .background(
+                    color = Color(0xFFD25917), shape = RoundedCornerShape(
+                        topStart = 10.dp,
+                        topEnd = 10.dp,
+                        bottomStart = 0.dp,
+                        bottomEnd = 0.dp
+                    )
+                )
         ) {
             Spacer(modifier = Modifier.height(30.dp))
             Box(
@@ -191,9 +198,10 @@ fun RedeemPoints(
                     text = "REDEEM POINTS",
                     style = TextStyle(
                         fontSize = 33.sp,
+                        fontFamily = FontFamily(Font(R.font.universltstd)),
+                        fontStyle = FontStyle.Italic,
                         fontWeight = FontWeight(700),
-                        color = Color(0xFFFF3E00),
-
+                        color = Color(0xFFFFFFFF),
                         textAlign = TextAlign.Center,
                     ),
                 )
@@ -209,8 +217,10 @@ fun RedeemPoints(
                         "Event Code",
                         style = TextStyle(
                             fontSize = 25.sp,
+                            fontFamily = FontFamily(Font(R.font.universltstd)),
+                            fontWeight = FontWeight(300),
                             fontStyle = FontStyle.Italic,
-                            color = Color(0xFF004C73),
+                            color = Color(0xFF011F35),
                             textAlign = TextAlign.Center
                         ),
                         modifier = Modifier.fillMaxWidth()
@@ -224,8 +234,11 @@ fun RedeemPoints(
                 ),
                 modifier = Modifier
                     .width(340.dp)
-                    .height(60.dp)
-                    .background(Color.White)
+                    .height(60.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFFFFFFFF),
+                    unfocusedContainerColor = Color(0xFFFFFFFF)
+                )
             )
             if(errorMessage == "null") {
                 onCloseBottomSheet()
@@ -245,7 +258,7 @@ fun RedeemPoints(
                 text = "Guests",
                 style = TextStyle(
                     fontSize = 25.sp,
-                    color = Color(0xFF72AAC0),
+                    color = Color(0xFFEDEDED),
                     textAlign = TextAlign.Center,
                 ),
             )
@@ -337,12 +350,12 @@ fun RedeemPoints(
                 }
             },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFD33C20),
+                    containerColor = Color(0xFF011F35),
                     contentColor = Color(0xFFFFFFFF)
                 ),
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
-                    .width(340.dp)
+                    .width(290.dp)
                     .height(60.dp))
             {
                 Text(
@@ -418,12 +431,14 @@ fun PointsCalendar(id: String){
                         bottomEnd = 0.dp
                     )
                 )
-                .background(color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
-                    topStart = 10.dp,
-                    topEnd = 10.dp,
-                    bottomStart = 0.dp,
-                    bottomEnd = 0.dp
-                ))
+                .background(
+                    color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
+                        topStart = 10.dp,
+                        topEnd = 10.dp,
+                        bottomStart = 0.dp,
+                        bottomEnd = 0.dp
+                    )
+                )
             ){
                 Row(
                     modifier = Modifier
@@ -486,12 +501,14 @@ fun PointsCalendar(id: String){
                         bottomEnd = 0.dp
                     )
                 )
-                .background(color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
-                    topStart = 10.dp,
-                    topEnd = 10.dp,
-                    bottomStart = 0.dp,
-                    bottomEnd = 0.dp
-                ))
+                .background(
+                    color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
+                        topStart = 10.dp,
+                        topEnd = 10.dp,
+                        bottomStart = 0.dp,
+                        bottomEnd = 0.dp
+                    )
+                )
             ){
                 Row(
                     modifier = Modifier
@@ -554,12 +571,14 @@ fun PointsCalendar(id: String){
                         bottomEnd = 0.dp
                     )
                 )
-                .background(color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
-                    topStart = 10.dp,
-                    topEnd = 10.dp,
-                    bottomStart = 0.dp,
-                    bottomEnd = 0.dp
-                ))
+                .background(
+                    color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
+                        topStart = 10.dp,
+                        topEnd = 10.dp,
+                        bottomStart = 0.dp,
+                        bottomEnd = 0.dp
+                    )
+                )
             ){
                 Row(
                     modifier = Modifier
@@ -619,12 +638,14 @@ fun PointsCalendar(id: String){
                         bottomEnd = 0.dp
                     )
                 )
-                .background(color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
-                    topStart = 10.dp,
-                    topEnd = 10.dp,
-                    bottomStart = 0.dp,
-                    bottomEnd = 0.dp
-                ))
+                .background(
+                    color = Color(0xFFD9D9D9), shape = RoundedCornerShape(
+                        topStart = 10.dp,
+                        topEnd = 10.dp,
+                        bottomStart = 0.dp,
+                        bottomEnd = 0.dp
+                    )
+                )
             ){
                 Row(
                     modifier = Modifier
@@ -762,8 +783,10 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String){
                 Text(
                     text = "Redeem Code",
                     style = TextStyle(
-                        fontSize = 20.sp,
+                        fontSize = 20.61.sp,
+                        fontFamily = FontFamily(Font(R.font.universltstd)),
                         color = Color(0xFFFFFFFF),
+                        fontWeight = FontWeight(700),
                         textAlign = TextAlign.Center,
                     ),
                     modifier = Modifier
@@ -778,11 +801,15 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String){
                                        },
                     dragHandle = {
                         Modifier.background(Color.Blue)
-                    }
+                    },
+                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
                 ) {
-                    RedeemPoints(pointsPageViewModel, "642f7f80e8839f0014e8be9b") {
-                        openBottomSheet = false
+                    Box(modifier = Modifier.fillMaxSize()){
+                        RedeemPoints(pointsPageViewModel, "642f7f80e8839f0014e8be9b") {
+                            openBottomSheet = false
+                        }
                     }
+
                 }
             }
 
@@ -791,8 +818,10 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String){
             Text(
                 text = "Total Points: ${datas.sumOf { it.points }}",
                 style = TextStyle(
-                    fontSize = 20.sp,
-                    color = Color(0xFF004C73),
+                    fontSize = 20.61.sp,
+                    fontFamily = FontFamily(Font(R.font.universltstd_bold)),
+                    fontWeight = FontWeight(700),
+                    color = Color(0xFF011F35),
                     textAlign = TextAlign.Center,
                 ),
                 modifier = Modifier
@@ -812,7 +841,8 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String){
                     number = datas.sumOf { it.fallPoints },
                     modifier = Modifier.fillMaxWidth(),
                     firstGradient = Color(0xFF0A2059),
-                    secondGradient = Color(0xFF2E619E)
+                    secondGradient = Color(0xFF2E619E),
+                    dividerColor = Color(0xFF0A2059)
 
                 )
             }
@@ -830,7 +860,8 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String){
                     number = datas.sumOf {it.springPoints},
                     modifier = Modifier.fillMaxWidth(),
                     firstGradient = Color(0xFF981F14),
-                    secondGradient = Color(0xFFDE5026)
+                    secondGradient = Color(0xFFDE5026),
+                    dividerColor = Color(0xFF0B70BA)
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -847,7 +878,8 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String){
                     number = datas.sumOf {it.summerPoints},
                     modifier = Modifier.fillMaxWidth(),
                     firstGradient = Color(0xFF0B70BA),
-                    secondGradient = Color(0xFF84CBFF)
+                    secondGradient = Color(0xFF84CBFF),
+                    dividerColor = Color(0xFF981F14)
                 )
             }
         }
@@ -953,6 +985,7 @@ fun PercentIndicator(
     modifier: Modifier = Modifier,
     firstGradient: Color = Color(0xFF3F51B5),
     secondGradient: Color = Color(0xFF3F51B5),
+    dividerColor: Color,
 
     ) {
     Row(
@@ -970,13 +1003,14 @@ fun PercentIndicator(
         // Label
         Text(
             text = label,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight(700),
             style = TextStyle(
-                fontSize = 20.sp,
-                color = Color(0xFF004C73),
+                fontSize = 18.73.sp,
+                fontStyle = FontStyle.Italic,
+                fontFamily = FontFamily(Font(R.font.universltstd_bold)),
+                color = Color(0xFFFFFFFF),
                 textAlign = TextAlign.Center,
             ),
-            color = Color.White,
             modifier = Modifier
                 .weight(1.4f)
         )
@@ -986,7 +1020,7 @@ fun PercentIndicator(
             modifier = Modifier
                 .fillMaxHeight()
                 .width(1.dp)
-                .background(Color.White)
+                .background(dividerColor)
                 .padding(horizontal = 8.dp)
         )
 
@@ -997,6 +1031,7 @@ fun PercentIndicator(
             color = Color.White,
             style = TextStyle(
                 fontSize = 20.sp,
+                fontStyle = FontStyle.Italic,
                 color = Color(0xFF004C73),
                 textAlign = TextAlign.Center,
             ),
