@@ -41,7 +41,7 @@ class SHPEUFAppViewModel(
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = AppState("", false, false, false, false)
+            initialValue = AppState(id = "", isLoggedIn = false, isRegistered = false, isLoggedOut = true, isDarkMode = false)
         )
 
 //        userRepository.currentUserId.map { id ->

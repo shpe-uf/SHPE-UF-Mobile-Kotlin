@@ -156,10 +156,7 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
 fun OnSignInClick(navController: NavHostController, signInViewModel: SignInViewModel, shpeUFAppViewModel: SHPEUFAppViewModel){
     signInViewModel.validateAndLoginUser(shpeUFAppViewModel)
     val success = shpeUFAppViewModel.uiState.value
-    if(success.isLoggedIn){ navController.navigate(Routes.points){
-        popUpTo(Routes.login) {inclusive = true}
-        launchSingleTop = true
-    } }
+    if(success.isLoggedIn){ navController.navigate(Routes.points) }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
