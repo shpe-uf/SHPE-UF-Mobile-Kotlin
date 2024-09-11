@@ -53,6 +53,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsCalendar
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsPageViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.RedeemPoints
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 
@@ -65,6 +66,8 @@ class MainActivity() : ComponentActivity() {
                 val mainViewModel = initializeViewModel()
                 val UserState by mainViewModel.uiState.collectAsState()
                 val registerViewModel = RegisterPage1ViewModel()
+
+                val profileViewModel = ProfileViewModel()
 
                 val viewModelFactory = HomeViewModelFactory(
                     NotificationRepository(applicationContext),
@@ -84,7 +87,7 @@ class MainActivity() : ComponentActivity() {
                             modifier = Modifier
                                 .padding(it),
                         ) {
-                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState, registerViewModel)
+                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState, registerViewModel, profileViewModel)
                         }
                     }
                 }

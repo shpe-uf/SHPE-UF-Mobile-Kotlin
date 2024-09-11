@@ -46,7 +46,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
 //import androidx.compose.foundation.border
@@ -66,16 +68,16 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
 //TODO: add bottom bar functionality
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
-fun StaticProfilePagePreview() {
-    val viewModel = ProfileViewModel()
-    StaticProfileScreen(viewModel)
+fun StaticProfilePagePreview(viewModel: ProfileViewModel, navController: NavHostController) {
+
+    StaticProfileScreen(viewModel, navController)
 }
 
 
 @Composable
-fun StaticProfileScreen(profileViewModel: ProfileViewModel){
+fun StaticProfileScreen(profileViewModel: ProfileViewModel, navController: NavHostController){
     SHPEUFMobileKotlinTheme{
         val uiState by profileViewModel.uiState.collectAsState()
         profileViewModel.loadProfile("64ea79b9f2051e00149c75b7")
@@ -104,7 +106,7 @@ fun StaticProfileScreen(profileViewModel: ProfileViewModel){
             item {
                 EditProfileButton(
                     // TODO NEED TO ADD THE ROUTE TO PROFILEPAGE.KT
-                    onClick = {  },
+                    onClick = { navController.navigate(NavRoute.EDITPROFILE) },
                 )
             }
 

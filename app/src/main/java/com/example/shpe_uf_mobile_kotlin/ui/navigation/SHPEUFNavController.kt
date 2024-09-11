@@ -35,6 +35,9 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfilePagePreview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePreview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
@@ -44,6 +47,7 @@ object NavRoute {
     const val HOME = "home"
     const val POINTS = "points"
     const val PROFILE = "profile"
+    const val EDITPROFILE = "editprofile"
     const val LOGIN = "login"
     const val OPENING = "opening"
     const val REGISTER = "register"
@@ -133,7 +137,8 @@ fun NavHostContainer(
     homeViewModelFactory: HomeViewModelFactory,
     mainViewModel: SHPEUFAppViewModel,
     userState: AppState,
-    registerViewModel: RegisterPage1ViewModel
+    registerViewModel: RegisterPage1ViewModel,
+    profileViewModel: ProfileViewModel
 ) {
     val homeViewModel: HomeViewModel =
         viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
@@ -166,9 +171,11 @@ fun NavHostContainer(
         }
         composable(NavRoute.PROFILE)
         {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Text(text = "Profile")
-            }
+            StaticProfilePagePreview(viewModel = profileViewModel, navController = navHostController)
+        }
+        composable(NavRoute.EDITPROFILE)
+        {
+            ProfilePagePreview()
         }
     }
 }
