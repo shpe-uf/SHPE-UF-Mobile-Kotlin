@@ -42,6 +42,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePrevi
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterRoutes
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1Preview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2Preview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3
@@ -166,14 +167,9 @@ fun NavHostContainer(
             SignIn(navHostController, mainViewModel)
         }
         composable(NavRoute.REGISTER){
-            RegistrationPage1(registerPage1ViewModel = registerViewModel, navController = navHostController)
+            RegistrationPage1Preview(registerPage1ViewModel = registerViewModel, navController = navHostController)
         }
-//        composable(RegisterRoutes.registerPage2){
-//            RegistrationPage2()
-//        }
-//        composable(RegisterRoutes.registerPage3){
-//            RegistrationPage3()
-//        }
+
         composable(NavRoute.HOME)
         {
             HomeScreen(
