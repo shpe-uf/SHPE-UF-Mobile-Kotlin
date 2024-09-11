@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -161,61 +162,13 @@ fun SuperiorTextField(
                     fontFamily = FontFamily(Font(R.font.universltstd)),
                     fontWeight = FontWeight(400)
                 ),
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
+                maxLines = 1,
+                overflow = TextOverflow.Clip
             )
         }
     }
 
 
 }
-
-//@Composable
-//fun TextFields() {
-//    Column(
-//        modifier = Modifier
-//            .background(OrangeSHPE)
-//            .fillMaxSize()
-//            .padding(top = 250.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        UsernameTextField()
-//        PasswordTextField()
-//    }
-//}
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun UsernameTextField() {
-//
-//    SuperiorTextField(
-//        label = "Username",
-//        labelModifier = Modifier.padding(horizontal = 11.dp, vertical = 6.53.dp),
-//        value = "",
-//        leadingIcon = R.drawable.profile_circle,
-//        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-//    )
-//}
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun PasswordTextField() {
-//
-//    var isPasswordVisible by remember { mutableStateOf(false) }
-//    val image = if(isPasswordVisible)
-//        R.drawable.state_selected
-//    else
-//        R.drawable.state_default
-//
-//    SuperiorTextField(
-//        label = "Password",
-//        labelModifier = Modifier.padding(horizontal = 9.22.dp, vertical = 5.53.dp),
-//        value = "",
-//        leadingIcon = R.drawable.lock_3,
-//        trailingIcon = image,
-//        trailingIconOnClick = {isPasswordVisible = !isPasswordVisible},
-//        visualTransformation = {if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation() },
-//        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-//    )
-//
-//}
 

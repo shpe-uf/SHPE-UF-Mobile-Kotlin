@@ -312,6 +312,7 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 text = "Enter your current education details",
                 style = TextStyle(
                     fontSize = 14.sp,
+                    fontFamily = FontFamily(Font(R.font.universltstd)),
                     fontWeight = FontWeight(400),
                     color = Color(0xFFFFFFFF)
                 ),
@@ -328,6 +329,7 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                         text = "Academic Info",
                         style = TextStyle(
                             fontSize = 36.sp,
+                            fontFamily = FontFamily(Font(R.font.viga)),
                             fontWeight = FontWeight(400),
                             color = Color(0xFFD25917)
                         )
@@ -351,6 +353,7 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             Text(
                 text = "Major",
                 fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
                 color = Color(0xFFFFFFFF),
                 textAlign = TextAlign.Start,
                 modifier = Modifier
@@ -374,6 +377,7 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             Text(
                 text = "Year",
                 fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
                 color = Color(0xFFFFFFFF),
                 textAlign = TextAlign.Start,
                 modifier = Modifier
@@ -397,6 +401,7 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             Text(
                 text = "Graduation Year",
                 fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
                 color = Color(0xFFFFFFFF),
                 textAlign = TextAlign.Start,
                 modifier = Modifier

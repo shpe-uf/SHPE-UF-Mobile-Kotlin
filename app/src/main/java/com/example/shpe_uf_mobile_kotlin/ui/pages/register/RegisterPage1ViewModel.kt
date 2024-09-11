@@ -354,7 +354,7 @@ class RegisterPage1ViewModel: ViewModel() {
         if (username.isBlank()) return "Username is required."
 
         val usernameValidator = "^(?=.{6,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$".toRegex()
-        return if (username.matches(usernameValidator)) null else "Username must be at least 6 characters, max 20. No special characters, except for periods (.) and underscores (_)."
+        return if (username.matches(usernameValidator)) null else "6-20 characters, '.' or '_'"
     }
 
     private fun validateFirstName(name: String): String? {
@@ -389,7 +389,7 @@ class RegisterPage1ViewModel: ViewModel() {
 
         val passwordValidator = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@\$%^&*-.]).{8,}$".toRegex()
 
-        return if (password.matches(passwordValidator)) null else "Password must be at least 8 characters, include one lowercase, one uppercase, one number, and one special character."
+        return if (password.matches(passwordValidator)) null else "8+ characters, lowercase, uppercase, number & special character"
     }
 
     private fun validateConfirmPassword(password: String, confirmPassword: String): String? {
