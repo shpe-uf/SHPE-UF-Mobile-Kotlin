@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.map
 class UserRepository(private val dataStore: DataStore<Preferences>) {
     private companion object {
         val USER_ID = stringPreferencesKey("user_id")
+        val USERNAME = stringPreferencesKey("username")
         val LOGGED_IN = booleanPreferencesKey("logged_in")
         val LOGGED_OUT = booleanPreferencesKey("logged_out")
         val IS_REGISTERED = booleanPreferencesKey("is_registered")
@@ -18,10 +19,19 @@ class UserRepository(private val dataStore: DataStore<Preferences>) {
         val LOADING = booleanPreferencesKey("loading")
     }
 
+
+    val currentUsername: Flow<String> = dataStore.data.map { preferences ->
+        preferences[USERNAME] ?: ""
+    }
+    suspend fun saveUsername(username: String) {
+        dataStore.edit { preferences ->
+            preferences[USERNAME] = username
+        }
+    }
+
     val currentUserId: Flow<String> = dataStore.data.map { preferences ->
         preferences[USER_ID] ?: ""
     }
-
     suspend fun saveUserId(id: String) {
         dataStore.edit { preferences ->
             preferences[USER_ID] = id

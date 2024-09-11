@@ -43,14 +43,6 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 
-object NavRoute {
-    const val HOME = "home"
-    const val POINTS = "points"
-    const val PROFILE = "profile"
-    const val LOGIN = "login"
-    const val OPENING = "opening"
-    const val REGISTER = "register"
-}
 
 data class BottomNavigationItem(
     val title: String,
