@@ -96,9 +96,12 @@ class MainActivity() : ComponentActivity() {
 //                    }
 //                }
 
+                val start = if(UserState.isLoggedIn != null) Routes.points else Routes.login
+
+
                 NavHost(
                     navController = navController,
-                    startDestination = Routes.loading,
+                    startDestination = start,
                 ) {
                     composable(Routes.loading){
                         mainLoadingScreen()
