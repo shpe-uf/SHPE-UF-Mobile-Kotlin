@@ -3,9 +3,9 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.register
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import apolloClient
 import com.apollographql.apollo3.api.Optional
 import com.example.shpe_uf_mobile_kotlin.RegisterMutation
+import com.example.shpe_uf_mobile_kotlin.apolloClient
 import com.example.shpe_uf_mobile_kotlin.type.RegisterInput
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

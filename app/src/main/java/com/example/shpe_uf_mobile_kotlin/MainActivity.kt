@@ -114,7 +114,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPageViewModel
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import apolloClient
+import com.example.shpe_uf_mobile_kotlin.apolloClient
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.FullView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsCalendar
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsPageViewModel
