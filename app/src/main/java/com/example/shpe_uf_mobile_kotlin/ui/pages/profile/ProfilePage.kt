@@ -380,7 +380,15 @@ fun ProfileGradYear(selectedYear: String, onYearSelected: (String) -> Unit, year
             readOnly = true, // Prevents manual input
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .menuAnchor()
+                .menuAnchor(),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.Gray,
+                unfocusedBorderColor = Color.Gray,
+                textColor = Color.White,
+                placeholderColor = Color.Gray,
+                focusedTrailingIconColor = Color.White,
+                unfocusedTrailingIconColor = Color.White
+            )
         )
 
         // Dropdown menu
