@@ -16,18 +16,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,6 +35,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
 
 
 //@Preview
@@ -55,6 +56,223 @@ fun RegistrationPage2Preview(navController: NavController, registerPage1ViewMode
     RegistrationPage2(registerPage1ViewModel = registerPage1ViewModel, navController = navController)
 
 }
+
+
+// Used for testing. Not used in final version
+@Preview
+@Composable
+fun RegistrationPage2(){
+
+    Box(
+        modifier = Modifier
+            .padding(top = 83.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF011F35)),
+            horizontalAlignment = Alignment.CenterHorizontally
+
+        ){
+            Spacer(modifier = Modifier.height(42.dp))
+
+            // This is the start of progression bar 2
+
+            Row{
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Row{
+                    Box(
+                        modifier = Modifier
+                            .size(width = 106.dp, height = 5.dp)
+                            .background(Color(0xFF999999), shape = RoundedCornerShape(1.dp))
+                    )
+                }
+            }
+
+            // This is the end of progression bar 2
+
+            // This is the start of the personal details text with the user profile image
+
+            Spacer(modifier = Modifier.height(35.dp))
+
+            Text(
+                text = "Enter your info to finalize your profile",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = FontFamily(Font(R.font.universltstd)),
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFFFFFFF)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 30.dp)
+
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Row{
+                    Text(
+                        text = "Personal Details",
+                        style = TextStyle(
+                            fontSize = 36.sp,
+                            fontFamily = FontFamily(Font(R.font.viga)),
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFD25917)
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(32.dp))
+
+                Row{
+                    Image(
+                        painter = painterResource(id = R.drawable.personaldetailsicon),
+                        contentDescription = "PersonalDetailsIcon",
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(54.dp))
+            // Ideal OG Figma padding made it less so that the bottom continue button would be visible.
+//            Spacer(modifier = Modifier.height(64.dp))
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            RegisterFirstName(
+                value =  "",
+                isError = null == true,
+                errorMessage =  "",
+                onValueChange = { TODO() })
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            RegisterLastName(
+                value = "",
+                isError = null == true,
+                errorMessage =  "",
+                onValueChange = { TODO() }
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "Gender",
+                fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
+                fontWeight = FontWeight(400),
+                color = Color(0xFFFFFFFF),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            GenderDropDownMenu(
+                value = "",
+                isError = null == true,
+                errorMessage = "",
+                onExpandedChange = { TODO()},
+                onValueChange = { TODO() }
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "Ethnicity",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                fontFamily = FontFamily(Font(R.font.universltstd)),
+                fontWeight = FontWeight(400),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            EthnicityDropDownMenu(
+                value =  "",
+                isError = null == true,
+                errorMessage =  "",
+                isEthnicityMenuExpanded = false,
+                onExpandedChange = {TODO()},
+                onValueChange = { TODO() }
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "Country of Origin",
+                fontSize = 16.sp,
+                color = Color(0xFFFFFFFF),
+                fontFamily = FontFamily(Font(R.font.universltstd)),
+                fontWeight = FontWeight(400),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            CountryOriginDropDownMenu(
+                value = "",
+                isError = null == true,
+                errorMessage =  "",
+                isCountryOriginMenuExpanded = true,
+                onExpandedChange = {TODO()},
+                onValueChange = { TODO() }
+            )
+
+//            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(30.dp))
+
+
+            ContinueButton(
+                onClick = {
+//                    if (registerPage1ViewModel.validateRegisterPage2Fields() == true) {
+//                        navController.navigate(RegisterRoutes.registerPage3)
+//                    }
+//                    else {
+//                        // Do nothing don't go to next page
+//                    }
+                }
+            )
+        }
+
+
+    }
+}
+
 
 
 /*
@@ -126,6 +344,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 text = "Enter your info to finalize your profile",
                 style = TextStyle(
                     fontSize = 14.sp,
+                    fontFamily = FontFamily(Font(R.font.universltstd)),
                     fontWeight = FontWeight(400),
                     color = Color(0xFFFFFFFF)
                 ),
@@ -143,6 +362,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                         text = "Personal Details",
                         style = TextStyle(
                             fontSize = 36.sp,
+                            fontFamily = FontFamily(Font(R.font.viga)),
                             fontWeight = FontWeight(400),
                             color = Color(0xFFD25917)
                         )
@@ -209,6 +429,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             Text(
                 text = "Gender",
                 fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
+                fontWeight = FontWeight(400),
                 color = Color(0xFFFFFFFF),
                 textAlign = TextAlign.Start,
                 modifier = Modifier
@@ -232,6 +454,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             Text(
                 text = "Ethnicity",
                 fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
+                fontWeight = FontWeight(400),
                 color = Color(0xFFFFFFFF),
                 textAlign = TextAlign.Start,
                 modifier = Modifier
@@ -255,6 +479,8 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             Text(
                 text = "Country of Origin",
                 fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
+                fontWeight = FontWeight(400),
                 color = Color(0xFFFFFFFF),
                 textAlign = TextAlign.Start,
                 modifier = Modifier
@@ -279,7 +505,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
             ContinueButton(
                 onClick = {
-                    if (registerPage1ViewModel.validateRegisterPage2Fields() == true) {
+                    if (registerPage1ViewModel.validateRegisterPage2Fields()) {
                         navController.navigate(RegisterRoutes.registerPage3)
                     }
                     else {
@@ -445,41 +671,54 @@ private fun RegisterFirstName(
     onValueChange: (String) -> Unit
 ){
 
-
-    TextField(modifier = Modifier
-//        .height(50.dp)
-        .fillMaxWidth(0.7f),
+    SuperiorTextField(
+        label = "First Name",
+        labelModifier = Modifier.padding(horizontal = 9.22.dp, vertical = 5.53.dp),
+        width = 270.dp,
+        height = 37.64706.dp,
         value = value,
-        onValueChange = {onValueChange(it)},
+        onValueChange = onValueChange,
+        leadingIcon = R.drawable.profile_circle,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        leadingIconModifier = Modifier.size(32.dp).padding(start = 12.dp),
         isError = isError,
-
-        leadingIcon = {
-            Image(
-                painter = painterResource(id = R.drawable.usericon),
-                contentDescription = "UserIcon",
-                modifier = Modifier.size(24.dp)
-            )
-        },
-        shape = RoundedCornerShape(10.dp),
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text
-        ),
-        supportingText = {
-            if (isError) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = errorMessage,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        },
-        trailingIcon = {
-            if (isError)
-                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
-        }
-
+        errorMessage = errorMessage,
     )
+
+//    TextField(modifier = Modifier
+////        .height(50.dp)
+//        .fillMaxWidth(0.7f),
+//        value = value,
+//        onValueChange = {onValueChange(it)},
+//        isError = isError,
+//
+//        leadingIcon = {
+//            Image(
+//                painter = painterResource(id = R.drawable.usericon),
+//                contentDescription = "UserIcon",
+//                modifier = Modifier.size(24.dp)
+//            )
+//        },
+//        shape = RoundedCornerShape(10.dp),
+//        singleLine = true,
+//        keyboardOptions = KeyboardOptions(
+//            keyboardType = KeyboardType.Text
+//        ),
+//        supportingText = {
+//            if (isError) {
+//                Text(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    text = errorMessage,
+//                    color = MaterialTheme.colorScheme.error
+//                )
+//            }
+//        },
+//        trailingIcon = {
+//            if (isError)
+//                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
+//        }
+//
+//    )
 }
 
 
@@ -491,40 +730,55 @@ private fun RegisterLastName(
     errorMessage: String,
     onValueChange: (String) -> Unit
 ) {
-    TextField(
-        modifier = Modifier
-//            .height(50.dp)
-            .fillMaxWidth(0.7f),
-        value = value,
-        onValueChange = {onValueChange(it)},
-        isError = isError,
-        leadingIcon = {
-            Image(
-                painter = painterResource(id = R.drawable.usericon),
-                contentDescription = "UserIcon",
-                modifier = Modifier.size(24.dp)
-            )
-        },
-        shape = RoundedCornerShape(10.dp),
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text
-        ),
-        supportingText = {
 
-            if (isError) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = errorMessage,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        },
-        trailingIcon = {
-            if (isError)
-                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
-        }
+    SuperiorTextField(
+        label = "Last Name",
+        labelModifier = Modifier.padding(horizontal = 9.22.dp, vertical = 5.53.dp),
+        width = 270.dp,
+        height = 37.64706.dp,
+        value = value,
+        onValueChange = onValueChange,
+        leadingIcon = R.drawable.profile_circle,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        leadingIconModifier = Modifier.size(32.dp).padding(start = 12.dp),
+        isError = isError,
+        errorMessage = errorMessage,
     )
+
+//    TextField(
+//        modifier = Modifier
+////            .height(50.dp)
+//            .fillMaxWidth(0.7f),
+//        value = value,
+//        onValueChange = {onValueChange(it)},
+//        isError = isError,
+//        leadingIcon = {
+//            Image(
+//                painter = painterResource(id = R.drawable.usericon),
+//                contentDescription = "UserIcon",
+//                modifier = Modifier.size(24.dp)
+//            )
+//        },
+//        shape = RoundedCornerShape(10.dp),
+//        singleLine = true,
+//        keyboardOptions = KeyboardOptions(
+//            keyboardType = KeyboardType.Text
+//        ),
+//        supportingText = {
+//
+//            if (isError) {
+//                Text(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    text = errorMessage,
+//                    color = MaterialTheme.colorScheme.error
+//                )
+//            }
+//        },
+//        trailingIcon = {
+//            if (isError)
+//                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
+//        }
+//    )
 }
 
 
@@ -534,7 +788,7 @@ private fun GenderDropDownMenu(
     value: String,
     isError: Boolean,
     errorMessage: String,
-    isGenderMenuExpanded: Boolean,
+    isGenderMenuExpanded: Boolean = false,
     onExpandedChange: (Boolean) -> Unit,
     onValueChange: (String) -> Unit,
 ){
@@ -542,6 +796,15 @@ private fun GenderDropDownMenu(
         expanded = isGenderMenuExpanded,
         onExpandedChange = {onExpandedChange(it)}
     ) {
+//        SuperiorTextField(
+//            label = "Gender",
+//            labelModifier = Modifier.padding(horizontal = 9.22.dp, vertical = 5.53.dp),
+//            onValueChange = {},
+//            value = value,
+//            leadingIcon = R.drawable.gender_equality,
+//            readOnly = true,
+//            _trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isGenderMenuExpanded) },
+//            )
         TextField(
             value = value,
             onValueChange = {},
@@ -556,7 +819,6 @@ private fun GenderDropDownMenu(
             },
             shape = RoundedCornerShape(10.dp),
             supportingText = {
-
                 if (isError) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -565,13 +827,17 @@ private fun GenderDropDownMenu(
                     )
                 }
             },
-
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isGenderMenuExpanded)
             },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
+            ),
             modifier = Modifier
 //                .height(50.dp)
+                .height(37.64706.dp)
+                .width(270.dp)
                 .fillMaxWidth(0.7f)
                 .menuAnchor()
         )
@@ -653,9 +919,14 @@ private fun EthnicityDropDownMenu(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isEthnicityMenuExpanded)
             },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
+            ),
             modifier = Modifier
 //                .height(50.dp)
+                .height(37.64706.dp)
+                .width(270.dp)
                 .fillMaxWidth(0.7f)
                 .menuAnchor()
         )
@@ -782,9 +1053,14 @@ private fun CountryOriginDropDownMenu(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isCountryOriginMenuExpanded)
             },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
+            ),
             modifier = Modifier
 //                .height(50.dp)
+                .height(37.64706.dp)
+                .width(270.dp)
                 .fillMaxWidth(0.7f)
                 .menuAnchor()
         )

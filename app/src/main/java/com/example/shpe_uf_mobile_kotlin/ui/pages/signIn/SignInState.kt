@@ -12,5 +12,7 @@ data class SignInState(
     val loginErrorMessage: String? = null,
 
     // By default password should be invisible.
-    val isPasswordVisible: Boolean = false
+    val isPasswordVisible: Boolean = false,
+
+    val loginSuccess: Boolean = false
 )
