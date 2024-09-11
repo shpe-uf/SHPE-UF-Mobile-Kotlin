@@ -20,23 +20,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shpe_uf_mobile_kotlin.R
-//import com.example.shpe_uf_mobile_kotlin.ui.theme.BG_DARK
 
-@Preview(showBackground = true)
 @Composable
-fun mainLoadingScreen(){
+fun SplashView() {
 
     val bgColor = if(isSystemInDarkTheme()) Color.Blue else Color.White
     val textColor = if(isSystemInDarkTheme()) Color.White else Color(0xFF011F35)
-
 
     Column(
         modifier = Modifier
