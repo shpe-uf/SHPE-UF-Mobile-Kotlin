@@ -110,7 +110,7 @@ class SignInViewModel : ViewModel() {
     }
 
     // Updates the login error message
-    private fun updateErrorMessage(message: String) {
+    fun updateErrorMessage(message: String?) {
         val currentState = getCurrentState()
         _uiState.value = currentState.copy(
             loginErrorMessage = message
