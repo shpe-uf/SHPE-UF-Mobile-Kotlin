@@ -81,6 +81,7 @@ class SignInViewModel : ViewModel() {
             if(id != null){
                 shpeUFAppViewModel.saveUserId(id)
                 shpeUFAppViewModel.saveLoggedIn(true)
+                shpeUFAppViewModel.saveLoggedOut(false)
             }
         }
     }

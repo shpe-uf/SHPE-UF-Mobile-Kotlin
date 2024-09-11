@@ -1,6 +1,5 @@
 package com.example.shpe_uf_mobile_kotlin.ui.navigation
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -8,9 +7,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -27,15 +26,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.data.AppState
+import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
-import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
+import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
+import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
+//import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 
 object NavRoute {
     const val HOME = "home"
     const val POINTS = "points"
     const val PROFILE = "profile"
+    const val LOGIN = "login"
 }
 
 data class BottomNavigationItem(
@@ -115,13 +120,26 @@ fun BottomNavigationBar(navController: NavHostController) {
 }
 
 @Composable
-fun NavHostContainer(navHostController: NavHostController, homeViewModelFactory: HomeViewModelFactory) {
+fun NavHostContainer(
+    navHostController: NavHostController,
+    homeViewModelFactory: HomeViewModelFactory,
+    mainViewModel: SHPEUFAppViewModel,
+    UserState: AppState
+) {
     val homeViewModel: HomeViewModel = viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
 
     NavHost(
         navController = navHostController,
-        startDestination = NavRoute.HOME
+        startDestination = if(UserState.isLoggedIn && !UserState.isLoggedOut) NavRoute.HOME else NavRoute.LOGIN
     ) {
+        composable(NavRoute.HOME){
+            Box(modifier = Modifier.fillMaxSize()) {
+                Text(text = "Home")
+            }
+        }
+        composable(NavRoute.LOGIN){
+            SignIn(navHostController, mainViewModel)
+        }
         composable(NavRoute.HOME)
         {
             HomeScreen(
@@ -130,9 +148,7 @@ fun NavHostContainer(navHostController: NavHostController, homeViewModelFactory:
         }
         composable(NavRoute.POINTS)
         {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Text(text = "Points")
-            }
+            PointsView(shpeufAppViewModel = mainViewModel)
         }
         composable(NavRoute.PROFILE)
         {

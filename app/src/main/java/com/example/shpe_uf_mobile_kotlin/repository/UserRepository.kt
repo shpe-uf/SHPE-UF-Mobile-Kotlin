@@ -59,7 +59,7 @@ class UserRepository(private val dataStore: DataStore<Preferences>) {
     }
 
     val currentLoggedOut: Flow<Boolean> = dataStore.data.map { preferences ->
-        preferences[LOGGED_OUT] ?: false
+        preferences[LOGGED_OUT] ?: true
     }
 
     suspend fun saveLoggedOut(isLoggedOut: Boolean) {
