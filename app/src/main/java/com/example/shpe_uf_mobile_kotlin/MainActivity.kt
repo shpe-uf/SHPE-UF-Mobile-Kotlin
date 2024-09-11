@@ -14,8 +14,10 @@ package com.example.shpe_uf_mobile_kotlin
 //import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -33,8 +35,11 @@ import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.BottomNavigationBar
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavHostContainer
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
+import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
+import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 
 class MainActivity() : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +50,7 @@ class MainActivity() : ComponentActivity() {
                 val mainViewModel = initializeViewModel()
                 val UserState by mainViewModel.uiState.collectAsState()
                 val registerViewModel = RegisterPage1ViewModel()
+                val profileViewModel = ProfileViewModel()
 
                 val viewModelFactory = HomeViewModelFactory(
                     NotificationRepository(applicationContext),
@@ -85,7 +91,7 @@ class MainActivity() : ComponentActivity() {
                             modifier = Modifier
                                 .padding(it),
                         ) {
-                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState, registerViewModel)
+                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState, registerViewModel, profileViewModel)
                         }
                     }
                 }
