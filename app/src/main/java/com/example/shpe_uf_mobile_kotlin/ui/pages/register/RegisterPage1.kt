@@ -215,7 +215,7 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             )
 
 //            Spacer(modifier = Modifier.height(82.dp))
-            Spacer(modifier = Modifier.height(72.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             CreateAccountButton(
                 onClick = {
