@@ -1,9 +1,11 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.signIn
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,12 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,15 +31,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -84,6 +87,7 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
     val signInViewModel = remember { SignInViewModel() }
     val uiState by signInViewModel.uiState.collectAsState()
     val shpeLogo = R.drawable.shpe_logo_full_color
+    val context = LocalContext.current
 
     // Dark mode support
     val background = if (isSystemInDarkTheme()) {
@@ -145,8 +149,21 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
                     onClick = { OnSignInClick(navController,signInViewModel, shpeUFAppViewModel) }
                 )
             }
-            Row(modifier = Modifier.padding(top = 20.dp)) {
+            Row(modifier = Modifier.padding(top = 1.dp)) {
                 SignUp(navController)
+            }
+
+            // display toast if the login fails
+            if (uiState.loginErrorMessage != null) {
+                uiState.loginErrorMessage?.let { it ->
+                    val text = it
+                    val duration = Toast.LENGTH_SHORT
+
+                    val toast = Toast.makeText(context, text, duration)
+                    toast.show()
+
+                    signInViewModel.updateErrorMessage(null)
+                }
             }
         }
     }
@@ -156,6 +173,7 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
 fun OnSignInClick(navController: NavHostController, signInViewModel: SignInViewModel, shpeUFAppViewModel: SHPEUFAppViewModel){
     signInViewModel.validateAndLoginUser(shpeUFAppViewModel)
     val success = shpeUFAppViewModel.uiState.value
+    if(success.isLoggedIn){ navController.navigate(NavRoute.HOME) }
     if(success.isLoggedIn){ navController.navigate(NavRoute.POINTS) }
 }
 
@@ -189,6 +207,12 @@ fun PasswordInput(
     isPasswordVisible: Boolean,
     viewModel: SignInViewModel,
 ) {
+
+    val labelColor = if (isSystemInDarkTheme()) {
+        Color.White
+    } else {
+        Color.Black
+    }
 
     val image = if (isPasswordVisible)
         R.drawable.state_selected
@@ -228,7 +252,8 @@ fun SignInButton(onClick: () -> Unit) {
         Text(
             text = "Sign In",
             style = TextStyle(
-                fontSize = 16.sp,
+                fontSize = 18.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
                 fontWeight = FontWeight(400)
             )
         )
@@ -250,31 +275,37 @@ fun SignUp(navController: NavHostController) {
         Color(0xFF0B70BA)
     }
 
-    val annotatedText = buildAnnotatedString {
-        withStyle(
-            style = SpanStyle(color = labelColor, fontSize = 14.sp, fontWeight = FontWeight(400))
-        ) {
-            append("Don't have an account? ")
-        }
-
-        // We attach this *URL* annotation to the following content
-        // until `pop()` is called
-        pushStringAnnotation(
-            tag = "URL", annotation = "https://developer.android.com"
-        )
-        withStyle(
-            style = SpanStyle(
-                color = signUpColor, fontSize = 14.sp, fontWeight = FontWeight(400)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ){
+        Text(
+            text = "Don't have an account?",
+            color = labelColor,
+            style = TextStyle(
+                fontSize = 18.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
+                fontWeight = FontWeight(400),
             )
-        ) {
-            append("Sign Up")
+        )
+        TextButton(onClick = {
+            onSignUpClick(navController)
+        }){
+            Text(
+                text = "Sign Up",
+                color = signUpColor,
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontFamily = FontFamily(Font(R.font.universltstd)),
+                    fontWeight = FontWeight(400),
+                )
+            )
         }
-
-        pop()
     }
 
-    ClickableText(text = annotatedText, onClick = {
-        onSignUpClick(navController)
-    })
+
+
 }
 

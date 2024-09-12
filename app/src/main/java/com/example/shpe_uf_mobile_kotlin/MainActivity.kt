@@ -37,6 +37,7 @@ import com.example.shpe_uf_mobile_kotlin.repository.NotificationRepository
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.BottomNavigationBar
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavHostContainer
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -65,6 +66,7 @@ class MainActivity() : ComponentActivity() {
                 val mainViewModel = initializeViewModel()
                 val UserState by mainViewModel.uiState.collectAsState()
                 val registerViewModel = RegisterPage1ViewModel()
+                val profileViewModel = ProfileViewModel()
 
                 val viewModelFactory = HomeViewModelFactory(
                     NotificationRepository(applicationContext),
@@ -103,7 +105,7 @@ class MainActivity() : ComponentActivity() {
                             modifier = Modifier
                                 .padding(it),
                         ) {
-                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState, registerViewModel)
+                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState, registerViewModel, profileViewModel)
                         }
                     }
                 }

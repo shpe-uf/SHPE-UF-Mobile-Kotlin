@@ -12,13 +12,11 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,9 +33,20 @@ import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.Opening2
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfilePagePreview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePreview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterRoutes
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1Preview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2Preview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3Preview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
@@ -129,7 +138,8 @@ fun NavHostContainer(
     homeViewModelFactory: HomeViewModelFactory,
     mainViewModel: SHPEUFAppViewModel,
     userState: AppState,
-    registerViewModel: RegisterPage1ViewModel
+    registerViewModel: RegisterPage1ViewModel,
+    profileViewModel: ProfileViewModel
 ) {
     val homeViewModel: HomeViewModel =
         viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
@@ -137,19 +147,31 @@ fun NavHostContainer(
     LaunchedEffect(userState.isLoggedIn){
         val isLoggedIn = userState.isLoggedIn
         Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
-        navHostController.navigate(if(isLoggedIn) NavRoute.HOME else NavRoute.LOGIN)
+
+        if(isLoggedIn){
+            navHostController.popBackStack(NavRoute.LOGIN, inclusive = true)
+        }
+
+        navHostController.navigate(if (isLoggedIn && userState.isLoggedOut) NavRoute.HOME else NavRoute.OPENING)
     }
 
     NavHost(
         navController = navHostController,
-        startDestination = NavRoute.LOGIN
+        startDestination = NavRoute.OPENING,
     ) {
+        composable(NavRoute.OPENING){
+            OpeningPage(navHostController)
+        }
+        composable(NavRoute.OPENING_2){
+            Opening2(navHostController)
+        }
         composable(NavRoute.LOGIN) {
             SignIn(navHostController, mainViewModel)
         }
         composable(NavRoute.REGISTER){
-            RegistrationPage1(registerPage1ViewModel = registerViewModel, navController = navHostController)
+            RegistrationPage1Preview(registerPage1ViewModel = registerViewModel, navController = navHostController)
         }
+
         composable(NavRoute.HOME)
         {
             HomeScreen(
@@ -162,10 +184,23 @@ fun NavHostContainer(
         }
         composable(NavRoute.PROFILE)
         {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Text(text = "Profile")
-            }
+            StaticProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
         }
+        composable(NavRoute.EDITPROFILE)
+        {
+            ProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
+        }
+
+        composable(NavRoute.REGISTER_2)
+        {
+            RegistrationPage2Preview(navController = navHostController, registerPage1ViewModel = registerViewModel )
+        }
+
+        composable(NavRoute.REGISTER_3)
+        {
+            RegistrationPage3Preview(navController = navHostController, registerPage1ViewModel = registerViewModel )
+        }
+
     }
 }
 
