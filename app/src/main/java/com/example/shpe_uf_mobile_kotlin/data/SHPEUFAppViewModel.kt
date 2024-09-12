@@ -119,6 +119,14 @@ class SHPEUFAppViewModel(
             userRepository.saveUsername(username)
         }
     }
+
+    fun logoutUser(){
+        saveUserId("")
+        saveLoggedIn(false)
+        saveLoggedOut(true)
+    }
+
+
 }
 
 

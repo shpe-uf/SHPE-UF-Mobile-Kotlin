@@ -55,6 +55,4 @@ class PointsPageViewModel : ViewModel() {
         return response.errors?.get(0)?.message
     }
 
-
-
 }
