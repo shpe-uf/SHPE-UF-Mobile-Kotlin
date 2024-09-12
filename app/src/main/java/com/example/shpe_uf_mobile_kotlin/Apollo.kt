@@ -2,6 +2,8 @@ package com.example.shpe_uf_mobile_kotlin
 
 import com.apollographql.apollo3.ApolloClient
 
+private const val url = BuildConfig.SERVER_URL
+
 val apolloClient = ApolloClient.Builder()
-    .serverUrl("https://e515-153-33-119-23.ngrok-free.app")
+    .serverUrl(url)
     .build()

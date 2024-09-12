@@ -30,6 +30,7 @@ android {
 
         buildConfigField("String", "CALENDAR_ID", "\"${localProperties["calendar_id"]}\"")
         buildConfigField("String", "CALENDAR_API_KEY", "\"${localProperties["CALENDAR_API_KEY"]}\"")
+        buildConfigField("String", "SERVER_URL", "\"${localProperties["SERVER_URL"]}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
