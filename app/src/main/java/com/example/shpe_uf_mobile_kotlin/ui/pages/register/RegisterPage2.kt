@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -906,10 +905,154 @@ private fun CountryOriginDropDownMenu(
         ) {
             DropdownMenuItem(
                 text = {
-                    Text(text = "United States")
+                    Text(text = "Argentina")
                 },
                 onClick = {
-                    onValueChange("United States")
+                    onValueChange("Argentina")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Australia")
+                },
+                onClick = {
+                    onValueChange("Australia")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Austria")
+                },
+                onClick = {
+                    onValueChange("Austria")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Belgium")
+                },
+                onClick = {
+                    onValueChange("Belgium")
+                    onExpandedChange(false)
+                }
+            )
+
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Brazil")
+                },
+                onClick = {
+                    onValueChange("Brazil")
+                    onExpandedChange(false)
+                }
+            )
+
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Canada")
+                },
+                onClick = {
+                    onValueChange("Canada")
+                    onExpandedChange(false)
+                }
+            )
+
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Chile")
+                },
+                onClick = {
+                    onValueChange("Chile")
+                    onExpandedChange(false)
+                }
+            )
+
+            DropdownMenuItem(
+                text = {
+                    Text(text = "China")
+                },
+                onClick = {
+                    onValueChange("China")
+                    onExpandedChange(false)
+                }
+            )
+
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Czech Republic")
+                },
+                onClick = {
+                    onValueChange("Czech Republic")
+                    onExpandedChange(false)
+                }
+            )
+
+
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Denmark")
+                },
+                onClick = {
+                    onValueChange("Denmark")
+                    onExpandedChange(false)
+                }
+            )
+
+
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Egypt")
+                },
+                onClick = {
+                    onValueChange("Egypt")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Finland")
+                },
+                onClick = {
+                    onValueChange("Finland")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "France")
+                },
+                onClick = {
+                    onValueChange("France")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Germany")
+                },
+                onClick = {
+                    onValueChange("Germany")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Greece")
+                },
+                onClick = {
+                    onValueChange("Greece")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Hungary")
+                },
+                onClick = {
+                    onValueChange("Hungary")
                     onExpandedChange(false)
                 }
             )
@@ -924,22 +1067,302 @@ private fun CountryOriginDropDownMenu(
             )
             DropdownMenuItem(
                 text = {
-                    Text(text = "Canada")
+                    Text(text = "Indonesia")
                 },
                 onClick = {
-                    onValueChange("Canada")
+                    onValueChange("Indonesia")
                     onExpandedChange(false)
                 }
             )
             DropdownMenuItem(
                 text = {
-                    Text(text = "Australia")
+                    Text(text = "Ireland")
                 },
                 onClick = {
-                    onValueChange("Australia")
+                    onValueChange("Ireland")
                     onExpandedChange(false)
                 }
             )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Israel")
+                },
+                onClick = {
+                    onValueChange("Israel")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Italy")
+                },
+                onClick = {
+                    onValueChange("Italy")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Japan")
+                },
+                onClick = {
+                    onValueChange("Japan")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Kenya")
+                },
+                onClick = {
+                    onValueChange("Kenya")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Malaysia")
+                },
+                onClick = {
+                    onValueChange("Malaysia")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Mexico")
+                },
+                onClick = {
+                    onValueChange("Mexico")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Netherlands")
+                },
+                onClick = {
+                    onValueChange("Netherlands")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "New Zealand")
+                },
+                onClick = {
+                    onValueChange("New Zealand")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Nigeria")
+                },
+                onClick = {
+                    onValueChange("Nigeria")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Norway")
+                },
+                onClick = {
+                    onValueChange("Norway")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Pakistan")
+                },
+                onClick = {
+                    onValueChange("Pakistan")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Philippines")
+                },
+                onClick = {
+                    onValueChange("Philippines")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Poland")
+                },
+                onClick = {
+                    onValueChange("Poland")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Portugal")
+                },
+                onClick = {
+                    onValueChange("Portugal")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Romania")
+                },
+                onClick = {
+                    onValueChange("Romania")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Russia")
+                },
+                onClick = {
+                    onValueChange("Russia")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Saudi Arabia")
+                },
+                onClick = {
+                    onValueChange("Saudi Arabia")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Singapore")
+                },
+                onClick = {
+                    onValueChange("Singapore")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "South Africa")
+                },
+                onClick = {
+                    onValueChange("South Africa")
+                    onExpandedChange(false)
+                }
+            )
+
+            DropdownMenuItem(
+                text = {
+                    Text(text = "South Korea")
+                },
+                onClick = {
+                    onValueChange("South Korea")
+                    onExpandedChange(false)
+                }
+            )
+
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Spain")
+                },
+                onClick = {
+                    onValueChange("Spain")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Sweden")
+                },
+                onClick = {
+                    onValueChange("Sweden")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Switzerland")
+                },
+                onClick = {
+                    onValueChange("Switzerland")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Thailand")
+                },
+                onClick = {
+                    onValueChange("Thailand")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Turkey")
+                },
+                onClick = {
+                    onValueChange("Turkey")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Ukraine")
+                },
+                onClick = {
+                    onValueChange("Ukraine")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "United Arab Emirates")
+                },
+                onClick = {
+                    onValueChange("United Arab Emirates")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "United Kingdom")
+                },
+                onClick = {
+                    onValueChange("United Kingdom")
+                    onExpandedChange(false)
+                }
+            )
+            DropdownMenuItem(
+                text = {
+                    Text(text = "United States")
+                },
+                onClick = {
+                    onValueChange("United States")
+                    onExpandedChange(false)
+                }
+            )
+
+            DropdownMenuItem(
+                text = {
+                    Text(text = "Vietnam")
+                },
+                onClick = {
+                    onValueChange("Vietnam")
+                    onExpandedChange(false)
+                }
+            )
+
+
+
+
+
+
+
 
         }
     }
