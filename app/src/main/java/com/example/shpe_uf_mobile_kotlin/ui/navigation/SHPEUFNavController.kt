@@ -50,6 +50,8 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3Prev
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
+import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
+
 
 data class BottomNavigationItem(
     val title: String,
@@ -146,11 +148,8 @@ fun NavHostContainer(
         val isLoggedIn = userState.isLoggedIn
         Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
 
-        if(isLoggedIn){
-            navHostController.popBackStack(NavRoute.LOGIN, inclusive = true)
-        }
+        navHostController.navigate(if(isLoggedIn) NavRoute.HOME else NavRoute.OPENING)
 
-        navHostController.navigate(if (isLoggedIn && userState.isLoggedOut) NavRoute.HOME else NavRoute.OPENING)
     }
 
     NavHost(
