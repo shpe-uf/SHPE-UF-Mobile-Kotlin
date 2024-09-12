@@ -197,4 +197,13 @@ class ProfileViewModel:ViewModel() {
 
         return response.hasErrors()
     }
+
+    fun tempDeleteUser(): Unit? {
+        // This does nothing its just so u can click delete and the app not crash
+        return null
+    }
+
+    fun tempEditProfile(): Unit?{
+        return null
+    }
 }

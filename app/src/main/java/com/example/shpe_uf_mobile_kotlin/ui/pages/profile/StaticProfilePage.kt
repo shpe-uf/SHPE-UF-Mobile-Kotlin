@@ -113,9 +113,10 @@ fun StaticProfileScreen(
 
             item {
                 EditProfileButton(
-                    // TODO NEED TO ADD THE ROUTE TO PROFILEPAGE.KT
-                    onClick = { navController.navigate(NavRoute.EDITPROFILE) },
+                    onClick = {profileViewModel.tempEditProfile()},
+                    profileViewModel
                 )
+//                navController.navigate(NavRoute.EDITPROFILE)
             }
 
             item{
@@ -215,7 +216,7 @@ fun StaticProfileScreen(
             }
 
             item{
-                DeleteAccountButton ()
+                DeleteAccountButton (profileViewModel)
             }
 
             item{
@@ -689,6 +690,7 @@ fun StaticProfileName(value: String, onValueChange: (String) -> Unit) {
 @Composable
 private fun EditProfileButton(
     onClick: () -> Unit,
+    profileViewModel: ProfileViewModel
 ) {
     Box(
         modifier = Modifier
@@ -758,7 +760,7 @@ private fun LogoutButton(
 }
 
 @Composable
-private fun DeleteAccountButton(
+private fun DeleteAccountButton(profileViewModel: ProfileViewModel
 ) {
 
     var showDialog by remember { mutableStateOf(false) }
@@ -798,7 +800,7 @@ private fun DeleteAccountButton(
             confirmButton = {
                 Button(
                     onClick = {
-                        // TODO Call the delete function when confirmed
+                        profileViewModel.tempDeleteUser()
                         showDialog = false
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
