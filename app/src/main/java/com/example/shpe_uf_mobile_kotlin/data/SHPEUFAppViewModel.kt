@@ -24,11 +24,17 @@ data class AppState(
     val isDarkMode: Boolean
 )
 
+data class UserState(
+    val id: String,
+    val username: String
+)
+
 class SHPEUFAppViewModel(
     private val userRepository: UserRepository
 ): ViewModel() {
 
     private val idFlow = userRepository.currentUserId
+    private val usernameFlow = userRepository.currentUsername
     private val loggedInFlow = userRepository.currentLoggedIn
     private val registeredFlow = userRepository.currentRegistered
     private val loggedOutFlow = userRepository.currentLoggedOut
@@ -43,6 +49,18 @@ class SHPEUFAppViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = AppState(id = "", isLoggedIn = false, isRegistered = false, isLoggedOut = true, isDarkMode = false)
         )
+
+    val userState: StateFlow<UserState> =
+        combine(idFlow, usernameFlow){
+                id, username ->
+            UserState(id,username)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = UserState(id ="", username = "")
+        )
+
+
 
 //        userRepository.currentUserId.map { id ->
 //            AppState(id)
@@ -96,6 +114,12 @@ class SHPEUFAppViewModel(
         }
     }
 
+    fun saveUsername(username : String){
+        viewModelScope.launch{
+            userRepository.saveUsername(username)
+        }
+    }
+
     fun logoutUser(){
         saveUserId("")
         saveLoggedIn(false)
@@ -104,6 +128,7 @@ class SHPEUFAppViewModel(
 
 
 }
+
 
 sealed class ViewState {
     object Loading: ViewState()

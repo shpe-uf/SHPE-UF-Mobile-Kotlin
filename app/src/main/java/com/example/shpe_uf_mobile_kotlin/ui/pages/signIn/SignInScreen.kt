@@ -174,6 +174,7 @@ fun OnSignInClick(navController: NavHostController, signInViewModel: SignInViewM
     signInViewModel.validateAndLoginUser(shpeUFAppViewModel)
     val success = shpeUFAppViewModel.uiState.value
     if(success.isLoggedIn){ navController.navigate(NavRoute.HOME) }
+    if(success.isLoggedIn){ navController.navigate(NavRoute.POINTS) }
 }
 
 fun onSignUpClick(navController: NavHostController){

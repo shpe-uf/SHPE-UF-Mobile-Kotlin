@@ -1,10 +1,12 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.points
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import com.example.shpe_uf_mobile_kotlin.PointsMutation
 import com.example.shpe_uf_mobile_kotlin.type.RedeemPointsInput
+import com.example.shpe_uf_mobile_kotlin.GetUserNameQuery
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.apollographql.apollo3.api.Optional
@@ -31,19 +33,21 @@ class PointsPageViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(eventCode = newCode)
     }
 
-     suspend fun redeemEvent(id: String): String?{
-        val currentState = currentState()
+     suspend fun redeemEvent(username: String): String?{
         val pointsInput = RedeemPointsInput(
-            code = currentState.eventCode,
-            username = "natalieandino",
-            guests = currentState.guestsCount
+            code = currentState().eventCode,
+            username = username,
+            guests = currentState().guestsCount
         )
-        var result: String? = null
+
+         Log.d("User", username)
+         var result: String? = null
 
         result = validateEventRedeem(Optional.presentIfNotNull(pointsInput))
 
         return result
     }
+
 
 
     suspend fun validateEventRedeem(pointsInput: Optional<RedeemPointsInput>): String? {
