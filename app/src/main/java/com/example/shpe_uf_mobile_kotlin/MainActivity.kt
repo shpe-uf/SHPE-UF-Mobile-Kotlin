@@ -61,6 +61,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 class MainActivity() : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             SHPEUFMobileKotlinTheme {
                 val mainViewModel = initializeViewModel()

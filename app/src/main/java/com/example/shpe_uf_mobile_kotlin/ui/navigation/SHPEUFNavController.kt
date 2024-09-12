@@ -148,11 +148,8 @@ fun NavHostContainer(
         val isLoggedIn = userState.isLoggedIn
         Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
 
-        if(isLoggedIn){
-            navHostController.popBackStack(NavRoute.LOGIN, inclusive = true)
-        }
+        navHostController.navigate(if(isLoggedIn) NavRoute.HOME else NavRoute.OPENING)
 
-        navHostController.navigate(if (isLoggedIn && userState.isLoggedOut) NavRoute.HOME else NavRoute.OPENING)
     }
 
     NavHost(
