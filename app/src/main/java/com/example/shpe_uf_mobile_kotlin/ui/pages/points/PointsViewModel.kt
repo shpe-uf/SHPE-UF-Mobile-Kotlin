@@ -19,6 +19,7 @@ class PointsPageViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(PointsPageState())
     val uiState: StateFlow<PointsPageState> = _uiState.asStateFlow()
 
+    //Getter for current state
     fun currentState(): PointsPageState {
         return _uiState.value
     }
@@ -33,6 +34,9 @@ class PointsPageViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(eventCode = newCode)
     }
 
+    //Function to redeem an event based on inputted code, guest count, and the
+    //username of current user, returns the propagated error message from
+    // validateEventRedeem() or "null" if there is none.
      suspend fun redeemEvent(username: String): String?{
         val pointsInput = RedeemPointsInput(
             code = currentState().eventCode,
@@ -40,7 +44,6 @@ class PointsPageViewModel : ViewModel() {
             guests = currentState().guestsCount
         )
 
-         Log.d("User", username)
          var result: String? = null
 
         result = validateEventRedeem(Optional.presentIfNotNull(pointsInput))
@@ -50,6 +53,8 @@ class PointsPageViewModel : ViewModel() {
 
 
 
+    //Function to ensure that event code is valid, and to return appropriate error
+    //messages for when it is not.
     suspend fun validateEventRedeem(pointsInput: Optional<RedeemPointsInput>): String? {
         val response = apolloClient.mutation(PointsMutation(pointsInput)).execute()
         return response.errors?.get(0)?.message
