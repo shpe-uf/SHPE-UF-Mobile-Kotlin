@@ -61,6 +61,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.example.shpe_uf_mobile_kotlin.EventsQuery.Event
@@ -542,7 +543,10 @@ fun RedeemPoints(
                 modifier = Modifier
                     .width(210.dp)
                     .height(80.dp)
-                    .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 8.dp))
+                    .background(
+                        color = Color(0xFFFFFFFF),
+                        shape = RoundedCornerShape(size = 8.dp)
+                    )
             ) {
                 Button(
                     onClick = {
@@ -715,7 +719,7 @@ fun PointsCalendar(id: String) {
                 .background(background)
         )
         {
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(25.dp))
 
             if (gbm.isNotEmpty()) {
                 Text(
@@ -792,7 +796,7 @@ fun PointsCalendar(id: String) {
 
                 EventTable(events = gbm)
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(40.dp))
             }
 
             if (cabinetMeeting.isNotEmpty()) {
@@ -872,7 +876,7 @@ fun PointsCalendar(id: String) {
 
                 EventTable(events = cabinetMeeting)
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(40.dp))
             }
 
 
@@ -950,7 +954,7 @@ fun PointsCalendar(id: String) {
 
                 EventTable(events = social)
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(40.dp))
             }
 
             if(misc.isNotEmpty()){
@@ -1025,8 +1029,8 @@ fun PointsCalendar(id: String) {
                     }
                 }
                 EventTable(events = misc)
+                Spacer(modifier = Modifier.height(40.dp))
             }
-            Spacer(modifier = Modifier.height(30.dp))
 
             if (workshop.isNotEmpty()) {
                 Text(
@@ -1103,9 +1107,8 @@ fun PointsCalendar(id: String) {
 
                 EventTable(events = workshop)
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(40.dp))
             }
-            Spacer(modifier = Modifier.height(30.dp))
 
             if (volunteering.isNotEmpty()) {
                 Text(
@@ -1182,9 +1185,8 @@ fun PointsCalendar(id: String) {
 
                 EventTable(events = volunteering)
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(40.dp))
             }
-            Spacer(modifier = Modifier.height(30.dp))
 
             if (corporateEvent.isNotEmpty()) {
                 Text(
@@ -1261,7 +1263,7 @@ fun PointsCalendar(id: String) {
 
                 EventTable(events = corporateEvent)
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(40.dp))
             }
         }
     }
@@ -1379,7 +1381,8 @@ fun EventTable(events: List<Event>) {
         Column {
             events.forEachIndexed { index, event ->
                 val backgroundColor = if (index % 2 == 0) Color.White else Color.LightGray
-                EventRow(event, backgroundColor)
+                val isLast = index == events.size - 1
+                EventRow(event, backgroundColor, isLast)
             }
         }
     }
@@ -1394,16 +1397,21 @@ FUNCTION: EventRow()
 ******************************************************
  */
 @Composable
-fun EventRow(event: Event, backgroundColor: Color) {
+fun EventRow(event: Event, backgroundColor: Color, isLast: Boolean) {
     Row(
         modifier = Modifier
             .width(310.dp)
-//            .height(80.dp)
-            .background(color = backgroundColor)
+            .background(
+                color = backgroundColor,
+                shape = if (isLast) RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp)
+                        else RectangleShape
+            )
             .border(
+                shape = if (isLast) RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp)
+                else RectangleShape,
                 width = 0.36665.dp,
                 color = Color(0xFF011F35),
-            )
+                )
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -1421,8 +1429,6 @@ fun EventRow(event: Event, backgroundColor: Color) {
                 .weight(0.8f)
                 .fillMaxSize()
                 .wrapContentWidth(Alignment.Start)
-//            maxLines = 2,
-//            overflow = TextOverflow.Ellipsis
         )
         Spacer(modifier = Modifier.width(10.dp))
         Text(
