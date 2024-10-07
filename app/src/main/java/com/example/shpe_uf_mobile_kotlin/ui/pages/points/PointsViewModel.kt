@@ -1,17 +1,13 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.points
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import com.example.shpe_uf_mobile_kotlin.PointsMutation
 import com.example.shpe_uf_mobile_kotlin.type.RedeemPointsInput
-import com.example.shpe_uf_mobile_kotlin.GetUserNameQuery
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.apollographql.apollo3.api.Optional
 import com.example.shpe_uf_mobile_kotlin.apolloClient
-import kotlinx.coroutines.launch
 
 
 class PointsPageViewModel : ViewModel() {
@@ -43,12 +39,7 @@ class PointsPageViewModel : ViewModel() {
             username = username,
             guests = currentState().guestsCount
         )
-
-         var result: String? = null
-
-        result = validateEventRedeem(Optional.presentIfNotNull(pointsInput))
-
-        return result
+        return validateEventRedeem(Optional.presentIfNotNull(pointsInput))
     }
 
 

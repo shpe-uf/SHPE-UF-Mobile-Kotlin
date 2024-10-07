@@ -365,7 +365,6 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
                     firstGradient = Color(0xFF0A2059),
                     secondGradient = Color(0xFF2E619E),
                     dividerColor = Color(0xFF0A2059)
-
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -1289,6 +1288,7 @@ fun PercentIndicator(
     ) {
     Row(
         modifier = modifier
+            .fillMaxHeight()
             .background(
                 Brush.linearGradient(
                     .05f to firstGradient,
@@ -1318,7 +1318,7 @@ fun PercentIndicator(
         // Divider
         Box(
             modifier = Modifier
-                .fillMaxHeight()
+                .height(40.dp)
                 .width(1.dp)
                 .background(dividerColor)
                 .padding(horizontal = 8.dp)
@@ -1343,7 +1343,7 @@ fun PercentIndicator(
         // Divider
         Box(
             modifier = Modifier
-                .fillMaxHeight()
+                .height(40.dp)
                 .width(1.dp)
                 .background(dividerColor)
                 .padding(horizontal = 8.dp)
