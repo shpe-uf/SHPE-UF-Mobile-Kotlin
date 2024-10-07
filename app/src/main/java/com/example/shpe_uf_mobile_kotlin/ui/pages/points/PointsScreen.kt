@@ -192,17 +192,36 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
             datas = emptyList()
         }
     }
+    var gradientColor = listOf(
+    Color(0xFFFFFFFF),
+    Color(0xFFFFFFFF)
+    )
 
     var openBottomSheet by remember { mutableStateOf(false) }
     val semester = getSemester()
     val percentile: Int
 
-    if (semester == "FALL")
+    if (semester == "FALL"){
         percentile = datas.sumOf { it.fallPercentile }
-    else if (semester == "SPRING")
+        gradientColor = listOf(
+            Color(0xFF2E619E),
+            Color(0xFF0A2059)
+        )
+    }
+    else if (semester == "SPRING"){
         percentile = datas.sumOf { it.springPercentile }
-    else
+        gradientColor = listOf(
+            Color(0xFFDE5026),
+            Color(0xFF981F14)
+            )
+    }
+    else{
         percentile = datas.sumOf { it.summerPercentile }
+        gradientColor = listOf(
+            Color(0xFF84CBFF),
+            Color(0xFF0B70BA)
+        )
+    }
 
     val animatedDegree by animateFloatAsState(
         targetValue = percentile.toFloat() / 100,
@@ -247,16 +266,17 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
                 Canvas(modifier = Modifier.matchParentSize()) {
                     val thickness = size.minDimension * 0.28f
 
-                    drawPieChartSegment(
+                    drawPieChartGradient(
                         startAngle = -90f,
                         sweepAngle = sweepAngle,
-                        color = Color(0xFF0A2059),
+                        firstGradient = gradientColor[0],
+                        secondGradient = gradientColor[1],
                         thickness = thickness
                     )
                     drawPieChartSegment(
                         startAngle = -90f + sweepAngle,
                         sweepAngle = 360 - sweepAngle,
-                        color = Color(0xFFC5CAE9),
+                        color = Color(0xFF7D818F),
                         thickness = thickness
                     )
                     drawCenterCircle(color = background, thickness = thickness)
@@ -287,7 +307,6 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
             Spacer(modifier = Modifier.height(52.dp))
             val buttonColor = if(isSystemInDarkTheme()){
                 OrangeSHPE
-
             } else {
                 dark_bg
             }
@@ -1268,7 +1287,6 @@ fun PointsCalendar(id: String) {
         }
     }
 }
-
 /*
 ******************************************************
 FUNCTION: PercentIndicator()
@@ -1283,8 +1301,8 @@ fun PercentIndicator(
     percent: String,
     number: Int,
     modifier: Modifier = Modifier,
-    firstGradient: Color = Color(0xFF3F51B5),
-    secondGradient: Color = Color(0xFF3F51B5),
+    firstGradient: Color,
+    secondGradient: Color,
     dividerColor: Color,
 
     ) {
@@ -1367,7 +1385,6 @@ fun PercentIndicator(
         )
     }
 }
-
 /*
 ******************************************************
 FUNCTION: EventTable()
@@ -1387,7 +1404,6 @@ fun EventTable(events: List<Event>) {
         }
     }
 }
-
 /*
 ******************************************************
 FUNCTION: EventRow()
@@ -1395,7 +1411,7 @@ FUNCTION: EventRow()
 * Includes event name, date, and points, with the specified
 * background color.
 ******************************************************
- */
+*/
 @Composable
 fun EventRow(event: Event, backgroundColor: Color, isLast: Boolean) {
     Row(
@@ -1460,8 +1476,6 @@ fun EventRow(event: Event, backgroundColor: Color, isLast: Boolean) {
         Spacer(modifier = Modifier.width(50.dp))
     }
 }
-
-
 /*
 ******************************************************
 FUNCTION: formatDate()
@@ -1475,7 +1489,6 @@ fun formatDate(createdAt: String): String {
     val dateTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC)
     return dateTime.format(formatter)
 }
-
 /*
 ******************************************************
 FUNCTION: getOrdinal()
@@ -1493,7 +1506,6 @@ fun getOrdinal(number: Int): String {
         "${number}${suffixes[tenRemainder]}"
     }
 }
-
 /*
 ******************************************************
 FUNCTION: drawPieChartSegment()
@@ -1516,7 +1528,37 @@ fun DrawScope.drawPieChartSegment(
         style = stroke,
     )
 }
+/*
+******************************************************
+FUNCTION: drawPieChartGradient()
+* Draws a segment of a pie chart based on the start angle,
+* sweep angle, and gradient color start/end, using a specified
+* thickness.
+******************************************************
+*/
+fun DrawScope.drawPieChartGradient(
+    startAngle: Float,
+    sweepAngle: Float,
+    firstGradient: Color,
+    secondGradient: Color, // Gradient colors
+    thickness: Float
+) {
+    val gradientBrush = Brush.linearGradient(
+        0.05f to firstGradient,
+        1f to secondGradient,
+        start = Offset(0.0f, 0.0f),
+        end = Offset(0.0f, 650.0f)
+    )
 
+    val stroke = Stroke(width = thickness)
+    drawArc(
+        brush = gradientBrush,
+        startAngle = startAngle,
+        sweepAngle = sweepAngle,
+        useCenter = false,
+        style = stroke
+    )
+}
 /*
 ******************************************************
 FUNCTION: drawCenterCircle()
@@ -1531,7 +1573,6 @@ fun DrawScope.drawCenterCircle(color: Color, thickness: Float) {
         radius = innerCircleRadius,
     )
 }
-
 /*
 ******************************************************
 FUNCTION: getSemester()
