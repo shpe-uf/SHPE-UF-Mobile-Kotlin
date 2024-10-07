@@ -42,7 +42,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
@@ -58,12 +57,10 @@ import com.example.shpe_uf_mobile_kotlin.ExampleQuery
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.example.shpe_uf_mobile_kotlin.EventsQuery.Event
@@ -80,6 +77,14 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 
+/*
+******************************************************
+FUNCTION: PointsView()
+* Displays the main points view, including the top bar,
+* points percentile, and points calendar. Interacts with
+* SHPEUFAppViewModel to get user-specific data.
+******************************************************
+ */
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun PointsView(shpeufAppViewModel: SHPEUFAppViewModel) {
@@ -112,6 +117,13 @@ fun PointsView(shpeufAppViewModel: SHPEUFAppViewModel) {
     }
 }
 
+/*
+******************************************************
+FUNCTION: TopSection()
+* Design for the top bar of the points page, featuring
+* a title and the SHPE logo.
+******************************************************
+ */
 @Composable
 fun TopSection() {
     Column(
@@ -145,7 +157,7 @@ fun TopSection() {
             Row {
                 Image(
                     painter = painterResource(id = R.drawable.shpe_logo_full_color),
-                    contentDescription = "SHPE GOAT",
+                    contentDescription = "SHPE LOGO",
                     modifier = Modifier
                         .size(98.dp)
                 )
@@ -154,12 +166,264 @@ fun TopSection() {
     }
 }
 
+/*
+******************************************************
+FUNCTION: PointsPercentile()
+* Displays the user's points percentile as an animated pie
+* chart and for the corresponding semester that is underway.
+* Provides the "Redeem Code" button that connects to the
+* RedeemPoints() function. Displays total points accumulated
+* and point statistics for each semester.
+******************************************************
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, username: String) {
+    var datas by remember { mutableStateOf(emptyList<ExampleQuery.GetUser>()) }
+
+
+
+    LaunchedEffect(Unit) {
+        val response = apolloClient.query(ExampleQuery(id)).execute()
+        response.data?.getUser?.let { user ->
+            datas += user
+        } ?: run {
+            datas = emptyList()
+        }
+    }
+
+    var openBottomSheet by remember { mutableStateOf(false) }
+    val semester = getSemester()
+    val percentile: Int
+
+    if (semester == "FALL")
+        percentile = datas.sumOf { it.fallPercentile }
+    else if (semester == "SPRING")
+        percentile = datas.sumOf { it.springPercentile }
+    else
+        percentile = datas.sumOf { it.summerPercentile }
+
+    val animatedDegree by animateFloatAsState(
+        targetValue = percentile.toFloat() / 100,
+        animationSpec = tween(durationMillis = 1500), label = ""
+    )
+
+    val background = if (isSystemInDarkTheme()) {
+        ThemeColors.Night.background
+    } else {
+        ThemeColors.Day.background
+    }
+    val textColor = if(isSystemInDarkTheme()){
+        Color.White
+
+    } else {
+        Color.Black
+    }
+
+    val sweepAngle = 360 * animatedDegree
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .background(color = background)
+            .fillMaxSize()
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .width(1500.dp)
+                .height(750.dp)
+                .background(color = background)
+        ) {
+            Spacer(modifier = Modifier.height(60.dp))
+            Box(
+                modifier = Modifier
+                    .size(290.dp)
+                    .padding(16.dp)
+                    .aspectRatio(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Canvas(modifier = Modifier.matchParentSize()) {
+                    val thickness = size.minDimension * 0.28f
+
+                    drawPieChartSegment(
+                        startAngle = -90f,
+                        sweepAngle = sweepAngle,
+                        color = Color(0xFF0A2059),
+                        thickness = thickness
+                    )
+                    drawPieChartSegment(
+                        startAngle = -90f + sweepAngle,
+                        sweepAngle = 360 - sweepAngle,
+                        color = Color(0xFFC5CAE9),
+                        thickness = thickness
+                    )
+                    drawCenterCircle(color = background, thickness = thickness)
+                }
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "$semester:",
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = textColor
+                    )
+                    Text(
+                        text = getOrdinal(percentile),
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = textColor
+                    )
+                    Text(
+                        text = "Percentile",
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = textColor
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+            }
+            Spacer(modifier = Modifier.height(52.dp))
+            val buttonColor = if(isSystemInDarkTheme()){
+                OrangeSHPE
+
+            } else {
+                dark_bg
+            }
+            Button(
+                onClick = { openBottomSheet = true },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = buttonColor,
+                    contentColor = Color(0xFFFFFFFF)
+                ),
+                shape = RoundedCornerShape(40.dp),
+                modifier = Modifier
+                    .width(280.dp)
+                    .height(50.dp)
+            )
+            {
+                Text(
+                    text = "Redeem Code",
+                    style = TextStyle(
+                        fontSize = 20.61.sp,
+                        fontFamily = FontFamily(Font(R.font.universltstd)),
+                        color = Color(0xFFFFFFFF),
+                        fontWeight = FontWeight(700),
+                        textAlign = TextAlign.Center,
+                    ),
+                    modifier = Modifier
+                )
+            }
+            if (openBottomSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        openBottomSheet = false
+                        pointsPageViewModel.updateGuestsCount(0)
+                        pointsPageViewModel.updateEventCode("")
+                    },
+                    dragHandle = {
+                        Modifier.background(Color.Blue)
+                    },
+                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        RedeemPoints(pointsPageViewModel, username) {
+                            openBottomSheet = false
+                        }
+                    }
+
+                }
+            }
+
+            Spacer(modifier = Modifier.height(44.dp))
+
+            Text(
+                text = "Total Points: ${datas.sumOf { it.points }}",
+                style = TextStyle(
+                    fontSize = 20.61.sp,
+                    fontFamily = FontFamily(Font(R.font.universltstd_bold)),
+                    fontWeight = FontWeight(700),
+                    color = textColor,
+                    textAlign = TextAlign.Center,
+                ),
+                modifier = Modifier
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Box(
+                modifier = Modifier
+                    .height(60.dp)
+                    .width(320.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                PercentIndicator(
+                    label = "FALL",
+                    percent = "TOP ${datas.sumOf { it.fallPercentile }}%",
+                    number = datas.sumOf { it.fallPoints },
+                    modifier = Modifier.fillMaxWidth(),
+                    firstGradient = Color(0xFF0A2059),
+                    secondGradient = Color(0xFF2E619E),
+                    dividerColor = Color(0xFF0A2059)
+
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .height(60.dp)
+                    .width(320.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                PercentIndicator(
+                    label = "SPRING",
+                    percent = "TOP ${datas.sumOf { it.springPercentile }}%",
+                    number = datas.sumOf { it.springPoints },
+                    modifier = Modifier.fillMaxWidth(),
+                    firstGradient = Color(0xFF981F14),
+                    secondGradient = Color(0xFFDE5026),
+                    dividerColor = Color(0xFF981F14)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .height(60.dp)
+                    .width(320.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                PercentIndicator(
+                    label = "SUMMER",
+                    percent = "TOP ${datas.sumOf { it.summerPercentile }}%",
+                    number = datas.sumOf { it.summerPoints },
+                    modifier = Modifier.fillMaxWidth(),
+                    firstGradient = Color(0xFF0B70BA),
+                    secondGradient = Color(0xFF84CBFF),
+                    dividerColor = Color(0xFF0B70BA)
+                )
+            }
+        }
+    }
+}
+
+/*
+******************************************************
+FUNCTION: RedeemPoints()
+* Design of slide up screen that is called when "Redeem
+* Code" is pressed. Functionality includes a textbox
+* for event code, adding up to 5 guests with plus or minus
+* button, and a "Redeem" button to submit the request that
+* connects to a GraphQL mutation that provides proper error
+* statements to the textbox if necessary.
+******************************************************
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RedeemPoints(
     pointsPageViewModel: PointsPageViewModel,
-    id: String,
-    username : String,
+    username: String,
     onCloseBottomSheet: () -> Unit
 ) {
     val uiState by pointsPageViewModel.uiState.collectAsState()
@@ -392,6 +656,18 @@ fun RedeemPoints(
 }
 
 
+/*
+******************************************************
+FUNCTION: PointsCalendar()
+* Displays a categorized calendar view of events based on
+* user ID and the events they have been to. The calendar
+* includes 7 different event categories such as social,
+* volunteering, workshops, etc. If the user has not gone
+* to a specific type of event, such as a social, then
+* that tile will not be displayed, condoning the calendar
+* to only types that have been attended at least once.
+******************************************************
+ */
 @Composable
 fun PointsCalendar(id: String) {
     var cabinetMeeting by remember { mutableStateOf<List<Event>>(emptyList()) }
@@ -992,238 +1268,14 @@ fun PointsCalendar(id: String) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, username: String) {
-    var datas by remember { mutableStateOf(emptyList<ExampleQuery.GetUser>()) }
-
-
-
-    LaunchedEffect(Unit) {
-        val response = apolloClient.query(ExampleQuery(id)).execute()
-        response.data?.getUser?.let { user ->
-            datas += user
-        } ?: run {
-            datas = emptyList()
-        }
-    }
-
-    var openBottomSheet by remember { mutableStateOf(false) }
-    val semester = getSemester()
-    val percentile: Int
-
-    if (semester == "FALL")
-        percentile = datas.sumOf { it.fallPercentile }
-    else if (semester == "SPRING")
-        percentile = datas.sumOf { it.springPercentile }
-    else
-        percentile = datas.sumOf { it.summerPercentile }
-
-    val animatedDegree by animateFloatAsState(
-        targetValue = percentile.toFloat() / 100,
-        animationSpec = tween(durationMillis = 1500), label = ""
-    )
-
-    val background = if (isSystemInDarkTheme()) {
-        ThemeColors.Night.background
-    } else {
-        ThemeColors.Day.background
-    }
-    val textColor = if(isSystemInDarkTheme()){
-        Color.White
-
-    } else {
-        Color.Black
-    }
-
-    val sweepAngle = 360 * animatedDegree
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .background(color = background)
-            .fillMaxSize()
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .width(1500.dp)
-                .height(750.dp)
-                .background(color = background)
-        ) {
-            Spacer(modifier = Modifier.height(60.dp))
-            Box(
-                modifier = Modifier
-                    .size(290.dp)
-                    .padding(16.dp)
-                    .aspectRatio(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                Canvas(modifier = Modifier.matchParentSize()) {
-                    val thickness = size.minDimension * 0.28f
-
-                    drawPieChartSegment(
-                        startAngle = -90f,
-                        sweepAngle = sweepAngle,
-                        color = Color(0xFF0A2059),
-                        thickness = thickness
-                    )
-                    drawPieChartSegment(
-                        startAngle = -90f + sweepAngle,
-                        sweepAngle = 360 - sweepAngle,
-                        color = Color(0xFFC5CAE9),
-                        thickness = thickness
-                    )
-                    drawCenterCircle(color = background, thickness = thickness)
-                }
-
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = "$semester:",
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor
-                    )
-                    Text(
-                        text = getOrdinal(percentile),
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor
-                    )
-                    Text(
-                        text = "Percentile",
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-            }
-            Spacer(modifier = Modifier.height(52.dp))
-            val buttonColor = if(isSystemInDarkTheme()){
-                OrangeSHPE
-
-            } else {
-                dark_bg
-            }
-            Button(
-                onClick = { openBottomSheet = true },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = buttonColor,
-                    contentColor = Color(0xFFFFFFFF)
-                ),
-                shape = RoundedCornerShape(40.dp),
-                modifier = Modifier
-                    .width(280.dp)
-                    .height(50.dp)
-            )
-            {
-                Text(
-                    text = "Redeem Code",
-                    style = TextStyle(
-                        fontSize = 20.61.sp,
-                        fontFamily = FontFamily(Font(R.font.universltstd)),
-                        color = Color(0xFFFFFFFF),
-                        fontWeight = FontWeight(700),
-                        textAlign = TextAlign.Center,
-                    ),
-                    modifier = Modifier
-                )
-            }
-            if (openBottomSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = {
-                        openBottomSheet = false
-                        pointsPageViewModel.updateGuestsCount(0)
-                        pointsPageViewModel.updateEventCode("")
-                    },
-                    dragHandle = {
-                        Modifier.background(Color.Blue)
-                    },
-                    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-                ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        RedeemPoints(pointsPageViewModel, id, username) {
-                            openBottomSheet = false
-                        }
-                    }
-
-                }
-            }
-
-            Spacer(modifier = Modifier.height(44.dp))
-
-            Text(
-                text = "Total Points: ${datas.sumOf { it.points }}",
-                style = TextStyle(
-                    fontSize = 20.61.sp,
-                    fontFamily = FontFamily(Font(R.font.universltstd_bold)),
-                    fontWeight = FontWeight(700),
-                    color = textColor,
-                    textAlign = TextAlign.Center,
-                ),
-                modifier = Modifier
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Box(
-                modifier = Modifier
-                    .height(60.dp)
-                    .width(320.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                PercentIndicator(
-                    label = "FALL",
-                    percent = "TOP ${datas.sumOf { it.fallPercentile }}%",
-                    number = datas.sumOf { it.fallPoints },
-                    modifier = Modifier.fillMaxWidth(),
-                    firstGradient = Color(0xFF0A2059),
-                    secondGradient = Color(0xFF2E619E),
-                    dividerColor = Color(0xFF0A2059)
-
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Box(
-                modifier = Modifier
-                    .height(60.dp)
-                    .width(320.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                PercentIndicator(
-                    label = "SPRING",
-                    percent = "TOP ${datas.sumOf { it.springPercentile }}%",
-                    number = datas.sumOf { it.springPoints },
-                    modifier = Modifier.fillMaxWidth(),
-                    firstGradient = Color(0xFF981F14),
-                    secondGradient = Color(0xFFDE5026),
-                    dividerColor = Color(0xFF981F14)
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Box(
-                modifier = Modifier
-                    .height(60.dp)
-                    .width(320.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                PercentIndicator(
-                    label = "SUMMER",
-                    percent = "TOP ${datas.sumOf { it.summerPercentile }}%",
-                    number = datas.sumOf { it.summerPoints },
-                    modifier = Modifier.fillMaxWidth(),
-                    firstGradient = Color(0xFF0B70BA),
-                    secondGradient = Color(0xFF84CBFF),
-                    dividerColor = Color(0xFF0B70BA)
-                )
-            }
-        }
-    }
-}
-
+/*
+******************************************************
+FUNCTION: PercentIndicator()
+* Displays a percentage indicator bar with a semester label,
+* point percentile, and total points accumulated, alongside
+* color gradient based on semester.
+******************************************************
+ */
 @Composable
 fun PercentIndicator(
     label: String,
@@ -1314,7 +1366,13 @@ fun PercentIndicator(
     }
 }
 
-
+/*
+******************************************************
+FUNCTION: EventTable()
+* Displays a list of passed in events with alternating row
+* colors. Uses EventRow() to display each event.
+******************************************************
+ */
 @Composable
 fun EventTable(events: List<Event>) {
     if (events.isNotEmpty()) {
@@ -1327,7 +1385,14 @@ fun EventTable(events: List<Event>) {
     }
 }
 
-
+/*
+******************************************************
+FUNCTION: EventRow()
+* Displays a row containing details of a single event.
+* Includes event name, date, and points, with the specified
+* background color.
+******************************************************
+ */
 @Composable
 fun EventRow(event: Event, backgroundColor: Color) {
     Row(
@@ -1391,6 +1456,13 @@ fun EventRow(event: Event, backgroundColor: Color) {
 }
 
 
+/*
+******************************************************
+FUNCTION: formatDate()
+* Converts a date string in ISO format to "MM/dd/yyyy"
+* format for display purposes.
+******************************************************
+ */
 fun formatDate(createdAt: String): String {
     val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
     val instant = Instant.parse(createdAt)
@@ -1398,6 +1470,13 @@ fun formatDate(createdAt: String): String {
     return dateTime.format(formatter)
 }
 
+/*
+******************************************************
+FUNCTION: getOrdinal()
+* Converts an integer number into its ordinal string
+* representation (e.g., 1 -> "1st", 2 -> "2nd").
+******************************************************
+ */
 fun getOrdinal(number: Int): String {
     val suffixes = arrayOf("th", "st", "nd", "rd") + Array(16) { "th" }
     val centuryRemainder = number % 100
@@ -1409,6 +1488,13 @@ fun getOrdinal(number: Int): String {
     }
 }
 
+/*
+******************************************************
+FUNCTION: drawPieChartSegment()
+* Draws a segment of a pie chart based on the start angle,
+* sweep angle, and color, using a specified thickness.
+******************************************************
+ */
 fun DrawScope.drawPieChartSegment(
     startAngle: Float,
     sweepAngle: Float,
@@ -1425,6 +1511,13 @@ fun DrawScope.drawPieChartSegment(
     )
 }
 
+/*
+******************************************************
+FUNCTION: drawCenterCircle()
+* Draws a center circle to create a doughnut-like shape
+* for the pie chart, providing space for inner content.
+******************************************************
+ */
 fun DrawScope.drawCenterCircle(color: Color, thickness: Float) {
     val innerCircleRadius = (size.minDimension / 2f) - (thickness / 2f)
     drawCircle(
@@ -1433,6 +1526,13 @@ fun DrawScope.drawCenterCircle(color: Color, thickness: Float) {
     )
 }
 
+/*
+******************************************************
+FUNCTION: getSemester()
+* Determines the current semester (SPRING, SUMMER, or FALL)
+* based on the current date.
+******************************************************
+ */
 fun getSemester(): String {
     val currentDate = LocalDate.now()
     val currentMonth = currentDate.month
@@ -1444,33 +1544,3 @@ fun getSemester(): String {
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun TopSectionPreview() {
-//    SHPEUFMobileKotlinTheme {
-//        TopSection()
-//    }
-//}
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun RedeemPointsPreview() {
-//    SHPEUFMobileKotlinTheme {
-//        RedeemPoints()
-//    }
-//}
-//@Preview(showBackground = true)
-//@Composable
-//fun PointsPercentilPreview() {
-//    SHPEUFMobileKotlinTheme {
-//        PointsPercentile()
-//    }
-//}
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun BottomBarPreview() {
-//    SHPEUFMobileKotlinTheme {
-//        BottomBar()
-//    }
-//}
