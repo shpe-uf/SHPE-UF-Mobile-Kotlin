@@ -49,7 +49,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
-// ignore this comment
+// ignore this comment please
 
 /*
 Function is used to preview the whole UI of the page but also to pass in
