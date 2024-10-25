@@ -179,7 +179,7 @@ fun GettingStartedButton(
     navController: NavHostController
 ) {
     Button(
-        onClick = { navController.navigate(NavRoute.OPENING_2) },
+        onClick = { navController.navigate(NavRoute.LOGIN) },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF011F35)),
         modifier = Modifier
             .shadow(
