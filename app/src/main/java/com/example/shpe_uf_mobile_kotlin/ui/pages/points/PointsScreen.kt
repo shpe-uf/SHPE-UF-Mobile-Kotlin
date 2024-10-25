@@ -53,7 +53,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shpe_uf_mobile_kotlin.apolloClient
 import com.example.shpe_uf_mobile_kotlin.EventsQuery
-import com.example.shpe_uf_mobile_kotlin.ExampleQuery
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -65,6 +64,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.example.shpe_uf_mobile_kotlin.EventsQuery.Event
+import com.example.shpe_uf_mobile_kotlin.PointsQuery
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
@@ -134,7 +134,7 @@ fun TopSection() {
         Row(
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier
-                .width(500.dp)
+                .fillMaxWidth()
                 .height(90.dp)
         ) {
             Row(
@@ -180,18 +180,21 @@ FUNCTION: PointsPercentile()
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, username: String) {
-    var datas by remember { mutableStateOf(emptyList<ExampleQuery.GetUser>()) }
+    var datas by remember { mutableStateOf(emptyList<PointsQuery.GetUser>()) }
 
 
-
+    //Query for points percentile
     LaunchedEffect(Unit) {
-        val response = apolloClient.query(ExampleQuery(id)).execute()
+        val response = apolloClient.query(PointsQuery(id)).execute()
         response.data?.getUser?.let { user ->
             datas += user
         } ?: run {
             datas = emptyList()
         }
     }
+
+    //Initializing various parameters based on semester
+
     var gradientColor = listOf(
     Color(0xFFFFFFFF),
     Color(0xFFFFFFFF)
@@ -228,6 +231,8 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
         animationSpec = tween(durationMillis = 1500), label = ""
     )
 
+    //Dark mode/light mode logic
+
     val background = if (isSystemInDarkTheme()) {
         ThemeColors.Night.background
     } else {
@@ -256,6 +261,7 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
                 .background(color = background)
         ) {
             Spacer(modifier = Modifier.height(60.dp))
+            //Percetile circle design
             Box(
                 modifier = Modifier
                     .size(290.dp)
@@ -282,6 +288,7 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
                     drawCenterCircle(color = background, thickness = thickness)
                 }
 
+                //Inner text
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = "$semester:",
@@ -310,6 +317,9 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
             } else {
                 dark_bg
             }
+            //Logic for Redeem Code button, check is click is done/openBottomSheet = true,
+            //then calls RedeemPoints as a modalbottomsheet, which opens it up from the bottom
+            //as a sliding screen.
             Button(
                 onClick = { openBottomSheet = true },
                 colors = ButtonDefaults.buttonColors(
@@ -357,6 +367,7 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
 
             Spacer(modifier = Modifier.height(44.dp))
 
+            //Total Points text
             Text(
                 text = "Total Points: ${datas.sumOf { it.points }}",
                 style = TextStyle(
@@ -370,6 +381,7 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
             )
             Spacer(modifier = Modifier.height(6.dp))
 
+            //All of the colorful semester point tracking boxes
             Box(
                 modifier = Modifier
                     .height(60.dp)
@@ -445,6 +457,7 @@ fun RedeemPoints(
     username: String,
     onCloseBottomSheet: () -> Unit
 ) {
+    //Inits
     val uiState by pointsPageViewModel.uiState.collectAsState()
     var guests = uiState.guestsCount
     var text = uiState.eventCode
@@ -455,7 +468,7 @@ fun RedeemPoints(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .background(color = Color(0xFF004C73))
+            .background(color = Color(0xFFD25917))
             .fillMaxSize()
 
     ) {
@@ -473,6 +486,7 @@ fun RedeemPoints(
                     )
                 )
         ) {
+            //Box for Text of "Redeem Points"
             Spacer(modifier = Modifier.height(30.dp))
             Box(
                 modifier = Modifier
@@ -498,6 +512,7 @@ fun RedeemPoints(
                     ),
                 )
             }
+            //Texbox for event code input
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = text,
@@ -533,8 +548,11 @@ fun RedeemPoints(
                     unfocusedContainerColor = Color(0xFFFFFFFF)
                 )
             )
+            //This is what returns when there is no error message i.e. a successful event code
+            //redeem, so the window auto closes.
             if (errorMessage == "null") {
                 onCloseBottomSheet()
+                //else, display error message and keep window open
             } else {
                 errorMessage?.let {
                     Text(
@@ -555,6 +573,7 @@ fun RedeemPoints(
                     textAlign = TextAlign.Center,
                 ),
             )
+            //Row for + and - buttons
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -569,6 +588,7 @@ fun RedeemPoints(
             ) {
                 Button(
                     onClick = {
+                        //logic for minus button to keep guest count above 0 always
                         val newCount = uiState.guestsCount - 1
                         if (uiState.guestsCount > 0) pointsPageViewModel.updateGuestsCount(newCount)
                     },
@@ -602,6 +622,7 @@ fun RedeemPoints(
                             shape = RoundedCornerShape(size = 8.dp)
                         )
                 )
+                //display for guests amount as a string
                 Text(
                     text = guests.toString(),
                     style = TextStyle(
@@ -624,6 +645,7 @@ fun RedeemPoints(
                 )
                 Button(
                     onClick = {
+                        //Logic for plus button to never allow a guest count over 5
                         val newCount = uiState.guestsCount + 1
                         if (uiState.guestsCount < 5) pointsPageViewModel.updateGuestsCount(newCount)
                     },
@@ -649,6 +671,7 @@ fun RedeemPoints(
             Button(
                 onClick = {
                     coroutineScope.launch {
+                        //Call to viewmodel function to validate the event code
                         errorMessage = pointsPageViewModel.redeemEvent(username).toString()
                     }
                 },
@@ -692,6 +715,7 @@ FUNCTION: PointsCalendar()
  */
 @Composable
 fun PointsCalendar(id: String) {
+    //All meeting types
     var cabinetMeeting by remember { mutableStateOf<List<Event>>(emptyList()) }
     var misc by remember { mutableStateOf<List<Event>>(emptyList()) }
     var social by remember { mutableStateOf<List<Event>>(emptyList()) }
@@ -707,6 +731,7 @@ fun PointsCalendar(id: String) {
         ThemeColors.Day.background
     }
 
+    //Query for events
     LaunchedEffect(Unit) {
         val response = apolloClient.query(EventsQuery(id)).execute()
 
@@ -740,6 +765,7 @@ fun PointsCalendar(id: String) {
         {
             Spacer(modifier = Modifier.height(25.dp))
 
+            //Check to ensure each meeting type actually has an event before displaying
             if (gbm.isNotEmpty()) {
                 Text(
                     text = "GBM",
@@ -813,6 +839,8 @@ fun PointsCalendar(id: String) {
 
                 }
 
+                //Calls an external function that displays all meetings under this category in
+                //table rows.
                 EventTable(events = gbm)
 
                 Spacer(modifier = Modifier.height(40.dp))
@@ -1310,6 +1338,7 @@ fun PercentIndicator(
         modifier = modifier
             .fillMaxHeight()
             .background(
+                //Gradient color control
                 Brush.linearGradient(
                     .05f to firstGradient,
                     1f to secondGradient,
@@ -1397,7 +1426,9 @@ fun EventTable(events: List<Event>) {
     if (events.isNotEmpty()) {
         Column {
             events.forEachIndexed { index, event ->
+                //Alternating color for rows logic
                 val backgroundColor = if (index % 2 == 0) Color.White else Color.LightGray
+                //Logic to round out the bottom edges of the last row
                 val isLast = index == events.size - 1
                 EventRow(event, backgroundColor, isLast)
             }
