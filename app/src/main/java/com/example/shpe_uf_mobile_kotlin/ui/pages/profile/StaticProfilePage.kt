@@ -87,6 +87,7 @@ fun StaticProfileScreen(
         val uiState by profileViewModel.uiState.collectAsState()
         val mainState by mainViewModel.uiState.collectAsState()
 
+        val darkMode = mainState.isDarkMode
 
         profileViewModel.loadProfile(mainState.id)
 
@@ -197,6 +198,26 @@ fun StaticProfileScreen(
 
             item{
                 Spacer(modifier = Modifier.height(20.dp))
+            }
+
+            item {
+                Text(
+                    text = "APPEARANCE",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 36.dp),
+                    color = Color(0xFFC6C6C6),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(86.dp))
+            }
+
+            item {
+                LightModeButton(darkMode, mainViewModel)
             }
 
             item{
@@ -816,6 +837,36 @@ private fun DeleteAccountButton(profileViewModel: ProfileViewModel
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun LightModeButton(isDarkMode: Boolean, mainViewModel: SHPEUFAppViewModel){
+    Box(
+        modifier = Modifier
+            .fillMaxWidth() // Ensure the Box takes up the full width of the screen
+    ) {
+        Button(
+            modifier = Modifier
+                .wrapContentSize(Alignment.Center)
+                .align(Alignment.Center),
+            onClick = {
+                val toggleDarkMode = !isDarkMode
+                mainViewModel.saveDarkMode(toggleDarkMode)
+            },
+            shape = RoundedCornerShape(20.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF001627),
+                contentColor = Color.White
+            ),
+        ) {
+            Text(
+                text = "Toggle Light Mode",
+                fontSize = 19.sp,
+                color = Color.White,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
+        }
     }
 }
 
