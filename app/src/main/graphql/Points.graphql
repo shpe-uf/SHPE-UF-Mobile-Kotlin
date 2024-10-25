@@ -1,0 +1,35 @@
+query PointsQuery($userId: ID!) {
+    getUser(userId: $userId) {
+        points
+        fallPoints
+        fallPercentile
+        springPoints
+        springPercentile
+        summerPoints
+        summerPercentile
+    }
+}
+
+query Events($userId: ID!) {
+    getUser(userId: $userId) {
+        events {
+            createdAt
+            name
+            points
+            category
+        }
+    }
+}
+
+mutation PointsMutation($redeemPointsInput: RedeemPointsInput) {
+    redeemPoints(redeemPointsInput: $redeemPointsInput) {
+        confirmed
+    }
+}
+
+
+query GetUserNameQuery($userId: ID!){
+    getUser(userId: $userId) {
+        username
+    }
+}
