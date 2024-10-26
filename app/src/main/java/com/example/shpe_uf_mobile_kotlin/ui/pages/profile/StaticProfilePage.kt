@@ -48,6 +48,7 @@ import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
+import androidx.compose.foundation.clickable
 //import androidx.compose.foundation.border
 //import androidx.compose.foundation.layout.Arrangement
 //import androidx.compose.foundation.layout.fillMaxHeight
@@ -197,19 +198,11 @@ fun StaticProfileScreen(
             }
 
             item{
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(39.dp))
             }
 
             item {
-                Text(
-                    text = "APPEARANCE",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 36.dp),
-                    color = Color(0xFFC6C6C6),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                AppearanceToggle(mainViewModel, isDarkMode = darkMode)
             }
 
             item {
@@ -870,4 +863,107 @@ private fun LightModeButton(isDarkMode: Boolean, mainViewModel: SHPEUFAppViewMod
     }
 }
 
+@Composable
+fun AppearanceToggle(mainViewModel: SHPEUFAppViewModel, isDarkMode: Boolean) {
+    // Column container for the appearance section
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp)
+    ) {
+        // Section title
+        Text(
+            text = "APPEARANCE",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 36.dp),
+            color = Color(0xFFC6C6C6),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(27.dp))
+
+        // Column containing the mode buttons
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+        ) {
+            // Light Mode button
+            ModeButton(
+                label = "Light Mode",
+                iconRes = R.drawable.ic_light_mode,
+                selected = !isDarkMode,
+                onClick = { mainViewModel.saveDarkMode(false) },
+            )
+
+            // Dark Mode button
+            ModeButton(
+                label = "Dark Mode",
+                iconRes = R.drawable.ic_dark_mode,
+                selected = isDarkMode,
+                onClick = { mainViewModel.saveDarkMode(true) },
+            )
+        }
+    }
+}
+
+@Composable
+fun ModeButton(
+    label: String,
+    iconRes: Int,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // Column to stack the button content and divider (if any)
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClick() } // Make the entire area clickable
+    ) {
+        // Row containing the mode icon, label, and selection indicator
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                // Change background color when selected
+                .background(
+                    color = if (selected) Color(0xFF001627) else Color.Transparent,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+        ) {
+            // Mode icon (light or dark)
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = "$label Icon",
+                modifier = Modifier.size(26.dp)
+            )
+
+            Spacer(modifier = Modifier.width(10.dp))
+
+            // Mode label text
+            Text(
+                text = label,
+                color = Color(0xFFD25917), // Orange color
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            // Spacer to push the selection indicator to the end
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Selection indicator icon (checked or unchecked)
+            Image(
+                painter = painterResource(
+                    id = if (selected) R.drawable.ic_checked else R.drawable.ic_unchecked
+                ),
+                contentDescription = if (selected) "Selected" else "Not Selected",
+                // Adjust size based on selection state
+                modifier = Modifier.size(if (selected) 35.dp else 31.dp)
+            )
+        }
+    }
+}
 
