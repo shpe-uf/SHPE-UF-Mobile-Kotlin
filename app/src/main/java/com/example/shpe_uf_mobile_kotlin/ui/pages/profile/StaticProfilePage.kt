@@ -49,6 +49,8 @@ import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
 import androidx.compose.foundation.clickable
+import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
+
 //import androidx.compose.foundation.border
 //import androidx.compose.foundation.layout.Arrangement
 //import androidx.compose.foundation.layout.fillMaxHeight
@@ -88,11 +90,18 @@ fun StaticProfileScreen(
         val uiState by profileViewModel.uiState.collectAsState()
         val mainState by mainViewModel.uiState.collectAsState()
 
-        val darkMode = mainState.isDarkMode
+        val isDarkMode = mainState.isDarkMode
+
+        val textColor = if(isDarkMode){
+            Color.White
+
+        } else {
+            Color.Black
+        }
 
         profileViewModel.loadProfile(mainState.id)
 
-        StaticProfilePageBackground()
+        StaticProfilePageBackground(isDarkMode = isDarkMode)
 
 
         LazyColumn(
@@ -106,7 +115,7 @@ fun StaticProfileScreen(
             item{
                 Text(
                     text = uiState.fullName ?: "",
-                    color = Color(0xFFFFFFFF),
+                    color = textColor,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -131,7 +140,7 @@ fun StaticProfileScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 36.dp),
-                    color = Color(0xFFC6C6C6),
+                    color = textColor,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -144,73 +153,81 @@ fun StaticProfileScreen(
             item{
                 StaticProfileName(
                     value = uiState.fullName ?: "",
-                    onValueChange = profileViewModel::onFullNameChanged
+                    onValueChange = profileViewModel::onFullNameChanged,
+                    textColor = textColor
                 )
             }
 
             item{
                 StaticProfileUserName(
                     value = uiState.userName ?: "",
-                    onValueChange = profileViewModel::onUserNameChanged
+                    onValueChange = profileViewModel::onUserNameChanged,
+                    textColor = textColor
                 )
             }
 
             item{
                 StaticProfileEmail(
                     value = uiState.email ?: "",
-                    onValueChange = profileViewModel::onEmailChanged
+                    onValueChange = profileViewModel::onEmailChanged,
+                    textColor = textColor
                 )
             }
 
             item{
                 StaticProfileGender(
                     value = uiState.gender ?: "",
-                    onValueChange = profileViewModel::onGenderChanged
+                    onValueChange = profileViewModel::onGenderChanged,
+                    textColor = textColor
                 )
             }
 
             item{
                 StaticProfileEthnicity(
                     value = uiState.ethnicity ?: "",
-                    onValueChange = profileViewModel::onEthnicityChanged
+                    onValueChange = profileViewModel::onEthnicityChanged,
+                    textColor = textColor
                 )
             }
 
             item{
                 StaticProfileCountry(
                     value = uiState.country ?: "",
-                    onValueChange = profileViewModel::onCountryChanged
+                    onValueChange = profileViewModel::onCountryChanged,
+                    textColor = textColor
                 )
             }
 
             item{
                 StaticProfileYear(
                     value = uiState.year ?: "",
-                    onValueChange = profileViewModel::onYearChanged
+                    onValueChange = profileViewModel::onYearChanged,
+                    textColor = textColor
                 )
             }
 
             item{
                 StaticProfileGradYear(
                     value = uiState.gradYear ?: "",
-                    onValueChange = profileViewModel::onGradYearChanged
+                    onValueChange = profileViewModel::onGradYearChanged,
+                    textColor = textColor
                 )
             }
 
             item{
-                Spacer(modifier = Modifier.height(39.dp))
+                Spacer(modifier = Modifier.height(25.dp))
             }
 
             item {
-                AppearanceToggle(mainViewModel, isDarkMode = darkMode)
+                AppearanceToggle(mainViewModel, isDarkMode = isDarkMode)
             }
 
             item {
-                Spacer(modifier = Modifier.height(86.dp))
+                Spacer(modifier = Modifier.height(20.dp))
             }
 
             item {
-                LightModeButton(darkMode, mainViewModel)
+                LightModeButton(isDarkMode, mainViewModel)
             }
 
             item{
@@ -234,17 +251,17 @@ fun StaticProfileScreen(
             }
 
             item{
-                Spacer(modifier = Modifier.height(86.dp))
+                Spacer(modifier = Modifier.height(20.dp))
             }
         }
     }
 }
 
 @Composable
-fun StaticProfilePageBackground(modifier: Modifier = Modifier) {
+fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boolean) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val orangeHeight = screenHeight * (1.01f / 5f) // Orange covers about a fourth of the screen
-    val blueHeight = screenHeight * (4f / 5f) // Blue covers the remaining three-fourths
+    val blueHeight = screenHeight * (3.4f / 5f)  // Blue covers the remaining three-fourths
     Box(modifier = modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
@@ -259,8 +276,10 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier) {
                 .padding(top = 102.dp) // Adjust the padding to move the image
         ) {
             Image(
-                painter = painterResource(id = R.drawable.gator_dark_mode),
-                contentDescription = "SHPE GATOR DARK",
+                painter = painterResource(id =
+                if (isDarkMode) R.drawable.gator_dark_mode
+                else R.drawable.light_gator),
+                contentDescription = "SHPE GATOR",
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .width(90.dp) // Fixed width
@@ -272,7 +291,7 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .height(blueHeight)
                 .align(Alignment.BottomCenter)
-                .background(Color(0xFF011F35))
+                .background(if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background)
         )
         Box(
             modifier = Modifier
@@ -281,8 +300,10 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier) {
 
         ){
             Image(
-                painter = painterResource(id = R.drawable.background_blue_circle),
-                contentDescription = "BLUE CURVE",
+                painter = painterResource(id =
+                if (isDarkMode) R.drawable.background_blue_circle
+                else R.drawable.background_white_circle),
+                contentDescription = "PROFILE CURVE",
                 modifier = Modifier
                     .align(Alignment.Center)
                     .width(450.dp) // Fixed width
@@ -297,8 +318,10 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier) {
 
         ){
             Image(
-                painter = painterResource(id = R.drawable.empty_profile_picture),
-                contentDescription = "BLUE CURVE",
+                painter = painterResource(id =
+                if (isDarkMode) R.drawable.empty_profile_picture_dark
+                else R.drawable.empty_profile_picture_light),
+                contentDescription = "PROFILE PIC CIRCLE",
                 modifier = Modifier
                     .align(Alignment.Center)
                     .width(116.dp) // Fixed width
@@ -311,7 +334,7 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticProfileGradYear(value: String, onValueChange: (String) -> Unit) {
+fun StaticProfileGradYear(value: String, onValueChange: (String) -> Unit, textColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth(0.8f)
@@ -344,7 +367,7 @@ fun StaticProfileGradYear(value: String, onValueChange: (String) -> Unit) {
             readOnly = true,
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
-            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedTextColor = Color.White,
@@ -358,7 +381,7 @@ fun StaticProfileGradYear(value: String, onValueChange: (String) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticProfileYear(value: String, onValueChange: (String) -> Unit) {
+fun StaticProfileYear(value: String, onValueChange: (String) -> Unit, textColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth(0.8f)
@@ -391,7 +414,7 @@ fun StaticProfileYear(value: String, onValueChange: (String) -> Unit) {
             readOnly = true,
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
-            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedTextColor = Color.White,
@@ -406,7 +429,7 @@ fun StaticProfileYear(value: String, onValueChange: (String) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticProfileCountry(value: String, onValueChange: (String) -> Unit) {
+fun StaticProfileCountry(value: String, onValueChange: (String) -> Unit, textColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth(0.8f)
@@ -439,7 +462,7 @@ fun StaticProfileCountry(value: String, onValueChange: (String) -> Unit) {
             readOnly = true,
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
-            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedTextColor = Color.White,
@@ -454,7 +477,7 @@ fun StaticProfileCountry(value: String, onValueChange: (String) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticProfileEthnicity(value: String, onValueChange: (String) -> Unit) {
+fun StaticProfileEthnicity(value: String, onValueChange: (String) -> Unit, textColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth(0.8f)
@@ -487,7 +510,7 @@ fun StaticProfileEthnicity(value: String, onValueChange: (String) -> Unit) {
             readOnly = true,
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
-            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedTextColor = Color.White,
@@ -502,7 +525,7 @@ fun StaticProfileEthnicity(value: String, onValueChange: (String) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticProfileGender(value: String, onValueChange: (String) -> Unit) {
+fun StaticProfileGender(value: String, onValueChange: (String) -> Unit, textColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth(0.8f)
@@ -535,7 +558,7 @@ fun StaticProfileGender(value: String, onValueChange: (String) -> Unit) {
             readOnly = true,
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
-            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
 
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -555,7 +578,7 @@ fun StaticProfileGender(value: String, onValueChange: (String) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticProfileEmail(value: String, onValueChange: (String) -> Unit) {
+fun StaticProfileEmail(value: String, onValueChange: (String) -> Unit, textColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth(0.8f)
@@ -589,7 +612,7 @@ fun StaticProfileEmail(value: String, onValueChange: (String) -> Unit) {
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
@@ -603,7 +626,7 @@ fun StaticProfileEmail(value: String, onValueChange: (String) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticProfileUserName(value: String, onValueChange: (String) -> Unit) {
+fun StaticProfileUserName(value: String, onValueChange: (String) -> Unit, textColor: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth(0.8f)
@@ -637,7 +660,7 @@ fun StaticProfileUserName(value: String, onValueChange: (String) -> Unit) {
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedBorderColor = Color.Gray,
@@ -652,7 +675,11 @@ fun StaticProfileUserName(value: String, onValueChange: (String) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticProfileName(value: String, onValueChange: (String) -> Unit) {
+fun StaticProfileName(
+    value: String,
+    onValueChange: (String) -> Unit,
+    textColor: Color
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth(0.8f)
@@ -686,13 +713,13 @@ fun StaticProfileName(value: String, onValueChange: (String) -> Unit) {
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
+            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
 
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color.Gray,
-                unfocusedBorderColor = Color.Gray,
-                focusedTextColor = Color.White,
-                focusedPlaceholderColor = Color.Gray
+                focusedBorderColor = Color.Red,
+                unfocusedBorderColor = Color.Blue,
+                focusedTextColor = Color.Yellow,
+                focusedPlaceholderColor = Color.Magenta
             )
         )
     }
@@ -877,7 +904,7 @@ fun AppearanceToggle(mainViewModel: SHPEUFAppViewModel, isDarkMode: Boolean) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 36.dp),
-            color = Color(0xFFC6C6C6),
+            color = if (isDarkMode) Color.White else Color.Black,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
@@ -929,7 +956,8 @@ fun ModeButton(
             modifier = Modifier
                 // Change background color when selected
                 .background(
-                    color = if (selected) Color(0xFF001627) else Color.Transparent,
+//                    color = if (selected) Color(0xFF001627) else Color.Transparent,
+                    color = Color.Transparent,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(horizontal = 16.dp, vertical = 16.dp)
