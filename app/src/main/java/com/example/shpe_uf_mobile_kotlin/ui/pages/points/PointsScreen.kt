@@ -96,6 +96,8 @@ fun PointsView(shpeufAppViewModel: SHPEUFAppViewModel) {
 
     val id = UserState.id
 
+    val isDarkMode = UserState.isDarkMode
+
     val UsernameState by shpeufAppViewModel.userState.collectAsState()
 
     val username = UsernameState.username
@@ -108,10 +110,10 @@ fun PointsView(shpeufAppViewModel: SHPEUFAppViewModel) {
                 modifier = Modifier.weight(1f)
             ) {
                 item {
-                    PointsPercentile(pointsPageViewModel, id, username)
+                    PointsPercentile(pointsPageViewModel, id, username, isDarkMode)
                 }
                 item {
-                    PointsCalendar(id)
+                    PointsCalendar(id, isDarkMode)
                 }
             }
         }
@@ -179,7 +181,7 @@ FUNCTION: PointsPercentile()
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, username: String) {
+fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, username: String, isDarkMode: Boolean) {
     var datas by remember { mutableStateOf(emptyList<PointsQuery.GetUser>()) }
 
 
@@ -233,12 +235,12 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
 
     //Dark mode/light mode logic
 
-    val background = if (isSystemInDarkTheme()) {
+    val background = if (isDarkMode) {
         ThemeColors.Night.background
     } else {
         ThemeColors.Day.background
     }
-    val textColor = if(isSystemInDarkTheme()){
+    val textColor = if(isDarkMode){
         Color.White
 
     } else {
@@ -312,7 +314,7 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
                 }
             }
             Spacer(modifier = Modifier.height(52.dp))
-            val buttonColor = if(isSystemInDarkTheme()){
+            val buttonColor = if(isDarkMode){
                 OrangeSHPE
             } else {
                 dark_bg
@@ -714,7 +716,7 @@ FUNCTION: PointsCalendar()
 ******************************************************
  */
 @Composable
-fun PointsCalendar(id: String) {
+fun PointsCalendar(id: String, isDarkMode: Boolean) {
     //All meeting types
     var cabinetMeeting by remember { mutableStateOf<List<Event>>(emptyList()) }
     var misc by remember { mutableStateOf<List<Event>>(emptyList()) }
@@ -725,7 +727,7 @@ fun PointsCalendar(id: String) {
     var workshop by remember { mutableStateOf<List<Event>>(emptyList()) }
 
 
-    val background = if (isSystemInDarkTheme()) {
+    val background = if (isDarkMode) {
         ThemeColors.Night.background
     } else {
         ThemeColors.Day.background
