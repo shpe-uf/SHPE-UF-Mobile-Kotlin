@@ -172,7 +172,8 @@ fun NavHostContainer(
         composable(NavRoute.HOME)
         {
             HomeScreen(
-                viewModel = homeViewModel
+                viewModel = homeViewModel,
+                shpeufAppViewModel = mainViewModel
             )
         }
         composable(NavRoute.POINTS)
