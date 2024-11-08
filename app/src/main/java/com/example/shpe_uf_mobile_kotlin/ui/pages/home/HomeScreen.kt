@@ -320,7 +320,7 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
             Card(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(blueDarkModeBackground)
+                    .background(if (isDarkMode) blueDarkModeBackground else WhiteSHPE)
                     .offset(y = (-23).dp),
                 shape = RoundedCornerShape(size = 25.dp),
                 colors = CardDefaults.cardColors(containerColor =
