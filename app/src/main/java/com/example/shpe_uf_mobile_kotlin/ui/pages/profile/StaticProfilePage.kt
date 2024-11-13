@@ -1,5 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
+//import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+// import androidx.media3.common.util.Log
 import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
@@ -216,7 +218,7 @@ fun StaticProfileScreen(
             }
 
             item{
-                DeleteAccountButton (profileViewModel)
+                 DeleteAccountButton (profileViewModel, mainViewModel, navController) // Is this where I implement the deleteAccountButton composable?
             }
 
             item{
@@ -760,7 +762,11 @@ private fun LogoutButton(
 }
 
 @Composable
-private fun DeleteAccountButton(profileViewModel: ProfileViewModel
+private fun DeleteAccountButton(
+    profileViewModel: ProfileViewModel,
+    shpeUFAppViewModel: SHPEUFAppViewModel,
+    navController: NavHostController
+    // profileUiState: ProfileUiState
 ) {
 
     var showDialog by remember { mutableStateOf(false) }
@@ -800,8 +806,16 @@ private fun DeleteAccountButton(profileViewModel: ProfileViewModel
             confirmButton = {
                 Button(
                     onClick = {
-                        profileViewModel.tempDeleteUser()
+                        val deleteUnsuccessful = profileViewModel.deleteProfile(shpeUFAppViewModel) // ProfileViewModel.email <- what we pass in
+
                         showDialog = false
+                        // Copy implementation shown in SignInScreen line 174
+
+                        if(!deleteUnsuccessful) {
+                            // Log.d("Profile deleted", "successfully")
+                            navController.navigate(NavRoute.OPENING)
+                        }
+
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {

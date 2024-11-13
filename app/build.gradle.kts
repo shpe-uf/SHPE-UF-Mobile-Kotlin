@@ -73,6 +73,7 @@ dependencies {
     implementation("androidx.datastore:datastore-core-android:1.1.1")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("androidx.datastore:datastore-preferences-core-jvm:1.1.1")
+    implementation("androidx.media3:media3-common-ktx:1.4.1")
     val nav_version = "2.8.0"
     implementation("androidx.navigation:navigation-compose:$nav_version")
     ksp( "androidx.room:room-compiler:2.5.0")
