@@ -149,17 +149,13 @@ fun NavHostContainer(
         Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
 
         if (isLoggedIn) {
-            // Navigate to the home screen and clear the back stack
             navHostController.navigate(NavRoute.HOME) {
-                popUpTo(NavRoute.LOGIN) {
-                    inclusive = true // Remove login screen from the back stack
-                }
-                launchSingleTop = true // Avoid multiple copies of the same destination
+                popUpTo(0) { inclusive = true }  // Clears all back stack entries including login and opening pages
+                launchSingleTop = true
             }
         } else {
-            // Navigate to the opening page
             navHostController.navigate(NavRoute.OPENING) {
-                popUpTo(0) // Clear all screens from the back stack
+                popUpTo(0) { inclusive = true }  // Clears all back stack entries
             }
         }
     }
@@ -168,39 +164,50 @@ fun NavHostContainer(
         navController = navHostController,
         startDestination = NavRoute.OPENING,
     ) {
-        composable(NavRoute.OPENING) {
+        composable(NavRoute.OPENING){
             OpeningPage(navHostController)
         }
-        composable(NavRoute.OPENING_2) {
+        composable(NavRoute.OPENING_2){
             Opening2(navHostController)
         }
         composable(NavRoute.LOGIN) {
             SignIn(navHostController, mainViewModel)
         }
-        composable(NavRoute.REGISTER) {
+        composable(NavRoute.REGISTER){
             RegistrationPage1Preview(registerPage1ViewModel = registerViewModel, navController = navHostController)
         }
-        composable(NavRoute.HOME) {
-            HomeScreen(viewModel = homeViewModel)
+
+        composable(NavRoute.HOME)
+        {
+            HomeScreen(
+                viewModel = homeViewModel
+            )
         }
-        composable(NavRoute.POINTS) {
+        composable(NavRoute.POINTS)
+        {
             PointsView(shpeufAppViewModel = mainViewModel)
         }
-        composable(NavRoute.PROFILE) {
+        composable(NavRoute.PROFILE)
+        {
             StaticProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
         }
-        composable(NavRoute.EDITPROFILE) {
+        composable(NavRoute.EDITPROFILE)
+        {
             ProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
         }
-        composable(NavRoute.REGISTER_2) {
-            RegistrationPage2Preview(navController = navHostController, registerPage1ViewModel = registerViewModel)
+
+        composable(NavRoute.REGISTER_2)
+        {
+            RegistrationPage2Preview(navController = navHostController, registerPage1ViewModel = registerViewModel )
         }
-        composable(NavRoute.REGISTER_3) {
-            RegistrationPage3Preview(navController = navHostController, registerPage1ViewModel = registerViewModel)
+
+        composable(NavRoute.REGISTER_3)
+        {
+            RegistrationPage3Preview(navController = navHostController, registerPage1ViewModel = registerViewModel )
         }
+
     }
 }
-
 
 @Preview
 @Composable
