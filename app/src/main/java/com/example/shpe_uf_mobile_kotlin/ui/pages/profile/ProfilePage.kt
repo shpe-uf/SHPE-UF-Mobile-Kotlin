@@ -349,7 +349,7 @@ fun ProfilePageBackground(modifier: Modifier = Modifier) {
 
         ){
             Image(
-                painter = painterResource(id = R.drawable.empty_profile_picture),
+                painter = painterResource(id = R.drawable.empty_profile_picture_dark),
                 contentDescription = "BLUE CURVE",
                 modifier = Modifier
                     .align(Alignment.Center)
