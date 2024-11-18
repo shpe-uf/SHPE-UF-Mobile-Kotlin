@@ -59,8 +59,10 @@ class MainActivity() : ComponentActivity() {
                 )
                 val navController = rememberNavController()
 
+                val isDarkMode = UserState.isDarkMode
+
                 enableEdgeToEdge(
-                    statusBarStyle = if(isSystemInDarkTheme()) SystemBarStyle.dark(
+                    statusBarStyle = if(isDarkMode) SystemBarStyle.dark(
                         ThemeColors.Night.topBar.toArgb()
                     ) else {
                         SystemBarStyle.light(
@@ -68,7 +70,7 @@ class MainActivity() : ComponentActivity() {
                             ThemeColors.Day.topBar.toArgb()
                         )
                     },
-                    navigationBarStyle = if(isSystemInDarkTheme()) SystemBarStyle.dark(
+                    navigationBarStyle = if(isDarkMode) SystemBarStyle.dark(
                         ThemeColors.Night.navBar.toArgb()
                     ) else {
                         SystemBarStyle.light(
@@ -84,7 +86,7 @@ class MainActivity() : ComponentActivity() {
                     color = blueDarkModeBackground,
                 ) {
                     Scaffold(
-                        bottomBar = { if(!UserState.isLoggedIn && UserState.isLoggedOut) null else BottomNavigationBar(navController) }
+                        bottomBar = { if(!UserState.isLoggedIn && UserState.isLoggedOut) null else BottomNavigationBar(navController, isDarkMode) }
                     ) {
                         Box(
                             modifier = Modifier
