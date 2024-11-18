@@ -144,12 +144,20 @@ fun NavHostContainer(
     val homeViewModel: HomeViewModel =
         viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
 
-    LaunchedEffect(userState.isLoggedIn){
+    LaunchedEffect(userState.isLoggedIn) {
         val isLoggedIn = userState.isLoggedIn
         Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
 
-        navHostController.navigate(if(isLoggedIn) NavRoute.HOME else NavRoute.OPENING)
-
+        if (isLoggedIn) {
+            navHostController.navigate(NavRoute.HOME) {
+                popUpTo(0) { inclusive = true }  // Clears all back stack entries including login and opening pages
+                launchSingleTop = true
+            }
+        } else {
+            navHostController.navigate(NavRoute.OPENING) {
+                popUpTo(0) { inclusive = true }  // Clears all back stack entries
+            }
+        }
     }
 
     NavHost(
