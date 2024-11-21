@@ -283,8 +283,6 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
         Column (
             modifier = Modifier
                 .fillMaxWidth()
-//                .verticalScroll(rememberScrollState())
-                .height(200.dp) //add this code
         ){
             // image and close button container, could be made into own composable to be used later
             Box(contentAlignment = Alignment.TopStart,
@@ -329,16 +327,6 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                 colors = CardDefaults.cardColors(containerColor = blueDarkModeBackground),
 
             ) {
-                //TODO: Figure out item and red things than test
-                //TODO: Maybe add vertical scroll and height
-                //TODO: Learn more about LazyColumns
-                // quick commit to publish branch
-
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .fillMaxHeight()
-//                        .padding(50.dp)
-                       // .verticalScroll(rememberScrollState()), //Added verticalScroll modifier and imports
                  LazyColumn (modifier = Modifier
                       .fillMaxWidth()
                       .fillMaxHeight()
