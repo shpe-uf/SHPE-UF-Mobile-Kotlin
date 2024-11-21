@@ -332,6 +332,7 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                 //TODO: Figure out item and red things than test
                 //TODO: Maybe add vertical scroll and height
                 //TODO: Learn more about LazyColumns
+                // quick commit to publish branch
 
 //                    modifier = Modifier
 //                        .fillMaxWidth()
