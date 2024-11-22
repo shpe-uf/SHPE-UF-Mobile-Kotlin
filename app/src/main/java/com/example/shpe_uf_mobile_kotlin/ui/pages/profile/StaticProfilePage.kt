@@ -243,7 +243,7 @@ fun StaticProfileScreen(
             }
 
             item{
-                DeleteAccountButton (profileViewModel)
+                DeleteAccountButton (profileViewModel, mainViewModel, navController)
             }
 
             item{
@@ -797,7 +797,9 @@ private fun LogoutButton(
 }
 
 @Composable
-private fun DeleteAccountButton(profileViewModel: ProfileViewModel
+private fun DeleteAccountButton(profileViewModel: ProfileViewModel,
+                                shpeUFAppViewModel: SHPEUFAppViewModel,
+                                navController: NavHostController
 ) {
 
     var showDialog by remember { mutableStateOf(false) }
@@ -837,8 +839,11 @@ private fun DeleteAccountButton(profileViewModel: ProfileViewModel
             confirmButton = {
                 Button(
                     onClick = {
-                        profileViewModel.tempDeleteUser()
+                        val deleteUnsuccessful = profileViewModel.deleteProfile(shpeUFAppViewModel)
                         showDialog = false
+                        if (!deleteUnsuccessful) {
+                            navController.navigate(NavRoute.OPENING)
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
