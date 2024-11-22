@@ -323,6 +323,8 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
             }
 
             // Event details card to have the rounded corner style be there
+            //Lazy Column houses all composable for event details
+            //Saving changes bc merge error occured
             Card(
                 modifier = Modifier
                     .fillMaxSize()
