@@ -110,6 +110,8 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.TextColor
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 import com.example.shpe_uf_mobile_kotlin.util.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 //create sample card items
 val sampleCardItems = listOf(
@@ -282,7 +284,11 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
             .fillMaxHeight()
             .background(if (isDarkMode) blueDarkModeBackground else WhiteSHPE),
     ) {
-        Column {
+        Column (
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp) //add this code
+        ){
             // image and close button container, could be made into own composable to be used later
             Box(contentAlignment = Alignment.TopStart,
                 modifier = Modifier
@@ -317,6 +323,8 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
             }
 
             // Event details card to have the rounded corner style be there
+            //Lazy Column houses all composable for event details
+            //Saving changes bc merge error occured
             Card(
                 modifier = Modifier
                     .fillMaxSize()
@@ -327,120 +335,143 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                 if (isDarkMode) blueDarkModeBackground else WhiteSHPE),
 
             ) {
-                Column (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .padding(50.dp),
-                ) {
-                    //Title
-                    Row (
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .weight(0.9f),
-                            text = event!!.summary,
-                            style = TextStyle(
-                                fontFamily = Viga,
-                                fontSize = 32.sp,
-                                fontWeight = FontWeight(400),
-                                color = Color(0xFFD25917),)
-                        )
-                        Image (
-                            painter = painterResource(id = when (event.eventType) {
-                                HomeViewModel.EventType.GBM -> R.drawable.gbm_icon
-                                HomeViewModel.EventType.InfoSession -> R.drawable.infosession_icon
-                                HomeViewModel.EventType.Workshop -> R.drawable.workshop_icon
-                                HomeViewModel.EventType.Social -> R.drawable.social_icon
-                                HomeViewModel.EventType.Volunteering -> R.drawable.volunteering_icon
-                                HomeViewModel.EventType.Default -> R.drawable.social_icon
-                            }),
-                            contentDescription = "Favorite",
-                            modifier = Modifier
-                                .size(37.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(50.dp))
+                 LazyColumn (modifier = Modifier
+                      .fillMaxWidth()
+                      .fillMaxHeight()
+                      .padding(50.dp))
+                 {
+                     item {
+                         //Title
+                         Row(
+                             modifier = Modifier
+                                 .fillMaxWidth(),
+                             horizontalArrangement = Arrangement.SpaceBetween,
+                             verticalAlignment = Alignment.CenterVertically
+                         ) {
+                             Text(
+                                 modifier = Modifier
+                                     .weight(0.9f),
+                                 text = event!!.summary,
+                                 style = TextStyle(
+                                     fontFamily = Viga,
+                                     fontSize = 32.sp,
+                                     fontWeight = FontWeight(400),
+                                     color = Color(0xFFD25917),
+                                 )
+                             )
+                             Image(
+                                 painter = painterResource(
+                                     id = when (event.eventType) {
+                                         HomeViewModel.EventType.GBM -> R.drawable.gbm_icon
+                                         HomeViewModel.EventType.InfoSession -> R.drawable.infosession_icon
+                                         HomeViewModel.EventType.Workshop -> R.drawable.workshop_icon
+                                         HomeViewModel.EventType.Social -> R.drawable.social_icon
+                                         HomeViewModel.EventType.Volunteering -> R.drawable.volunteering_icon
+                                         HomeViewModel.EventType.Default -> R.drawable.social_icon
+                                     }
+                                 ),
+                                 contentDescription = "Favorite",
+                                 modifier = Modifier
+                                     .size(37.dp)
+                             )
+                         }
+                     }
+                     item {
+                         Spacer(modifier = Modifier.height(50.dp))
+                     }
 
-                    // Event Date
-                    Row {
-                        Image(
-                            painterResource(R.drawable.calendar_ui_icon),
-                            contentDescription = "Calendar",
-                            modifier = Modifier
-                                .size(37.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = formatDate(event!!.start),
-                            style = TextStyle (
-                                fontSize = 18.sp,
-                                fontFamily = Universltstd,
-                                fontWeight = FontWeight(400),
-                                color = if (isDarkMode) Color.White else Color.Black,),
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
+                     // Event Date
+                     item {
+                         Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
+                             Image(
+                                 painterResource(R.drawable.calendar_ui_icon),
+                                 contentDescription = "Calendar",
+                                 modifier = Modifier
+                                     .size(37.dp)
+                             )
 
+                             Spacer(modifier = Modifier.width(10.dp))
+
+                             Text(
+                                 text = formatDate(event!!.start),
+                                 style = TextStyle(
+                                     fontSize = 18.sp,
+                                     fontFamily = Universltstd,
+                                     fontWeight = FontWeight(400),
+                                     color = if (isDarkMode) Color.White else Color.Black,),
+                                 modifier = Modifier
+                                     .align(Alignment.CenterVertically)
+                             )
+                         }
+                     }
+
+                   item {
+                       Spacer(modifier = Modifier.height(10.dp))
+                   }
                     // Event Time
-                    Row (verticalAlignment = Alignment.CenterVertically) {
-                        Image (
-                            painter = painterResource(id = R.drawable.timer_ui_icon),
-                            contentDescription = "Clock",
-                            modifier = Modifier
-                                .size(37.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = formatEventTime(event!!),
-                            style = TextStyle (
-                                fontSize = 18.sp,
-                                fontFamily = Universltstd,
-                                fontWeight = FontWeight(400),
-                                color = if (isDarkMode) Color.White else Color.Black,),
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
+                    item {
+                     Row (modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
+                         Image(
+                             painter = painterResource(id = R.drawable.timer_ui_icon),
+                             contentDescription = "Clock",
+                             modifier = Modifier
+                                 .size(37.dp)
+                         )
 
+                            Spacer(modifier = Modifier.width(10.dp))
+
+                            Text(
+                                text = formatEventTime(event!!),
+                                style = TextStyle(
+                                    fontSize = 18.sp,
+                                    fontFamily = Universltstd,
+                                    fontWeight = FontWeight(400),
+                                    color = if (isDarkMode) Color.White else Color.Black,),
+                                modifier = Modifier
+                                    .align(Alignment.CenterVertically)
+                            )
+                        }
+                    }
+
+                     item {
+                    Spacer(modifier = Modifier.height(10.dp))
+                     }
                     // Event Location
-                    Row {
-                        Image (
-                            painter = painterResource(id = R.drawable.location_ui_icon),
-                            contentDescription = "Location",
-                            modifier = Modifier
-                                .size(37.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = event!!.location ?: ("TBD"),
-                            style = TextStyle (
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight(400),
-                                color = if (isDarkMode) Color.White else Color.Black,),
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                        )
-                    }
+                   item{
+                       Row (modifier = Modifier) {
+                           Image (
+                               painter = painterResource(id = R.drawable.location_ui_icon),
+                               contentDescription = "Location",
+                               modifier = Modifier
+                                   .size(37.dp)
+                           )
+                           Spacer(modifier = Modifier.width(10.dp))
+                           Text(
+                               text = event!!.location ?: ("TBD"),
+                               style = TextStyle (
+                                   fontSize = 18.sp,
+                                   fontWeight = FontWeight(400),
+                                   color = if (isDarkMode) Color.White else Color.Black,),
+                               modifier = Modifier
+                                   .align(Alignment.CenterVertically)
+                           )
+                       }
+                     }
+                item {
                     Spacer(modifier = Modifier.height(50.dp))
-
-                    Text(text = "Description:",
-                        style = TextStyle (
-                            fontSize = 18.sp,
-                            fontFamily = Universltstd,
-                            fontWeight = FontWeight(400),
-                            color = Color(0xFFB7B7B7),)
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Text(
+                    }
+                     item {  Text(text = "Description:",
+                         style = TextStyle (
+                             fontSize = 18.sp,
+                             fontFamily = Universltstd,
+                             fontWeight = FontWeight(400),
+                             color = if (isDarkMode) Color.White else Color.Black,)
+                     ) }
+                   item {
+                       Spacer(modifier = Modifier.height(10.dp))
+                   }
+                     item {
+                    Text( modifier = Modifier,
                         text = event!!.description
                             ?: ("Join us!"),
                         style = TextStyle (
@@ -448,6 +479,7 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                             fontWeight = FontWeight(400),
                             color = if (isDarkMode) Color.White else Color.Black,)
                     )
+                         }
                 }
             }
         }
