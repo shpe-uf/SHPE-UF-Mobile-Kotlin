@@ -84,7 +84,7 @@ val items = listOf(
 )
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController) {
+fun BottomNavigationBar(navController: NavHostController, isDarkMode: Boolean) {
     val items = remember { items }
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry.value?.destination?.route
@@ -102,7 +102,7 @@ fun BottomNavigationBar(navController: NavHostController) {
 //                    strokeWidth = 1.dp.toPx(),
 //                )
             },
-        backgroundColor = if(isSystemInDarkTheme()) ThemeColors.Night.navBar else ThemeColors.Day.navBar,
+        backgroundColor = if(isDarkMode) ThemeColors.Night.navBar else ThemeColors.Day.navBar,
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
 
@@ -114,7 +114,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     Icon(
                         painter = painterResource(id = icon),
                         contentDescription = item.title,
-                        tint = if(currentRoute == item.title) OrangeSHPE else if(isSystemInDarkTheme()) Color.White else Color.Black,
+                        tint = if(currentRoute == item.title) OrangeSHPE else if(isDarkMode) Color.White else Color.Black,
                         modifier = Modifier
                             .height(35.dp)
                             .width(35.dp)
@@ -144,12 +144,20 @@ fun NavHostContainer(
     val homeViewModel: HomeViewModel =
         viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
 
-    LaunchedEffect(userState.isLoggedIn){
+    LaunchedEffect(userState.isLoggedIn) {
         val isLoggedIn = userState.isLoggedIn
         Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
 
-        navHostController.navigate(if(isLoggedIn) NavRoute.HOME else NavRoute.OPENING)
-
+        if (isLoggedIn) {
+            navHostController.navigate(NavRoute.HOME) {
+                popUpTo(0) { inclusive = true }  // Clears all back stack entries including login and opening pages
+                launchSingleTop = true
+            }
+        } else {
+            navHostController.navigate(NavRoute.OPENING) {
+                popUpTo(0) { inclusive = true }  // Clears all back stack entries
+            }
+        }
     }
 
     NavHost(
@@ -172,7 +180,8 @@ fun NavHostContainer(
         composable(NavRoute.HOME)
         {
             HomeScreen(
-                viewModel = homeViewModel
+                viewModel = homeViewModel,
+                shpeufAppViewModel = mainViewModel
             )
         }
         composable(NavRoute.POINTS)
@@ -204,5 +213,5 @@ fun NavHostContainer(
 @Preview
 @Composable
 fun BottomNavigationBarPreview() {
-    BottomNavigationBar(navController = rememberNavController())
+    BottomNavigationBar(navController = rememberNavController(), isDarkMode = false)
 }

@@ -1,4 +1,4 @@
-query ExampleQuery($userId: ID!) {
+query PointsQuery($userId: ID!) {
     getUser(userId: $userId) {
         points
         fallPoints
