@@ -335,6 +335,16 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                 if (isDarkMode) blueDarkModeBackground else WhiteSHPE),
 
             ) {
+                //TODO: Figure out item and red things than test
+                //TODO: Maybe add vertical scroll and height
+                //TODO: Learn more about LazyColumns
+                // quick commit to publish branch
+
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .fillMaxHeight()
+//                        .padding(50.dp)
+                       // .verticalScroll(rememberScrollState()), //Added verticalScroll modifier and imports
                  LazyColumn (modifier = Modifier
                       .fillMaxWidth()
                       .fillMaxHeight()
