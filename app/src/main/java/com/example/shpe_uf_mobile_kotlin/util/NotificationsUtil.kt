@@ -13,6 +13,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import com.example.shpe_uf_mobile_kotlin.MainActivity
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 import java.time.LocalDate
@@ -81,6 +82,7 @@ object NotificationsUtil {
             .putExtra(NotificationsUtilInfo.NOTIFICATION_ID, notificationId)
             .putExtra(NotificationsUtilInfo.NOTIFICATION_TITLE, "UF SHPE Event!")
             .putExtra(NotificationsUtilInfo.NOTIFICATION_MESSAGE, "${event.summary} is starting soon!")
+            .putExtra(NotificationsUtilInfo.NOTIFICATION_NAME, event.summary)
 
         // print out all the extras:
         Log.d("HomeViewModel", "Notification ID: ${event.id}")
@@ -108,7 +110,7 @@ object NotificationsUtil {
         val triggerAtMillis = eventTime?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
 
         // Schedule the alarm
-        if (triggerAtMillis != null) {
+        if (triggerAtMillis != null && triggerAtMillis > System.currentTimeMillis()) {
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 triggerAtMillis,
@@ -154,6 +156,22 @@ class AlarmReceiver : BroadcastReceiver() {
         val title = intent.getStringExtra(NotificationsUtilInfo.NOTIFICATION_TITLE) ?: "Shpe UF Event"
         val message = intent.getStringExtra(NotificationsUtilInfo.NOTIFICATION_MESSAGE) ?: "You have an upcoming event"
         val groupKey = NotificationsUtilInfo.NOTIFICATION_GROUP
+        val name = intent.getStringExtra(NotificationsUtilInfo.NOTIFICATION_NAME)
+
+        val tapIntent = Intent(appContext, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra(NotificationsUtilInfo.NOTIFICATION_ID, notificationId)
+            putExtra(NotificationsUtilInfo.NOTIFICATION_TITLE, title)
+            putExtra(NotificationsUtilInfo.NOTIFICATION_MESSAGE, message)
+            putExtra(NotificationsUtilInfo.NOTIFICATION_NAME, name) ?: null
+        }
+
+        val tapPendingIntent = PendingIntent.getActivity(
+            appContext,
+            notificationId,
+            tapIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         // Individual notifications
         val notificationBuilder = NotificationCompat.Builder(appContext, NotificationsUtilInfo.CHANNEL_ID)
@@ -162,6 +180,7 @@ class AlarmReceiver : BroadcastReceiver() {
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setGroup(groupKey)
+            .setContentIntent(tapPendingIntent)
             .setAutoCancel(true)
             .build()
 
@@ -201,4 +220,5 @@ object NotificationsUtilInfo  {
     const val CHANNEL_ID = "SHPEUFEventsChannel" // Make sure this matches your Notification Channel ID
     const val NOTIFICATION_GROUP = "SHPEUFEventsGroup"
     const val SUMMARY_ID = 0
+    const val NOTIFICATION_NAME = "notification_name"
 }

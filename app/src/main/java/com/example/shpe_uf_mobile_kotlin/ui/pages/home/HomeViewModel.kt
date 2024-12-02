@@ -131,7 +131,10 @@ class HomeViewModel(
         )
 
         // Apply updated events and notification settings to state
-        _homeUIState.value = homeState.value.copy(events = updatedEvents, notificationSettings = updatedNotificationSettings)
+        _homeUIState.value = homeState.value.copy(
+            events = updatedEvents,
+            notificationSettings = updatedNotificationSettings
+        )
 
         // Handle scheduling or canceling notifications
         handleNotificationsForEvents(updatedEvents, type, isEnabled)
@@ -139,21 +142,26 @@ class HomeViewModel(
     }
 
     fun toggleAllNotifications(context: Context) {
-        Log.d("HomeViewModel", "Currently all notifications are ${homeState.value.notificationSettings.allNotificationSelection}")
-        Log.d ("HomeViewModel", "Toggled all notifications")
+        Log.d(
+            "HomeViewModel",
+            "Currently all notifications are ${homeState.value.notificationSettings.allNotificationSelection}"
+        )
+        Log.d("HomeViewModel", "Toggled all notifications")
 
         // all starts as false
         val allNotificationOn = homeState.value.notificationSettings.allNotificationSelection
 
         _homeUIState.update { currentState ->
-            currentState.copy(notificationSettings = currentState.notificationSettings.copy(
-                gbmNotification = !allNotificationOn,
-                socialNotification = !allNotificationOn,
-                workshopNotification = !allNotificationOn,
-                infoSessionNotification = !allNotificationOn,
-                volunteeringNotification = !allNotificationOn,
-                allNotificationSelection = !allNotificationOn
-            ))
+            currentState.copy(
+                notificationSettings = currentState.notificationSettings.copy(
+                    gbmNotification = !allNotificationOn,
+                    socialNotification = !allNotificationOn,
+                    workshopNotification = !allNotificationOn,
+                    infoSessionNotification = !allNotificationOn,
+                    volunteeringNotification = !allNotificationOn,
+                    allNotificationSelection = !allNotificationOn
+                )
+            )
         }
 
         if (!allNotificationOn) {
@@ -166,8 +174,7 @@ class HomeViewModel(
             homeState.value.events.forEach { event ->
                 NotificationsUtil.scheduleNotification(event)
             }
-        }
-        else {
+        } else {
             // update color
             _homeUIState.update { currentState ->
                 currentState.copy(allNotificationCurrentColor = allNotificationsOff)
@@ -194,17 +201,21 @@ class HomeViewModel(
         }
     }
 
-    private fun handleNotificationsForEvents(events: List<Event>, type: EventType, isEnabled: Boolean) {
+    private fun handleNotificationsForEvents(
+        events: List<Event>,
+        type: EventType,
+        isEnabled: Boolean
+    ) {
         val notificationsUtil = NotificationsUtil
 
-        events.filter { it.eventType == type && it.notificationEnabled == isEnabled }.forEach { event ->
-            if (isEnabled) {
-                notificationsUtil.scheduleNotification(event)
+        events.filter { it.eventType == type && it.notificationEnabled == isEnabled }
+            .forEach { event ->
+                if (isEnabled) {
+                    notificationsUtil.scheduleNotification(event)
+                } else {
+                    notificationsUtil.cancelNotification(event)
+                }
             }
-            else {
-                notificationsUtil.cancelNotification(event)
-            }
-        }
     }
 
     private fun shouldScheduleNotification(event: HomeViewModel.Event): Boolean {
@@ -219,7 +230,11 @@ class HomeViewModel(
     }
 
     // Saving States for reboot
-    private fun saveNotificationSettings(context: Context, eventType: EventType, isEnabled: Boolean){
+    private fun saveNotificationSettings(
+        context: Context,
+        eventType: EventType,
+        isEnabled: Boolean
+    ) {
         val sharedPreferences = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
             putBoolean(eventType.name, isEnabled)
@@ -254,6 +269,22 @@ class HomeViewModel(
         viewModelScope.launch {
             eventRepo.insert(event)
         }
+    }
+
+    suspend fun getEventBySummary(summary: String): Event? {
+        return eventRepo.getEventBySummary(summary)
+
+//        var event: Event? = null
+//        viewModelScope.launch {
+//            event = eventRepo.getEventBySummary(summary)
+//            Log.d("NotificationsTest", "Event: $event")
+//            if (event != null) {
+//                selectEvent(event)
+//            } else {
+//                Log.d("NotificationsTest", "Event not found")
+//            }
+//        }
+//        return event
     }
 
      fun eraseEvents() {

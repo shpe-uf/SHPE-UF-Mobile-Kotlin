@@ -139,7 +139,8 @@ fun NavHostContainer(
     mainViewModel: SHPEUFAppViewModel,
     userState: AppState,
     registerViewModel: RegisterPage1ViewModel,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
+    notificationSummary: String
 ) {
     val homeViewModel: HomeViewModel =
         viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
@@ -150,6 +151,21 @@ fun NavHostContainer(
 
         navHostController.navigate(if(isLoggedIn) NavRoute.HOME else NavRoute.OPENING)
 
+    }
+
+    LaunchedEffect(notificationSummary) {
+        val event = homeViewModel.getEventBySummary(notificationSummary)
+        Log.d("NotificationsTest", "Passed In, Inside: $notificationSummary")
+        Log.d("NotificationsTest", "Event, Inside: $event")
+        Log.d ("NotificationsTest", "Event ID, Inside: ${event?.id}")
+        Log.d("NotificationsTest", "Event ID, Inside: ${event?.summary}")
+
+        if (event != null) {
+            Log.d("NotificationsTest", "Event ID, Inside: $notificationSummary")
+            homeViewModel.selectEvent(event)
+        }
+
+        navHostController.navigate(NavRoute.HOME)
     }
 
     NavHost(
@@ -197,7 +213,6 @@ fun NavHostContainer(
         {
             RegistrationPage3Preview(navController = navHostController, registerPage1ViewModel = registerViewModel )
         }
-
     }
 }
 

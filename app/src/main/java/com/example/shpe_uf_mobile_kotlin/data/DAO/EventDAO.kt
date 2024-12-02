@@ -10,5 +10,8 @@ interface EventDao {
 
     @Query("SELECT * FROM events")
     suspend fun getAllEvents(): List<Event>
+
+    @Query("SELECT * FROM events WHERE summary = :summary LIMIT 1")
+    suspend fun getEventBySummary(summary: String): Event?
 }
 
