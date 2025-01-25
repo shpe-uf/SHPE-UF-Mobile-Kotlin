@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -58,6 +59,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
@@ -292,7 +294,8 @@ fun ProfileScreen(profileViewModel: ProfileViewModel, navController: NavHostCont
 }
 
 @Composable
-fun ProfilePageBackground(modifier: Modifier = Modifier) {
+fun ProfilePageBackground(profileViewModel: ProfileViewModel = viewModel(), modifier: Modifier = Modifier) {
+    val uiState by profileViewModel.uiState.collectAsState()
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val orangeHeight = screenHeight * (1.01f / 5f) // Orange covers about a fourth of the screen
     val blueHeight = screenHeight * (4f / 5f) // Blue covers the remaining three-fourths
@@ -348,14 +351,21 @@ fun ProfilePageBackground(modifier: Modifier = Modifier) {
                 .padding(top = 93.dp) // Adjust the padding to move the image
 
         ){
-            Image(
-                painter = painterResource(id = R.drawable.empty_profile_picture_dark),
-                contentDescription = "BLUE CURVE",
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .width(116.dp) // Fixed width
-                    .height(110.dp) // Fixed height
-            )
+            if (uiState.photo != null){
+                Image(
+                    bitmap = uiState.photoBitmap!!.asImageBitmap(),
+                    contentDescription = "User Profile Picture",
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .width(116.dp) // Fixed width
+                        .height(110.dp) // Fixed height
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.empty_profile_picture_dark),
+                    contentDescription = "BLUE CURVE",
+                )
+            }
         }
     }
 }

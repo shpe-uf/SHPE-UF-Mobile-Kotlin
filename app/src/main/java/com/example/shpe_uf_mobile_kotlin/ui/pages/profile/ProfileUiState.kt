@@ -1,4 +1,5 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
+import android.graphics.Bitmap
 
 data class ProfileUiState(
     val id: String? = null,
@@ -16,5 +17,6 @@ data class ProfileUiState(
     val classes: List<String?>? = null,
     val internships: List<String?>? = null,
     val socialMedia: List<String?>? = null,
-    val photo: String? = null
+    val photo: String? = null,
+    val photoBitmap: Bitmap? = null //May change approach if too laggy
 )
