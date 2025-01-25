@@ -1,5 +1,9 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Base64
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shpe_uf_mobile_kotlin.DeleteUserMutation
@@ -63,8 +67,10 @@ class ProfileViewModel:ViewModel() {
         _uiState.value = _uiState.value.copy(socialMedia = socialMedia)
     }
 
+    // added photo bitmap to state when calling this fun
     fun onPhotoChanged(photo: String){
         _uiState.value = _uiState.value.copy(photo = photo)
+        _uiState.value = _uiState.value.copy(photoBitmap = decodeBase64ToBitmap(photo))
     }
 
     fun getUsername(): String? {
@@ -196,6 +202,12 @@ class ProfileViewModel:ViewModel() {
         val response = apolloClient.mutation(DeleteUserMutation(email)).execute()
 
         return response.hasErrors()
+    }
+
+    // added this helper function to decode the base64image into a bitmap
+    private fun decodeBase64ToBitmap(base64: String): Bitmap? {
+        val decodedBytes = Base64.decode(base64, Base64.DEFAULT)
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
     }
 
     fun tempDeleteUser(): Unit? {
