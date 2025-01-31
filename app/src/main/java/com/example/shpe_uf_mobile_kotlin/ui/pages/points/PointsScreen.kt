@@ -61,11 +61,20 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import android.app.Activity
+import android.content.Intent
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.shpe_uf_mobile_kotlin.EventsQuery.Event
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
@@ -168,6 +177,38 @@ fun RedeemPoints(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
+    // Used to show messages to the user
+    val context = LocalContext.current
+
+    // 1. Launcher to handle the result from your local qr code scanner
+    val qrScanLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val contents = result.data?.getStringExtra("SCAN_RESULT") ?: ""
+            // Update your PointsPageViewModel with the scanned text
+            pointsPageViewModel.updateEventCode(contents)
+        } else {
+            Toast.makeText(context, "QR scan cancelled", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // 2. Launcher to request CAMERA permission
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                // If permission is granted, launch the QR scanner
+                qrScanLauncher.launch(
+                    Intent("com.google.zxing.client.android.SCAN").apply {
+                        putExtra("SCAN_MODE", "QR_CODE_MODE")
+                    }
+                )
+            } else {
+                Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -222,6 +263,19 @@ fun RedeemPoints(
                     text = newText
                     pointsPageViewModel.updateEventCode(newText)
                 },
+                leadingIcon = {
+                    IconButton(
+                        onClick = {
+                            // Handle camera icon click here
+                            cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.camera),
+                            contentDescription = "Camera icon"
+                        )
+                    }
+                },
                 placeholder = {
                     Text(
                         "Event Code",
@@ -235,6 +289,10 @@ fun RedeemPoints(
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
+                },
+                trailingIcon = {
+                    // Used to center the Event Code Text
+                    Box(modifier = Modifier.size(48.dp)) {}
                 },
                 singleLine = true,
                 textStyle = TextStyle(
