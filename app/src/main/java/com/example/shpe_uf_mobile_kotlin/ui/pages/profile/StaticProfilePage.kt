@@ -146,67 +146,91 @@ fun StaticProfileScreen(
                 Spacer(modifier = Modifier.height(27.dp))
             }
 
+            // Name
             item{
-                StaticProfileName(
+                ProfileItem(
                     value = uiState.fullName ?: "",
                     onValueChange = profileViewModel::onFullNameChanged,
-                    textColor = textColor
+                    textColor = textColor,
+                    icon = R.drawable.profile_circle_orange,
+                    title = "NAME"
                 )
             }
 
+            // Username
             item{
-                StaticProfileUserName(
+                ProfileItem(
                     value = uiState.userName ?: "",
                     onValueChange = profileViewModel::onUserNameChanged,
-                    textColor = textColor
+                    textColor = textColor,
+                    icon = R.drawable.profile_circle_orange,
+                    title = "USERNAME"
                 )
             }
 
+            // Email
             item{
-                StaticProfileEmail(
+                ProfileItem(
                     value = uiState.email ?: "",
                     onValueChange = profileViewModel::onEmailChanged,
-                    textColor = textColor
+                    textColor = textColor,
+                    icon = R.drawable.profile_email,
+                    title = "EMAIL"
                 )
             }
 
+            // Gender
             item{
-                StaticProfileGender(
+                ProfileItem(
                     value = uiState.gender ?: "",
                     onValueChange = profileViewModel::onGenderChanged,
-                    textColor = textColor
+                    textColor = textColor,
+                    icon = R.drawable.profile_gender_equality,
+                    title = "GENDER"
                 )
             }
 
+            // Ethnicity
             item{
-                StaticProfileEthnicity(
+                ProfileItem(
                     value = uiState.ethnicity ?: "",
                     onValueChange = profileViewModel::onEthnicityChanged,
-                    textColor = textColor
+                    textColor = textColor,
+                    icon = R.drawable.profile_globe,
+                    title = "ETHNICITY"
                 )
             }
 
+            // Country
             item{
-                StaticProfileCountry(
+                ProfileItem(
                     value = uiState.country ?: "",
                     onValueChange = profileViewModel::onCountryChanged,
-                    textColor = textColor
+                    textColor = textColor,
+                    icon = R.drawable.profile_globe,
+                    title = "COUNTRY OF ORIGIN"
                 )
             }
 
+            // Current Year
             item{
-                StaticProfileYear(
+                ProfileItem(
                     value = uiState.year ?: "",
                     onValueChange = profileViewModel::onYearChanged,
-                    textColor = textColor
+                    textColor = textColor,
+                    icon = R.drawable.profile_year,
+                    title = "YEAR"
                 )
             }
 
+            // Graduation Year
             item{
-                StaticProfileGradYear(
+                ProfileItem(
                     value = uiState.gradYear ?: "",
                     onValueChange = profileViewModel::onGradYearChanged,
-                    textColor = textColor
+                    textColor = textColor,
+                    icon = R.drawable.profile_cap,
+                    title = "GRADUATION YEAR"
                 )
             }
 
@@ -425,7 +449,7 @@ fun StaticProfileLists(value: List<String?>, onValueChange: (List<String?>) -> U
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticProfileGradYear(value: String, onValueChange: (String) -> Unit, textColor: Color) {
+fun ProfileItem(value: String, onValueChange: (String) -> Unit, textColor: Color, icon: Int, title: String, editable: List<Boolean> = listOf(false, false)) {
     Column(
         modifier = Modifier
             .fillMaxWidth(0.8f)
@@ -437,13 +461,13 @@ fun StaticProfileGradYear(value: String, onValueChange: (String) -> Unit, textCo
             modifier = Modifier.padding(bottom = 4.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.profile_cap),
-                contentDescription = "GradCapIcon",
+                painter = painterResource(id = icon),
+                contentDescription = "Icon",
                 modifier = Modifier.size(26.dp) // Set size for the icon
             )
             Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
             Text(
-                text = "GRADUATION YEAR",
+                text = title,
                 color = Color(0xFFD25917), // Orange color
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
@@ -467,357 +491,6 @@ fun StaticProfileGradYear(value: String, onValueChange: (String) -> Unit, textCo
         )
     }
 }
-
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun StaticProfileYear(value: String, onValueChange: (String) -> Unit, textColor: Color) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(0.8f)
-            .padding(vertical = 8.dp)
-    ) {
-        // Row for Icon and Field Name
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 4.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.profile_year),
-                contentDescription = "CalenderIcon",
-                modifier = Modifier.size(26.dp) // Set size for the icon
-            )
-            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
-            Text(
-                text = "YEAR",
-                color = Color(0xFFD25917), // Orange color
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        // Outlined Text Field for Input
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = value,
-            onValueChange = { newValue -> onValueChange(newValue) },
-            enabled = false,
-            readOnly = true,
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
-
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedTextColor = Color.White,
-                focusedPlaceholderColor = Color.Gray
-            )
-        )
-    }
-}
-
-
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun StaticProfileCountry(value: String, onValueChange: (String) -> Unit, textColor: Color) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(0.8f)
-            .padding(vertical = 8.dp)
-    ) {
-        // Row for Icon and Field Name
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 4.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.profile_globe),
-                contentDescription = "GlobeIcon",
-                modifier = Modifier.size(26.dp) // Set size for the icon
-            )
-            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
-            Text(
-                text = "COUNTRY OF ORIGIN",
-                color = Color(0xFFD25917), // Orange color
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        // Outlined Text Field for Input
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = value,
-            onValueChange = { newValue -> onValueChange(newValue) },
-            enabled = false,
-            readOnly = true,
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
-
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedTextColor = Color.White,
-                focusedPlaceholderColor = Color.Gray
-            )
-        )
-    }
-}
-
-
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun StaticProfileEthnicity(value: String, onValueChange: (String) -> Unit, textColor: Color) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(0.8f)
-            .padding(vertical = 8.dp)
-    ) {
-        // Row for Icon and Field Name
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 4.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.profile_globe),
-                contentDescription = "GlobeIcon",
-                modifier = Modifier.size(26.dp) // Set size for the icon
-            )
-            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
-            Text(
-                text = "ETHNICITY",
-                color = Color(0xFFD25917), // Orange color
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        // Outlined Text Field for Input
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = value,
-            onValueChange = { newValue -> onValueChange(newValue) },
-            enabled = false,
-            readOnly = true,
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
-
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedTextColor = Color.White,
-                focusedPlaceholderColor = Color.Gray
-            )
-        )
-    }
-}
-
-
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun StaticProfileGender(value: String, onValueChange: (String) -> Unit, textColor: Color) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(0.8f)
-            .padding(vertical = 8.dp)
-    ) {
-        // Row for Icon and Field Name
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 4.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.profile_gender_equality),
-                contentDescription = "GenderIcon",
-                modifier = Modifier.size(26.dp) // Set size for the icon
-            )
-            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
-            Text(
-                text = "GENDER",
-                color = Color(0xFFD25917), // Orange color
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        // Outlined Text Field for Input
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = value,
-            onValueChange = { newValue -> onValueChange(newValue) },
-            enabled = false,
-            readOnly = true,
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
-
-
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedTextColor = Color.White,
-                focusedPlaceholderColor = Color.Gray
-            )
-        )
-    }
-}
-
-
-
-
-
-
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun StaticProfileEmail(value: String, onValueChange: (String) -> Unit, textColor: Color) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(0.8f)
-            .padding(vertical = 8.dp)
-    ) {
-        // Row for Icon and Field Name
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 4.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.profile_email),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp) // Set size for the icon
-            )
-            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
-            Text(
-                text = "EMAIL",
-                color = Color(0xFFD25917), // Orange color
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        // Outlined Text Field for Input
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = value,
-            onValueChange = { newValue -> onValueChange(newValue) },
-            enabled = false,
-            readOnly = true,
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
-
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color.Gray,
-                unfocusedBorderColor = Color.Gray,
-                focusedTextColor = Color.White,
-                focusedPlaceholderColor = Color.Gray
-            )
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun StaticProfileUserName(value: String, onValueChange: (String) -> Unit, textColor: Color) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(0.8f)
-            .padding(vertical = 8.dp)
-    ) {
-        // Row for Icon and Field Name
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 4.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.profile_circle_orange),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp) // Set size for the icon
-            )
-            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
-            Text(
-                text = "USERNAME",
-                color = Color(0xFFD25917), // Orange color
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        // Outlined Text Field for Input
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = value,
-            onValueChange = { newValue -> onValueChange(newValue) },
-            enabled = false,
-            readOnly = true,
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
-
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color.Gray,
-                unfocusedBorderColor = Color.Gray,
-                focusedTextColor = Color.White,
-                focusedPlaceholderColor = Color.Gray
-            )
-        )
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun StaticProfileName(
-    value: String,
-    onValueChange: (String) -> Unit,
-    textColor: Color
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(0.8f)
-            .padding(vertical = 8.dp)
-    ) {
-        // Row for Icon and Field Name
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 4.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.profile_circle_orange),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp) // Set size for the icon
-            )
-            Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
-            Text(
-                text = "NAME",
-                color = Color(0xFFD25917), // Orange color
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        // Outlined Text Field for Input
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = value,
-            enabled = false,
-            readOnly = true,
-            onValueChange = { newValue -> onValueChange(newValue) },
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
-
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color.Red,
-                unfocusedBorderColor = Color.Blue,
-                focusedTextColor = Color.Yellow,
-                focusedPlaceholderColor = Color.Magenta
-            )
-        )
-    }
-}
-
-
-
 
 @Composable
 private fun EditProfileButton(
