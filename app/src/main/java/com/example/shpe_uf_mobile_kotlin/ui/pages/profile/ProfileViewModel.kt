@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+// added this so we can update to SignedOut
+import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+
 
 
 class ProfileViewModel:ViewModel() {
@@ -79,8 +82,9 @@ class ProfileViewModel:ViewModel() {
         TODO("Not yet implemented")
     }
 
-    fun deleteProfile(email: String){
-        deleteUserProfile(email)
+    fun deleteProfile(shpeUFAppViewModel: SHPEUFAppViewModel): Boolean{
+        val output = deleteUserProfile(shpeUFAppViewModel)
+        return output
     }
 
     // Should load the user's profile, will be called when the user logs in and the id is collected and stored in the app.
@@ -183,11 +187,27 @@ class ProfileViewModel:ViewModel() {
 //    }
 
     // Functions for delete the user from the SHPE server.
-    private fun deleteUserProfile(email: String): Boolean {
+    private fun deleteUserProfile(shpeUFAppViewModel: SHPEUFAppViewModel): Boolean {
+
+        val userEmail = _uiState.value.email ?: return false  // Return false if email is null
+
+
         var output = false
         viewModelScope.launch {
-            output = deleteUserProfileCoroutine(email)
+            output = deleteUserProfileCoroutine(userEmail)
+            // Check if output == false meaning no errors when performing mutation
+            // Update state values to reflect that no user is signed in
+            if (!output) {
+                shpeUFAppViewModel.saveUserId("")
+                shpeUFAppViewModel.saveUsername("")
+                shpeUFAppViewModel.saveLoggedIn(false)
+                shpeUFAppViewModel.saveLoggedOut(true)
+            }
             // TODO: Add navigation to opening page after user account is deleted.
+            // Example code in SignInViewModel line 81
+            // We have to update the values to reflect that we are signed out (i.e id to "") so when
+            // we are performing code in onClick() of StaticProfilePage it knows we are signed out
+            // So navigation is performed correctly. Real navigation performed in onClick() func
         }
         return output
     }
@@ -198,7 +218,8 @@ class ProfileViewModel:ViewModel() {
         return response.hasErrors()
     }
 
-    fun tempDeleteUser(): Unit? {
+    fun tempDeleteUser(email: String): Unit? { // add string as argument
+        // deleteUserProfile(email);
         // This does nothing its just so u can click delete and the app not crash
         return null
     }
