@@ -49,6 +49,11 @@ import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
 //import androidx.compose.foundation.border
@@ -101,7 +106,7 @@ fun StaticProfileScreen(
 
         profileViewModel.loadProfile(mainState.id)
 
-        StaticProfilePageBackground(isDarkMode = isDarkMode)
+        StaticProfilePageBackground(isDarkMode = isDarkMode, name = uiState.fullName ?: "", textColor = textColor)
 
 
         LazyColumn(
@@ -112,15 +117,6 @@ fun StaticProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
 //            verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            item{
-                Text(
-                    text = uiState.fullName ?: "",
-                    color = textColor,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-            }
 
             item {
                 EditProfileButton(
@@ -214,6 +210,39 @@ fun StaticProfileScreen(
                 )
             }
 
+            // Classes
+            item{
+                StaticProfileLists(
+                    value =  uiState.classes ?: listOf(),
+                    onValueChange = profileViewModel::onClassesChanged,
+                    textColor = textColor,
+                    icon = R.drawable.university_campus,
+                    title = "CLASSES"
+                )
+            }
+
+            // Internships
+            item{
+                StaticProfileLists(
+                    value =  uiState.internships ?: listOf(),
+                    onValueChange = profileViewModel::onInternshipsChanged,
+                    textColor = textColor,
+                    icon = R.drawable.office,
+                    title = "INTERNSHIPS"
+                )
+            }
+
+            // Links
+            item{
+                StaticProfileLists(
+                    value =  uiState.socialMedia ?: listOf(),
+                    onValueChange = profileViewModel::onSocialMediaChanged,
+                    textColor = textColor,
+                    icon = R.drawable.internet,
+                    title = "LINKS"
+                )
+            }
+
             item{
                 Spacer(modifier = Modifier.height(25.dp))
             }
@@ -254,10 +283,14 @@ fun StaticProfileScreen(
 }
 
 @Composable
-fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boolean) {
+fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boolean, name: String, textColor: Color) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val imageSize = screenWidth * 0.3f // 30% of the screen width
+    val topPadding = screenWidth * 0.15f // 20% of the screen width
     val orangeHeight = screenHeight * (1.01f / 5f) // Orange covers about a fourth of the screen
     val blueHeight = screenHeight * (3.4f / 5f)  // Blue covers the remaining three-fourths
+
     Box(modifier = modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
@@ -310,23 +343,85 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 93.dp) // Adjust the padding to move the image
+                .padding(top = topPadding), // Adjust the padding to move the image
+            contentAlignment = Alignment.Center
 
         ){
-            Image(
-                painter = painterResource(id =
-                if (isDarkMode) R.drawable.empty_profile_picture_dark
-                else R.drawable.empty_profile_picture_light),
-                contentDescription = "PROFILE PIC CIRCLE",
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .width(116.dp) // Fixed width
-                    .height(110.dp) // Fixed height
-            )
+            Column(verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(bottom = 16.dp)
+            ){
+                Image(
+                    painter = painterResource(id =
+                    if (isDarkMode) R.drawable.empty_profile_picture_dark
+                    else R.drawable.empty_profile_picture_light),
+                    contentDescription = "PROFILE PIC CIRCLE",
+                    modifier = Modifier
+//                        .align(Alignment.Center)
+                        .size(imageSize)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+
+                Text(
+                    text = name,
+                    color = textColor,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+//                Spacer(modifier = Modifier.height(20.dp).fillMaxWidth().background(if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background))
+            }
+
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StaticProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, textColor: Color, icon: Int, title: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .padding(vertical = 8.dp)
+    ) {
+        // Row for Icon and Field Name
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 4.dp)
+        ) {
+            Image(
+                painter = painterResource(id = icon),
+                contentDescription = "Icon",
+                modifier = Modifier.size(26.dp)
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = title,
+                color = Color(0xFFD25917),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        // Now loop through the value and display each class
+        value.forEach { classItem ->
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = classItem ?: "",
+                onValueChange = { newValue -> onValueChange(value) },
+                enabled = false,
+                readOnly = true,
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                textStyle = TextStyle(fontSize = 15.sp, color = textColor),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedTextColor = Color.White,
+                    focusedPlaceholderColor = Color.Gray
+                )
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
