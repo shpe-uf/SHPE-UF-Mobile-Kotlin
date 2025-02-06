@@ -85,7 +85,12 @@ import java.time.LocalDateTime
 import java.time.Month
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-
+import android.os.Bundle
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.appcompat.app.AppCompatActivity
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
 
 /*
 ******************************************************
@@ -479,34 +484,31 @@ fun RedeemPoints(
     val context = LocalContext.current
 
     // 1. Launcher to handle the result from your local qr code scanner
-    val qrScanLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val contents = result.data?.getStringExtra("SCAN_RESULT") ?: ""
-            // Update your PointsPageViewModel with the scanned text
-            pointsPageViewModel.updateEventCode(contents)
+    val qrScannerLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
+        if (result.contents != null) {
+            val scannedCode = result.contents.removePrefix("[SHPEUF]")
+            pointsPageViewModel.updateEventCode(scannedCode)
         } else {
-            Toast.makeText(context, "QR scan cancelled", Toast.LENGTH_SHORT).show()
+            errorMessage = "Scan cancelled.";
         }
     }
 
     // 2. Launcher to request CAMERA permission
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            if (isGranted) {
-                // If permission is granted, launch the QR scanner
-                qrScanLauncher.launch(
-                    Intent("com.google.zxing.client.android.SCAN").apply {
-                        putExtra("SCAN_MODE", "QR_CODE_MODE")
-                    }
-                )
-            } else {
-                Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Launch the QR scanner
+            val options = ScanOptions().apply {
+                setPrompt("Scan a QR Code")
+                setBeepEnabled(true)
+                setBarcodeImageEnabled(true)
             }
+            qrScannerLauncher.launch(options)
+        } else {
+            errorMessage = "Camera permissions denied.";
         }
-    )
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -571,7 +573,7 @@ fun RedeemPoints(
                         }
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.camera),
+                            painter = painterResource(id = R.drawable.emailicon), // REPLACE WITH .CAMERA
                             contentDescription = "Camera icon"
                         )
                     }
