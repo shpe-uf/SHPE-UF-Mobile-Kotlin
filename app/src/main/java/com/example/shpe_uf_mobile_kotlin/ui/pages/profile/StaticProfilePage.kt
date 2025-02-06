@@ -2,6 +2,7 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -104,9 +105,15 @@ fun StaticProfileScreen(
             Color.Black
         }
 
+        val containerColor = if(!isDarkMode){
+            Color(0xFFD25917)
+        } else {
+            Color(0xFF001627)
+        }
+
         profileViewModel.loadProfile(mainState.id)
 
-        StaticProfilePageBackground(isDarkMode = isDarkMode, name = uiState.fullName ?: "", textColor = textColor)
+        StaticProfilePageBackground(isDarkMode = isDarkMode, name = uiState.fullName ?: "", textColor = textColor, containerColor = containerColor, editable = uiState.editable, profileViewModel = profileViewModel)
 
 
         LazyColumn(
@@ -119,11 +126,12 @@ fun StaticProfileScreen(
         ) {
 
             item {
-                EditProfileButton(
-                    onClick = {profileViewModel.tempEditProfile()},
-                    profileViewModel
-                )
-//                navController.navigate(NavRoute.EDITPROFILE)
+                if (!uiState.editable[0] && uiState.editable[1]){
+                    EditProfileButton(
+                        onClick = {profileViewModel.editProfile()},
+                        profileViewModel
+                    )
+                }
             }
 
             item{
@@ -153,7 +161,8 @@ fun StaticProfileScreen(
                     onValueChange = profileViewModel::onFullNameChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_circle_orange,
-                    title = "NAME"
+                    title = "NAME",
+                    editable = uiState.editable
                 )
             }
 
@@ -164,7 +173,8 @@ fun StaticProfileScreen(
                     onValueChange = profileViewModel::onUserNameChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_circle_orange,
-                    title = "USERNAME"
+                    title = "USERNAME",
+                    editable = listOf(false, true)
                 )
             }
 
@@ -175,7 +185,8 @@ fun StaticProfileScreen(
                     onValueChange = profileViewModel::onEmailChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_email,
-                    title = "EMAIL"
+                    title = "EMAIL",
+                    editable = listOf(false, true)
                 )
             }
 
@@ -186,7 +197,8 @@ fun StaticProfileScreen(
                     onValueChange = profileViewModel::onGenderChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_gender_equality,
-                    title = "GENDER"
+                    title = "GENDER",
+                    editable = uiState.editable
                 )
             }
 
@@ -197,7 +209,8 @@ fun StaticProfileScreen(
                     onValueChange = profileViewModel::onEthnicityChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_globe,
-                    title = "ETHNICITY"
+                    title = "ETHNICITY",
+                    editable = uiState.editable
                 )
             }
 
@@ -208,7 +221,8 @@ fun StaticProfileScreen(
                     onValueChange = profileViewModel::onCountryChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_globe,
-                    title = "COUNTRY OF ORIGIN"
+                    title = "COUNTRY OF ORIGIN",
+                    editable = uiState.editable
                 )
             }
 
@@ -219,7 +233,8 @@ fun StaticProfileScreen(
                     onValueChange = profileViewModel::onYearChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_year,
-                    title = "YEAR"
+                    title = "YEAR",
+                    editable = uiState.editable
                 )
             }
 
@@ -230,40 +245,44 @@ fun StaticProfileScreen(
                     onValueChange = profileViewModel::onGradYearChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_cap,
-                    title = "GRADUATION YEAR"
+                    title = "GRADUATION YEAR",
+                    editable = uiState.editable
                 )
             }
 
             // Classes
             item{
-                StaticProfileLists(
+                ProfileLists(
                     value =  uiState.classes ?: listOf(),
                     onValueChange = profileViewModel::onClassesChanged,
                     textColor = textColor,
                     icon = R.drawable.university_campus,
-                    title = "CLASSES"
+                    title = "CLASSES",
+                    editable = uiState.editable
                 )
             }
 
             // Internships
             item{
-                StaticProfileLists(
+                ProfileLists(
                     value =  uiState.internships ?: listOf(),
                     onValueChange = profileViewModel::onInternshipsChanged,
                     textColor = textColor,
                     icon = R.drawable.office,
-                    title = "INTERNSHIPS"
+                    title = "INTERNSHIPS",
+                    editable = uiState.editable
                 )
             }
 
             // Links
             item{
-                StaticProfileLists(
+                ProfileLists(
                     value =  uiState.socialMedia ?: listOf(),
                     onValueChange = profileViewModel::onSocialMediaChanged,
                     textColor = textColor,
                     icon = R.drawable.internet,
-                    title = "LINKS"
+                    title = "LINKS",
+                    editable = uiState.editable
                 )
             }
 
@@ -307,7 +326,7 @@ fun StaticProfileScreen(
 }
 
 @Composable
-fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boolean, name: String, textColor: Color) {
+fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boolean, name: String, textColor: Color, containerColor: Color, editable: List<Boolean>, profileViewModel: ProfileViewModel) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val imageSize = screenWidth * 0.3f // 30% of the screen width
@@ -393,8 +412,27 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
-
-//                Spacer(modifier = Modifier.height(20.dp).fillMaxWidth().background(if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background))
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ){
+                    if(editable[0] && !editable[1]){
+                        ProfileChangesButton(
+                            onClick = {profileViewModel.saveProfileChanges()},
+                            containerColor = containerColor,
+                            title = "Save"
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        ProfileChangesButton(
+                            onClick = {profileViewModel.cancelProfileChanges()},
+                            containerColor = containerColor,
+                            title = "Cancel"
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(25.dp))
             }
 
         }
@@ -403,7 +441,7 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, textColor: Color, icon: Int, title: String) {
+fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, textColor: Color, icon: Int, title: String, editable: List<Boolean>) {
     Column(
         modifier = Modifier
             .fillMaxWidth(0.8f)
@@ -427,29 +465,37 @@ fun StaticProfileLists(value: List<String?>, onValueChange: (List<String?>) -> U
                 fontWeight = FontWeight.Bold
             )
         }
-        // Now loop through the value and display each class
-        value.forEach { classItem ->
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = classItem ?: "",
-                onValueChange = { newValue -> onValueChange(value) },
-                enabled = false,
-                readOnly = true,
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                textStyle = TextStyle(fontSize = 15.sp, color = textColor),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedTextColor = Color.White,
-                    focusedPlaceholderColor = Color.Gray
+
+        // Not editable
+        if(!editable[0] && editable[1]){
+            // Now loop through the value and display each class
+            value.forEach { classItem ->
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = classItem ?: "",
+                    onValueChange = { newValue -> onValueChange(value) },
+                    enabled = editable[0],
+                    readOnly = editable[1],
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    textStyle = TextStyle(fontSize = 15.sp, color = textColor),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedTextColor = Color.White,
+                        focusedPlaceholderColor = Color.Gray
+                    )
                 )
-            )
+            }
+        } else { // Editable
+            //
         }
+
+
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileItem(value: String, onValueChange: (String) -> Unit, textColor: Color, icon: Int, title: String, editable: List<Boolean> = listOf(false, false)) {
+fun ProfileItem(value: String, onValueChange: (String) -> Unit, textColor: Color, icon: Int, title: String, editable: List<Boolean> = listOf(false, true), dropdown: Boolean = false) {
     Column(
         modifier = Modifier
             .fillMaxWidth(0.8f)
@@ -473,22 +519,27 @@ fun ProfileItem(value: String, onValueChange: (String) -> Unit, textColor: Color
                 fontWeight = FontWeight.Bold
             )
         }
-        // Outlined Text Field for Input
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = value,
-            onValueChange = { newValue -> onValueChange(newValue) },
-            enabled = false,
-            readOnly = true,
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
+        if(!dropdown){
+            // Outlined Text Field for Input
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = value,
+                onValueChange = { newValue -> onValueChange(newValue) },
+                enabled = editable[0],
+                readOnly = editable[1],
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                textStyle = TextStyle(fontSize = 15.sp, color = textColor),
 
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedTextColor = Color.White,
-                focusedPlaceholderColor = Color.Gray
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedTextColor = Color.White,
+                    focusedPlaceholderColor = Color.Gray
+                )
             )
-        )
+        } else {
+
+        }
+
     }
 }
 
@@ -534,6 +585,31 @@ private fun EditProfileButton(
     }
 }
 
+@Composable
+private fun ProfileChangesButton(
+    onClick: () -> Unit,
+    containerColor: Color,
+    title: String
+){
+    Button(
+        modifier = Modifier
+            .wrapContentSize(Alignment.Center)
+            .border(1.dp, Color.White, RoundedCornerShape(30.dp)),
+        onClick = onClick,
+        shape = RoundedCornerShape(30.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor = Color.White
+        ),
+    ) {
+        Text(
+            text = title,
+            fontSize = 16.sp,
+            color = Color.White,
+            modifier = Modifier.align(Alignment.CenterVertically)
+        )
+    }
+}
 
 @Composable
 private fun LogoutButton(
