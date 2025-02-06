@@ -1,5 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shpe_uf_mobile_kotlin.DeleteUserMutation
@@ -72,20 +73,27 @@ class ProfileViewModel:ViewModel() {
     }
 
     fun saveProfileChanges() {
-        TODO("Not yet implemented")
+        _uiState.value = _uiState.value.copy(editable = listOf(false, true))
+        Log.d("Profile:", "${_uiState.value.editable}")
     }
 
     fun cancelProfileChanges() {
-        TODO("Not yet implemented")
+        _uiState.value = _uiState.value.copy(editable = listOf(false, true))
     }
 
     fun deleteProfile(email: String){
         deleteUserProfile(email)
     }
 
+    fun editProfile() {
+        _uiState.value = _uiState.value.copy(editable = listOf(true, false))
+    }
+
     // Should load the user's profile, will be called when the user logs in and the id is collected and stored in the app.
     fun loadProfile(id: String): Boolean{
         val current = uiState.value
+
+        Log.d("Profile:", id)
 
         if(current.firstName == null){
             getUserInfo(id)
@@ -100,6 +108,8 @@ class ProfileViewModel:ViewModel() {
     private fun getUserInfo(id: String){
         viewModelScope.launch{
             val userInfo = getUserInfoCoroutine(id)
+
+            Log.d("userinfo", "Type: ${userInfo?.javaClass?.name}, Value: $userInfo")
 
             if(userInfo != null){
                 onFirstNameChanged(userInfo.firstName)
@@ -200,10 +210,6 @@ class ProfileViewModel:ViewModel() {
 
     fun tempDeleteUser(): Unit? {
         // This does nothing its just so u can click delete and the app not crash
-        return null
-    }
-
-    fun tempEditProfile(): Unit?{
         return null
     }
 }
