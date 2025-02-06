@@ -852,6 +852,7 @@ private fun DeleteAccountButton(profileViewModel: ProfileViewModel
                     Text("Cancel")
                 }
             }
+            //commit to publish
         )
     }
 }
