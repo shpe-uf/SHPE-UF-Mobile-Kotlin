@@ -52,6 +52,10 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
@@ -222,6 +226,38 @@ fun StaticProfileScreen(
                     textColor = textColor,
                     icon = R.drawable.profile_globe,
                     title = "COUNTRY OF ORIGIN",
+                    editable = uiState.editable
+                )
+            }
+
+            item{
+                Spacer(modifier = Modifier.height(27.dp))
+            }
+
+            item {
+                Text(
+                    text = "EDUCATION INFO",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 36.dp),
+                    color = textColor,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            item{
+                Spacer(modifier = Modifier.height(27.dp))
+            }
+
+            // Major
+            item{
+                ProfileItem(
+                    value = uiState.major ?: "",
+                    onValueChange = profileViewModel::onMajorChanged,
+                    textColor = textColor,
+                    icon = R.drawable.profile_cap,
+                    title = "MAJOR",
                     editable = uiState.editable
                 )
             }
@@ -486,7 +522,44 @@ fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, t
                 )
             }
         } else { // Editable
-            //
+            // TextField that can take in multiple attributes and add them to a list, for now show the elements in a box.
+
+            var text by remember { mutableStateOf("") }
+
+            Column{
+                Row(modifier = Modifier.fillMaxSize()){
+                    TextField(
+                        value = text,
+                        placeholder = { Text(text = "Add your ${title.lowercase()} here")},
+                        onValueChange = { text = it },
+                        enabled = editable[0],
+                        readOnly = editable[1],
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        textStyle = TextStyle(fontSize = 15.sp, color = textColor),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedTextColor = Color.White,
+                            focusedPlaceholderColor = Color.Gray,
+                            unfocusedPlaceholderColor = Color.Gray
+                        )
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    IconButton(
+                        onClick = {},
+
+                    ) {
+                        Icon(Icons.Filled.AddCircle, contentDescription = "Add")
+                    }
+                }
+                // Show the available items.
+                value.forEach { classItem ->
+                    Row{
+                        Text(text = classItem ?: "")
+                    }
+
+
+                }
+            }
         }
 
 
