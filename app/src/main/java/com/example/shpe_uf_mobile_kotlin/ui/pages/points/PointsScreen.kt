@@ -486,7 +486,7 @@ fun RedeemPoints(
     // 1. Launcher to handle the result from your local qr code scanner
     val qrScannerLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
         if (result.contents != null) {
-            val scannedCode = result.contents.removePrefix("[SHPEUF]")
+            val scannedCode = result.contents.removePrefix("[SHPEUF]:")
             pointsPageViewModel.updateEventCode(scannedCode)
         } else {
             errorMessage = "Scan cancelled.";
@@ -573,7 +573,7 @@ fun RedeemPoints(
                         }
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.emailicon), // REPLACE WITH .CAMERA
+                            painter = painterResource(id = R.drawable.camera), // REPLACE WITH .CAMERA
                             contentDescription = "Camera icon"
                         )
                     }
