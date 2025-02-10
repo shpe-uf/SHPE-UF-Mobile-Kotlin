@@ -41,11 +41,16 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewMode
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
+import android.util.Log
+import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 
 class MainActivity() : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Get notification intent, aka the notif we pressed.
+        val notificationName = intent.getStringExtra("notification_name")
+        Log.d("NotificationsTest", "Main: ${notificationName.toString()}")
         setContent {
             SHPEUFMobileKotlinTheme {
                 val mainViewModel = initializeViewModel()
@@ -92,7 +97,7 @@ class MainActivity() : ComponentActivity() {
                             modifier = Modifier
                                 .padding(it),
                         ) {
-                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState, registerViewModel, profileViewModel)
+                            NavHostContainer(navController, viewModelFactory, mainViewModel, UserState, registerViewModel, profileViewModel, notificationName.toString())
                         }
                     }
                 }
