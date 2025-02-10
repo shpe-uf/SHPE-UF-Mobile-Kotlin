@@ -45,6 +45,9 @@ class ProfileViewModel:ViewModel() {
     fun onCountryChanged(country: String) {
         _uiState.value = _uiState.value.copy(country = country)
     }
+    fun onMajorChanged(major: String) {
+        _uiState.value = _uiState.value.copy(major = major)
+    }
     fun onYearChanged(year: String) {
         _uiState.value = _uiState.value.copy(year = year)
     }
@@ -120,6 +123,7 @@ class ProfileViewModel:ViewModel() {
                 onGenderChanged(userInfo.sex)
                 onEthnicityChanged(userInfo.ethnicity)
                 onCountryChanged(userInfo.country)
+                onMajorChanged(userInfo.major)
                 onYearChanged(userInfo.year)
                 onGradYearChanged(userInfo.graduating)
                 onClassesChanged(userInfo.classes)
