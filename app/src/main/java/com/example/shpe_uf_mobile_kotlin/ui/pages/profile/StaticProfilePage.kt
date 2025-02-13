@@ -117,8 +117,7 @@ fun StaticProfileScreen(
 
         profileViewModel.loadProfile(mainState.id)
 
-        StaticProfilePageBackground(isDarkMode = isDarkMode, name = uiState.fullName ?: "", textColor = textColor, containerColor = containerColor, editable = uiState.editable, profileViewModel = profileViewModel)
-
+        ProfilePageBackground(isDarkMode = isDarkMode, name = uiState.fullName ?: "", textColor = textColor, containerColor = containerColor, editable = uiState.editable, profileViewModel = profileViewModel)
 
         LazyColumn(
             modifier = Modifier
@@ -360,6 +359,17 @@ fun StaticProfileScreen(
         }
     }
 }
+
+@Composable
+fun ProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boolean, name: String, textColor: Color, containerColor: Color, editable: List<Boolean>, profileViewModel: ProfileViewModel){
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val imageSize = screenWidth * 0.3f // 30% of the screen width
+    val topPadding = screenWidth * 0.15f // 20% of the screen width
+    val orangeHeight = screenHeight * (1.01f / 5f) // Orange covers about a fourth of the screen
+    val blueHeight = screenHeight * (3.4f / 5f)  // Blue covers the remaining three-fourths
+}
+
 
 @Composable
 fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boolean, name: String, textColor: Color, containerColor: Color, editable: List<Boolean>, profileViewModel: ProfileViewModel) {
