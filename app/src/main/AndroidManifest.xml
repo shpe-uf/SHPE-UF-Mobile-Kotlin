@@ -47,6 +47,11 @@
             tools:replace="android:screenOrientation"
             android:stateNotNeeded="true"/>
 
+        <activity
+            android:name=".ui.customscanner.MyCustomScannerActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
         <receiver android:name=".util.AlarmReceiver"  />
 
     </application>
