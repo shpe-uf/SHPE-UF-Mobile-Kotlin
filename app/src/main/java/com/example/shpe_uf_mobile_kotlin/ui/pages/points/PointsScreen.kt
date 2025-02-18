@@ -89,6 +89,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.appcompat.app.AppCompatActivity
+import com.example.shpe_uf_mobile_kotlin.ui.customscanner.MyCustomScannerActivity
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 
@@ -500,6 +501,7 @@ fun RedeemPoints(
         if (isGranted) {
             // Launch the QR scanner
             val options = ScanOptions().apply {
+                captureActivity = MyCustomScannerActivity::class.java
                 setPrompt("Scan a QR Code")
                 setBeepEnabled(true)
                 setBarcodeImageEnabled(true)
