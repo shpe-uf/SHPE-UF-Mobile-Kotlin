@@ -489,8 +489,6 @@ fun RedeemPoints(
         if (result.contents != null) {
             val scannedCode = result.contents.removePrefix("[SHPEUF]:")
             pointsPageViewModel.updateEventCode(scannedCode)
-        } else {
-            errorMessage = "Scan cancelled.";
         }
     }
 
