@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="12dp"
+    android:orientation="horizontal"
+    android:background="@drawable/toast_background"
+    android:gravity="center"
+    android:elevation="8dp">
+
+    <!-- Custom Logo -->
+    <ImageView
+        android:id="@+id/toast_icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/shpe_logo_full_color"
+    android:layout_marginEnd="8dp"/>
+
+    <!-- Custom Toast Message -->
+    <TextView
+        android:id="@+id/toast_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="QR Code Scanned"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/universltstd" />
+</LinearLayout>
