@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -44,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -345,6 +347,7 @@ fun ProfilePageBackground(profileViewModel: ProfileViewModel = viewModel(), modi
         }
         //TODO: display user's profile picture when they upload it
         //TODO: dispay user's name under profile picture
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -357,8 +360,9 @@ fun ProfilePageBackground(profileViewModel: ProfileViewModel = viewModel(), modi
                     contentDescription = "User Profile Picture",
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .width(116.dp) // Fixed width
-                        .height(110.dp) // Fixed height
+                        .width(116.dp)
+                        .height(110.dp)
+                        .clip(CircleShape)
                 )
             } else {
                 Image(

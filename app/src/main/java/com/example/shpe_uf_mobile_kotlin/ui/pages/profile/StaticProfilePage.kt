@@ -49,6 +49,11 @@ import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
 //import androidx.compose.foundation.border
@@ -101,7 +106,7 @@ fun StaticProfileScreen(
 
         profileViewModel.loadProfile(mainState.id)
 
-        StaticProfilePageBackground(isDarkMode = isDarkMode)
+        StaticProfilePageBackground(isDarkMode = isDarkMode, profileViewModel = profileViewModel)
 
 
         LazyColumn(
@@ -254,7 +259,38 @@ fun StaticProfileScreen(
 }
 
 @Composable
-fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boolean) {
+fun ProfileImage(isDarkMode: Boolean,
+                 profileViewModel: ProfileViewModel,
+){
+    val uiState by profileViewModel.uiState.collectAsState()
+
+    if (uiState.photoBitmap != null){
+        Image(
+            bitmap = uiState.photoBitmap!!.asImageBitmap(),
+            contentDescription = "USER PROFILE PIC",
+            modifier = Modifier
+                .width(116.dp)
+                .height(110.dp)
+                .clip(CircleShape)
+        )
+    } else {
+        Image(
+            painter = painterResource(id =
+            if (isDarkMode) R.drawable.empty_profile_picture_dark
+            else R.drawable.empty_profile_picture_light),
+            contentDescription = "PROFILE PIC CIRCLE",
+            modifier = Modifier
+                .width(116.dp)
+                .height(110.dp)
+        )
+    }
+}
+
+@Composable
+fun StaticProfilePageBackground(modifier: Modifier = Modifier,
+                                isDarkMode: Boolean,
+                                profileViewModel: ProfileViewModel, //added this parameters to feed them to the image
+){
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val orangeHeight = screenHeight * (1.01f / 5f) // Orange covers about a fourth of the screen
     val blueHeight = screenHeight * (3.4f / 5f)  // Blue covers the remaining three-fourths
@@ -310,19 +346,10 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 93.dp) // Adjust the padding to move the image
-
-        ){
-            Image(
-                painter = painterResource(id =
-                if (isDarkMode) R.drawable.empty_profile_picture_dark
-                else R.drawable.empty_profile_picture_light),
-                contentDescription = "PROFILE PIC CIRCLE",
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .width(116.dp) // Fixed width
-                    .height(110.dp) // Fixed height
-            )
+                .padding(top = 93.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            ProfileImage(isDarkMode = isDarkMode, profileViewModel = profileViewModel)
         }
     }
 }
