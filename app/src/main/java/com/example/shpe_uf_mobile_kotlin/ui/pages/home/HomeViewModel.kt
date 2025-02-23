@@ -249,6 +249,8 @@ class HomeViewModel(
     }
 
 
+
+
     // Event Caching
     private fun saveEventToDataBase(event: Event) {
         viewModelScope.launch {
@@ -290,7 +292,7 @@ class HomeViewModel(
         val dataAtLoad = localDate
         val periodEnd = localDate.plusMonths(monthsToFetch.toLong())
 
-        val timeMin = ZonedDateTime.of(dataAtLoad, LocalTime.MIN, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        val timeMin = ZonedDateTime.now(zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
         val timeMax = ZonedDateTime.of(periodEnd, LocalTime.MAX, zoneId).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
 
         _homeUIState.update { it.copy(lastDateLoaded = periodEnd) }

@@ -9,10 +9,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -98,14 +102,18 @@ import java.util.Locale
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.TextColor
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
+import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.util.*
+import kotlinx.coroutines.delay
 
 //create sample card items
 val sampleCardItems = listOf(
@@ -213,8 +221,8 @@ fun TopHeader(
             modifier = Modifier
                 .size(33.dp)
                 .align(Alignment.Bottom)
-                .clickable { viewModel.openNotificationWindow() }
-                .offset(y = (-14).dp, x = (-28).dp),
+                .offset(y = (-14).dp, x = (-28).dp)
+                .clickable { viewModel.openNotificationWindow() },
             tint = Color.White
         )
 
@@ -890,6 +898,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel, darkMode: Boolean) {
 
 @Composable
 fun getTextStyle(darkMode: Boolean): TextStyle {
+    // makes it eaiser to get text style based of dark/light mode
     return TextStyle(
         fontSize = 16.sp,
         fontFamily = Universltstd,
@@ -898,7 +907,6 @@ fun getTextStyle(darkMode: Boolean): TextStyle {
         textAlign = TextAlign.Center,
         )
 }
-
 
 // Permissions and Dialogs
 @Composable
@@ -1059,12 +1067,47 @@ fun TopHeaderPreview() {
 // The Event that is displayed on the screen
 @Composable
 fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()) {
-    // not sure about padding for now
+    // Have to have a mutable state of for recomposition, otherwise when the event started, there would 
+    // be no highlight unless changing page or updating the viewModel
+    val currentTime = remember { mutableStateOf(ZonedDateTime.now(ZoneId.of("America/New_York"))) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(1000)
+            currentTime.value = ZonedDateTime.now(ZoneId.of("America/New_York"))
+        }
+    }
+
+    val eventStartTime = event.start.dateTime?.let { ZonedDateTime.parse(it) }
+        ?: event.start.date?.let { LocalDate.parse(it).atStartOfDay(ZoneId.of("America/New_York")) }
+    val eventEndTime = event.end.dateTime?.let { ZonedDateTime.parse(it) }
+        ?: event.end.date?.let { LocalDate.parse(it).atStartOfDay(ZoneId.of("America/New_York")) }
+
+    // checking to see if within the right window, rn 15 minutes
+    val isOngoing = currentTime.value.isAfter(eventStartTime!!.minusMinutes(15)) &&
+            (eventEndTime != null && currentTime.value.isBefore(eventEndTime))
+
+    // starting animation and a new thread to run it.
+    val animatedBorderWidth = remember { Animatable(0f) }
+    LaunchedEffect(isOngoing) {
+        if (isOngoing) {
+            while (true) {
+                animatedBorderWidth.animateTo(2f, animationSpec = tween(durationMillis = 2000, easing = LinearEasing))
+                animatedBorderWidth.animateTo(0f, animationSpec = tween(durationMillis = 2000, easing = LinearEasing))
+            }
+        }
+    }
+
+    // a borderw width of -1 used as with 0 it would still be faintly around the event
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 10.dp, top = 5.dp, end = 5.dp, bottom = 5.dp)
-            .clickable { viewModel.selectEvent(event) },
+            .clickable { viewModel.selectEvent(event) }
+            .border(
+                width = if (isOngoing) animatedBorderWidth.value.dp else (-1).dp,
+                brush = SolidColor(OrangeSHPE),
+                shape = RoundedCornerShape(size = 25.dp)
+            ),
         colors = CardDefaults.cardColors(containerColor = event.colorResId),
         shape = RoundedCornerShape(size = 25.dp),
     ) {
@@ -1195,7 +1238,6 @@ fun SlidingSheet() {
         }
     }
 }
-
 
 // Not being used for good for reference
 @Composable
@@ -1371,32 +1413,6 @@ fun EventPopUp(event: HomeViewModel.Event, onDismissRequest: () -> Unit ) {
         }
     }
 }
-
-// preview for popup
-//@Preview (showBackground = true)
-//@Composable
-//fun EventPopUpPreview() {
-//    EventPopUp(
-//        event = HomeViewModel.Event(
-//            id = "1",
-//            summary = "SHPE GBM #1",
-//            description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
-//            location = "https://ufl.zoom.us/j/95895737986",
-//            start = HomeViewModel.EventDateTime(
-//                dateTime = "2023-12-19T18:00:00-04:00",
-//                timeZone = "America/New_York"
-//            ),
-//            end = HomeViewModel.EventDateTime(
-//                dateTime = "2023-12-19T19:00:00-04:00",
-//                timeZone = "America/New_York"
-//            ),
-//            colorResId = Color.White,
-//            eventType = HomeViewModel.EventType.GBM
-//        ),
-//        showPopup = true,
-//        onDismissRequest = { }
-//    )
-//}
 
 @Composable
 fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
@@ -1714,8 +1730,9 @@ fun EventCardFeedPreview() {
     }
 }
 
-// used to make the time formatted properly
 fun formatEventTime(event: HomeViewModel.Event): String {
+    // used to make the time formatted properly
+
     val inputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
     val outputFormatter = DateTimeFormatter.ofPattern("h:mm a")
     val zoneId = ZoneId.of("America/New_York")
@@ -1817,19 +1834,3 @@ fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel)
         SlidingNotificationWindow(viewModel = viewModel, darkMode = isDarkMode)
     }
 }
-
-//@Preview
-//@Composable
-//fun HomeScreenPreview() {
-//    HomeScreen(
-//        viewModel = HomeViewModel(
-//            notificationRepo = NotificationRepository(
-//                context = LocalContext.current
-//            ),
-//            eventRepo = EventRepository(
-//                context = LocalContext.current
-//            ),
-//        ),
-//        shpeufAppViewModel = null
-//    )
-//}
