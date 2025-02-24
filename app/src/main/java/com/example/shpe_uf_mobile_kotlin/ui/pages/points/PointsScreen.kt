@@ -90,8 +90,6 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.appcompat.app.AppCompatActivity
 import com.example.shpe_uf_mobile_kotlin.ui.customscanner.MyCustomScannerActivity
-import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanOptions
 
 /*
 ******************************************************
@@ -485,10 +483,15 @@ fun RedeemPoints(
     val context = LocalContext.current
 
     // 1. Launcher to handle the result from your local qr code scanner
-    val qrScannerLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
-        if (result.contents != null) {
-            val scannedCode = result.contents.removePrefix("[SHPEUF]:")
-            pointsPageViewModel.updateEventCode(scannedCode)
+    val qrScannerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val contents = result.data?.getStringExtra("SCAN_RESULT")
+            if (contents != null) {
+                val scannedCode = contents.removePrefix("[SHPEUF]:")
+                pointsPageViewModel.updateEventCode(scannedCode)
+            }
         }
     }
 
@@ -498,13 +501,9 @@ fun RedeemPoints(
     ) { isGranted ->
         if (isGranted) {
             // Launch the QR scanner
-            val options = ScanOptions().apply {
-                captureActivity = MyCustomScannerActivity::class.java
-                setPrompt("Scan a QR Code")
-                setBeepEnabled(true)
-                setBarcodeImageEnabled(true)
-            }
-            qrScannerLauncher.launch(options)
+            val intent = Intent(context, MyCustomScannerActivity::class.java)
+            intent.putExtra("SCAN_MODE", "QR_CODE_MODE")
+            qrScannerLauncher.launch(intent)
         } else {
             errorMessage = "Camera permissions denied.";
         }

@@ -5,8 +5,8 @@
     android:layout_height="match_parent">
 
     <!-- The scanner preview and reticle/controls come from this view -->
-    <com.journeyapps.barcodescanner.DecoratedBarcodeView
-        android:id="@+id/zxing_barcode_scanner"
+    <androidx.camera.view.PreviewView
+        android:id="@+id/cameraPreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
@@ -21,18 +21,34 @@
         android:src="@drawable/backbuttonicon"
         android:background="?attr/selectableItemBackgroundBorderless"/>
 
-    <!-- Your custom text at the top (or center) -->
+    <!-- Zoom SeekBar -->
+    <SeekBar
+        android:id="@+id/zoomSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="35dp"
+        android:max="10"
+        android:progress="0"/>
+
+    <!-- Custom text -->
     <TextView
         android:id="@+id/scannerPrompt"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Scan your SHPE Points QR Code"
         android:textColor="@android:color/white"
         android:textSize="18sp"
         android:textStyle="bold"
         android:fontFamily="@font/universltstd"
-        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:background="@android:color/transparent" />
+        android:layout_marginTop="30dp"
+        android:paddingStart="100dp"
+        android:paddingEnd="100dp"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:background="@android:color/transparent"
+        android:maxLines="2"
+        android:breakStrategy="simple"/>
+    />
 </RelativeLayout>
