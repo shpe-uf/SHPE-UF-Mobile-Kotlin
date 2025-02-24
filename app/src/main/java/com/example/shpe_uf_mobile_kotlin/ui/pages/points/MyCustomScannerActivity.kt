@@ -1,79 +1,185 @@
 package com.example.shpe_uf_mobile_kotlin.ui.customscanner
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.ImageFormat
+import android.os.Bundle
+import android.util.Log
+import android.util.Size
+import android.widget.ImageButton
+import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.ImageView
 import android.widget.Toast
-import android.content.Intent
-import android.os.Bundle
-import android.widget.ImageButton
-import android.widget.SeekBar
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.*
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
+import androidx.core.content.ContextCompat
 import com.example.shpe_uf_mobile_kotlin.R
-import com.journeyapps.barcodescanner.CaptureActivity
-import com.journeyapps.barcodescanner.DecoratedBarcodeView
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.common.InputImage
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import androidx.camera.core.ExperimentalGetImage
 
-/**
- * A custom Activity that extends JourneyApps' CaptureActivity,
- * which allows us to override its layout and add UI elements.
- */
-class MyCustomScannerActivity : CaptureActivity() {
-    private lateinit var barcodeView: DecoratedBarcodeView
+@OptIn(ExperimentalGetImage::class)
+class MyCustomScannerActivity : AppCompatActivity() {
 
-    private fun showCustomToast(message: String) {
-        val layoutInflater = layoutInflater
-        val view = layoutInflater.inflate(R.layout.custom_toast, null)
-
-        // Update the text
-        val textView = view.findViewById<TextView>(R.id.toast_message)
-        textView.text = message
-
-        // Change the icon dynamically (Optional)
-        val imageView = view.findViewById<ImageView>(R.id.toast_icon)
-        imageView.setImageResource(R.drawable.shpe_logo_full_color) // Replace with your logo
-
-        // Create and show the toast
-        val toast = Toast(applicationContext)
-        toast.duration = Toast.LENGTH_SHORT
-        toast.view = view
-        toast.show()
-    }
+    private lateinit var cameraProviderFuture: ProcessCameraProvider
+    private lateinit var previewView: PreviewView
+    private var camera: Camera? = null
+    private lateinit var cameraExecutor: ExecutorService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.custom_scanner_layout)
 
-        barcodeView = findViewById(R.id.zxing_barcode_scanner)
-        barcodeView.initializeFromIntent(intent)
+        // Setup Executor
+        cameraExecutor = Executors.newSingleThreadExecutor()
 
-        barcodeView.setStatusText("")
-
-        barcodeView.decodeContinuous { result ->
-            // Show success toast
-            showCustomToast("QR Code scanned: ${result.text}")
-
-            // Return scanned text to calling Activity
-            val data = Intent().apply {
-                putExtra("SCAN_RESULT", result.text)
-            }
-            setResult(RESULT_OK, data)
-            finish()
-        }
-
+        previewView = findViewById(R.id.cameraPreview)
 
         val backButton: ImageButton = findViewById(R.id.backButton)
         backButton.setOnClickListener {
             showCustomToast("Scan canceled")
             finish()
         }
+
+        // Zoom SeekBar
+        val zoomSeekBar: SeekBar = findViewById(R.id.zoomSeekBar)
+        zoomSeekBar.progress = 0
+        zoomSeekBar.max = 10
+        zoomSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val zoomRatio = 1.0f + (progress * 0.4f)
+                camera?.cameraControl?.setZoomRatio(zoomRatio)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        // Start the camera after we have permission
+        checkCameraPermission()
     }
 
-    override fun onResume() {
-        super.onResume()
-        barcodeView.resume()
+    private fun checkCameraPermission() {
+        val requestPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                if (isGranted) {
+                    startCamera()
+                } else {
+                    showCustomToast("Camera permission denied")
+                    finish()
+                }
+            }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            startCamera()
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
     }
 
-    override fun onPause() {
-        barcodeView.pause()
-        super.onPause()
+    private fun startCamera() {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+        cameraProviderFuture.addListener({
+            val cameraProvider = cameraProviderFuture.get()
+            bindCameraUseCases(cameraProvider)
+        }, ContextCompat.getMainExecutor(this))
+    }
+
+    private fun bindCameraUseCases(cameraProvider: ProcessCameraProvider) {
+        val preview = Preview.Builder()
+            .setTargetResolution(Size(1280, 720))
+            .build()
+            .also {
+                it.setSurfaceProvider(previewView.surfaceProvider)
+            }
+
+        // Set up ML Kit analysis
+        val imageAnalysis = ImageAnalysis.Builder()
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .build()
+
+        imageAnalysis.setAnalyzer(cameraExecutor) { imageProxy ->
+            processImageProxy(imageProxy)
+        }
+
+        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+        try {
+            cameraProvider.unbindAll()
+            camera = cameraProvider.bindToLifecycle(
+                this, cameraSelector, preview, imageAnalysis
+            )
+        } catch (exc: Exception) {
+            Log.e("CameraX", "Use case binding failed", exc)
+        }
+    }
+
+    @androidx.annotation.OptIn(ExperimentalGetImage::class)
+    private fun processImageProxy(imageProxy: ImageProxy) {
+        val mediaImage = imageProxy.image ?: run {
+            imageProxy.close()
+            return
+        }
+        val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+        val image = InputImage.fromMediaImage(mediaImage, rotationDegrees)
+
+        val options = BarcodeScannerOptions.Builder()
+            .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+            .build()
+
+        val scanner = BarcodeScanning.getClient(options)
+        scanner.process(image)
+            .addOnSuccessListener { barcodes ->
+                if (barcodes.isNotEmpty()) {
+                    // Grab the first barcode
+                    val barcode = barcodes[0]
+                    val scannedText = barcode.rawValue ?: ""
+                    showCustomToast("QR Code scanned: $scannedText")
+
+                    val data = Intent().apply {
+                        putExtra("SCAN_RESULT", scannedText)
+                    }
+                    setResult(RESULT_OK, data)
+                    finish()
+                }
+            }
+            .addOnFailureListener {
+                // Ignore failures
+            }
+            .addOnCompleteListener {
+                imageProxy.close()
+            }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cameraExecutor.shutdown()
+    }
+
+    private fun showCustomToast(message: String) {
+        val layoutInflater = layoutInflater
+        val view = layoutInflater.inflate(R.layout.custom_toast, null)
+
+        val textView = view.findViewById<TextView>(R.id.toast_message)
+        textView.text = message
+
+        val imageView = view.findViewById<ImageView>(R.id.toast_icon)
+        imageView.setImageResource(R.drawable.shpe_logo_full_color)
+
+        val toast = Toast(applicationContext)
+        toast.duration = Toast.LENGTH_SHORT
+        toast.view = view
+        toast.show()
     }
 }
