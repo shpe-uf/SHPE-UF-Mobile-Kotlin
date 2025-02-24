@@ -18,5 +18,6 @@ data class ProfileUiState(
     val internships: List<String?>? = null,
     val socialMedia: List<String?>? = null,
     val photo: String? = null,
+    val editable: List<Boolean> = listOf(false, true), // used for editing the text fields in the profile page
     val photoBitmap: Bitmap? = null //May change approach if too laggy
 )

@@ -33,7 +33,6 @@ import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
-import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.Opening2
 import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
 import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
 import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfilePagePreview
@@ -167,9 +166,7 @@ fun NavHostContainer(
         composable(NavRoute.OPENING){
             OpeningPage(navHostController)
         }
-        composable(NavRoute.OPENING_2){
-            Opening2(navHostController)
-        }
+
         composable(NavRoute.LOGIN) {
             SignIn(navHostController, mainViewModel)
         }

@@ -50,12 +50,6 @@ import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 
 
-@Preview
-@Composable
-fun OpeningPagePreview() {
-    OpeningPage(TODO())
-}
-
 // The goat source: https://blog.protein.tech/jetpack-compose-auto-image-slider-with-dots-indicator-45dfeba37712
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
@@ -179,7 +173,7 @@ fun GettingStartedButton(
     navController: NavHostController
 ) {
     Button(
-        onClick = { navController.navigate(NavRoute.OPENING_2) },
+        onClick = { navController.navigate(NavRoute.LOGIN) },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF011F35)),
         modifier = Modifier
             .shadow(
