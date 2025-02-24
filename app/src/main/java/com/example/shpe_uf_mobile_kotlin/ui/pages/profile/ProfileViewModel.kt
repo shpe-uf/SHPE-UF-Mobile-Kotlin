@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Base64
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shpe_uf_mobile_kotlin.DeleteUserMutation
@@ -52,6 +53,9 @@ class ProfileViewModel:ViewModel() {
     fun onCountryChanged(country: String) {
         _uiState.value = _uiState.value.copy(country = country)
     }
+    fun onMajorChanged(major: String) {
+        _uiState.value = _uiState.value.copy(major = major)
+    }
     fun onYearChanged(year: String) {
         _uiState.value = _uiState.value.copy(year = year)
     }
@@ -82,20 +86,27 @@ class ProfileViewModel:ViewModel() {
     }
 
     fun saveProfileChanges() {
-        TODO("Not yet implemented")
+        _uiState.value = _uiState.value.copy(editable = listOf(false, true))
+        Log.d("Profile:", "${_uiState.value.editable}")
     }
 
     fun cancelProfileChanges() {
-        TODO("Not yet implemented")
+        _uiState.value = _uiState.value.copy(editable = listOf(false, true))
     }
 
     fun deleteProfile(email: String){
         deleteUserProfile(email)
     }
 
+    fun editProfile() {
+        _uiState.value = _uiState.value.copy(editable = listOf(true, false))
+    }
+
     // Should load the user's profile, will be called when the user logs in and the id is collected and stored in the app.
     fun loadProfile(id: String): Boolean{
         val current = uiState.value
+
+        Log.d("Profile:", id)
 
         if(current.firstName == null){
             getUserInfo(id)
@@ -111,6 +122,8 @@ class ProfileViewModel:ViewModel() {
         viewModelScope.launch{
             val userInfo = getUserInfoCoroutine(id)
 
+            Log.d("userinfo", "Type: ${userInfo?.javaClass?.name}, Value: $userInfo")
+
             if(userInfo != null){
                 onFirstNameChanged(userInfo.firstName)
                 onLastNameChanged(userInfo.lastName)
@@ -120,6 +133,7 @@ class ProfileViewModel:ViewModel() {
                 onGenderChanged(userInfo.sex)
                 onEthnicityChanged(userInfo.ethnicity)
                 onCountryChanged(userInfo.country)
+                onMajorChanged(userInfo.major)
                 onYearChanged(userInfo.year)
                 onGradYearChanged(userInfo.graduating)
                 onClassesChanged(userInfo.classes)
@@ -219,10 +233,6 @@ class ProfileViewModel:ViewModel() {
 
     fun tempDeleteUser(): Unit? {
         // This does nothing its just so u can click delete and the app not crash
-        return null
-    }
-
-    fun tempEditProfile(): Unit?{
         return null
     }
 }
