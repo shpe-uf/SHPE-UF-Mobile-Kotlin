@@ -2,9 +2,11 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,12 +17,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -31,15 +38,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,20 +55,6 @@ import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
-
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Divider
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.ContentScale
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
 //TODO: add bottom bar functionality
@@ -83,21 +76,21 @@ fun StaticProfileScreen(
     profileViewModel: ProfileViewModel,
     navController: NavHostController,
     mainViewModel: SHPEUFAppViewModel
-){
-    SHPEUFMobileKotlinTheme{
+) {
+    SHPEUFMobileKotlinTheme {
         val uiState by profileViewModel.uiState.collectAsState()
         val mainState by mainViewModel.uiState.collectAsState()
 
         val isDarkMode = mainState.isDarkMode
 
-        val textColor = if(isDarkMode){
+        val textColor = if (isDarkMode) {
             Color.White
 
         } else {
             Color.Black
         }
 
-        val containerColor = if(!isDarkMode){
+        val containerColor = if (!isDarkMode) {
             Color(0xFFD25917)
         } else {
             Color(0xFF001627)
@@ -105,7 +98,14 @@ fun StaticProfileScreen(
 
         profileViewModel.loadProfile(mainState.id)
 
-        StaticProfilePageBackground(isDarkMode = isDarkMode, name = uiState.fullName ?: "", textColor = textColor, containerColor = containerColor, editable = uiState.editable, profileViewModel = profileViewModel)
+        StaticProfilePageBackground(
+            isDarkMode = isDarkMode,
+            name = uiState.fullName ?: "",
+            textColor = textColor,
+            containerColor = containerColor,
+            editable = uiState.editable,
+            profileViewModel = profileViewModel
+        )
 
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp.value
 
@@ -117,7 +117,7 @@ fun StaticProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
-            item{
+            item {
                 Spacer(modifier = Modifier.height(39.dp))
             }
 
@@ -134,12 +134,12 @@ fun StaticProfileScreen(
 
             }
 
-            item{
+            item {
                 Spacer(modifier = Modifier.height(27.dp))
             }
 
             // Name
-            item{
+            item {
 
                 ProfileItem(
                     value = uiState.fullName ?: "",
@@ -149,11 +149,15 @@ fun StaticProfileScreen(
                     title = "NAME",
                     editable = uiState.editable
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
             // Username
-            item{
+            item {
                 ProfileItem(
                     value = uiState.userName ?: "",
                     onValueChange = profileViewModel::onUserNameChanged,
@@ -162,12 +166,16 @@ fun StaticProfileScreen(
                     title = "USERNAME",
                     editable = listOf(false, true)
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Email
-            item{
+            item {
                 ProfileItem(
                     value = uiState.email ?: "",
                     onValueChange = profileViewModel::onEmailChanged,
@@ -176,12 +184,16 @@ fun StaticProfileScreen(
                     title = "EMAIL",
                     editable = listOf(false, true)
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Gender
-            item{
+            item {
                 ProfileItem(
                     value = uiState.gender ?: "",
                     onValueChange = profileViewModel::onGenderChanged,
@@ -190,12 +202,16 @@ fun StaticProfileScreen(
                     title = "GENDER",
                     editable = uiState.editable
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Ethnicity
-            item{
+            item {
                 ProfileItem(
                     value = uiState.ethnicity ?: "",
                     onValueChange = profileViewModel::onEthnicityChanged,
@@ -204,12 +220,16 @@ fun StaticProfileScreen(
                     title = "ETHNICITY",
                     editable = uiState.editable
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Country
-            item{
+            item {
                 ProfileItem(
                     value = uiState.country ?: "",
                     onValueChange = profileViewModel::onCountryChanged,
@@ -220,7 +240,7 @@ fun StaticProfileScreen(
                 )
             }
 
-            item{
+            item {
                 Spacer(modifier = Modifier.height(27.dp))
             }
 
@@ -236,12 +256,12 @@ fun StaticProfileScreen(
                 )
             }
 
-            item{
+            item {
                 Spacer(modifier = Modifier.height(27.dp))
             }
 
             // Major
-            item{
+            item {
                 ProfileItem(
                     value = uiState.major ?: "",
                     onValueChange = profileViewModel::onMajorChanged,
@@ -250,12 +270,16 @@ fun StaticProfileScreen(
                     title = "MAJOR",
                     editable = uiState.editable
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Current Year
-            item{
+            item {
                 ProfileItem(
                     value = uiState.year ?: "",
                     onValueChange = profileViewModel::onYearChanged,
@@ -264,12 +288,16 @@ fun StaticProfileScreen(
                     title = "YEAR",
                     editable = uiState.editable
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Graduation Year
-            item{
+            item {
                 ProfileItem(
                     value = uiState.gradYear ?: "",
                     onValueChange = profileViewModel::onGradYearChanged,
@@ -278,42 +306,54 @@ fun StaticProfileScreen(
                     title = "GRADUATION YEAR",
                     editable = uiState.editable
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Classes
-            item{
+            item {
                 ProfileLists(
-                    value =  uiState.classes ?: listOf(),
+                    value = uiState.classes ?: listOf(),
                     onValueChange = profileViewModel::onClassesChanged,
                     textColor = textColor,
                     icon = R.drawable.university_campus,
                     title = "CLASSES",
                     editable = uiState.editable
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Internships
-            item{
+            item {
                 ProfileLists(
-                    value =  uiState.internships ?: listOf(),
+                    value = uiState.internships ?: listOf(),
                     onValueChange = profileViewModel::onInternshipsChanged,
                     textColor = textColor,
                     icon = R.drawable.office,
                     title = "INTERNSHIPS",
                     editable = uiState.editable
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Links
-            item{
+            item {
                 ProfileLists(
-                    value =  uiState.socialMedia ?: listOf(),
+                    value = uiState.socialMedia ?: listOf(),
                     onValueChange = profileViewModel::onSocialMediaChanged,
                     textColor = textColor,
                     icon = R.drawable.internet,
@@ -323,7 +363,7 @@ fun StaticProfileScreen(
 
             }
 
-            item{
+            item {
                 Spacer(modifier = Modifier.height(25.dp))
             }
 
@@ -335,8 +375,8 @@ fun StaticProfileScreen(
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
-            item{
-                LogoutButton (
+            item {
+                LogoutButton(
 
                     onClick = {
                         mainViewModel.logoutUser()
@@ -347,15 +387,15 @@ fun StaticProfileScreen(
                 )
             }
 
-            item{
+            item {
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
-            item{
-                DeleteAccountButton (profileViewModel)
+            item {
+                DeleteAccountButton(profileViewModel)
             }
 
-            item{
+            item {
                 Spacer(modifier = Modifier.height(20.dp))
             }
         }
@@ -363,7 +403,15 @@ fun StaticProfileScreen(
 }
 
 @Composable
-fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boolean, name: String, textColor: Color, containerColor: Color, editable: List<Boolean>, profileViewModel: ProfileViewModel) {
+fun StaticProfilePageBackground(
+    modifier: Modifier = Modifier,
+    isDarkMode: Boolean,
+    name: String,
+    textColor: Color,
+    containerColor: Color,
+    editable: List<Boolean>,
+    profileViewModel: ProfileViewModel
+) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val imageSize = screenWidth * 0.3f // 30% of the screen width
@@ -385,9 +433,11 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
                 .padding(top = 102.dp) // Adjust the padding to move the image
         ) {
             Image(
-                painter = painterResource(id =
-                if (isDarkMode) R.drawable.gator_dark_mode
-                else R.drawable.gator_light_mode),
+                painter = painterResource(
+                    id =
+                    if (isDarkMode) R.drawable.gator_dark_mode
+                    else R.drawable.gator_light_mode
+                ),
                 contentDescription = "SHPE GATOR",
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -406,11 +456,13 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 86.dp) // Adjust the padding to move the image
-        ){
+        ) {
             Image(
-                painter = painterResource(id =
-                if (isDarkMode) R.drawable.background_blue_circle
-                else R.drawable.background_white_circle),
+                painter = painterResource(
+                    id =
+                    if (isDarkMode) R.drawable.background_blue_circle
+                    else R.drawable.background_white_circle
+                ),
                 contentDescription = "PROFILE CURVE",
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -425,15 +477,18 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
                 .padding(top = topPadding), // Adjust the padding to move the image
             contentAlignment = Alignment.Center
 
-        ){
-            Column(verticalArrangement = Arrangement.Center,
+        ) {
+            Column(
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(bottom = 16.dp)
-            ){
+            ) {
                 Image(
-                    painter = painterResource(id =
-                    if (isDarkMode) R.drawable.empty_profile_picture_dark
-                    else R.drawable.empty_profile_picture_light),
+                    painter = painterResource(
+                        id =
+                        if (isDarkMode) R.drawable.empty_profile_picture_dark
+                        else R.drawable.empty_profile_picture_light
+                    ),
                     contentDescription = "PROFILE PIC CIRCLE",
                     modifier = Modifier
 //                        .align(Alignment.Center)
@@ -450,33 +505,33 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
                 )
                 Spacer(modifier = Modifier.height(10.dp))
 
-                if(editable[0] && !editable[1]){
+                if (editable[0] && !editable[1]) {
                     Row(
                         modifier = Modifier.width(IntrinsicSize.Min),
                         horizontalArrangement = Arrangement.Center
-                    ){
+                    ) {
 
                         ProfileChangesButton(
-                            onClick = {profileViewModel.saveProfileChanges()},
+                            onClick = { profileViewModel.saveProfileChanges() },
                             containerColor = containerColor,
                             title = "Save",
                             modifier = Modifier.weight(1f)
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         ProfileChangesButton(
-                            onClick = {profileViewModel.cancelProfileChanges()},
+                            onClick = { profileViewModel.cancelProfileChanges() },
                             containerColor = containerColor,
                             title = "Cancel",
                             modifier = Modifier.weight(1f)
                         )
                     }
-                } else if (!editable[0] && editable[1]){
+                } else if (!editable[0] && editable[1]) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
-                    ){
+                    ) {
                         EditProfileButton(
-                            onClick = {profileViewModel.editProfile()},
+                            onClick = { profileViewModel.editProfile() },
                             profileViewModel
                         )
                     }
@@ -492,10 +547,19 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, textColor: Color, icon: Int, title: String, editable: List<Boolean>) {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .background(Color.White)){
+fun ProfileLists(
+    value: List<String?>,
+    onValueChange: (List<String?>) -> Unit,
+    textColor: Color,
+    icon: Int,
+    title: String,
+    editable: List<Boolean>
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+    ) {
 
         Column(
             modifier = Modifier
@@ -505,7 +569,9 @@ fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, t
             // Row for Icon and Field Name
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 4.dp).padding(horizontal = 40.dp)
+                modifier = Modifier
+                    .padding(bottom = 4.dp)
+                    .padding(horizontal = 40.dp)
             ) {
                 Image(
                     painter = painterResource(id = icon),
@@ -522,11 +588,13 @@ fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, t
             }
 
             // Not editable
-            if(!editable[0] && editable[1]){
+            if (!editable[0] && editable[1]) {
                 // Now loop through the value and display each class
                 value.forEach { classItem ->
                     TextField(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp),
                         value = classItem ?: "",
                         onValueChange = { newValue -> onValueChange(value) },
                         enabled = editable[0],
@@ -545,11 +613,11 @@ fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, t
 
                 var text by remember { mutableStateOf("") }
 
-                Column{
-                    Row(modifier = Modifier.fillMaxSize()){
+                Column {
+                    Row(modifier = Modifier.fillMaxSize()) {
                         TextField(
                             value = text,
-                            placeholder = { Text(text = "Add your ${title.lowercase()} here")},
+                            placeholder = { Text(text = "Add your ${title.lowercase()} here") },
                             onValueChange = { text = it },
                             enabled = editable[0],
                             readOnly = editable[1],
@@ -572,7 +640,7 @@ fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, t
                     }
                     // Show the available items.
                     value.forEach { classItem ->
-                        Row{
+                        Row {
                             Text(text = classItem ?: "")
                         }
 
@@ -590,11 +658,21 @@ fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, t
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileItem(value: String, onValueChange: (String) -> Unit, textColor: Color, icon: Int, title: String, editable: List<Boolean> = listOf(false, true), dropdown: Boolean = false) {
+fun ProfileItem(
+    value: String,
+    onValueChange: (String) -> Unit,
+    textColor: Color,
+    icon: Int,
+    title: String,
+    editable: List<Boolean> = listOf(false, true),
+    dropdown: Boolean = false
+) {
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .background(Color.White)){
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -603,7 +681,9 @@ fun ProfileItem(value: String, onValueChange: (String) -> Unit, textColor: Color
             // Row for Icon and Field Name
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 4.dp).padding(horizontal = 40.dp)
+                modifier = Modifier
+                    .padding(bottom = 4.dp)
+                    .padding(horizontal = 40.dp)
             ) {
                 Image(
                     painter = painterResource(id = icon),
@@ -618,10 +698,12 @@ fun ProfileItem(value: String, onValueChange: (String) -> Unit, textColor: Color
                     fontWeight = FontWeight.Bold
                 )
             }
-            if(!dropdown){
+            if (!dropdown) {
                 // Outlined Text Field for Input
                 TextField(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
                     value = value,
                     onValueChange = { newValue -> onValueChange(newValue) },
                     enabled = editable[0],
@@ -664,7 +746,7 @@ private fun EditProfileButton(
                 contentColor = Color.White
             ),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically){
+            Row(verticalAlignment = Alignment.CenterVertically) {
 
                 Text(
                     text = "Edit Profile",
@@ -691,7 +773,7 @@ private fun ProfileChangesButton(
     containerColor: Color,
     title: String,
     modifier: Modifier
-){
+) {
     Button(
         modifier = modifier
             .wrapContentSize(Alignment.Center),
@@ -741,7 +823,8 @@ private fun LogoutButton(
 }
 
 @Composable
-private fun DeleteAccountButton(profileViewModel: ProfileViewModel
+private fun DeleteAccountButton(
+    profileViewModel: ProfileViewModel
 ) {
 
     var showDialog by remember { mutableStateOf(false) }
@@ -774,9 +857,12 @@ private fun DeleteAccountButton(profileViewModel: ProfileViewModel
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text(text = "Delete Account?",
+            title = {
+                Text(
+                    text = "Delete Account?",
                     textAlign = TextAlign.Center
-            ) },
+                )
+            },
             text = { Text("Deleting your account will remove all your personal data forever. This cannot be undone.") },
             confirmButton = {
                 Button(
