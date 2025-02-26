@@ -18,3 +18,4 @@ app
 app/build
 /.idea/.name
 /.idea/render.experimental.xml
+/package-lock.json
