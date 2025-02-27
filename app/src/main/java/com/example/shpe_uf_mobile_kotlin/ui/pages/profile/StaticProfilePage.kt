@@ -56,6 +56,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -287,6 +288,8 @@ fun StaticProfileScreen(
                 ProfileLists(
                     value =  uiState.classes ?: listOf(),
                     onValueChange = profileViewModel::onClassesChanged,
+                    onAddValue = profileViewModel::addClass,
+                    onRemoveValue = profileViewModel::removeClass,
                     textColor = textColor,
                     icon = R.drawable.university_campus,
                     title = "CLASSES",
@@ -301,6 +304,8 @@ fun StaticProfileScreen(
                 ProfileLists(
                     value =  uiState.internships ?: listOf(),
                     onValueChange = profileViewModel::onInternshipsChanged,
+                    onAddValue = profileViewModel::addInternship,
+                    onRemoveValue = profileViewModel::removeInternship,
                     textColor = textColor,
                     icon = R.drawable.office,
                     title = "INTERNSHIPS",
@@ -315,6 +320,8 @@ fun StaticProfileScreen(
                 ProfileLists(
                     value =  uiState.socialMedia ?: listOf(),
                     onValueChange = profileViewModel::onSocialMediaChanged,
+                    onAddValue = profileViewModel::addLinks,
+                    onRemoveValue = profileViewModel::removeLink,
                     textColor = textColor,
                     icon = R.drawable.internet,
                     title = "LINKS",
@@ -492,7 +499,7 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, textColor: Color, icon: Int, title: String, editable: List<Boolean>) {
+fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, onAddValue: (String) -> Unit, onRemoveValue: (String) -> Unit, textColor: Color, icon: Int, title: String, editable: List<Boolean>) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .background(Color.White)){
@@ -525,19 +532,11 @@ fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, t
             if(!editable[0] && editable[1]){
                 // Now loop through the value and display each class
                 value.forEach { classItem ->
-                    TextField(
+                    Text(
+                        text = classItem ?: "",
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
-                        value = classItem ?: "",
-                        onValueChange = { newValue -> onValueChange(value) },
-                        enabled = editable[0],
-                        readOnly = editable[1],
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        textStyle = TextStyle(fontSize = 15.sp, color = textColor),
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            focusedTextColor = Color.White,
-                            focusedPlaceholderColor = Color.Gray
-                        )
+                        color = textColor,
+                        fontSize = 15.sp
                     )
                 }
             } else { // Editable
@@ -549,6 +548,7 @@ fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, t
                     Row(modifier = Modifier.fillMaxSize()){
                         TextField(
                             value = text,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
                             placeholder = { Text(text = "Add your ${title.lowercase()} here")},
                             onValueChange = { text = it },
                             enabled = editable[0],
@@ -564,19 +564,55 @@ fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, t
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         IconButton(
-                            onClick = {},
+                            onClick = {onAddValue(text)},
 
                             ) {
                             Icon(Icons.Filled.AddCircle, contentDescription = "Add")
                         }
                     }
                     // Show the available items.
-                    value.forEach { classItem ->
-                        Row{
-                            Text(text = classItem ?: "")
+                    Column {
+                        value.chunked(3).forEach { rowItems ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ){
+                                rowItems.forEach { classItem ->
+                                    Box(
+                                        modifier = Modifier
+                                            .background(
+                                                color = Color.LightGray,
+                                                shape = RoundedCornerShape(10.dp)
+                                            )
+                                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                                            .weight(1f)
+                                    ){
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.fillMaxWidth()
+                                        ){
+                                            Text(
+                                                text = classItem ?: "",
+                                                color = textColor, // This helps spread items evenly
+                                            )
+                                            Spacer(modifier = Modifier.padding(horizontal = 10.dp))
+                                            IconButton(
+                                                onClick = {onRemoveValue(classItem ?: "")}
+                                            ) {
+                                                Icon(Icons.Filled.RemoveCircle, contentDescription = "Remove")
+                                            }
+                                        }
+                                    }
+                                }
+                                // If the last row has fewer than 3 items, fill the space with empty Text() to keep layout even
+                                repeat(3 - rowItems.size) {
+                                    Text(
+                                        text = "",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                            }
                         }
-
-
                     }
                 }
             }
@@ -864,7 +900,7 @@ fun ModeButton(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                // Change background color when selected
+                // Change background color when selected9
                 .background(
 //                    color = if (selected) Color(0xFF001627) else Color.Transparent,
                     color = Color.Transparent,
