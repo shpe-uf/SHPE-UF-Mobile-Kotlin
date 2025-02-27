@@ -71,8 +71,42 @@ class ProfileViewModel:ViewModel() {
         _uiState.value = _uiState.value.copy(photo = photo)
     }
 
-    fun getUsername(): String? {
-        return _uiState.value.userName
+    // Add to the lists
+    fun addClass(className: String) {
+        val currentClasses = _uiState.value.classes?.toMutableList() ?: mutableListOf()
+        currentClasses.add(className)
+        _uiState.value = _uiState.value.copy(classes = currentClasses)
+    }
+
+    fun addInternship(internshipName: String) {
+        val currentInternships = _uiState.value.internships?.toMutableList() ?: mutableListOf()
+        currentInternships.add(internshipName)
+        _uiState.value = _uiState.value.copy(internships = currentInternships)
+    }
+
+    fun addLinks(link: String) {
+        val currentLinks = _uiState.value.socialMedia?.toMutableList() ?: mutableListOf()
+        currentLinks.add(link)
+        _uiState.value = _uiState.value.copy(socialMedia = currentLinks)
+    }
+
+    // Remove from the lists
+    fun removeInternship(internshipName: String) {
+        val currentInternships = _uiState.value.internships?.toMutableList() ?: mutableListOf()
+        currentInternships.remove(internshipName)
+        _uiState.value = _uiState.value.copy(internships = currentInternships)
+    }
+
+    fun removeClass(className: String) {
+        val currentClasses = _uiState.value.classes?.toMutableList() ?: mutableListOf()
+        currentClasses.remove(className)
+        _uiState.value = _uiState.value.copy(classes = currentClasses)
+    }
+
+    fun removeLink(link: String) {
+        val currentLinks = _uiState.value.socialMedia?.toMutableList() ?: mutableListOf()
+        currentLinks.remove(link)
+        _uiState.value = _uiState.value.copy(socialMedia = currentLinks)
     }
 
     fun saveProfileChanges() {
