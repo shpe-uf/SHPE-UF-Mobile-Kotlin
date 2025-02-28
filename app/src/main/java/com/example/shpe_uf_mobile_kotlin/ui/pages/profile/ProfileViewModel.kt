@@ -3,6 +3,7 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.apollographql.apollo3.api.Optional
 import com.example.shpe_uf_mobile_kotlin.DeleteUserMutation
 import com.example.shpe_uf_mobile_kotlin.GetUserQuery
 import com.example.shpe_uf_mobile_kotlin.apolloClient
@@ -184,6 +185,48 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
+    fun updateUser(editUserProfileInput: Optional<EditUserProfileInput?>): Boolean {
+        var output = false
+
+        val current = _uiState.value
+
+        if(current.firstName is String
+            && current.lastName is String
+            && current.classes is Optional<*>
+            && current.country is String
+            && current.email is String
+            && current.ethnicity is String
+            && current.gradYear is String
+            && current.internships is Optional<*>
+            && current.major is String
+            && current.photo is String
+            && current.gender is String
+            && current.socialMedia is Optional<*>
+            && current.year is String
+            ) {
+            val input = EditUserProfileInput(
+                firstName = current.firstName,
+                lastName = current.lastName,
+                classes = current.classes,
+                country = current.country,
+                email = current.email, // used to update the user's info.
+                ethnicity = current.ethnicity,
+                graduating = current.gradYear,
+                internships = current.internships,
+                major = current.major,
+                photo = current.photo,
+                sex = current.gender,
+                socialMedia = current.socialMedia,
+                year = current.year
+            )
+        }
+
+        viewModelScope.launch {
+            output = updateUserProfileCoroutine(editUserProfileInput)
+        }
+        return output
+    }
+
 //    fun updateUser(option: String): EditUserProfileInput? {
 //        val current = _uiState.value
 //
@@ -224,17 +267,17 @@ class ProfileViewModel : ViewModel() {
 //    }
 
     // Function to update user profile based on attribute chosen.
-//    private fun updateUserProfile(editUserProfileInput: EditUserProfileInput){
-//        viewModelScope.launch {
-//            updateUserProfileCoroutine(editUserProfileInput)
-//        }
-//    }
-//
-//    private suspend fun updateUserProfileCoroutine(editUserProfileInput: EditUserProfileInput): Boolean{
-//        val response = apolloClient.mutation(EditUserMutation(editUserProfileInput)).execute()
-//
-//        return response.hasErrors()
-//    }
+    private fun updateUserProfile(editUserProfileInput: Optional<EditUserProfileInput?>){
+        viewModelScope.launch {
+            updateUserProfileCoroutine(editUserProfileInput)
+        }
+    }
+
+    private suspend fun updateUserProfileCoroutine(editUserProfileInput: Optional<EditUserProfileInput?>): Boolean{
+        val response = apolloClient.mutation(EditUserMutation(editUserProfileInput)).execute()
+
+        return response.hasErrors()
+    }
 
     // Functions for delete the user from the SHPE server.
     private fun deleteUserProfile(email: String): Boolean {
