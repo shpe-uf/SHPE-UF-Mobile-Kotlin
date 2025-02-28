@@ -92,7 +92,7 @@ class ProfileViewModel : ViewModel() {
 
     fun addLinks(link: String) {
         val currentLinks = _uiState.value.socialMedia?.toMutableList() ?: mutableListOf()
-        currentLinks.add(link)
+        currentLinks.add("https://$link")
         _uiState.value = _uiState.value.copy(socialMedia = currentLinks)
     }
 
