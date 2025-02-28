@@ -57,6 +57,8 @@ Function is used to preview the whole UI of the page but also to pass in
 the viewModel into the RegistrationPage1 function to make the
  */
 
+//comment for initial commit to publish branch to fix the register page text field issue
+
 
 @Composable
 fun RegistrationPage1Preview(navController: NavHostController, registerPage1ViewModel: RegisterPage1ViewModel){
