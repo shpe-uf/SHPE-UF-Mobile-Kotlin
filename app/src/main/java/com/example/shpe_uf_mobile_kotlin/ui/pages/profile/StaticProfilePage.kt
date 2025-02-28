@@ -5,10 +5,8 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,7 +19,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -44,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -118,7 +114,7 @@ fun StaticProfileScreen(
 
         StaticProfilePageBackground(
             isDarkMode = isDarkMode,
-            name = uiState.fullName ?: "",
+            name = uiState.fullName,
             textColor = textColor,
             containerColor = containerColor,
             editable = uiState.editable,
@@ -160,7 +156,7 @@ fun StaticProfileScreen(
             item {
 
                 ProfileItem(
-                    value = uiState.fullName ?: "",
+                    value = uiState.fullName,
                     onValueChange = profileViewModel::onFullNameChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_circle_orange,
@@ -340,7 +336,9 @@ fun StaticProfileScreen(
                     textColor = textColor,
                     icon = R.drawable.university_campus,
                     title = "CLASSES",
-                    editable = uiState.editable
+                    editable = uiState.editable,
+                    onAddValue = profileViewModel::addClass,
+                    onRemoveValue = profileViewModel::removeClass
                 )
                 HorizontalDivider(
                     color = Color.LightGray,
@@ -854,7 +852,7 @@ fun ProfileItem(
                 TextField(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp),
+                        .padding(horizontal = 32.dp, vertical = 12.dp),
                     value = value,
                     onValueChange = { newValue -> onValueChange(newValue) },
                     enabled = editable[0],
