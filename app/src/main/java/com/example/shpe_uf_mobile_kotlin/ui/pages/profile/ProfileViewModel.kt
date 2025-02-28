@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apollographql.apollo3.api.Optional
 import com.example.shpe_uf_mobile_kotlin.DeleteUserMutation
+import com.example.shpe_uf_mobile_kotlin.EditUserMutation
 import com.example.shpe_uf_mobile_kotlin.GetUserQuery
 import com.example.shpe_uf_mobile_kotlin.apolloClient
+import com.example.shpe_uf_mobile_kotlin.type.EditUserProfileInput
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,6 +18,8 @@ import kotlinx.coroutines.launch
 class ProfileViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+
+    private var originalProfile: ProfileUiState? = null
 
     fun onFirstNameChanged(firstName: String) {
         _uiState.value = _uiState.value.copy(firstName = firstName)
@@ -27,8 +31,20 @@ class ProfileViewModel : ViewModel() {
 
     //TODO: add validation for text field inputs
     fun onFullNameChanged(fullName: String) {
+
+        // splitting the name into first and last
+
+        val parts = fullName.trim().split(" ", limit = 2)
+
+        when (parts.size) {
+            1 -> _uiState.value = _uiState.value.copy(firstName = parts[0], lastName = "")
+            2 -> _uiState.value = _uiState.value.copy(firstName = parts[0], lastName = parts[1])
+        }
+
         _uiState.value = _uiState.value.copy(fullName = fullName)
     }
+
+
 
     fun onUserNameChanged(userName: String) {
         _uiState.value = _uiState.value.copy(userName = userName)
@@ -116,13 +132,10 @@ class ProfileViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(socialMedia = currentLinks)
     }
 
-    fun saveProfileChanges() {
-        _uiState.value = _uiState.value.copy(editable = listOf(false, true))
-        Log.d("Profile:", "${_uiState.value.editable}")
-    }
-
     fun cancelProfileChanges() {
-        _uiState.value = _uiState.value.copy(editable = listOf(false, true))
+        originalProfile?.let {
+            _uiState.value = it.copy(editable = listOf(false, true))
+        }
     }
 
     fun deleteProfile(email: String) {
@@ -130,6 +143,7 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun editProfile() {
+        originalProfile = _uiState.value.copy()
         _uiState.value = _uiState.value.copy(editable = listOf(true, false))
     }
 
@@ -139,7 +153,7 @@ class ProfileViewModel : ViewModel() {
 
         Log.d("Profile:", id)
 
-        if (current.firstName == null) {
+        if (current.firstName == "") {
             getUserInfo(id)
             return true
         }
@@ -185,96 +199,45 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun updateUser(editUserProfileInput: Optional<EditUserProfileInput?>): Boolean {
-        var output = false
+
+    fun saveProfileChanges() {
 
         val current = _uiState.value
 
-        if(current.firstName is String
-            && current.lastName is String
-            && current.classes is Optional<*>
-            && current.country is String
-            && current.email is String
-            && current.ethnicity is String
-            && current.gradYear is String
-            && current.internships is Optional<*>
-            && current.major is String
-            && current.photo is String
-            && current.gender is String
-            && current.socialMedia is Optional<*>
-            && current.year is String
-            ) {
-            val input = EditUserProfileInput(
-                firstName = current.firstName,
-                lastName = current.lastName,
-                classes = current.classes,
-                country = current.country,
-                email = current.email, // used to update the user's info.
-                ethnicity = current.ethnicity,
-                graduating = current.gradYear,
-                internships = current.internships,
-                major = current.major,
-                photo = current.photo,
-                sex = current.gender,
-                socialMedia = current.socialMedia,
-                year = current.year
-            )
-        }
+        val input = EditUserProfileInput(
+            firstName = current.firstName,
+            lastName = current.lastName,
+            classes = Optional.present(current.classes),
+            country = current.country,
+            email = current.email,
+            ethnicity = current.ethnicity,
+            graduating = current.gradYear,
+            internships = Optional.present(current.internships),
+            major = current.major,
+            photo = current.photo,
+            sex = current.gender,
+            socialMedia = Optional.present(current.socialMedia),
+            year = current.year
+        )
 
-        viewModelScope.launch {
-            output = updateUserProfileCoroutine(editUserProfileInput)
-        }
-        return output
+        updateUserProfile(editUserProfileInput = Optional.present(input))
     }
 
-//    fun updateUser(option: String): EditUserProfileInput? {
-//        val current = _uiState.value
-//
-//        if(current.firstName is String
-//            && current.lastName is String
-//            && current.classes is List<*>
-//            && current.country is String
-//            && current.email is String
-//            && current.ethnicity is String
-//            && current.gradYear is String
-//            && current.internships is List<*>
-//            && current.major is String
-//            && current.photo is String
-//            && current.gender is String
-//            && current.socialMedia is List<*>
-//            && current.year is String
-//            ){
-//            val input = EditUserProfileInput(
-//                firstName = current.firstName,
-//                lastName = current.lastName,
-//                classes = current.classes,
-//                country = current.country,
-//                email = current.email, // used to update the user's info.
-//                ethnicity = current.ethnicity,
-//                graduating = current.gradYear,
-//                internships = current.internships,
-//                major = current.major,
-//                photo = current.photo,
-//                sex = current.gender,
-//                socialMedia = current.socialMedia,
-//                year = current.year
-//            )
-//
-//            return input
-//        }
-//
-//        return null
-//    }
 
     // Function to update user profile based on attribute chosen.
-    private fun updateUserProfile(editUserProfileInput: Optional<EditUserProfileInput?>){
+    private fun updateUserProfile(editUserProfileInput: Optional<EditUserProfileInput?>) {
         viewModelScope.launch {
             updateUserProfileCoroutine(editUserProfileInput)
         }
     }
 
-    private suspend fun updateUserProfileCoroutine(editUserProfileInput: Optional<EditUserProfileInput?>): Boolean{
+    private suspend fun updateUserProfileCoroutine(editUserProfileInput: Optional<EditUserProfileInput?>): Boolean {
         val response = apolloClient.mutation(EditUserMutation(editUserProfileInput)).execute()
+
+        if (!response.hasErrors()) {
+            _uiState.value = _uiState.value.copy(editable = listOf(false, true))
+            Log.d("Profile:", "${_uiState.value.editable}")
+        }
 
         return response.hasErrors()
     }
