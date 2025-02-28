@@ -1,5 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -64,6 +66,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
@@ -371,14 +374,18 @@ fun StaticProfileScreen(
             }
 
             item {
-                LogoutButton(
 
-                    onClick = {
-                        mainViewModel.logoutUser()
+                if(!uiState.editable[0] && uiState.editable[1]){
+                    LogoutButton(
 
-                        navController.navigate(NavRoute.LOGIN)
+                        onClick = {
+                            mainViewModel.logoutUser()
 
-                    })
+                            navController.navigate(NavRoute.LOGIN)
+
+                        })
+                }
+
             }
 
             item {
@@ -386,11 +393,18 @@ fun StaticProfileScreen(
             }
 
             item {
-                DeleteAccountButton(profileViewModel)
+
+                if (!uiState.editable[0] && uiState.editable[1]) {
+                    DeleteAccountButton(profileViewModel)
+
+                }
             }
 
             item {
-                Spacer(modifier = Modifier.height(20.dp))
+                if(!uiState.editable[0] && uiState.editable[1]){
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                }
             }
         }
     }
@@ -577,7 +591,10 @@ fun ProfileLists(
             Spacer(modifier = Modifier.height(10.dp))
 
             // Not editable
+
             if (!editable[0] && editable[1]) {
+                val ctx = LocalContext.current
+
                 // Now loop through the value and display each class
                 value.forEach { classItem ->
                     Row(
@@ -585,12 +602,37 @@ fun ProfileLists(
                             .fillMaxWidth()
                             .padding(horizontal = 40.dp)
                     ) {
-                        Text(
-                            text = classItem ?: "",
-                            modifier = Modifier.fillMaxWidth(),
-                            color = textColor,
-                            fontSize = 15.sp
-                        )
+
+                        if (listType != 'c') {
+                            TextButton(
+                                onClick = {
+                                    val urlIntent = Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse(classItem)
+                                    )
+                                    ctx.startActivity(urlIntent)
+                                }
+                            ) {
+                                if (classItem != null) {
+                                    Text(
+                                        text = classItem.removePrefix("https://"),
+                                        modifier = Modifier.fillMaxWidth(),
+                                        color = textColor,
+                                        fontSize = 15.sp
+                                    )
+                                }
+                            }
+
+                        } else {
+                            if (classItem != null) {
+                                Text(
+                                    text = classItem,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = textColor,
+                                    fontSize = 15.sp
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -650,12 +692,14 @@ fun ProfileLists(
                                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text(
-                                            text = linkItem ?: "",
-                                            color = Color.White,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Visible
-                                        )
+                                        if (linkItem != null) {
+                                            Text(
+                                                text = linkItem.removePrefix("https://"),
+                                                color = Color.White,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Visible
+                                            )
+                                        }
                                         Icon(
                                             Icons.Filled.RemoveCircle,
                                             contentDescription = "Remove",
