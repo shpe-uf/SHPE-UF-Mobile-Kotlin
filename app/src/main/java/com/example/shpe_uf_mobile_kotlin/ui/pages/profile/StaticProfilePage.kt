@@ -4,9 +4,11 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,12 +19,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -33,15 +40,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -161,7 +168,9 @@ fun StaticProfileScreen(
                     editable = uiState.editable
                 )
                 HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
@@ -176,7 +185,9 @@ fun StaticProfileScreen(
                     editable = listOf(false, true)
                 )
                 HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
             }
@@ -192,7 +203,9 @@ fun StaticProfileScreen(
                     editable = listOf(false, true)
                 )
                 HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
             }
@@ -208,7 +221,9 @@ fun StaticProfileScreen(
                     editable = uiState.editable
                 )
                 HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
             }
@@ -224,7 +239,9 @@ fun StaticProfileScreen(
                     editable = uiState.editable
                 )
                 HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
             }
@@ -257,12 +274,12 @@ fun StaticProfileScreen(
                 )
             }
 
-            item {
+            item{
                 Spacer(modifier = Modifier.height(27.dp))
             }
 
             // Major
-            item {
+            item{
                 ProfileItem(
                     value = uiState.major ?: "",
                     onValueChange = profileViewModel::onMajorChanged,
@@ -272,13 +289,15 @@ fun StaticProfileScreen(
                     editable = uiState.editable
                 )
                 HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
             }
 
             // Current Year
-            item {
+            item{
                 ProfileItem(
                     value = uiState.year ?: "",
                     onValueChange = profileViewModel::onYearChanged,
@@ -288,13 +307,15 @@ fun StaticProfileScreen(
                     editable = uiState.editable
                 )
                 HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
             }
 
             // Graduation Year
-            item {
+            item{
                 ProfileItem(
                     value = uiState.gradYear ?: "",
                     onValueChange = profileViewModel::onGradYearChanged,
@@ -304,7 +325,9 @@ fun StaticProfileScreen(
                     editable = uiState.editable
                 )
                 HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
             }
@@ -314,15 +337,15 @@ fun StaticProfileScreen(
                 ProfileLists(
                     value = uiState.classes ?: listOf(),
                     onValueChange = profileViewModel::onClassesChanged,
-                    onAddValue = profileViewModel::addClass,
-                    onRemoveValue = profileViewModel::removeClass,
                     textColor = textColor,
                     icon = R.drawable.university_campus,
                     title = "CLASSES",
                     editable = uiState.editable
                 )
                 HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
             }
@@ -340,7 +363,9 @@ fun StaticProfileScreen(
                     editable = uiState.editable
                 )
                 HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
             }
@@ -442,7 +467,8 @@ fun StaticProfilePageBackground(
         ) {
             Image(
                 painter = painterResource(
-                    id = if (isDarkMode) R.drawable.gator_dark_mode
+                    id =
+                    if (isDarkMode) R.drawable.gator_dark_mode
                     else R.drawable.gator_light_mode
                 ),
                 contentDescription = "SHPE GATOR",
@@ -463,10 +489,11 @@ fun StaticProfilePageBackground(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 86.dp) // Adjust the padding to move the image
-        ) {
+        ){
             Image(
                 painter = painterResource(
-                    id = if (isDarkMode) R.drawable.background_blue_circle
+                    id =
+                    if (isDarkMode) R.drawable.background_blue_circle
                     else R.drawable.background_white_circle
                 ),
                 contentDescription = "PROFILE CURVE",
@@ -491,16 +518,23 @@ fun StaticProfilePageBackground(
             ) {
                 Image(
                     painter = painterResource(
-                        id = if (isDarkMode) R.drawable.empty_profile_picture_dark
+                        id =
+                        if (isDarkMode) R.drawable.empty_profile_picture_dark
                         else R.drawable.empty_profile_picture_light
-                    ), contentDescription = "PROFILE PIC CIRCLE", modifier = Modifier
+                    ),
+                    contentDescription = "PROFILE PIC CIRCLE",
+                    modifier = Modifier
 //                        .align(Alignment.Center)
                         .size(imageSize)
-                        .clip(CircleShape), contentScale = ContentScale.Crop
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
                 )
 
                 Text(
-                    text = name, color = textColor, fontSize = 24.sp, fontWeight = FontWeight.Bold
+                    text = name,
+                    color = textColor,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -530,7 +564,8 @@ fun StaticProfilePageBackground(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         EditProfileButton(
-                            onClick = { profileViewModel.editProfile() }, profileViewModel
+                            onClick = { profileViewModel.editProfile() },
+                            profileViewModel
                         )
                     }
 
@@ -808,8 +843,10 @@ fun ProfileItem(
                 )
                 Spacer(modifier = Modifier.width(10.dp)) // Add some space between the icon and the text
                 Text(
-                    text = title, color = Color(0xFFD25917), // Orange color
-                    fontSize = 20.sp, fontWeight = FontWeight.Bold
+                    text = title,
+                    color = Color(0xFFD25917), // Orange color
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
             if (!dropdown) {
@@ -817,7 +854,7 @@ fun ProfileItem(
                 TextField(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 30.dp, vertical = 15.dp),
+                        .padding(horizontal = 32.dp),
                     value = value,
                     onValueChange = { newValue -> onValueChange(newValue) },
                     enabled = editable[0],
@@ -827,7 +864,8 @@ fun ProfileItem(
                     textStyle = TextStyle(fontSize = 15.sp, color = textColor),
 
                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedTextColor = Color.White, focusedPlaceholderColor = Color.Gray
+                        focusedTextColor = Color.White,
+                        focusedPlaceholderColor = Color.Gray
                     )
                 )
             } else {
@@ -841,10 +879,12 @@ fun ProfileItem(
 
 @Composable
 private fun EditProfileButton(
-    onClick: () -> Unit, profileViewModel: ProfileViewModel
+    onClick: () -> Unit,
+    profileViewModel: ProfileViewModel
 ) {
     Box(
-        modifier = Modifier.fillMaxWidth() // Ensure the Box takes up the full width of the screen
+        modifier = Modifier
+            .fillMaxWidth() // Ensure the Box takes up the full width of the screen
     ) {
         Button(
             modifier = Modifier
@@ -853,7 +893,8 @@ private fun EditProfileButton(
             onClick = onClick,
             shape = RoundedCornerShape(20.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF001627), contentColor = Color.White
+                containerColor = Color(0xFF001627),
+                contentColor = Color.White
             ),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -879,14 +920,19 @@ private fun EditProfileButton(
 
 @Composable
 private fun ProfileChangesButton(
-    onClick: () -> Unit, containerColor: Color, title: String, modifier: Modifier
+    onClick: () -> Unit,
+    containerColor: Color,
+    title: String,
+    modifier: Modifier
 ) {
     Button(
-        modifier = modifier.wrapContentSize(Alignment.Center),
+        modifier = modifier
+            .wrapContentSize(Alignment.Center),
         onClick = onClick,
         shape = RoundedCornerShape(30.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor, contentColor = Color.White
+            containerColor = containerColor,
+            contentColor = Color.White
         ),
     ) {
         Text(
@@ -903,7 +949,8 @@ private fun LogoutButton(
     onClick: () -> Unit,
 ) {
     Box(
-        modifier = Modifier.fillMaxWidth() // Ensure the Box takes up the full width of the screen
+        modifier = Modifier
+            .fillMaxWidth() // Ensure the Box takes up the full width of the screen
     ) {
         Button(
             modifier = Modifier
@@ -912,7 +959,8 @@ private fun LogoutButton(
             onClick = onClick,
             shape = RoundedCornerShape(20.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF001627), contentColor = Color.White
+                containerColor = Color(0xFF001627),
+                contentColor = Color.White
             ),
         ) {
             Text(
@@ -933,7 +981,8 @@ private fun DeleteAccountButton(
     var showDialog by remember { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier.fillMaxWidth() // Ensure the Box takes up the full width of the screen
+        modifier = Modifier
+            .fillMaxWidth() // Ensure the Box takes up the full width of the screen
     ) {
         Button(
             modifier = Modifier
@@ -942,7 +991,8 @@ private fun DeleteAccountButton(
             onClick = { showDialog = true },
             shape = RoundedCornerShape(20.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Red, contentColor = Color.White
+                containerColor = Color.Red,
+                contentColor = Color.White
             ),
         ) {
             Text(
@@ -956,10 +1006,12 @@ private fun DeleteAccountButton(
 
 
     if (showDialog) {
-        AlertDialog(onDismissRequest = { showDialog = false },
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
             title = {
                 Text(
-                    text = "Delete Account?", textAlign = TextAlign.Center
+                    text = "Delete Account?",
+                    textAlign = TextAlign.Center
                 )
             },
             text = { Text("Deleting your account will remove all your personal data forever. This cannot be undone.") },
@@ -968,16 +1020,20 @@ private fun DeleteAccountButton(
                     onClick = {
                         profileViewModel.tempDeleteUser()
                         showDialog = false
-                    }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
                     Text("Delete", color = Color.White)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
+                TextButton(
+                    onClick = { showDialog = false }
+                ) {
                     Text("Cancel")
                 }
-            })
+            }
+        )
     }
 }
 
@@ -1036,17 +1092,20 @@ fun ModeButton(
     modifier: Modifier = Modifier
 ) {
     // Column to stack the button content and divider (if any)
-    Column(modifier = modifier
-        .fillMaxWidth()
-        .clickable { onClick() } // Make the entire area clickable
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClick() } // Make the entire area clickable
     ) {
         // Row containing the mode icon, label, and selection indicator
         Row(
-            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                // Change background color when selected9
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                // Change background color when selected
                 .background(
 //                    color = if (selected) Color(0xFF001627) else Color.Transparent,
-                    color = Color.Transparent, shape = RoundedCornerShape(8.dp)
+                    color = Color.Transparent,
+                    shape = RoundedCornerShape(8.dp)
                 )
                 .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
@@ -1061,8 +1120,10 @@ fun ModeButton(
 
             // Mode label text
             Text(
-                text = label, color = Color(0xFFD25917), // Orange color
-                fontSize = 20.sp, fontWeight = FontWeight.Bold
+                text = label,
+                color = Color(0xFFD25917), // Orange color
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
 
             // Spacer to push the selection indicator to the end
@@ -1072,7 +1133,8 @@ fun ModeButton(
             Image(
                 painter = painterResource(
                     id = if (selected) R.drawable.ic_checked else R.drawable.ic_unchecked
-                ), contentDescription = if (selected) "Selected" else "Not Selected",
+                ),
+                contentDescription = if (selected) "Selected" else "Not Selected",
                 // Adjust size based on selection state
                 modifier = Modifier.size(if (selected) 35.dp else 31.dp)
             )
