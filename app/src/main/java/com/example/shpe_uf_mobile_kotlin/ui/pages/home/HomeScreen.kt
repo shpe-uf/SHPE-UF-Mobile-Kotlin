@@ -31,9 +31,6 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -47,7 +44,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Timer
@@ -110,8 +106,6 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.TextColor
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 import com.example.shpe_uf_mobile_kotlin.util.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 
 //create sample card items
 val sampleCardItems = listOf(
@@ -324,7 +318,7 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
 
             // Event details card to have the rounded corner style be there
             //Lazy Column houses all composable for event details
-            //Saving changes bc merge error occured
+            //Saving changes bc merge error occurred
             Card(
                 modifier = Modifier
                     .fillMaxSize()
@@ -521,7 +515,7 @@ fun EventDetailsPreview() {
 }
 
 @Composable
-fun SlidingNotificationWindow(viewModel: HomeViewModel) {
+fun SlidingNotificationWindow(viewModel: HomeViewModel, darkMode: Boolean) {
     val homeState = viewModel.homeState.collectAsState()
     val isVisible = homeState.value.isNotificationWindowVisible
 
@@ -540,12 +534,12 @@ fun SlidingNotificationWindow(viewModel: HomeViewModel) {
         enter = slideInHorizontally(initialOffsetX = { screenWidth.toInt() }),
         exit = slideOutHorizontally(targetOffsetX = { screenWidth.toInt() })
     ) {
-        NotificationSettingsContent(viewModel = viewModel)
+        NotificationSettingsContent(viewModel = viewModel, darkMode)
     }
 }
 
 @Composable
-fun NotificationSettingsContent(viewModel: HomeViewModel) {
+fun NotificationSettingsContent(viewModel: HomeViewModel, darkMode: Boolean) {
     val context = LocalContext.current
     val homeState by viewModel.homeState.collectAsState()
 
@@ -554,7 +548,7 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
         modifier = Modifier
             .fillMaxWidth(1f)
             .fillMaxHeight(),
-        color = if(isSystemInDarkTheme()) ThemeColors.Night.background else ThemeColors.Day.background
+        color = if(darkMode) ThemeColors.Night.background else ThemeColors.Day.background
     ) {
         // Permissions and Dialogs
         PermissionsAndDialogs(viewModel, context)
@@ -564,10 +558,8 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             // image and close button container, could be made into own composable to be used later
             Box(contentAlignment = Alignment.TopStart) {
-
                 // Header for notification window
                 Row(
                     modifier = Modifier
@@ -575,16 +567,14 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                         .height(83.dp)
                         .background(color = headerOrange)
                         .padding(10.dp),
-
-                    ) {
+                ) {
                     // Used to Exit the notification window
                     IconButton(
                         onClick = { viewModel.hideNotificationWindow() },
                         modifier = Modifier
                             .align(Alignment.Bottom)
                             .height(35.dp)
-                            .width(35.dp)
-                        ,
+                            .width(35.dp),
                     ) {
                         Icon(
                             Icons.Default.ArrowBackIosNew,
@@ -592,8 +582,6 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                             tint = Color.White
                         )
                     }
-                    Spacer(modifier = Modifier.width(10.dp))
-
                     Text(
                         text = "Notifications Settings",
                         style = TextStyle(
@@ -611,286 +599,275 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(100.dp))
 
-            Text(
-                text = "Tap which type of event you want" +
-                        "\nnotifications for",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    fontFamily = Viga,
-                    fontWeight = FontWeight(400),
-                    color = Color(0xFFB7B7B7),
-                    textAlign = TextAlign.Center,
-                ),
-                color = Color(0xFFB7B7B7),
-            )
-            Spacer(modifier = Modifier.height(80.dp))
-
-            // Rest of tHE Content in the screen
-            Column(
+            // Box for instructions text
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(start = 20.dp, end = 20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                Row(
+                    .weight(0.3f),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    modifier = Modifier,
+                    text = "Tap which type of event you want" +
+                            "\nnotifications for",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontFamily = Viga,
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFFB7B7B7),
+                        textAlign = TextAlign.Center,
+                    ),
+                    color = if (darkMode) Color(0xFFB7B7B7) else Color(0xFF011F35),
+                )
+            }
+
+            // Box the options for notifications
+            Box(
+                modifier = Modifier
+                    .weight(0.5f),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .padding(start = 20.dp, end = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Column (horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .weight(1f)
-                    ) {
-                        if (homeState.notificationSettings.gbmNotification) {
-                            Image(
-                                painter = painterResource(id = R.drawable.gbmselected),
-                                contentDescription = "GBM Notifications ON", modifier = Modifier
-                                    .width(92.dp)
-                                    .height(90.dp)
-                                    .clickable {
-                                        viewModel.toggleNotificationSettings(
-                                            context,
-                                            HomeViewModel.EventType.GBM,
-                                            !viewModel.homeState.value.notificationSettings.gbmNotification
-                                        )
-                                    }
-                            )
-                        }
-                        else {
-                            Image(
-                                painter = painterResource(id = R.drawable.gbmdefault),
-                                contentDescription = "GBM Notifications ON", modifier = Modifier
-                                    .width(92.dp)
-                                    .height(90.dp)
-                                    .clickable {
-                                        viewModel.toggleNotificationSettings(
-                                            context,
-                                            HomeViewModel.EventType.GBM,
-                                            !viewModel.homeState.value.notificationSettings.gbmNotification
-                                        )
-                                    }
-                            )
-                        }
-                        Text(
-                            text = "GBMs",
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                fontFamily = Universltstd,
-                                fontWeight = FontWeight(400),
-                                color = Color(0xFFFFFFFF),
-                                textAlign = TextAlign.Center,
-                            ),
+                    Row{
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
-                                .padding(top = 10.dp)
-                        )
+                                .weight(1f)
+                        ) {
+                            if (homeState.notificationSettings.gbmNotification) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.gbmselected),
+                                    contentDescription = "GBM Notifications ON",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.GBM,
+                                                !viewModel.homeState.value.notificationSettings.gbmNotification
+                                            )
+                                        }
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.gbmdefault),
+                                    contentDescription = "GBM Notifications ON",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.GBM,
+                                                !viewModel.homeState.value.notificationSettings.gbmNotification
+                                            )
+                                        }
+                                )
+                            }
+                            Text(
+                                text = "GBMs",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            if (homeState.notificationSettings.infoSessionNotification) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.infoselected),
+                                    contentDescription = "Info Session Notifications ON",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.InfoSession,
+                                                !viewModel.homeState.value.notificationSettings.infoSessionNotification
+                                            )
+                                        }
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.infodefault),
+                                    contentDescription = "Info Session Notifications OFF",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.InfoSession,
+                                                !viewModel.homeState.value.notificationSettings.infoSessionNotification
+                                            )
+                                        }
+                                )
+                            }
+                            Text(
+                                text = "Info\nSessions",
+                                style =  getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            if (homeState.notificationSettings.workshopNotification) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.workshopselected),
+                                    contentDescription = "Info Session Notifications ON",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.Workshop,
+                                                !viewModel.homeState.value.notificationSettings.workshopNotification
+                                            )
+                                        }
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.workshopdefault),
+                                    contentDescription = "Workshop Notifications OFF",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.Workshop,
+                                                !viewModel.homeState.value.notificationSettings.workshopNotification
+                                            )
+                                        }
+                                )
+                            }
+                            Text(
+                                text = "Workshops",
+                                style =  getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+                        }
                     }
-                    Column (horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .weight(1f)
-                    ) {
-                        if (homeState.notificationSettings.infoSessionNotification) {
-                            Image(
-                                painter = painterResource(id = R.drawable.infoselected),
-                                contentDescription = "Info Session Notifications ON", modifier = Modifier
-                                    .width(92.dp)
-                                    .height(90.dp)
-                                    .clickable {
-                                        viewModel.toggleNotificationSettings(
-                                            context,
-                                            HomeViewModel.EventType.InfoSession,
-                                            !viewModel.homeState.value.notificationSettings.infoSessionNotification
-                                        )
-                                    }
-                            )
-                        }
-                        else {
-                            Image(
-                                painter = painterResource(id = R.drawable.infodefault),
-                                contentDescription = "Info Session Notifications OFF", modifier = Modifier
-                                    .width(92.dp)
-                                    .height(90.dp)
-                                    .clickable {
-                                        viewModel.toggleNotificationSettings(
-                                            context,
-                                            HomeViewModel.EventType.InfoSession,
-                                            !viewModel.homeState.value.notificationSettings.infoSessionNotification
-                                        )
-                                    }
-                            )
-                        }
-                        Text(
-                            text = "Info\nSessions",
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                fontFamily = Universltstd,
-                                fontWeight = FontWeight(400),
-                                color = Color(0xFFFFFFFF),
-                                textAlign = TextAlign.Center,
-                            ),
+                    Row {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
-                                .padding(top = 10.dp)
-                        )
-                    }
-
-                    Column (horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .weight(1f)
-                    ){
-                        if (homeState.notificationSettings.workshopNotification) {
-                            Image(
-                                painter = painterResource(id = R.drawable.workshopselected),
-                                contentDescription = "Info Session Notifications ON", modifier = Modifier
-                                    .width(92.dp)
-                                    .height(90.dp)
-                                    .clickable {
-                                        viewModel.toggleNotificationSettings(
-                                            context,
-                                            HomeViewModel.EventType.Workshop,
-                                            !viewModel.homeState.value.notificationSettings.workshopNotification
-                                        )
-                                    }
+                                .weight(1f)
+                        ) {
+                            if (homeState.notificationSettings.volunteeringNotification) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.volunteerselected),
+                                    contentDescription = "Volunteer Notifications ON",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.Volunteering,
+                                                !viewModel.homeState.value.notificationSettings.volunteeringNotification
+                                            )
+                                        }
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.volunteerdefault),
+                                    contentDescription = "Volunteer Notifications OFF",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.Volunteering,
+                                                !viewModel.homeState.value.notificationSettings.volunteeringNotification
+                                            )
+                                        }
+                                )
+                            }
+                            Text(
+                                text = "Volunteering",
+                                style =  getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
                             )
                         }
-                        else {
-                            Image(
-                                painter = painterResource(id = R.drawable.workshopdefault),
-                                contentDescription = "Workshop Notifications OFF", modifier = Modifier
-                                    .width(92.dp)
-                                    .height(90.dp)
-                                    .clickable {
-                                        viewModel.toggleNotificationSettings(
-                                            context,
-                                            HomeViewModel.EventType.Workshop,
-                                            !viewModel.homeState.value.notificationSettings.workshopNotification
-                                        )
-                                    }
-                            )
-                        }
-                        Text(
-                            text = "Workshops",
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                fontFamily = Universltstd,
-                                fontWeight = FontWeight(400),
-                                color = Color(0xFFFFFFFF),
-                                textAlign = TextAlign.Center,
-                            ),
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
-                                .padding(top = 10.dp)
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(60.dp))
-
-                Row {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .weight(1f)
-                    ) {
-                        if (homeState.notificationSettings.volunteeringNotification) {
-                            Image(
-                                painter = painterResource(id = R.drawable.volunteerselected),
-                                contentDescription = "Volunteer Notifications ON", modifier = Modifier
-                                    .width(92.dp)
-                                    .height(90.dp)
-                                    .clickable {
-                                        viewModel.toggleNotificationSettings(
-                                            context,
-                                            HomeViewModel.EventType.Volunteering,
-                                            !viewModel.homeState.value.notificationSettings.volunteeringNotification
-                                        )
-                                    }
+                                .weight(1f)
+                        ) {
+                            if (homeState.notificationSettings.socialNotification) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.socialselected),
+                                    contentDescription = "Social Notifications ON",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.Social,
+                                                !viewModel.homeState.value.notificationSettings.socialNotification
+                                            )
+                                        }
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.socialdefault),
+                                    contentDescription = "Social Notifications OFF",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.Social,
+                                                !viewModel.homeState.value.notificationSettings.socialNotification
+                                            )
+                                        }
+                                )
+                            }
+                            Text(
+                                text = "Socials",
+                                style =  getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
                             )
                         }
-                        else {
-                            Image(
-                                painter = painterResource(id = R.drawable.volunteerdefault),
-                                contentDescription = "Volunteer Notifications OFF", modifier = Modifier
-                                    .width(92.dp)
-                                    .height(90.dp)
-                                    .clickable {
-                                        viewModel.toggleNotificationSettings(
-                                            context,
-                                            HomeViewModel.EventType.Volunteering,
-                                            !viewModel.homeState.value.notificationSettings.volunteeringNotification
-                                        )
-                                    }
-                            )
-                        }
-                        Text(
-                            text = "Volunteering",
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight(400),
-                                fontFamily = Universltstd,
-                                color = Color(0xFFFFFFFF),
-                                textAlign = TextAlign.Center,
-                            ),
-                            modifier = Modifier
-                                .padding(top = 10.dp)
-                        )
-                    }
-
-                    Column (horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .weight(1f)
-                    ){
-                        if (homeState.notificationSettings.socialNotification) {
-                            Image(
-                                painter = painterResource(id = R.drawable.socialselected),
-                                contentDescription = "Social Notifications ON", modifier = Modifier
-                                    .width(92.dp)
-                                    .height(90.dp)
-                                    .clickable {
-                                        viewModel.toggleNotificationSettings(
-                                            context,
-                                            HomeViewModel.EventType.Social,
-                                            !viewModel.homeState.value.notificationSettings.socialNotification
-                                        )
-                                    }
-                            )
-                        }
-                        else {
-                            Image(
-                                painter = painterResource(id = R.drawable.socialdefault),
-                                contentDescription = "Social Notifications OFF", modifier = Modifier
-                                    .width(92.dp)
-                                    .height(90.dp)
-                                    .clickable {
-                                        viewModel.toggleNotificationSettings(
-                                            context,
-                                            HomeViewModel.EventType.Social,
-                                            !viewModel.homeState.value.notificationSettings.socialNotification
-                                        )
-                                    }
-                            )
-                        }
-                        Text(
-                            text = "Socials",
-                            style = TextStyle(
-                                fontSize = 16.sp,
-                                fontFamily = Universltstd,
-                                fontWeight = FontWeight(400),
-                                color = Color(0xFFFFFFFF),
-                                textAlign = TextAlign.Center,
-                            ),
-                            modifier = Modifier
-                                .padding(top = 10.dp)
-                        )
                     }
                 }
+            }
 
-                // Button for allowing all notifications
-                Spacer(modifier = Modifier.height(60.dp))
+            // This is now the button for all notifications
+            Box(
+                modifier = Modifier
+                    .weight(0.2f),
+                contentAlignment = Alignment.Center
+            ) {
                 Button(
                     modifier = Modifier
                         .width(254.dp)
                         .height(41.dp),
-                    onClick = { viewModel.toggleAllNotifications(context)},
+                    onClick = { viewModel.toggleAllNotifications(context) },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = homeState.allNotificationCurrentColor
                     )
@@ -910,6 +887,18 @@ fun NotificationSettingsContent(viewModel: HomeViewModel) {
         }
     }
 }
+
+@Composable
+fun getTextStyle(darkMode: Boolean): TextStyle {
+    return TextStyle(
+        fontSize = 16.sp,
+        fontFamily = Universltstd,
+        fontWeight = FontWeight(400),
+        color = if (darkMode) ThemeColors.Night.text else ThemeColors.Day.text,
+        textAlign = TextAlign.Center,
+        )
+}
+
 
 // Permissions and Dialogs
 @Composable
@@ -1047,7 +1036,8 @@ fun NotificationSettingsPreview() {
             eventRepo = EventRepository(
                 context = LocalContext.current
             ),
-        )
+        ),
+        darkMode = true
     )
 }
 
@@ -1168,7 +1158,7 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SlidingSheet() {
     val scaffoldSheetState = rememberBottomSheetScaffoldState()
@@ -1809,8 +1799,8 @@ fun EventCardPreview() {
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel) {
-    val UserState by shpeufAppViewModel.uiState.collectAsState()
-    val isDarkMode = UserState.isDarkMode
+    val userState by shpeufAppViewModel.uiState.collectAsState()
+    val isDarkMode = userState.isDarkMode
 
     Surface (
         modifier = Modifier
@@ -1824,7 +1814,7 @@ fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel)
         }
 
         SlidingEventWindow(viewModel = viewModel, isDarkMode = isDarkMode)
-        SlidingNotificationWindow(viewModel = viewModel)
+        SlidingNotificationWindow(viewModel = viewModel, darkMode = isDarkMode)
     }
 }
 
