@@ -4,25 +4,23 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shpe_uf_mobile_kotlin.DeleteUserMutation
-import com.example.shpe_uf_mobile_kotlin.EditUserMutation
 import com.example.shpe_uf_mobile_kotlin.GetUserQuery
 import com.example.shpe_uf_mobile_kotlin.apolloClient
-import com.example.shpe_uf_mobile_kotlin.type.EditUserProfileInput
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 
-class ProfileViewModel:ViewModel() {
+class ProfileViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
-    fun onFirstNameChanged(firstName: String){
+    fun onFirstNameChanged(firstName: String) {
         _uiState.value = _uiState.value.copy(firstName = firstName)
     }
 
-    fun onLastNameChanged(lastName: String){
+    fun onLastNameChanged(lastName: String) {
         _uiState.value = _uiState.value.copy(lastName = lastName)
     }
 
@@ -30,44 +28,52 @@ class ProfileViewModel:ViewModel() {
     fun onFullNameChanged(fullName: String) {
         _uiState.value = _uiState.value.copy(fullName = fullName)
     }
+
     fun onUserNameChanged(userName: String) {
         _uiState.value = _uiState.value.copy(userName = userName)
     }
+
     fun onEmailChanged(email: String) {
         _uiState.value = _uiState.value.copy(email = email)
     }
+
     fun onGenderChanged(gender: String) {
         _uiState.value = _uiState.value.copy(gender = gender)
     }
+
     fun onEthnicityChanged(ethnicity: String) {
         _uiState.value = _uiState.value.copy(ethnicity = ethnicity)
     }
+
     fun onCountryChanged(country: String) {
         _uiState.value = _uiState.value.copy(country = country)
     }
+
     fun onMajorChanged(major: String) {
         _uiState.value = _uiState.value.copy(major = major)
     }
+
     fun onYearChanged(year: String) {
         _uiState.value = _uiState.value.copy(year = year)
     }
+
     fun onGradYearChanged(gradYear: String) {
         _uiState.value = _uiState.value.copy(gradYear = gradYear)
     }
 
-    fun onClassesChanged(classes: List<String?>?){
+    fun onClassesChanged(classes: List<String?>?) {
         _uiState.value = _uiState.value.copy(classes = classes)
     }
 
-    fun onInternshipsChanged(internships: List<String?>?){
+    fun onInternshipsChanged(internships: List<String?>?) {
         _uiState.value = _uiState.value.copy(internships = internships)
     }
 
-    fun onSocialMediaChanged(socialMedia: List<String?>?){
+    fun onSocialMediaChanged(socialMedia: List<String?>?) {
         _uiState.value = _uiState.value.copy(socialMedia = socialMedia)
     }
 
-    fun onPhotoChanged(photo: String){
+    fun onPhotoChanged(photo: String) {
         _uiState.value = _uiState.value.copy(photo = photo)
     }
 
@@ -118,7 +124,7 @@ class ProfileViewModel:ViewModel() {
         _uiState.value = _uiState.value.copy(editable = listOf(false, true))
     }
 
-    fun deleteProfile(email: String){
+    fun deleteProfile(email: String) {
         deleteUserProfile(email)
     }
 
@@ -127,12 +133,12 @@ class ProfileViewModel:ViewModel() {
     }
 
     // Should load the user's profile, will be called when the user logs in and the id is collected and stored in the app.
-    fun loadProfile(id: String): Boolean{
+    fun loadProfile(id: String): Boolean {
         val current = uiState.value
 
         Log.d("Profile:", id)
 
-        if(current.firstName == null){
+        if (current.firstName == null) {
             getUserInfo(id)
             return true
         }
@@ -142,13 +148,13 @@ class ProfileViewModel:ViewModel() {
 
     // Function to update the user profile with values from the database given the user's ID.
     // Just call getUserInfo("64ea79b9f2051e00149c75b7") once, and it should populate the fields.
-    private fun getUserInfo(id: String){
-        viewModelScope.launch{
+    private fun getUserInfo(id: String) {
+        viewModelScope.launch {
             val userInfo = getUserInfoCoroutine(id)
 
             Log.d("userinfo", "Type: ${userInfo?.javaClass?.name}, Value: $userInfo")
 
-            if(userInfo != null){
+            if (userInfo != null) {
                 onFirstNameChanged(userInfo.firstName)
                 onLastNameChanged(userInfo.lastName)
                 onFullNameChanged(userInfo.firstName + " " + userInfo.lastName)
@@ -171,7 +177,7 @@ class ProfileViewModel:ViewModel() {
     private suspend fun getUserInfoCoroutine(id: String): GetUserQuery.GetUser? { // Returns getUser object.
         val response = apolloClient.query(GetUserQuery(id)).execute() // Calling query
 
-        if(!response.hasErrors()){ // If no errors, return the getUser object containing user information.
+        if (!response.hasErrors()) { // If no errors, return the getUser object containing user information.
             return response.data?.getUser
         } else { // If there is an error return null.
             return null
@@ -240,7 +246,7 @@ class ProfileViewModel:ViewModel() {
         return output
     }
 
-    private suspend fun deleteUserProfileCoroutine(email: String): Boolean{
+    private suspend fun deleteUserProfileCoroutine(email: String): Boolean {
         val response = apolloClient.mutation(DeleteUserMutation(email)).execute()
 
         return response.hasErrors()
