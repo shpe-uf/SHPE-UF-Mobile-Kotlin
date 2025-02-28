@@ -352,7 +352,8 @@ fun StaticProfileScreen(
                     textColor = textColor,
                     icon = R.drawable.internet,
                     title = "LINKS",
-                    editable = uiState.editable
+                    editable = uiState.editable,
+                    listType = 'l'
                 )
 
             }
@@ -533,6 +534,7 @@ fun StaticProfilePageBackground(
 fun ProfileLists(
     value: List<String?>,
     onValueChange: (List<String?>) -> Unit,
+    listType: Char = 'c',
     onAddValue: (String) -> Unit,
     onRemoveValue: (String) -> Unit,
     textColor: Color,
@@ -633,52 +635,88 @@ fun ProfileLists(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Show the available items.
-                    Column (modifier = Modifier.padding(horizontal = 32.dp)){
-                        value.chunked(3).forEach { rowItems ->
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-
+                    if (listType != 'c') {
+                        value.forEach { linkItem ->
+                            Column(modifier = Modifier.padding(horizontal = 32.dp)) {
+                                Button(
+                                    onClick = { onRemoveValue(linkItem ?: "") },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Gray,
+                                        contentColor = textColor
+                                    ),
+                                    modifier = Modifier.wrapContentSize(Alignment.Center)
                                 ) {
-                                rowItems.forEach { classItem ->
-                                    Button(
-                                        onClick = { onRemoveValue(classItem ?: "") },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color.Gray,
-                                            contentColor = textColor
-                                        ),
-                                        modifier = Modifier.wrapContentSize(Alignment.TopStart)
-                                    ){
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ){
-                                            Text(
-                                                text = classItem ?: "",
-                                                color = Color.White,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                            Icon(
-                                                Icons.Filled.RemoveCircle,
-                                                contentDescription = "Remove",
-                                                modifier = Modifier.size(15.dp),
-                                                tint = Color.White
-                                            )
-                                        }
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = linkItem ?: "",
+                                            color = Color.White,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Visible
+                                        )
+                                        Icon(
+                                            Icons.Filled.RemoveCircle,
+                                            contentDescription = "Remove",
+                                            modifier = Modifier.size(15.dp),
+                                            tint = Color.White
+                                        )
                                     }
                                 }
-
                             }
-                            // If the last row has fewer than 3 items, fill the space with empty Text() to keep layout even
-                            repeat(3 - rowItems.size) {
-                                Text(
-                                    text = "", modifier = Modifier.weight(1f)
-                                )
+
+                        }
+                    } else {
+                        // Show the available items.
+                        Column(modifier = Modifier.padding(horizontal = 32.dp)) {
+                            value.chunked(2).forEach { rowItems ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+
+                                    ) {
+                                    rowItems.forEach { classItem ->
+                                        Button(
+                                            onClick = { onRemoveValue(classItem ?: "") },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color.Gray,
+                                                contentColor = textColor
+                                            ),
+                                            modifier = Modifier.wrapContentSize(Alignment.Center)
+                                        ) {
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = classItem ?: "",
+                                                    color = Color.White,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Visible
+                                                )
+                                                Icon(
+                                                    Icons.Filled.RemoveCircle,
+                                                    contentDescription = "Remove",
+                                                    modifier = Modifier.size(15.dp),
+                                                    tint = Color.White
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                }
+                                // If the last row has fewer than 3 items, fill the space with empty Text() to keep layout even
+                                repeat(2 - rowItems.size) {
+                                    Text(
+                                        text = "", modifier = Modifier.weight(1f)
+                                    )
+                                }
                             }
                         }
                     }
+
+
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
