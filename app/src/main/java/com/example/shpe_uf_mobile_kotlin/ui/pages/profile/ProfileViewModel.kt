@@ -1,5 +1,11 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Base64
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +19,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.io.encoding.Base64.Default.encodeToByteArray
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 
 class ProfileViewModel : ViewModel() {
@@ -90,8 +98,10 @@ class ProfileViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(socialMedia = socialMedia)
     }
 
+    // added photo bitmap to state when calling this fun
     fun onPhotoChanged(photo: String) {
         _uiState.value = _uiState.value.copy(photo = photo)
+        _uiState.value = _uiState.value.copy(photoBitmap = decodeBase64ToBitmap(_uiState.value.photo.toString()))
     }
 
     // Add to the lists
@@ -256,6 +266,15 @@ class ProfileViewModel : ViewModel() {
         val response = apolloClient.mutation(DeleteUserMutation(email)).execute()
 
         return response.hasErrors()
+    }
+
+    // added this helper function to decode the base64image into a bitmap
+    private val PNG_BASE64_HEADER = "data:image/jpeg;base64,"
+
+    private fun decodeBase64ToBitmap(base64: String): Bitmap? {
+        val cleanBase64 = base64.replaceFirst(PNG_BASE64_HEADER, "")
+        val decodedBytes = Base64.decode(cleanBase64, Base64.DEFAULT)
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
     }
 
     fun tempDeleteUser(): Unit? {
