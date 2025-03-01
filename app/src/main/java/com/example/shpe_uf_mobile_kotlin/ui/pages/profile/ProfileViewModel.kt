@@ -192,10 +192,10 @@ class ProfileViewModel : ViewModel() {
     private suspend fun getUserInfoCoroutine(id: String): GetUserQuery.GetUser? { // Returns getUser object.
         val response = apolloClient.query(GetUserQuery(id)).execute() // Calling query
 
-        if (!response.hasErrors()) { // If no errors, return the getUser object containing user information.
-            return response.data?.getUser
+        return if (!response.hasErrors()) { // If no errors, return the getUser object containing user information.
+            response.data?.getUser
         } else { // If there is an error return null.
-            return null
+            null
         }
     }
 
