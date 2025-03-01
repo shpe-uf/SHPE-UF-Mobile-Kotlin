@@ -262,4 +262,15 @@ class ProfileViewModel : ViewModel() {
         // This does nothing its just so u can click delete and the app not crash
         return null
     }
+
+    fun toggleDropdownMenu(menu: Int) {
+        when (menu) {
+            0 -> _uiState.value = _uiState.value.copy(isGenderExpanded = !_uiState.value.isGenderExpanded)
+            1 -> _uiState.value = _uiState.value.copy(isEthnicityExpanded = !_uiState.value.isEthnicityExpanded)
+            2 -> _uiState.value = _uiState.value.copy(isCountryOriginExpanded = !_uiState.value.isCountryOriginExpanded)
+            3 -> _uiState.value = _uiState.value.copy(isMajorExpanded = !_uiState.value.isMajorExpanded)
+            4 -> _uiState.value = _uiState.value.copy(isYearExpanded = !_uiState.value.isYearExpanded)
+            5 -> _uiState.value = _uiState.value.copy(isGraduationExpanded = !_uiState.value.isGraduationExpanded)
+        }
+    }
 }
