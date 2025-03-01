@@ -1,8 +1,10 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,12 +17,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -31,15 +37,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,16 +62,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
 //TODO: add bottom bar functionality
@@ -74,9 +83,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 //@Preview(showBackground = true)
 @Composable
 fun StaticProfilePagePreview(
-    viewModel: ProfileViewModel,
-    navController: NavHostController,
-    mainViewModel: SHPEUFAppViewModel
+    viewModel: ProfileViewModel, navController: NavHostController, mainViewModel: SHPEUFAppViewModel
 ) {
 
     StaticProfileScreen(viewModel, navController, mainViewModel)
@@ -88,21 +95,21 @@ fun StaticProfileScreen(
     profileViewModel: ProfileViewModel,
     navController: NavHostController,
     mainViewModel: SHPEUFAppViewModel
-){
-    SHPEUFMobileKotlinTheme{
+) {
+    SHPEUFMobileKotlinTheme {
         val uiState by profileViewModel.uiState.collectAsState()
         val mainState by mainViewModel.uiState.collectAsState()
 
         val isDarkMode = mainState.isDarkMode
 
-        val textColor = if(isDarkMode){
+        val textColor = if (isDarkMode) {
             Color.White
 
         } else {
             Color.Black
         }
 
-        val containerColor = if(!isDarkMode){
+        val containerColor = if (!isDarkMode) {
             Color(0xFFD25917)
         } else {
             Color(0xFF001627)
@@ -110,7 +117,14 @@ fun StaticProfileScreen(
 
         profileViewModel.loadProfile(mainState.id)
 
-        StaticProfilePageBackground(isDarkMode = isDarkMode, name = uiState.fullName ?: "", textColor = textColor, containerColor = containerColor, editable = uiState.editable, profileViewModel = profileViewModel)
+        StaticProfilePageBackground(
+            isDarkMode = isDarkMode,
+            name = uiState.fullName,
+            textColor = textColor,
+            containerColor = containerColor,
+            editable = uiState.editable,
+            profileViewModel = profileViewModel
+        )
 
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp.value
 
@@ -122,7 +136,7 @@ fun StaticProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
-            item{
+            item {
                 Spacer(modifier = Modifier.height(39.dp))
             }
 
@@ -139,93 +153,389 @@ fun StaticProfileScreen(
 
             }
 
-            item{
+            item {
                 Spacer(modifier = Modifier.height(27.dp))
             }
 
             // Name
-            item{
+            item {
 
                 ProfileItem(
-                    value = uiState.fullName ?: "",
+                    value = uiState.fullName,
                     onValueChange = profileViewModel::onFullNameChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_circle_orange,
                     title = "NAME",
-                    editable = uiState.editable
+                    editable = uiState.editable,
+                    onExpandedChange = {profileViewModel.toggleDropdownMenu(6)}
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
             // Username
-            item{
+            item {
                 ProfileItem(
                     value = uiState.userName ?: "",
                     onValueChange = profileViewModel::onUserNameChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_circle_orange,
                     title = "USERNAME",
-                    editable = listOf(false, true)
+                    editable = listOf(false, true),
+                    onExpandedChange = {profileViewModel.toggleDropdownMenu(6)}
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Email
-            item{
+            item {
                 ProfileItem(
                     value = uiState.email ?: "",
                     onValueChange = profileViewModel::onEmailChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_email,
                     title = "EMAIL",
-                    editable = listOf(false, true)
+                    editable = listOf(false, true),
+                    onExpandedChange = {profileViewModel.toggleDropdownMenu(6)}
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Gender
-            item{
+            item {
                 ProfileItem(
                     value = uiState.gender ?: "",
                     onValueChange = profileViewModel::onGenderChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_gender_equality,
                     title = "GENDER",
-                    editable = uiState.editable
+                    editable = uiState.editable,
+                    newValue = listOf("Male", "Female", "Non-Binary", "Other"),
+                    onExpandedChange = {profileViewModel.toggleDropdownMenu(0)}
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Ethnicity
-            item{
+            item {
                 ProfileItem(
                     value = uiState.ethnicity ?: "",
                     onValueChange = profileViewModel::onEthnicityChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_globe,
                     title = "ETHNICITY",
-                    editable = uiState.editable
+                    editable = uiState.editable,
+                    newValue = listOf(
+                        "American Indian or Alaska Native",
+                        "Asian",
+                        "Black or African American",
+                        "Hispanic/Latino",
+                        "Native Hawaiian or Other Pacific Islander",
+                        "White",
+                        "Two or more ethnicities",
+                        "Prefer not to answer"
+                    ),
+                    onExpandedChange = {profileViewModel.toggleDropdownMenu(1)}
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Country
-            item{
+            item {
                 ProfileItem(
                     value = uiState.country ?: "",
                     onValueChange = profileViewModel::onCountryChanged,
                     textColor = textColor,
                     icon = R.drawable.profile_globe,
                     title = "COUNTRY OF ORIGIN",
-                    editable = uiState.editable
+                    editable = uiState.editable,
+                    newValue = listOf(
+                        "Afghanistan",
+                        "Albania",
+                        "Algeria",
+                        "American Samoa",
+                        "Andorra",
+                        "Angola",
+                        "Anguilla",
+                        "Antarctica",
+                        "Antigua & Barbuda",
+                        "Argentina",
+                        "Armenia",
+                        "Aruba",
+                        "Ascension Island",
+                        "Australia",
+                        "Austria",
+                        "Azerbaijan",
+                        "Bahamas",
+                        "Bahrain",
+                        "Bangladesh",
+                        "Barbados",
+                        "Belarus",
+                        "Belgium",
+                        "Belize",
+                        "Benin",
+                        "Bermuda",
+                        "Bhutan",
+                        "Bolivia",
+                        "Bosnia & Herzegovina",
+                        "Botswana",
+                        "Bouvet Island",
+                        "Brazil",
+                        "British Virgin Islands",
+                        "Brunei",
+                        "Bulgaria",
+                        "Burkina Faso",
+                        "Burundi",
+                        "Cambodia",
+                        "Cameroon",
+                        "Canada",
+                        "Canary Islands",
+                        "Cape Verde",
+                        "Caribbean Netherlands",
+                        "Cayman Islands",
+                        "Central African Republic",
+                        "Ceuta & Melilla",
+                        "Chad",
+                        "Chagos Archipelago",
+                        "Chile",
+                        "Christmas Island",
+                        "Clipperton Island",
+                        "Cocos [Keeling] Islands",
+                        "Colombia",
+                        "Comoros",
+                        "Congo - Brazzaville",
+                        "Congo - Kinshasa",
+                        "Cook Islands",
+                        "Costa Rica",
+                        "Croatia",
+                        "Cuba",
+                        "Curaçao",
+                        "Cyprus",
+                        "Czechia",
+                        "Côte d'Ivoire",
+                        "Denmark",
+                        "Diego Garcia",
+                        "Djibouti",
+                        "Dominica",
+                        "Dominican Republic",
+                        "Ecuador",
+                        "Egypt",
+                        "El Salvador",
+                        "Equatorial Guinea",
+                        "Eritrea",
+                        "Estonia",
+                        "Eswatini",
+                        "Ethiopia",
+                        "Falkland Islands",
+                        "Faroe Islands",
+                        "Fiji",
+                        "Finland",
+                        "France",
+                        "French Guiana",
+                        "French Polynesia",
+                        "French Southern Territories",
+                        "Gabon",
+                        "Gambia",
+                        "Georgia",
+                        "Germany",
+                        "Ghana",
+                        "Gibraltar",
+                        "Greece",
+                        "Greenland",
+                        "Grenada",
+                        "Guadeloupe",
+                        "Guam",
+                        "Guatemala",
+                        "Guernsey",
+                        "Guinea",
+                        "Guinea-Bissau",
+                        "Guyana",
+                        "Haiti",
+                        "Heard & McDonald Island",
+                        "Honduras",
+                        "Hungary",
+                        "Iceland",
+                        "India",
+                        "Indonesia",
+                        "Iran",
+                        "Iraq",
+                        "Ireland",
+                        "Isle of Man",
+                        "Israel",
+                        "Italy",
+                        "Jamaica",
+                        "Japan",
+                        "Jersey",
+                        "Jordan",
+                        "Kazakhstan",
+                        "Kenya",
+                        "kiribati",
+                        "Kosovo",
+                        "Kuwait",
+                        "Kyrgyzstan",
+                        "Laos",
+                        "Latvia",
+                        "Lebanon",
+                        "Lesotho",
+                        "Liberia",
+                        "Libya",
+                        "Liechtenstein",
+                        "Lithuania",
+                        "Luxembourg",
+                        "Madagascar",
+                        "Malawi",
+                        "Malaysia",
+                        "Maldives",
+                        "Mali",
+                        "Malta",
+                        "Marshall Islands",
+                        "Martinique",
+                        "Mauritania",
+                        "Mauritius",
+                        "Mayotte",
+                        "Mexico",
+                        "Micronesia",
+                        "Moldova",
+                        "Monaco",
+                        "Mongolia",
+                        "Montenegro",
+                        "Montserrat",
+                        "Morocco",
+                        "Mozambique",
+                        "Myanmar [Burma]",
+                        "Namibia",
+                        "Nauru",
+                        "Nepal",
+                        "Netherlands",
+                        "New Caledonia",
+                        "New Zealand",
+                        "Nicaragua",
+                        "Niger",
+                        "Nigeria",
+                        "Niue",
+                        "Norfolk Island",
+                        "North Korea",
+                        "North Macedonia",
+                        "Northern Mariana Islands",
+                        "Norway",
+                        "Oman",
+                        "Pakistan",
+                        "Palau",
+                        "Palestinian Territories",
+                        "Panama",
+                        "Papua New Guinea",
+                        "Paraguay",
+                        "Peru",
+                        "Philippines",
+                        "Pitcairn Islands",
+                        "Poland",
+                        "Portugal",
+                        "Puerto Rico",
+                        "Qatar",
+                        "Romania",
+                        "Root (China mainland)",
+                        "Root (Hong Kong)",
+                        "Root (Macao)",
+                        "Root (Taiwan)",
+                        "Russia",
+                        "Rwanda",
+                        "Réunion",
+                        "Samoa",
+                        "San Marino",
+                        "Sark",
+                        "Saudi Arabia",
+                        "Senegal",
+                        "Serbia",
+                        "Seychelles",
+                        "Sierra Leone",
+                        "Singapore",
+                        "Sint Maarten",
+                        "Slovakia",
+                        "Slovenia",
+                        "So. Georgia & So. Sandwich Isl.",
+                        "Solomon Islands",
+                        "Somalia",
+                        "South Africa",
+                        "South Korea",
+                        "South Sudan",
+                        "Spain",
+                        "Sri Lanka",
+                        "St Barthélemy",
+                        "St Helena",
+                        "St Kitts & Nevis",
+                        "St Lucia",
+                        "St Martin",
+                        "St Pierre & Miquelon",
+                        "St Vincent & the Grenadines",
+                        "Sudan",
+                        "Suriname",
+                        "Svalbard & Jan Mayen",
+                        "Sweden",
+                        "Switzerland",
+                        "Syria",
+                        "São Tomé & Príncipe",
+                        "Tajikistan",
+                        "Tanzania",
+                        "Thailand",
+                        "Timor-Leste",
+                        "Togo",
+                        "Tokelau",
+                        "Tonga",
+                        "Trinidad & Tobago",
+                        "Tristan da Cunha",
+                        "Tunisia",
+                        "Turkmenistan",
+                        "Turks & Caicos Islands",
+                        "Tuvalu",
+                        "Türkiye",
+                        "US Outlying Islands",
+                        "US Virgin Islands",
+                        "Uganda",
+                        "Ukraine",
+                        "United Arab Emirates",
+                        "United Kingdom",
+                        "United States",
+                        "Uruguay",
+                        "Uzbekistan",
+                        "Vanuatu",
+                        "Vatican City",
+                        "Venezuela",
+                        "Vietnam",
+                        "Wallis & Futuna",
+                        "Western Sahara",
+                        "Yemen",
+                        "Zambia",
+                        "Zimbabwe",
+                        "Åland Islands"
+                    ),
+                    onExpandedChange = {profileViewModel.toggleDropdownMenu(2)}
                 )
             }
 
-            item{
+            item {
                 Spacer(modifier = Modifier.height(27.dp))
             }
 
@@ -253,9 +563,33 @@ fun StaticProfileScreen(
                     textColor = textColor,
                     icon = R.drawable.profile_cap,
                     title = "MAJOR",
-                    editable = uiState.editable
+                    editable = uiState.editable,
+                    newValue = listOf(
+                        "Aerospace Engineering",
+                        "Agricultural & Biological Engineering",
+                        "Biomedical Engineering",
+                        "Chemical Engineering",
+                        "Civil Engineering",
+                        "Coastal & Oceanographic Engineering",
+                        "Computer Engineering",
+                        "Computer Science",
+                        "Digital Arts & Science",
+                        "Electrical Engineering",
+                        "Environmental Engineering Sciences",
+                        "Human-Centered Computing",
+                        "Industrial & Systems Engineering",
+                        "Materials Science & Engineering",
+                        "Mechanical Engineering",
+                        "Nuclear Engineering",
+                        "Other"
+                    ),
+                    onExpandedChange = {profileViewModel.toggleDropdownMenu(3)}
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
@@ -267,9 +601,23 @@ fun StaticProfileScreen(
                     textColor = textColor,
                     icon = R.drawable.profile_year,
                     title = "YEAR",
-                    editable = uiState.editable
+                    editable = uiState.editable,
+                    newValue = listOf(
+                        "1st Year",
+                        "2nd Year",
+                        "3rd Year",
+                        "4th Year",
+                        "5th Year or Higher",
+                        "Graduate",
+                        "Ph.D."
+                    ),
+                    onExpandedChange = {profileViewModel.toggleDropdownMenu(4)}
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
@@ -281,54 +629,75 @@ fun StaticProfileScreen(
                     textColor = textColor,
                     icon = R.drawable.profile_cap,
                     title = "GRADUATION YEAR",
-                    editable = uiState.editable
+                    editable = uiState.editable,
+                    newValue = listOf("2025", "2026", "2027", "2028"),
+                    onExpandedChange = {profileViewModel.toggleDropdownMenu(5)}
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Classes
-            item{
+            item {
                 ProfileLists(
-                    value =  uiState.classes ?: listOf(),
+                    value = uiState.classes ?: listOf(),
                     onValueChange = profileViewModel::onClassesChanged,
                     textColor = textColor,
                     icon = R.drawable.university_campus,
                     title = "CLASSES",
-                    editable = uiState.editable
+                    editable = uiState.editable,
+                    onAddValue = profileViewModel::addClass,
+                    onRemoveValue = profileViewModel::removeClass
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
             }
 
             // Internships
-            item{
+            item {
                 ProfileLists(
-                    value =  uiState.internships ?: listOf(),
+                    value = uiState.internships ?: listOf(),
                     onValueChange = profileViewModel::onInternshipsChanged,
+                    onAddValue = profileViewModel::addInternship,
+                    onRemoveValue = profileViewModel::removeInternship,
                     textColor = textColor,
                     icon = R.drawable.office,
                     title = "INTERNSHIPS",
                     editable = uiState.editable
                 )
-                HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
-
-            }
-
-            // Links
-            item{
-                ProfileLists(
-                    value =  uiState.socialMedia ?: listOf(),
-                    onValueChange = profileViewModel::onSocialMediaChanged,
-                    textColor = textColor,
-                    icon = R.drawable.internet,
-                    title = "LINKS",
-                    editable = uiState.editable
+                HorizontalDivider(
+                    color = Color.LightGray,
+                    thickness = 1.dp,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
             }
 
-            item{
+            // Links
+            item {
+                ProfileLists(
+                    value = uiState.socialMedia ?: listOf(),
+                    onValueChange = profileViewModel::onSocialMediaChanged,
+                    onAddValue = profileViewModel::addLinks,
+                    onRemoveValue = profileViewModel::removeLink,
+                    textColor = textColor,
+                    icon = R.drawable.internet,
+                    title = "LINKS",
+                    editable = uiState.editable,
+                    listType = 'l'
+                )
+
+            }
+
+            item {
                 Spacer(modifier = Modifier.height(25.dp))
             }
 
@@ -340,28 +709,38 @@ fun StaticProfileScreen(
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
-            item{
-                LogoutButton (
+            item {
 
-                    onClick = {
-                        mainViewModel.logoutUser()
+                if(!uiState.editable[0] && uiState.editable[1]){
+                    LogoutButton(
 
-                        navController.navigate(NavRoute.LOGIN)
+                        onClick = {
+                            mainViewModel.logoutUser()
 
-                    }
-                )
+                            navController.navigate(NavRoute.LOGIN)
+
+                        })
+                }
+
             }
 
-            item{
+            item {
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
-            item{
-                DeleteAccountButton (profileViewModel)
+            item {
+
+                if (!uiState.editable[0] && uiState.editable[1]) {
+                    DeleteAccountButton(profileViewModel)
+
+                }
             }
 
-            item{
-                Spacer(modifier = Modifier.height(20.dp))
+            item {
+                if(!uiState.editable[0] && uiState.editable[1]){
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                }
             }
         }
     }
@@ -396,7 +775,15 @@ fun ProfileImage(isDarkMode: Boolean,
 }
 
 @Composable
-fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boolean, name: String, textColor: Color, containerColor: Color, editable: List<Boolean>, profileViewModel: ProfileViewModel) {
+fun StaticProfilePageBackground(
+    modifier: Modifier = Modifier,
+    isDarkMode: Boolean,
+    name: String,
+    textColor: Color,
+    containerColor: Color,
+    editable: List<Boolean>,
+    profileViewModel: ProfileViewModel
+) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val imageSize = screenWidth * 0.3f // 30% of the screen width
@@ -418,9 +805,11 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
                 .padding(top = 102.dp) // Adjust the padding to move the image
         ) {
             Image(
-                painter = painterResource(id =
-                if (isDarkMode) R.drawable.gator_dark_mode
-                else R.drawable.gator_light_mode),
+                painter = painterResource(
+                    id =
+                    if (isDarkMode) R.drawable.gator_dark_mode
+                    else R.drawable.gator_light_mode
+                ),
                 contentDescription = "SHPE GATOR",
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -441,9 +830,11 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
                 .padding(top = 86.dp) // Adjust the padding to move the image
         ){
             Image(
-                painter = painterResource(id =
-                if (isDarkMode) R.drawable.background_blue_circle
-                else R.drawable.background_white_circle),
+                painter = painterResource(
+                    id =
+                    if (isDarkMode) R.drawable.background_blue_circle
+                    else R.drawable.background_white_circle
+                ),
                 contentDescription = "PROFILE CURVE",
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -458,16 +849,18 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
                 .padding(top = topPadding), // Adjust the padding to move the image
             contentAlignment = Alignment.Center
 
-        ){
-//            ProfileImage(isDarkMode = isDarkMode, profileViewModel = profileViewModel)
-            Column(verticalArrangement = Arrangement.Center,
+        ) {
+            Column(
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(bottom = 16.dp)
-            ){
+            ) {
                 Image(
-                    painter = painterResource(id =
-                    if (isDarkMode) R.drawable.empty_profile_picture_dark
-                    else R.drawable.empty_profile_picture_light),
+                    painter = painterResource(
+                        id =
+                        if (isDarkMode) R.drawable.empty_profile_picture_dark
+                        else R.drawable.empty_profile_picture_light
+                    ),
                     contentDescription = "PROFILE PIC CIRCLE",
                     modifier = Modifier
 //                        .align(Alignment.Center)
@@ -484,33 +877,33 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
                 )
                 Spacer(modifier = Modifier.height(10.dp))
 
-                if(editable[0] && !editable[1]){
+                if (editable[0] && !editable[1]) {
                     Row(
                         modifier = Modifier.width(IntrinsicSize.Min),
                         horizontalArrangement = Arrangement.Center
-                    ){
+                    ) {
 
                         ProfileChangesButton(
-                            onClick = {profileViewModel.saveProfileChanges()},
+                            onClick = { profileViewModel.saveProfileChanges() },
                             containerColor = containerColor,
                             title = "Save",
                             modifier = Modifier.weight(1f)
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         ProfileChangesButton(
-                            onClick = {profileViewModel.cancelProfileChanges()},
+                            onClick = { profileViewModel.cancelProfileChanges() },
                             containerColor = containerColor,
                             title = "Cancel",
                             modifier = Modifier.weight(1f)
                         )
                     }
-                } else if (!editable[0] && editable[1]){
+                } else if (!editable[0] && editable[1]) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
-                    ){
+                    ) {
                         EditProfileButton(
-                            onClick = {profileViewModel.editProfile()},
+                            onClick = { profileViewModel.editProfile() },
                             profileViewModel
                         )
                     }
@@ -526,20 +919,34 @@ fun StaticProfilePageBackground(modifier: Modifier = Modifier, isDarkMode: Boole
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, textColor: Color, icon: Int, title: String, editable: List<Boolean>) {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .background(Color.White)){
+fun ProfileLists(
+    value: List<String?>,
+    onValueChange: (List<String?>) -> Unit,
+    listType: Char = 'c',
+    onAddValue: (String) -> Unit,
+    onRemoveValue: (String) -> Unit,
+    textColor: Color,
+    icon: Int,
+    title: String,
+    editable: List<Boolean>
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+    ) {
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp)
+                .padding(top = 10.dp),
         ) {
             // Row for Icon and Field Name
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 4.dp).padding(horizontal = 40.dp)
+                modifier = Modifier
+                    .padding(bottom = 4.dp)
+                    .padding(horizontal = 40.dp)
             ) {
                 Image(
                     painter = painterResource(id = icon),
@@ -555,35 +962,68 @@ fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, t
                 )
             }
 
+            Spacer(modifier = Modifier.height(10.dp))
+
             // Not editable
-            if(!editable[0] && editable[1]){
+
+            if (!editable[0] && editable[1]) {
+                val ctx = LocalContext.current
+
                 // Now loop through the value and display each class
                 value.forEach { classItem ->
-                    TextField(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
-                        value = classItem ?: "",
-                        onValueChange = { newValue -> onValueChange(value) },
-                        enabled = editable[0],
-                        readOnly = editable[1],
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        textStyle = TextStyle(fontSize = 15.sp, color = textColor),
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            focusedTextColor = Color.White,
-                            focusedPlaceholderColor = Color.Gray
-                        )
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 40.dp)
+                    ) {
+
+                        if (listType != 'c') {
+                            TextButton(
+                                onClick = {
+                                    val urlIntent = Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse(classItem)
+                                    )
+                                    ctx.startActivity(urlIntent)
+                                }
+                            ) {
+                                if (classItem != null) {
+                                    Text(
+                                        text = classItem.removePrefix("https://"),
+                                        modifier = Modifier.fillMaxWidth(),
+                                        color = textColor,
+                                        fontSize = 15.sp
+                                    )
+                                }
+                            }
+
+                        } else {
+                            if (classItem != null) {
+                                Text(
+                                    text = classItem,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = textColor,
+                                    fontSize = 15.sp
+                                )
+                            }
+                        }
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(10.dp))
             } else { // Editable
                 // TextField that can take in multiple attributes and add them to a list, for now show the elements in a box.
 
                 var text by remember { mutableStateOf("") }
 
-                Column{
-                    Row(modifier = Modifier.fillMaxSize()){
+                Column {
+                    Row(modifier = Modifier.fillMaxSize()) {
                         TextField(
                             value = text,
-                            placeholder = { Text(text = "Add your ${title.lowercase()} here")},
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = 32.dp),
+                            placeholder = { Text(text = "Add your ${title.lowercase()} here") },
                             onValueChange = { text = it },
                             enabled = editable[0],
                             readOnly = editable[1],
@@ -598,37 +1038,134 @@ fun ProfileLists(value: List<String?>, onValueChange: (List<String?>) -> Unit, t
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         IconButton(
-                            onClick = {},
-
-                            ) {
-                            Icon(Icons.Filled.AddCircle, contentDescription = "Add")
+                            onClick = { onAddValue(text) },
+                        ) {
+                            Icon(
+                                Icons.Filled.AddCircle,
+                                contentDescription = "Add",
+                                modifier = Modifier.size(30.dp),
+                                tint = Color.Blue
+                            )
                         }
                     }
-                    // Show the available items.
-                    value.forEach { classItem ->
-                        Row{
-                            Text(text = classItem ?: "")
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    if (listType != 'c') {
+                        value.forEach { linkItem ->
+                            Column(modifier = Modifier.padding(horizontal = 32.dp)) {
+                                Button(
+                                    onClick = { onRemoveValue(linkItem ?: "") },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Gray,
+                                        contentColor = textColor
+                                    ),
+                                    modifier = Modifier.wrapContentSize(Alignment.Center)
+                                ) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        if (linkItem != null) {
+                                            Text(
+                                                text = linkItem.removePrefix("https://"),
+                                                color = Color.White,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Visible
+                                            )
+                                        }
+                                        Icon(
+                                            Icons.Filled.RemoveCircle,
+                                            contentDescription = "Remove",
+                                            modifier = Modifier.size(15.dp),
+                                            tint = Color.White
+                                        )
+                                    }
+                                }
+                            }
+
                         }
+                    } else {
+                        // Show the available items.
+                        Column(modifier = Modifier.padding(horizontal = 32.dp)) {
+                            value.chunked(2).forEach { rowItems ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
 
+                                    ) {
+                                    rowItems.forEach { classItem ->
+                                        Button(
+                                            onClick = { onRemoveValue(classItem ?: "") },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color.Gray,
+                                                contentColor = textColor
+                                            ),
+                                            modifier = Modifier.wrapContentSize(Alignment.Center)
+                                        ) {
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = classItem ?: "",
+                                                    color = Color.White,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Visible
+                                                )
+                                                Icon(
+                                                    Icons.Filled.RemoveCircle,
+                                                    contentDescription = "Remove",
+                                                    modifier = Modifier.size(15.dp),
+                                                    tint = Color.White
+                                                )
+                                            }
+                                        }
+                                    }
 
+                                }
+                                // If the last row has fewer than 3 items, fill the space with empty Text() to keep layout even
+                                repeat(2 - rowItems.size) {
+                                    Text(
+                                        text = "", modifier = Modifier.weight(1f)
+                                    )
+                                }
+                            }
+                        }
                     }
+
+
                 }
+
+                Spacer(modifier = Modifier.height(10.dp))
             }
-
-
         }
+
+
     }
-
-
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileItem(value: String, onValueChange: (String) -> Unit, textColor: Color, icon: Int, title: String, editable: List<Boolean> = listOf(false, true), dropdown: Boolean = false) {
+fun ProfileItem(
+    value: String,
+    onValueChange: (String) -> Unit,
+    textColor: Color,
+    icon: Int,
+    title: String,
+    editable: List<Boolean> = listOf(false, true),
+    dropdown: Boolean = false,
+    newValue: List<String> = listOf(""),
+    onExpandedChange: (Boolean) -> Unit,
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .background(Color.White)){
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -637,7 +1174,9 @@ fun ProfileItem(value: String, onValueChange: (String) -> Unit, textColor: Color
             // Row for Icon and Field Name
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 4.dp).padding(horizontal = 40.dp)
+                modifier = Modifier
+                    .padding(bottom = 4.dp)
+                    .padding(horizontal = 40.dp)
             ) {
                 Image(
                     painter = painterResource(id = icon),
@@ -652,10 +1191,12 @@ fun ProfileItem(value: String, onValueChange: (String) -> Unit, textColor: Color
                     fontWeight = FontWeight.Bold
                 )
             }
-            if(!dropdown){
+            if (!dropdown) {
                 // Outlined Text Field for Input
                 TextField(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp, vertical = 12.dp),
                     value = value,
                     onValueChange = { newValue -> onValueChange(newValue) },
                     enabled = editable[0],
@@ -698,7 +1239,7 @@ private fun EditProfileButton(
                 contentColor = Color.White
             ),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically){
+            Row(verticalAlignment = Alignment.CenterVertically) {
 
                 Text(
                     text = "Edit Profile",
@@ -725,7 +1266,7 @@ private fun ProfileChangesButton(
     containerColor: Color,
     title: String,
     modifier: Modifier
-){
+) {
     Button(
         modifier = modifier
             .wrapContentSize(Alignment.Center),
@@ -775,7 +1316,8 @@ private fun LogoutButton(
 }
 
 @Composable
-private fun DeleteAccountButton(profileViewModel: ProfileViewModel
+private fun DeleteAccountButton(
+    profileViewModel: ProfileViewModel
 ) {
 
     var showDialog by remember { mutableStateOf(false) }
@@ -808,9 +1350,12 @@ private fun DeleteAccountButton(profileViewModel: ProfileViewModel
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text(text = "Delete Account?",
+            title = {
+                Text(
+                    text = "Delete Account?",
                     textAlign = TextAlign.Center
-            ) },
+                )
+            },
             text = { Text("Deleting your account will remove all your personal data forever. This cannot be undone.") },
             confirmButton = {
                 Button(
