@@ -1,4 +1,5 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
+import android.graphics.Bitmap
 
 data class ProfileUiState(
     val id: String = "",
@@ -16,6 +17,7 @@ data class ProfileUiState(
     val classes: List<String?>? = null,
     val internships: List<String?>? = null,
     val socialMedia: List<String?>? = null,
+    val photoBitmap: Bitmap? = null, //May change approach if too laggy
     val photo: String = "",
     val editable: List<Boolean> = listOf(false, true), // used for editing the text fields in the profile page,
     val isGenderExpanded: Boolean = false,

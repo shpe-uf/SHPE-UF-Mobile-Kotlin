@@ -55,6 +55,11 @@ import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -738,6 +743,34 @@ fun StaticProfileScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ProfileImage(isDarkMode: Boolean,
+                 profileViewModel: ProfileViewModel,
+){
+    val uiState by profileViewModel.uiState.collectAsState()
+
+    if (uiState.photoBitmap != null){
+        Image(
+            bitmap = uiState.photoBitmap!!.asImageBitmap(),
+            contentDescription = "USER PROFILE PIC",
+            modifier = Modifier
+                .width(116.dp)
+                .height(110.dp)
+                .clip(CircleShape)
+        )
+    } else {
+        Image(
+            painter = painterResource(id =
+            if (isDarkMode) R.drawable.empty_profile_picture_dark
+            else R.drawable.empty_profile_picture_light),
+            contentDescription = "PROFILE PIC CIRCLE",
+            modifier = Modifier
+                .width(116.dp)
+                .height(110.dp)
+        )
     }
 }
 
