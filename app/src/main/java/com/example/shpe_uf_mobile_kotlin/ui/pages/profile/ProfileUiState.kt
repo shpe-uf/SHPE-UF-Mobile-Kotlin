@@ -1,7 +1,5 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
-import com.apollographql.apollo3.api.Optional
-
 data class ProfileUiState(
     val id: String = "",
     val firstName: String = "",
