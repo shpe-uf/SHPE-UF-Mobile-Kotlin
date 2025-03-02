@@ -68,9 +68,13 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.RemoveCircle
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -227,7 +231,8 @@ fun StaticProfileScreen(
                     title = "GENDER",
                     editable = uiState.editable,
                     newValue = listOf("Male", "Female", "Non-Binary", "Other"),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(0) }
+                    onExpandedChange = { profileViewModel.toggleDropdownMenu(0) },
+                    tracker = uiState.isGenderExpanded
                 )
                 HorizontalDivider(
                     color = Color.LightGray,
@@ -256,7 +261,8 @@ fun StaticProfileScreen(
                         "Two or more ethnicities",
                         "Prefer not to answer"
                     ),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(1) }
+                    onExpandedChange = { profileViewModel.toggleDropdownMenu(1) },
+                    tracker = uiState.isEthnicityExpanded
                 )
                 HorizontalDivider(
                     color = Color.LightGray,
@@ -534,7 +540,8 @@ fun StaticProfileScreen(
                         "Zimbabwe",
                         "Åland Islands"
                     ),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(2) }
+                    onExpandedChange = { profileViewModel.toggleDropdownMenu(2) },
+                    tracker = uiState.isCountryOriginExpanded
                 )
             }
 
@@ -586,7 +593,8 @@ fun StaticProfileScreen(
                         "Nuclear Engineering",
                         "Other"
                     ),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(3) }
+                    onExpandedChange = { profileViewModel.toggleDropdownMenu(3) },
+                    tracker = uiState.isMajorExpanded
                 )
                 HorizontalDivider(
                     color = Color.LightGray,
@@ -614,7 +622,8 @@ fun StaticProfileScreen(
                         "Graduate",
                         "Ph.D."
                     ),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(4) }
+                    onExpandedChange = { profileViewModel.toggleDropdownMenu(4) },
+                    tracker = uiState.isYearExpanded
                 )
                 HorizontalDivider(
                     color = Color.LightGray,
@@ -634,7 +643,8 @@ fun StaticProfileScreen(
                     title = "GRADUATION YEAR",
                     editable = uiState.editable,
                     newValue = listOf("2025", "2026", "2027", "2028"),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(5) }
+                    onExpandedChange = { profileViewModel.toggleDropdownMenu(5) },
+                    tracker = uiState.isGraduationExpanded
                 )
                 HorizontalDivider(
                     color = Color.LightGray,
@@ -1149,7 +1159,7 @@ fun ProfileItem(
     dropdown: Boolean = false,
     newValue: List<String> = listOf(""),
     onExpandedChange: (Boolean) -> Unit,
-
+    tracker: Boolean = false
     ) {
 
     Box(
@@ -1202,7 +1212,55 @@ fun ProfileItem(
                     )
                 )
             } else {
-
+                if (title == "GENDER") {
+                    GenderDropdown(
+                        value = value,
+                        isGenderExpanded = tracker,
+                        onExpandedChange = { onExpandedChange },
+                        values = newValue,
+                        onValueChange = onValueChange
+                    )
+                }
+                else if (title == "ETHNICITY") {
+                   EthnicityDropdown(
+                       isEthnicityExpanded = tracker,
+                       onExpandedChange = { onExpandedChange },
+                       values = newValue,
+                       onValueChange = onValueChange
+                   )
+                }
+                else if (title == "COUNTRY OF ORIGIN") {
+                    CountryOriginDropdown(
+                        isCountryOriginExpanded = tracker,
+                        onExpandedChange = { onExpandedChange },
+                        values = newValue,
+                        onValueChange = onValueChange
+                    )
+                }
+                else if (title == "MAJOR") {
+                    MajorDropdown(
+                        isMajorExpanded = tracker,
+                        onExpandedChange = { onExpandedChange },
+                        values = newValue,
+                        onValueChange = onValueChange
+                    )
+                }
+                else if (title == "YEAR") {
+                    YearDropdown(
+                        isYearExpanded = tracker,
+                        onExpandedChange = { onExpandedChange },
+                        values = newValue,
+                        onValueChange = onValueChange
+                    )
+                }
+                else if (title == "GRADUATION YEAR") {
+                    GraduationYearDropdown(
+                        isGraduationYearExpanded = tracker,
+                        onExpandedChange = { onExpandedChange },
+                        values = newValue,
+                        onValueChange = onValueChange
+                    )
+                }
             }
 
         }
@@ -1475,3 +1533,199 @@ fun ModeButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GenderDropdown(
+    value: String,
+    isGenderExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    values: List<String>,
+    onValueChange: (String) -> Unit
+) {
+    ExposedDropdownMenuBox(
+        expanded = isGenderExpanded,
+        onExpandedChange = {onExpandedChange(it)}
+    ) {
+        TextField(
+            value = value,
+            onValueChange = {},
+            readOnly = true,
+            shape = RoundedCornerShape(10.dp),
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier
+                .menuAnchor()
+        )
+        ExposedDropdownMenu(
+            expanded = isGenderExpanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            for (value in values) {
+                DropdownMenuItem(
+                    text = {
+                        Text(text = value)
+                    },
+                    onClick = {
+                        onValueChange(value)
+                        onExpandedChange(false)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EthnicityDropdown(
+    isEthnicityExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    values: List<String>,
+    onValueChange: (String) -> Unit
+) {
+    ExposedDropdownMenuBox(
+        expanded = isEthnicityExpanded,
+        onExpandedChange = {onExpandedChange(it)}
+    ) {
+        ExposedDropdownMenu(
+            expanded = isEthnicityExpanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            for (value in values) {
+                DropdownMenuItem(
+                    text = {
+                        Text(text = value)
+                    },
+                    onClick = {
+                        onValueChange(value)
+                        onExpandedChange(false)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CountryOriginDropdown(
+    isCountryOriginExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    values: List<String>,
+    onValueChange: (String) -> Unit
+) {
+    ExposedDropdownMenuBox(
+        expanded = isCountryOriginExpanded,
+        onExpandedChange = {onExpandedChange(it)}
+    ) {
+        ExposedDropdownMenu(
+            expanded = isCountryOriginExpanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            for (value in values) {
+                DropdownMenuItem(
+                    text = {
+                        Text(text = value)
+                    },
+                    onClick = {
+                        onValueChange(value)
+                        onExpandedChange(false)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MajorDropdown(
+    isMajorExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    values: List<String>,
+    onValueChange: (String) -> Unit
+) {
+    ExposedDropdownMenuBox(
+        expanded = isMajorExpanded,
+        onExpandedChange = {onExpandedChange(it)}
+    ) {
+        ExposedDropdownMenu(
+            expanded = isMajorExpanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            for (value in values) {
+                DropdownMenuItem(
+                    text = {
+                        Text(text = value)
+                    },
+                    onClick = {
+                        onValueChange(value)
+                        onExpandedChange(false)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun YearDropdown(
+    isYearExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    values: List<String>,
+    onValueChange: (String) -> Unit
+) {
+    ExposedDropdownMenuBox(
+        expanded = isYearExpanded,
+        onExpandedChange = {onExpandedChange(it)}
+    ) {
+        ExposedDropdownMenu(
+            expanded = isYearExpanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            for (value in values) {
+                DropdownMenuItem(
+                    text = {
+                        Text(text = value)
+                    },
+                    onClick = {
+                        onValueChange(value)
+                        onExpandedChange(false)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GraduationYearDropdown(
+    isGraduationYearExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    values: List<String>,
+    onValueChange: (String) -> Unit
+) {
+    // Probably needs a modifier for size
+    ExposedDropdownMenuBox(
+        expanded = isGraduationYearExpanded,
+        onExpandedChange = {onExpandedChange(it)}
+    ) {
+        ExposedDropdownMenu(
+            expanded = isGraduationYearExpanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            for (value in values) {
+                DropdownMenuItem(
+                    text = {
+                        Text(text = value)
+                    },
+                    onClick = {
+                        onValueChange(value)
+                        onExpandedChange(false)
+                    }
+                )
+            }
+        }
+    }
+}
