@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorDropdownMenu
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 
@@ -230,20 +231,6 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
                 //            Spacer(modifier = Modifier.height(12.dp))
                 Spacer(modifier = Modifier.height(3.dp))
-
-            }
-
-            item{
-
-                Text(
-                    text = "Gender",
-                    fontSize = 16.sp,
-                    color = Color(0xFFFFFFFF),
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier
-                        .padding(start = 72.dp)
-                        .fillMaxWidth()
-                )
 
             }
 
@@ -447,7 +434,7 @@ private fun RegisterFirstName(
                 Icon(
                     Icons.Filled.Error,
                     "error",
-                    tint = MaterialTheme.colorScheme.error,
+                    tint = Color.Red,
                     modifier = Modifier.padding(end = 8.dp)
                 ) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -478,7 +465,7 @@ private fun RegisterLastName(
                 Icon(
                     Icons.Filled.Error,
                     "error",
-                    tint = MaterialTheme.colorScheme.error,
+                    tint = Color.Red,
                     modifier = Modifier.padding(end = 8.dp)
                 ) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -488,109 +475,6 @@ private fun RegisterLastName(
     )
 }
 
-
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//private fun RegisterFirstName(
-//
-//    /* Below are parameters for the function RegisterFirstName, which is responsible for rendering
-//    a text field to allow users to register their first name for an account. value is used for the
-//    current value of th email field, isError is used as a bool to indicated whether a user has made
-//    an error while filling out the first name field, errorMessage is used to store the error
-//    message to be displayed if there is an error, and onValueChange is a callback function invoked
-//    when the value of the first name field changes
-//     */
-//
-//    value: String,
-//    isError: Boolean,
-//    errorMessage: String,
-//    onValueChange: (String) -> Unit
-//){
-//
-//
-//    TextField(modifier = Modifier
-////        .height(50.dp)
-//        .fillMaxWidth(0.7f),
-//        value = value,
-//        onValueChange = {onValueChange(it)},
-//        isError = isError,
-//
-//        leadingIcon = {
-//            Image(
-//                painter = painterResource(id = R.drawable.usericon),
-//                contentDescription = "UserIcon",
-//                modifier = Modifier.size(24.dp)
-//            )
-//        },
-//        shape = RoundedCornerShape(10.dp),
-//        singleLine = true,
-//        keyboardOptions = KeyboardOptions(
-//            keyboardType = KeyboardType.Text
-//        ),
-//        supportingText = {
-//            if (isError) {
-//                Text(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    text = errorMessage,
-//                    color = MaterialTheme.colorScheme.error
-//                )
-//            }
-//        },
-//        trailingIcon = {
-//            if (isError)
-//                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
-//        }
-//
-//    )
-//}
-//
-//
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//private fun RegisterLastName(
-//    value: String,
-//    isError: Boolean,
-//    errorMessage: String,
-//    onValueChange: (String) -> Unit
-//) {
-//    TextField(
-//        modifier = Modifier
-////            .height(50.dp)
-//            .fillMaxWidth(0.7f),
-//        value = value,
-//        onValueChange = {onValueChange(it)},
-//        isError = isError,
-//        leadingIcon = {
-//            Image(
-//                painter = painterResource(id = R.drawable.usericon),
-//                contentDescription = "UserIcon",
-//                modifier = Modifier.size(24.dp)
-//            )
-//        },
-//        shape = RoundedCornerShape(10.dp),
-//        singleLine = true,
-//        keyboardOptions = KeyboardOptions(
-//            keyboardType = KeyboardType.Text
-//        ),
-//        supportingText = {
-//
-//            if (isError) {
-//                Text(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    text = errorMessage,
-//                    color = MaterialTheme.colorScheme.error
-//                )
-//            }
-//        },
-//        trailingIcon = {
-//            if (isError)
-//                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
-//        }
-//    )
-//}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GenderDropDownMenu(
     value: String,
@@ -598,79 +482,108 @@ private fun GenderDropDownMenu(
     errorMessage: String,
     isGenderMenuExpanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    onValueChange: (String) -> Unit,
+    onValueChange: (String) -> Unit
+
 ){
-    ExposedDropdownMenuBox(
-        expanded = isGenderMenuExpanded,
-        onExpandedChange = {onExpandedChange(it)}
-    ) {
-        TextField(
-            value = value,
-            onValueChange = {},
-            isError = isError,
-            readOnly = true,
-            leadingIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.gender_equality),
-                    contentDescription = "GenderEqualityIcon",
-                    modifier = Modifier.size(28.dp)
-                )
-            },
-            shape = RoundedCornerShape(10.dp),
-            supportingText = {
+    val options = listOf("Male", "Female", "Other")
 
-                if (isError) {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            },
-
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isGenderMenuExpanded)
-            },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
-            modifier = Modifier
-//                .height(50.dp)
-                .fillMaxWidth(0.7f)
-                .menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = isGenderMenuExpanded,
-            onDismissRequest = { onExpandedChange(false) }
-        ) {
-            DropdownMenuItem(
-                text = {
-                    Text(text = "Male")
-                },
-                onClick = {
-                    onValueChange("Male")
-                    onExpandedChange(false)
-                }
-            )
-            DropdownMenuItem(
-                text = {
-                    Text(text = "Female")
-                },
-                onClick = {
-                    onValueChange("Female")
-                    onExpandedChange(false)
-                }
-            )
-            DropdownMenuItem(
-                text = {
-                    Text(text = "Other")
-                },
-                onClick = {
-                    onValueChange("Other")
-                    onExpandedChange(false)
-                }
-            )
-        }
-    }
+    SuperiorDropdownMenu(
+        label = "Gender",
+        labelModifier = Modifier.padding(horizontal = 9.22.dp, vertical = 5.53.dp),
+        selectedOption = value,
+        options = options,
+        onOptionSelected = onValueChange,
+        leadingIcon = R.drawable.gender_equality,
+        leadingIconModifier = Modifier.size(32.dp),
+        isError = isError,
+        errorMessage = errorMessage
+    )
 }
+
+
+
+
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//private fun GenderDropDownMenu(
+//    value: String,
+//    isError: Boolean,
+//    errorMessage: String,
+//    isGenderMenuExpanded: Boolean,
+//    onExpandedChange: (Boolean) -> Unit,
+//    onValueChange: (String) -> Unit,
+//){
+//    ExposedDropdownMenuBox(
+//        expanded = isGenderMenuExpanded,
+//        onExpandedChange = {onExpandedChange(it)}
+//    ) {
+//        TextField(
+//            value = value,
+//            onValueChange = {},
+//            isError = isError,
+//            readOnly = true,
+//            leadingIcon = {
+//                Image(
+//                    painter = painterResource(id = R.drawable.gender_equality),
+//                    contentDescription = "GenderEqualityIcon",
+//                    modifier = Modifier.size(28.dp)
+//                )
+//            },
+//            shape = RoundedCornerShape(10.dp),
+//            supportingText = {
+//
+//                if (isError) {
+//                    Text(
+//                        modifier = Modifier.fillMaxWidth(),
+//                        text = errorMessage,
+//                        color = MaterialTheme.colorScheme.error
+//                    )
+//                }
+//            },
+//
+//            trailingIcon = {
+//                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isGenderMenuExpanded)
+//            },
+//            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+//            modifier = Modifier
+////                .height(50.dp)
+//                .fillMaxWidth(0.7f)
+//                .menuAnchor()
+//        )
+//        ExposedDropdownMenu(
+//            expanded = isGenderMenuExpanded,
+//            onDismissRequest = { onExpandedChange(false) }
+//        ) {
+//            DropdownMenuItem(
+//                text = {
+//                    Text(text = "Male")
+//                },
+//                onClick = {
+//                    onValueChange("Male")
+//                    onExpandedChange(false)
+//                }
+//            )
+//            DropdownMenuItem(
+//                text = {
+//                    Text(text = "Female")
+//                },
+//                onClick = {
+//                    onValueChange("Female")
+//                    onExpandedChange(false)
+//                }
+//            )
+//            DropdownMenuItem(
+//                text = {
+//                    Text(text = "Other")
+//                },
+//                onClick = {
+//                    onValueChange("Other")
+//                    onExpandedChange(false)
+//                }
+//            )
+//        }
+//    }
+//}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
