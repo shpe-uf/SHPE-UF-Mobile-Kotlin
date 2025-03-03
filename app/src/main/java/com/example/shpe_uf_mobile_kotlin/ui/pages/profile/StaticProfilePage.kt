@@ -88,6 +88,7 @@ fun StaticProfilePagePreview(
 }
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun StaticProfileScreen(
     profileViewModel: ProfileViewModel,
