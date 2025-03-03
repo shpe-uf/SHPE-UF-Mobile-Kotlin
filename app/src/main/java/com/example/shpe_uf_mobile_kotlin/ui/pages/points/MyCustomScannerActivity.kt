@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.os.Bundle
+import android.text.Html
 import android.util.Log
 import android.util.Size
 import android.widget.ImageButton
@@ -46,7 +47,7 @@ class MyCustomScannerActivity : AppCompatActivity() {
 
         val backButton: ImageButton = findViewById(R.id.backButton)
         backButton.setOnClickListener {
-            showCustomToast("Scan canceled")
+            showCustomToast("Scan Canceled")
             finish()
         }
 
@@ -125,8 +126,16 @@ class MyCustomScannerActivity : AppCompatActivity() {
         }
     }
 
-    @androidx.annotation.OptIn(ExperimentalGetImage::class)
+    private var scanningActive = true
+
+    @OptIn(ExperimentalGetImage::class)
     private fun processImageProxy(imageProxy: ImageProxy) {
+        if (!scanningActive) {
+            // Already handled a scan, just close and return
+            imageProxy.close()
+            return
+        }
+
         val mediaImage = imageProxy.image ?: run {
             imageProxy.close()
             return
@@ -137,15 +146,17 @@ class MyCustomScannerActivity : AppCompatActivity() {
         val options = BarcodeScannerOptions.Builder()
             .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
             .build()
-
         val scanner = BarcodeScanning.getClient(options)
+
         scanner.process(image)
             .addOnSuccessListener { barcodes ->
                 if (barcodes.isNotEmpty()) {
-                    // Grab the first barcode
+                    // Make sure we only process the first recognized scan
+                    scanningActive = false
+
                     val barcode = barcodes[0]
                     val scannedText = barcode.rawValue ?: ""
-                    showCustomToast("QR Code scanned: $scannedText")
+                    showCustomToast("Code: <b>$scannedText<b>, was succesfully scanned")
 
                     val data = Intent().apply {
                         putExtra("SCAN_RESULT", scannedText)
@@ -155,7 +166,7 @@ class MyCustomScannerActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener {
-                // Ignore failures
+                // Not recognized, still scanning, do NOT set scanningActive=false
             }
             .addOnCompleteListener {
                 imageProxy.close()
@@ -171,15 +182,20 @@ class MyCustomScannerActivity : AppCompatActivity() {
         val layoutInflater = layoutInflater
         val view = layoutInflater.inflate(R.layout.custom_toast, null)
 
+        // Bolding the code portion in HTML
         val textView = view.findViewById<TextView>(R.id.toast_message)
-        textView.text = message
+        val boldedText = Html.fromHtml(message)
+        textView.text = boldedText
 
-        val imageView = view.findViewById<ImageView>(R.id.toast_icon)
-        imageView.setImageResource(R.drawable.shpe_logo_full_color)
-
+        // Create & configure the Toast
         val toast = Toast(applicationContext)
         toast.duration = Toast.LENGTH_SHORT
+
+        // Position it at the top of the screen
+        toast.setGravity(android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL, 0, 100)
+
         toast.view = view
         toast.show()
     }
+
 }

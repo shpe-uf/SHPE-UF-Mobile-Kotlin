@@ -490,7 +490,20 @@ fun RedeemPoints(
             val contents = result.data?.getStringExtra("SCAN_RESULT")
             if (contents != null) {
                 val scannedCode = contents.removePrefix("[SHPEUF]:")
+
+                // Update the ViewModel with the scanned code
                 pointsPageViewModel.updateEventCode(scannedCode)
+                pointsPageViewModel.updateGuestsCount(1)
+
+                // Immediately redeem and close the bottom sheet if successful
+                coroutineScope.launch {
+                    val error = pointsPageViewModel.redeemEvent(username)
+                    if (error == null) {
+                        onCloseBottomSheet()
+                    } else {
+                        errorMessage = error
+                    }
+                }
             }
         }
     }
@@ -732,7 +745,7 @@ fun RedeemPoints(
             Button(
                 onClick = {
                     coroutineScope.launch {
-                        //Call to viewmodel function to validate the event code
+                        // Call to viewmodel function to validate the event code
                         errorMessage = pointsPageViewModel.redeemEvent(username).toString()
                     }
                 },
