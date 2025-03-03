@@ -45,8 +45,8 @@ data class RegisterPage1State (
     val passwordErrorMessage: String? = null,
     val confirmPasswordErrorMessage: String? = null,
 
-    val isPasswordVisible: Boolean = true,
-    val isConfirmPasswordVisible: Boolean = true
+    val isPasswordVisible: Boolean = false,
+    val isConfirmPasswordVisible: Boolean = false
 
 
 )
