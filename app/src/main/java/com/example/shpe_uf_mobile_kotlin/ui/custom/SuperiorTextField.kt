@@ -71,6 +71,7 @@ fun SuperiorTextField(
     isError: Boolean = false,
     errorMessage: String? = null,
     leadingIconModifier: Modifier = Modifier,
+    trailingIconTint: Color = Color.Unspecified
 ) {
     val labelColor = if (isSystemInDarkTheme()) {
         Color.White
@@ -143,6 +144,7 @@ fun SuperiorTextField(
                                 Icon(
                                     painter = painterResource(trailingIcon),
                                     contentDescription = "Trailing Icon",
+                                    tint = trailingIconTint
                                 )
                             }
 
