@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.sp
 import com.example.shpe_uf_mobile_kotlin.R
 
 /**
+ * @author Anthony Zurita & google.com
+ * @date March 3, 2024
  * A custom dropdown field that matches the SuperiorTextField styling.
  *
  * @param label The text displayed above the dropdown field.
