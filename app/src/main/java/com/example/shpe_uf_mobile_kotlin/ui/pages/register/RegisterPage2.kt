@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 
 
@@ -189,18 +190,6 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             }
 
             item{
-                Text(
-                    text = "First Name",
-                    fontSize = 16.sp,
-                    color = Color(0xFFFFFFFF),
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier
-                        .padding(start = 72.dp)
-                        .fillMaxWidth()
-                )
-
-            }
-            item{
                 Spacer(modifier = Modifier.height(4.dp))
             }
 
@@ -221,19 +210,6 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
             }
 
-            item{
-
-                Text(
-                    text = "Last Name",
-                    fontSize = 16.sp,
-                    color = Color(0xFFFFFFFF),
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier
-                        .padding(start = 72.dp)
-                        .fillMaxWidth()
-                )
-
-            }
 
             item{
                 Spacer(modifier = Modifier.height(4.dp))
@@ -441,102 +417,6 @@ fun RegisterPage2Background(navController: NavController) {
 }
 
 
-//@Preview
-//@Composable
-//fun RegistrationPage2ProgressionBar(modifier: Modifier = Modifier){
-//
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize(),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//
-//    ){
-//
-//        Spacer(modifier = Modifier.height(132.dp))
-//
-//        Row{
-//            Row{
-//                Box(
-//                    modifier = Modifier
-//                        .size(width = 106.dp, height = 5.dp)
-//                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
-//                )
-//
-//            }
-//
-//            Spacer(modifier = Modifier.width(8.dp))
-//
-//            Row{
-//                Box(
-//                    modifier = Modifier
-//                        .size(width = 106.dp, height = 5.dp)
-//                        .background(Color(0xFFD25917), shape = RoundedCornerShape(1.dp))
-//                )
-//
-//            }
-//
-//            Spacer(modifier = Modifier.width(8.dp))
-//
-//            Row{
-//                Box(
-//                    modifier = Modifier
-//                        .size(width = 106.dp, height = 5.dp)
-//                        .background(Color(0xFF999999), shape = RoundedCornerShape(1.dp))
-//                )
-//            }
-//        }
-//    }
-//}
-
-
-//@Preview
-//@Composable
-//fun RegistrationPage2PersonalDetailsText(modifier: Modifier = Modifier){
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(start = 30.dp)
-//
-//    ){
-//
-//        Spacer(modifier = Modifier.height(174.dp))
-//
-//        Text(
-//            text = "Enter your info to finalize your profile",
-//            style = TextStyle(
-//                fontSize = 14.sp,
-//                fontWeight = FontWeight(400),
-//                color = Color(0xFFFFFFFF)
-//            )
-//        )
-//
-//        Row(
-//            verticalAlignment = Alignment.CenterVertically
-//        ){
-//            Row{
-//                Text(
-//                    text = "Personal Details",
-//                    style = TextStyle(
-//                        fontSize = 36.sp,
-//                        fontWeight = FontWeight(400),
-//                        color = Color(0xFFD25917)
-//                    )
-//                )
-//            }
-//
-//            Spacer(modifier = Modifier.width(32.dp))
-//
-//            Row{
-//                Image(
-//                    painter = painterResource(id = R.drawable.personaldetailsicon),
-//                    contentDescription = "PersonalDetailsIcon",
-//                    modifier = Modifier.size(50.dp)
-//                )
-//            }
-//        }
-//    }
-//}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -556,40 +436,24 @@ private fun RegisterFirstName(
     onValueChange: (String) -> Unit
 ){
 
-
-    TextField(modifier = Modifier
-//        .height(50.dp)
-        .fillMaxWidth(0.7f),
+    SuperiorTextField(
+        label = "First Name",
+        labelModifier = Modifier.padding(horizontal = 9.22.dp, vertical = 5.53.dp),
         value = value,
-        onValueChange = {onValueChange(it)},
-        isError = isError,
-
-        leadingIcon = {
-            Image(
-                painter = painterResource(id = R.drawable.usericon),
-                contentDescription = "UserIcon",
-                modifier = Modifier.size(24.dp)
-            )
-        },
-        shape = RoundedCornerShape(10.dp),
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text
-        ),
-        supportingText = {
-            if (isError) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = errorMessage,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        },
-        trailingIcon = {
+        onValueChange = onValueChange,
+        leadingIcon = R.drawable.profile_circle,
+        iconTrailingIcon = {
             if (isError)
-                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
-        }
-
+                Icon(
+                    Icons.Filled.Error,
+                    "error",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(end = 8.dp)
+                ) },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        leadingIconModifier = Modifier.size(32.dp).padding(start = 12.dp),
+        isError = isError,
+        errorMessage = errorMessage,
     )
 }
 
@@ -602,41 +466,128 @@ private fun RegisterLastName(
     errorMessage: String,
     onValueChange: (String) -> Unit
 ) {
-    TextField(
-        modifier = Modifier
-//            .height(50.dp)
-            .fillMaxWidth(0.7f),
-        value = value,
-        onValueChange = {onValueChange(it)},
-        isError = isError,
-        leadingIcon = {
-            Image(
-                painter = painterResource(id = R.drawable.usericon),
-                contentDescription = "UserIcon",
-                modifier = Modifier.size(24.dp)
-            )
-        },
-        shape = RoundedCornerShape(10.dp),
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text
-        ),
-        supportingText = {
 
-            if (isError) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = errorMessage,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        },
-        trailingIcon = {
+    SuperiorTextField(
+        label = "Last Name",
+        labelModifier = Modifier.padding(horizontal = 9.22.dp, vertical = 5.53.dp),
+        value = value,
+        onValueChange = onValueChange,
+        leadingIcon = R.drawable.profile_circle,
+        iconTrailingIcon = {
             if (isError)
-                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
-        }
+                Icon(
+                    Icons.Filled.Error,
+                    "error",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(end = 8.dp)
+                ) },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        leadingIconModifier = Modifier.size(32.dp).padding(start = 12.dp),
+        isError = isError,
+        errorMessage = errorMessage,
     )
 }
+
+
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//private fun RegisterFirstName(
+//
+//    /* Below are parameters for the function RegisterFirstName, which is responsible for rendering
+//    a text field to allow users to register their first name for an account. value is used for the
+//    current value of th email field, isError is used as a bool to indicated whether a user has made
+//    an error while filling out the first name field, errorMessage is used to store the error
+//    message to be displayed if there is an error, and onValueChange is a callback function invoked
+//    when the value of the first name field changes
+//     */
+//
+//    value: String,
+//    isError: Boolean,
+//    errorMessage: String,
+//    onValueChange: (String) -> Unit
+//){
+//
+//
+//    TextField(modifier = Modifier
+////        .height(50.dp)
+//        .fillMaxWidth(0.7f),
+//        value = value,
+//        onValueChange = {onValueChange(it)},
+//        isError = isError,
+//
+//        leadingIcon = {
+//            Image(
+//                painter = painterResource(id = R.drawable.usericon),
+//                contentDescription = "UserIcon",
+//                modifier = Modifier.size(24.dp)
+//            )
+//        },
+//        shape = RoundedCornerShape(10.dp),
+//        singleLine = true,
+//        keyboardOptions = KeyboardOptions(
+//            keyboardType = KeyboardType.Text
+//        ),
+//        supportingText = {
+//            if (isError) {
+//                Text(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    text = errorMessage,
+//                    color = MaterialTheme.colorScheme.error
+//                )
+//            }
+//        },
+//        trailingIcon = {
+//            if (isError)
+//                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
+//        }
+//
+//    )
+//}
+//
+//
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//private fun RegisterLastName(
+//    value: String,
+//    isError: Boolean,
+//    errorMessage: String,
+//    onValueChange: (String) -> Unit
+//) {
+//    TextField(
+//        modifier = Modifier
+////            .height(50.dp)
+//            .fillMaxWidth(0.7f),
+//        value = value,
+//        onValueChange = {onValueChange(it)},
+//        isError = isError,
+//        leadingIcon = {
+//            Image(
+//                painter = painterResource(id = R.drawable.usericon),
+//                contentDescription = "UserIcon",
+//                modifier = Modifier.size(24.dp)
+//            )
+//        },
+//        shape = RoundedCornerShape(10.dp),
+//        singleLine = true,
+//        keyboardOptions = KeyboardOptions(
+//            keyboardType = KeyboardType.Text
+//        ),
+//        supportingText = {
+//
+//            if (isError) {
+//                Text(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    text = errorMessage,
+//                    color = MaterialTheme.colorScheme.error
+//                )
+//            }
+//        },
+//        trailingIcon = {
+//            if (isError)
+//                Icon(Icons.Filled.Error,"error", tint = MaterialTheme.colorScheme.error)
+//        }
+//    )
+//}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1356,14 +1307,6 @@ private fun CountryOriginDropDownMenu(
                     onExpandedChange(false)
                 }
             )
-
-
-
-
-
-
-
-
         }
     }
 }
