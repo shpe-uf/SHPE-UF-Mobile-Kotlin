@@ -457,12 +457,15 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
 /*
 ******************************************************
 FUNCTION: RedeemPoints()
-* Design of slide up screen that is called when "Redeem
-* Code" is pressed. Functionality includes a textbox
-* for event code, adding up to 5 guests with plus or minus
-* button, and a "Redeem" button to submit the request that
-* connects to a GraphQL mutation that provides proper error
-* statements to the textbox if necessary.
+* Displays a slide-up screen when "Redeem Code" is pressed.
+* Functionality includes:
+* - Textbox for event code input.
+* - Ability to add up to 5 guests using plus/minus buttons.
+* - "Redeem" button submits the request via a GraphQL mutation.
+* - Now includes a QR scanning feature with a camera icon
+*   that launches a custom scanner.
+* - Automatically redeems points if a valid QR code is scanned.
+* - Uses custom toast messages to provide feedback.
 ******************************************************
  */
 @OptIn(ExperimentalMaterial3Api::class)
