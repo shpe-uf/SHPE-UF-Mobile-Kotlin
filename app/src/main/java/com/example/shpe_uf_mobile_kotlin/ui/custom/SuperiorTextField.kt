@@ -118,7 +118,8 @@ fun SuperiorTextField(
                             Icon(
                                 painter = painterResource(leadingIcon),
                                 contentDescription = "Leading Icon",
-                                modifier = leadingIconModifier
+                                modifier = leadingIconModifier,
+                                tint = Color.Gray
                             )
                         }
                         Box(
@@ -142,6 +143,7 @@ fun SuperiorTextField(
                                 Icon(
                                     painter = painterResource(trailingIcon),
                                     contentDescription = "Trailing Icon",
+                                    tint = Color.Gray,
                                 )
                             }
 
