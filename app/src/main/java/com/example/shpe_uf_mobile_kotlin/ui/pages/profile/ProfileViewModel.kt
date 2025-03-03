@@ -40,6 +40,8 @@ class ProfileViewModel : ViewModel() {
     //TODO: add validation for text field inputs
     fun onFullNameChanged(fullName: String) {
 
+        val error = if (fullName.isEmpty()) "Name cannot be empty." else ""
+
         // splitting the name into first and last
 
         val parts = fullName.trim().split(" ", limit = 2)
@@ -49,10 +51,21 @@ class ProfileViewModel : ViewModel() {
             2 -> _uiState.value = _uiState.value.copy(firstName = parts[0], lastName = parts[1])
         }
 
-        _uiState.value = _uiState.value.copy(fullName = fullName)
+        _uiState.value = _uiState.value.copy(
+            fullName = fullName,
+            errorMessages = _uiState.value.errorMessages.toMutableMap().apply {
+                put("fullName", error)
+            }
+        )
     }
 
+    fun validateNameChange(name: String) {
+        val error = if (name.isEmpty()) "Name cannot be empty." else null
 
+        _uiState.value = _uiState.value.copy(
+
+        )
+    }
 
     fun onUserNameChanged(userName: String) {
         _uiState.value = _uiState.value.copy(userName = userName)
@@ -101,7 +114,8 @@ class ProfileViewModel : ViewModel() {
     // added photo bitmap to state when calling this fun
     fun onPhotoChanged(photo: String) {
         _uiState.value = _uiState.value.copy(photo = photo)
-        _uiState.value = _uiState.value.copy(photoBitmap = decodeBase64ToBitmap(_uiState.value.photo.toString()))
+        _uiState.value =
+            _uiState.value.copy(photoBitmap = decodeBase64ToBitmap(_uiState.value.photo.toString()))
     }
 
     // Add to the lists
@@ -126,19 +140,33 @@ class ProfileViewModel : ViewModel() {
     // Remove from the lists
     fun removeInternship(internshipName: String) {
         val currentInternships = _uiState.value.internships?.toMutableList() ?: mutableListOf()
-        currentInternships.remove(internshipName)
+
+        if (currentInternships.contains(internshipName)) {
+            currentInternships.remove(internshipName)
+        }
+
         _uiState.value = _uiState.value.copy(internships = currentInternships)
     }
 
     fun removeClass(className: String) {
         val currentClasses = _uiState.value.classes?.toMutableList() ?: mutableListOf()
-        currentClasses.remove(className)
+
+        Log.d("list", "$currentClasses")
+
+        if (currentClasses.contains(className)) {
+            currentClasses.remove(className)
+        }
+
         _uiState.value = _uiState.value.copy(classes = currentClasses)
     }
 
     fun removeLink(link: String) {
         val currentLinks = _uiState.value.socialMedia?.toMutableList() ?: mutableListOf()
-        currentLinks.remove(link)
+
+        if (currentLinks.contains(link)) {
+            currentLinks.remove(link)
+        }
+
         _uiState.value = _uiState.value.copy(socialMedia = currentLinks)
     }
 
@@ -284,12 +312,23 @@ class ProfileViewModel : ViewModel() {
 
     fun toggleDropdownMenu(menu: Int) {
         when (menu) {
-            0 -> _uiState.value = _uiState.value.copy(isGenderExpanded = !_uiState.value.isGenderExpanded)
-            1 -> _uiState.value = _uiState.value.copy(isEthnicityExpanded = !_uiState.value.isEthnicityExpanded)
-            2 -> _uiState.value = _uiState.value.copy(isCountryOriginExpanded = !_uiState.value.isCountryOriginExpanded)
-            3 -> _uiState.value = _uiState.value.copy(isMajorExpanded = !_uiState.value.isMajorExpanded)
-            4 -> _uiState.value = _uiState.value.copy(isYearExpanded = !_uiState.value.isYearExpanded)
-            5 -> _uiState.value = _uiState.value.copy(isGraduationExpanded = !_uiState.value.isGraduationExpanded)
+            0 -> _uiState.value =
+                _uiState.value.copy(isGenderExpanded = !_uiState.value.isGenderExpanded)
+
+            1 -> _uiState.value =
+                _uiState.value.copy(isEthnicityExpanded = !_uiState.value.isEthnicityExpanded)
+
+            2 -> _uiState.value =
+                _uiState.value.copy(isCountryOriginExpanded = !_uiState.value.isCountryOriginExpanded)
+
+            3 -> _uiState.value =
+                _uiState.value.copy(isMajorExpanded = !_uiState.value.isMajorExpanded)
+
+            4 -> _uiState.value =
+                _uiState.value.copy(isYearExpanded = !_uiState.value.isYearExpanded)
+
+            5 -> _uiState.value =
+                _uiState.value.copy(isGraduationExpanded = !_uiState.value.isGraduationExpanded)
         }
     }
 }

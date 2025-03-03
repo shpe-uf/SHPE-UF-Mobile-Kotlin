@@ -25,5 +25,8 @@ data class ProfileUiState(
     val isCountryOriginExpanded: Boolean = false,
     val isMajorExpanded: Boolean = false,
     val isYearExpanded: Boolean = false,
-    val isGraduationExpanded: Boolean = false
+    val isGraduationExpanded: Boolean = false,
+
+    // Error messages
+    val errorMessages: Map<String, String?> = emptyMap()
 )
