@@ -142,7 +142,7 @@ fun SuperiorDropdownMenu(
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
                     .width(width)
-                    .background(Color(0xFFEEEEEE)) // Light gray background for menu
+                    .background(Color(0xFFE8E8E8)) // Light gray background for menu
             ) {
                 options.forEach { option ->
                     DropdownMenuItem(
@@ -178,7 +178,7 @@ fun SuperiorDropdownMenu(
                     fontFamily = FontFamily(Font(R.font.universltstd)),
                     fontWeight = FontWeight(400)
                 ),
-                color = MaterialTheme.colorScheme.error
+                color = Color.Red
             )
         }
     }
