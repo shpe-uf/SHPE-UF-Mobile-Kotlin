@@ -308,7 +308,7 @@ private fun RegisterEmail(
                 Icon(
                     Icons.Filled.Error,
                     "error",
-                    tint = MaterialTheme.colorScheme.error,
+                    tint = Color.Red,
                     modifier = Modifier.padding(end = 8.dp)
                 ) },
         leadingIconModifier = Modifier.size(32.dp).padding(start = 12.dp),
@@ -346,13 +346,13 @@ private fun RegisterUsername(
                 Icon(
                     Icons.Filled.Error,
                     "error",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(end = 8.dp)
+                    tint = Color.Red,
+                    modifier = Modifier.padding(end = 10.dp)
                 ) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         isError = isError,
         errorMessage = errorMessage,
-        leadingIconModifier = Modifier.size(32.dp).padding(start = 12.dp)
+        leadingIconModifier = Modifier.size(32.dp).padding(start = 10.dp)
     )
 }
 

@@ -118,7 +118,8 @@ fun SuperiorTextField(
                             Icon(
                                 painter = painterResource(leadingIcon),
                                 contentDescription = "Leading Icon",
-                                modifier = leadingIconModifier
+                                modifier = leadingIconModifier,
+                                tint = Color.Gray
                             )
                         }
                         Box(
@@ -158,7 +159,7 @@ fun SuperiorTextField(
                     fontFamily = FontFamily(Font(R.font.universltstd)),
                     fontWeight = FontWeight(400)
                 ),
-                color = MaterialTheme.colorScheme.error
+                color = Color.Red
             )
         }
     }
