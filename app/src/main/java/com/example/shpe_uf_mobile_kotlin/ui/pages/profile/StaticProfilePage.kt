@@ -2,11 +2,16 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ContextualFlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,10 +24,20 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.RemoveCircle
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -31,7 +46,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,11 +58,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -53,37 +74,6 @@ import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
-
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.ContextualFlowColumn
-import androidx.compose.foundation.layout.ContextualFlowRow
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Divider
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.RemoveCircle
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextOverflow
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
 //TODO: add bottom bar functionality
@@ -98,6 +88,7 @@ fun StaticProfilePagePreview(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun StaticProfileScreen(
     profileViewModel: ProfileViewModel,
@@ -123,7 +114,19 @@ fun StaticProfileScreen(
             Color(0xFF001627)
         }
 
-        profileViewModel.loadProfile(mainState.id)
+        var refreshing by remember { mutableStateOf(false) }
+
+        val pullToRefreshState = rememberPullRefreshState(
+            refreshing = refreshing,
+            onRefresh = {
+                refreshing = true
+                profileViewModel.loadProfile(mainState.id)
+                // Simulate fetch delay, replace with actual ViewModel observer if necessary
+                refreshing = false
+            }
+        )
+
+//        profileViewModel.loadProfile(mainState.id)
 
         StaticProfilePageBackground(
             isDarkMode = isDarkMode,
@@ -136,598 +139,639 @@ fun StaticProfileScreen(
 
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp.value
 
-
-        LazyColumn(
-            modifier = Modifier
-                .padding(top = 300.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Box(
+            modifier = Modifier.pullRefresh(pullToRefreshState)
         ) {
+            PullRefreshIndicator(
+                refreshing = refreshing,
+                state = pullToRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
 
-            item {
-                Spacer(modifier = Modifier.height(39.dp))
-            }
+            LazyColumn(
+                modifier = Modifier
+                    .padding(top = 300.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
 
-            item {
-                Text(
-                    text = "ACCOUNT INFO",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 36.dp),
-                    color = textColor,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(27.dp))
-            }
-
-            // Name
-            item {
-
-                ProfileItem(value = uiState.fullName,
-                    onValueChange = profileViewModel::onFullNameChanged,
-                    textColor = textColor,
-                    icon = R.drawable.profile_circle_orange,
-                    title = "NAME",
-                    editable = uiState.editable,
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(6) })
-                HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            // Username
-            item {
-                ProfileItem(value = uiState.userName,
-                    onValueChange = profileViewModel::onUserNameChanged,
-                    textColor = textColor,
-                    icon = R.drawable.profile_circle_orange,
-                    title = "USERNAME",
-                    editable = listOf(false, true),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(6) })
-                HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
-                )
-
-            }
-
-            // Email
-            item {
-                ProfileItem(value = uiState.email,
-                    onValueChange = profileViewModel::onEmailChanged,
-                    textColor = textColor,
-                    icon = R.drawable.profile_email,
-                    title = "EMAIL",
-                    editable = listOf(false, true),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(6) })
-                HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
-                )
-
-            }
-
-            // Gender
-            item {
-                ProfileItem(
-                    value = uiState.gender,
-                    onValueChange = profileViewModel::onGenderChanged,
-                    textColor = textColor,
-                    icon = R.drawable.profile_gender_equality,
-                    title = "GENDER",
-                    editable = uiState.editable,
-                    newValue = listOf("Male", "Female", "Non-Binary", "Other"),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(0) },
-                    dropdown = true
-                )
-                HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
-                )
-
-            }
-
-            // Ethnicity
-            item {
-                ProfileItem(
-                    value = uiState.ethnicity,
-                    onValueChange = profileViewModel::onEthnicityChanged,
-                    textColor = textColor,
-                    icon = R.drawable.profile_globe,
-                    title = "ETHNICITY",
-                    editable = uiState.editable,
-                    newValue = listOf(
-                        "American Indian or Alaska Native",
-                        "Asian",
-                        "Black or African American",
-                        "Hispanic/Latino",
-                        "Native Hawaiian or Other Pacific Islander",
-                        "White",
-                        "Two or more ethnicities",
-                        "Prefer not to answer"
-                    ),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(1) },
-                    dropdown = true
-                )
-                HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
-                )
-
-            }
-
-            // Country
-            item {
-                ProfileItem(
-                    value = uiState.country,
-                    onValueChange = profileViewModel::onCountryChanged,
-                    textColor = textColor,
-                    icon = R.drawable.profile_globe,
-                    title = "COUNTRY OF ORIGIN",
-                    editable = uiState.editable,
-                    newValue = listOf(
-                        "Afghanistan",
-                        "Albania",
-                        "Algeria",
-                        "American Samoa",
-                        "Andorra",
-                        "Angola",
-                        "Anguilla",
-                        "Antarctica",
-                        "Antigua & Barbuda",
-                        "Argentina",
-                        "Armenia",
-                        "Aruba",
-                        "Ascension Island",
-                        "Australia",
-                        "Austria",
-                        "Azerbaijan",
-                        "Bahamas",
-                        "Bahrain",
-                        "Bangladesh",
-                        "Barbados",
-                        "Belarus",
-                        "Belgium",
-                        "Belize",
-                        "Benin",
-                        "Bermuda",
-                        "Bhutan",
-                        "Bolivia",
-                        "Bosnia & Herzegovina",
-                        "Botswana",
-                        "Bouvet Island",
-                        "Brazil",
-                        "British Virgin Islands",
-                        "Brunei",
-                        "Bulgaria",
-                        "Burkina Faso",
-                        "Burundi",
-                        "Cambodia",
-                        "Cameroon",
-                        "Canada",
-                        "Canary Islands",
-                        "Cape Verde",
-                        "Caribbean Netherlands",
-                        "Cayman Islands",
-                        "Central African Republic",
-                        "Ceuta & Melilla",
-                        "Chad",
-                        "Chagos Archipelago",
-                        "Chile",
-                        "Christmas Island",
-                        "Clipperton Island",
-                        "Cocos [Keeling] Islands",
-                        "Colombia",
-                        "Comoros",
-                        "Congo - Brazzaville",
-                        "Congo - Kinshasa",
-                        "Cook Islands",
-                        "Costa Rica",
-                        "Croatia",
-                        "Cuba",
-                        "Curaçao",
-                        "Cyprus",
-                        "Czechia",
-                        "Côte d'Ivoire",
-                        "Denmark",
-                        "Diego Garcia",
-                        "Djibouti",
-                        "Dominica",
-                        "Dominican Republic",
-                        "Ecuador",
-                        "Egypt",
-                        "El Salvador",
-                        "Equatorial Guinea",
-                        "Eritrea",
-                        "Estonia",
-                        "Eswatini",
-                        "Ethiopia",
-                        "Falkland Islands",
-                        "Faroe Islands",
-                        "Fiji",
-                        "Finland",
-                        "France",
-                        "French Guiana",
-                        "French Polynesia",
-                        "French Southern Territories",
-                        "Gabon",
-                        "Gambia",
-                        "Georgia",
-                        "Germany",
-                        "Ghana",
-                        "Gibraltar",
-                        "Greece",
-                        "Greenland",
-                        "Grenada",
-                        "Guadeloupe",
-                        "Guam",
-                        "Guatemala",
-                        "Guernsey",
-                        "Guinea",
-                        "Guinea-Bissau",
-                        "Guyana",
-                        "Haiti",
-                        "Heard & McDonald Island",
-                        "Honduras",
-                        "Hungary",
-                        "Iceland",
-                        "India",
-                        "Indonesia",
-                        "Iran",
-                        "Iraq",
-                        "Ireland",
-                        "Isle of Man",
-                        "Israel",
-                        "Italy",
-                        "Jamaica",
-                        "Japan",
-                        "Jersey",
-                        "Jordan",
-                        "Kazakhstan",
-                        "Kenya",
-                        "kiribati",
-                        "Kosovo",
-                        "Kuwait",
-                        "Kyrgyzstan",
-                        "Laos",
-                        "Latvia",
-                        "Lebanon",
-                        "Lesotho",
-                        "Liberia",
-                        "Libya",
-                        "Liechtenstein",
-                        "Lithuania",
-                        "Luxembourg",
-                        "Madagascar",
-                        "Malawi",
-                        "Malaysia",
-                        "Maldives",
-                        "Mali",
-                        "Malta",
-                        "Marshall Islands",
-                        "Martinique",
-                        "Mauritania",
-                        "Mauritius",
-                        "Mayotte",
-                        "Mexico",
-                        "Micronesia",
-                        "Moldova",
-                        "Monaco",
-                        "Mongolia",
-                        "Montenegro",
-                        "Montserrat",
-                        "Morocco",
-                        "Mozambique",
-                        "Myanmar [Burma]",
-                        "Namibia",
-                        "Nauru",
-                        "Nepal",
-                        "Netherlands",
-                        "New Caledonia",
-                        "New Zealand",
-                        "Nicaragua",
-                        "Niger",
-                        "Nigeria",
-                        "Niue",
-                        "Norfolk Island",
-                        "North Korea",
-                        "North Macedonia",
-                        "Northern Mariana Islands",
-                        "Norway",
-                        "Oman",
-                        "Pakistan",
-                        "Palau",
-                        "Palestinian Territories",
-                        "Panama",
-                        "Papua New Guinea",
-                        "Paraguay",
-                        "Peru",
-                        "Philippines",
-                        "Pitcairn Islands",
-                        "Poland",
-                        "Portugal",
-                        "Puerto Rico",
-                        "Qatar",
-                        "Romania",
-                        "Root (China mainland)",
-                        "Root (Hong Kong)",
-                        "Root (Macao)",
-                        "Root (Taiwan)",
-                        "Russia",
-                        "Rwanda",
-                        "Réunion",
-                        "Samoa",
-                        "San Marino",
-                        "Sark",
-                        "Saudi Arabia",
-                        "Senegal",
-                        "Serbia",
-                        "Seychelles",
-                        "Sierra Leone",
-                        "Singapore",
-                        "Sint Maarten",
-                        "Slovakia",
-                        "Slovenia",
-                        "So. Georgia & So. Sandwich Isl.",
-                        "Solomon Islands",
-                        "Somalia",
-                        "South Africa",
-                        "South Korea",
-                        "South Sudan",
-                        "Spain",
-                        "Sri Lanka",
-                        "St Barthélemy",
-                        "St Helena",
-                        "St Kitts & Nevis",
-                        "St Lucia",
-                        "St Martin",
-                        "St Pierre & Miquelon",
-                        "St Vincent & the Grenadines",
-                        "Sudan",
-                        "Suriname",
-                        "Svalbard & Jan Mayen",
-                        "Sweden",
-                        "Switzerland",
-                        "Syria",
-                        "São Tomé & Príncipe",
-                        "Tajikistan",
-                        "Tanzania",
-                        "Thailand",
-                        "Timor-Leste",
-                        "Togo",
-                        "Tokelau",
-                        "Tonga",
-                        "Trinidad & Tobago",
-                        "Tristan da Cunha",
-                        "Tunisia",
-                        "Turkmenistan",
-                        "Turks & Caicos Islands",
-                        "Tuvalu",
-                        "Türkiye",
-                        "US Outlying Islands",
-                        "US Virgin Islands",
-                        "Uganda",
-                        "Ukraine",
-                        "United Arab Emirates",
-                        "United Kingdom",
-                        "United States",
-                        "Uruguay",
-                        "Uzbekistan",
-                        "Vanuatu",
-                        "Vatican City",
-                        "Venezuela",
-                        "Vietnam",
-                        "Wallis & Futuna",
-                        "Western Sahara",
-                        "Yemen",
-                        "Zambia",
-                        "Zimbabwe",
-                        "Åland Islands"
-                    ),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(2) },
-                    dropdown = true
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(27.dp))
-            }
-
-            item {
-                Text(
-                    text = "EDUCATION INFO",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 36.dp),
-                    color = textColor,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(27.dp))
-            }
-
-            // Major
-            item {
-                ProfileItem(
-                    value = uiState.major,
-                    onValueChange = profileViewModel::onMajorChanged,
-                    textColor = textColor,
-                    icon = R.drawable.profile_cap,
-                    title = "MAJOR",
-                    editable = uiState.editable,
-                    newValue = listOf(
-                        "Aerospace Engineering",
-                        "Agricultural & Biological Engineering",
-                        "Biomedical Engineering",
-                        "Chemical Engineering",
-                        "Civil Engineering",
-                        "Coastal & Oceanographic Engineering",
-                        "Computer Engineering",
-                        "Computer Science",
-                        "Digital Arts & Science",
-                        "Electrical Engineering",
-                        "Environmental Engineering Sciences",
-                        "Human-Centered Computing",
-                        "Industrial & Systems Engineering",
-                        "Materials Science & Engineering",
-                        "Mechanical Engineering",
-                        "Nuclear Engineering",
-                        "Other"
-                    ),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(3) },
-                    dropdown = true
-                )
-                HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
-                )
-
-            }
-
-            // Current Year
-            item {
-                ProfileItem(
-                    value = uiState.year,
-                    onValueChange = profileViewModel::onYearChanged,
-                    textColor = textColor,
-                    icon = R.drawable.profile_year,
-                    title = "YEAR",
-                    editable = uiState.editable,
-                    newValue = listOf(
-                        "1st Year",
-                        "2nd Year",
-                        "3rd Year",
-                        "4th Year",
-                        "5th Year or Higher",
-                        "Graduate",
-                        "Ph.D."
-                    ),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(4) },
-                    dropdown = true
-                )
-                HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
-                )
-
-            }
-
-            // Graduation Year
-            item {
-                ProfileItem(value = uiState.gradYear,
-                    onValueChange = profileViewModel::onGradYearChanged,
-                    textColor = textColor,
-                    icon = R.drawable.profile_cap,
-                    title = "GRADUATION YEAR",
-                    editable = uiState.editable,
-                    newValue = listOf("2025", "2026", "2027", "2028"),
-                    onExpandedChange = { profileViewModel.toggleDropdownMenu(5) })
-                HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
-                )
-
-            }
-
-            // Classes
-            item {
-                ProfileLists(
-                    value = uiState.classes ?: listOf(),
-                    onValueChange = profileViewModel::onClassesChanged,
-                    textColor = textColor,
-                    icon = R.drawable.university_campus,
-                    title = "CLASSES",
-                    editable = uiState.editable,
-                    onAddValue = profileViewModel::addClass,
-                    onRemoveValue = profileViewModel::removeClass
-                )
-                HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
-                )
-
-            }
-
-            // Internships
-            item {
-                ProfileLists(
-                    value = uiState.internships ?: listOf(),
-                    onValueChange = profileViewModel::onInternshipsChanged,
-                    onAddValue = profileViewModel::addInternship,
-                    onRemoveValue = profileViewModel::removeInternship,
-                    textColor = textColor,
-                    icon = R.drawable.office,
-                    title = "INTERNSHIPS",
-                    editable = uiState.editable
-                )
-                HorizontalDivider(
-                    color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth()
-                )
-
-            }
-
-            // Links
-            item {
-                ProfileLists(
-                    value = uiState.socialMedia ?: listOf(),
-                    onValueChange = profileViewModel::onSocialMediaChanged,
-                    onAddValue = profileViewModel::addLinks,
-                    onRemoveValue = profileViewModel::removeLink,
-                    textColor = textColor,
-                    icon = R.drawable.internet,
-                    title = "LINKS",
-                    editable = uiState.editable,
-                    listType = 'l'
-                )
-
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(25.dp))
-            }
-
-            item {
-                AppearanceToggle(mainViewModel, isDarkMode = isDarkMode)
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(20.dp))
-            }
-
-            item {
-
-                if (!uiState.editable[0] && uiState.editable[1]) {
-                    LogoutButton(
-
-                        onClick = {
-                            mainViewModel.logoutUser()
-
-                            navController.navigate(NavRoute.LOGIN)
-
-                        })
+                item {
+                    Spacer(modifier = Modifier.height(39.dp))
                 }
 
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(20.dp))
-            }
-
-            item {
-
-                if (!uiState.editable[0] && uiState.editable[1]) {
-                    DeleteAccountButton(profileViewModel)
+                item {
+                    Text(
+                        text = "ACCOUNT INFO",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 36.dp),
+                        color = textColor,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
 
                 }
-            }
 
-            item {
-                if (!uiState.editable[0] && uiState.editable[1]) {
+                item {
+                    Spacer(modifier = Modifier.height(27.dp))
+                }
+
+                // Name
+                item {
+
+                    ProfileItem(
+                        value = uiState.fullName,
+                        onValueChange = profileViewModel::onFullNameChanged,
+                        textColor = textColor,
+                        icon = R.drawable.profile_circle_orange,
+                        title = "NAME",
+                        editable = uiState.editable,
+                        onExpandedChange = { profileViewModel.toggleDropdownMenu(6) },
+                        errorMessages = uiState.errorMessages
+                    )
+                    HorizontalDivider(
+                        color = Color.LightGray,
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                // Username
+                item {
+                    ProfileItem(value = uiState.userName,
+                        onValueChange = profileViewModel::onUserNameChanged,
+                        textColor = textColor,
+                        icon = R.drawable.profile_circle_orange,
+                        title = "USERNAME",
+                        editable = listOf(false, true),
+                        onExpandedChange = { profileViewModel.toggleDropdownMenu(6) }
+                    )
+                    HorizontalDivider(
+                        color = Color.LightGray,
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                }
+
+                // Email
+                item {
+                    ProfileItem(
+                        value = uiState.email,
+                        onValueChange = profileViewModel::onEmailChanged,
+                        textColor = textColor,
+                        icon = R.drawable.profile_email,
+                        title = "EMAIL",
+                        editable = listOf(false, true),
+                        onExpandedChange = { profileViewModel.toggleDropdownMenu(6) },
+                        errorMessages = uiState.errorMessages
+                    )
+                    HorizontalDivider(
+                        color = Color.LightGray,
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                }
+
+                // Gender
+                item {
+                    ProfileItem(
+                        value = uiState.gender,
+                        onValueChange = profileViewModel::onGenderChanged,
+                        textColor = textColor,
+                        icon = R.drawable.profile_gender_equality,
+                        title = "GENDER",
+                        editable = uiState.editable,
+                        newValue = listOf("Male", "Female", "Non-Binary", "Other"),
+                        onExpandedChange = { profileViewModel.toggleDropdownMenu(0) },
+                        dropdown = true
+                    )
+                    HorizontalDivider(
+                        color = Color.LightGray,
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                }
+
+                // Ethnicity
+                item {
+                    ProfileItem(
+                        value = uiState.ethnicity,
+                        onValueChange = profileViewModel::onEthnicityChanged,
+                        textColor = textColor,
+                        icon = R.drawable.profile_globe,
+                        title = "ETHNICITY",
+                        editable = uiState.editable,
+                        newValue = listOf(
+                            "American Indian or Alaska Native",
+                            "Asian",
+                            "Black or African American",
+                            "Hispanic/Latino",
+                            "Native Hawaiian or Other Pacific Islander",
+                            "White",
+                            "Two or more ethnicities",
+                            "Prefer not to answer"
+                        ),
+                        onExpandedChange = { profileViewModel.toggleDropdownMenu(1) },
+                        dropdown = true
+                    )
+                    HorizontalDivider(
+                        color = Color.LightGray,
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                }
+
+                // Country
+                item {
+                    ProfileItem(
+                        value = uiState.country,
+                        onValueChange = profileViewModel::onCountryChanged,
+                        textColor = textColor,
+                        icon = R.drawable.profile_globe,
+                        title = "COUNTRY OF ORIGIN",
+                        editable = uiState.editable,
+                        newValue = listOf(
+                            "Afghanistan",
+                            "Albania",
+                            "Algeria",
+                            "American Samoa",
+                            "Andorra",
+                            "Angola",
+                            "Anguilla",
+                            "Antarctica",
+                            "Antigua & Barbuda",
+                            "Argentina",
+                            "Armenia",
+                            "Aruba",
+                            "Ascension Island",
+                            "Australia",
+                            "Austria",
+                            "Azerbaijan",
+                            "Bahamas",
+                            "Bahrain",
+                            "Bangladesh",
+                            "Barbados",
+                            "Belarus",
+                            "Belgium",
+                            "Belize",
+                            "Benin",
+                            "Bermuda",
+                            "Bhutan",
+                            "Bolivia",
+                            "Bosnia & Herzegovina",
+                            "Botswana",
+                            "Bouvet Island",
+                            "Brazil",
+                            "British Virgin Islands",
+                            "Brunei",
+                            "Bulgaria",
+                            "Burkina Faso",
+                            "Burundi",
+                            "Cambodia",
+                            "Cameroon",
+                            "Canada",
+                            "Canary Islands",
+                            "Cape Verde",
+                            "Caribbean Netherlands",
+                            "Cayman Islands",
+                            "Central African Republic",
+                            "Ceuta & Melilla",
+                            "Chad",
+                            "Chagos Archipelago",
+                            "Chile",
+                            "Christmas Island",
+                            "Clipperton Island",
+                            "Cocos [Keeling] Islands",
+                            "Colombia",
+                            "Comoros",
+                            "Congo - Brazzaville",
+                            "Congo - Kinshasa",
+                            "Cook Islands",
+                            "Costa Rica",
+                            "Croatia",
+                            "Cuba",
+                            "Curaçao",
+                            "Cyprus",
+                            "Czechia",
+                            "Côte d'Ivoire",
+                            "Denmark",
+                            "Diego Garcia",
+                            "Djibouti",
+                            "Dominica",
+                            "Dominican Republic",
+                            "Ecuador",
+                            "Egypt",
+                            "El Salvador",
+                            "Equatorial Guinea",
+                            "Eritrea",
+                            "Estonia",
+                            "Eswatini",
+                            "Ethiopia",
+                            "Falkland Islands",
+                            "Faroe Islands",
+                            "Fiji",
+                            "Finland",
+                            "France",
+                            "French Guiana",
+                            "French Polynesia",
+                            "French Southern Territories",
+                            "Gabon",
+                            "Gambia",
+                            "Georgia",
+                            "Germany",
+                            "Ghana",
+                            "Gibraltar",
+                            "Greece",
+                            "Greenland",
+                            "Grenada",
+                            "Guadeloupe",
+                            "Guam",
+                            "Guatemala",
+                            "Guernsey",
+                            "Guinea",
+                            "Guinea-Bissau",
+                            "Guyana",
+                            "Haiti",
+                            "Heard & McDonald Island",
+                            "Honduras",
+                            "Hungary",
+                            "Iceland",
+                            "India",
+                            "Indonesia",
+                            "Iran",
+                            "Iraq",
+                            "Ireland",
+                            "Isle of Man",
+                            "Israel",
+                            "Italy",
+                            "Jamaica",
+                            "Japan",
+                            "Jersey",
+                            "Jordan",
+                            "Kazakhstan",
+                            "Kenya",
+                            "kiribati",
+                            "Kosovo",
+                            "Kuwait",
+                            "Kyrgyzstan",
+                            "Laos",
+                            "Latvia",
+                            "Lebanon",
+                            "Lesotho",
+                            "Liberia",
+                            "Libya",
+                            "Liechtenstein",
+                            "Lithuania",
+                            "Luxembourg",
+                            "Madagascar",
+                            "Malawi",
+                            "Malaysia",
+                            "Maldives",
+                            "Mali",
+                            "Malta",
+                            "Marshall Islands",
+                            "Martinique",
+                            "Mauritania",
+                            "Mauritius",
+                            "Mayotte",
+                            "Mexico",
+                            "Micronesia",
+                            "Moldova",
+                            "Monaco",
+                            "Mongolia",
+                            "Montenegro",
+                            "Montserrat",
+                            "Morocco",
+                            "Mozambique",
+                            "Myanmar [Burma]",
+                            "Namibia",
+                            "Nauru",
+                            "Nepal",
+                            "Netherlands",
+                            "New Caledonia",
+                            "New Zealand",
+                            "Nicaragua",
+                            "Niger",
+                            "Nigeria",
+                            "Niue",
+                            "Norfolk Island",
+                            "North Korea",
+                            "North Macedonia",
+                            "Northern Mariana Islands",
+                            "Norway",
+                            "Oman",
+                            "Pakistan",
+                            "Palau",
+                            "Palestinian Territories",
+                            "Panama",
+                            "Papua New Guinea",
+                            "Paraguay",
+                            "Peru",
+                            "Philippines",
+                            "Pitcairn Islands",
+                            "Poland",
+                            "Portugal",
+                            "Puerto Rico",
+                            "Qatar",
+                            "Romania",
+                            "Root (China mainland)",
+                            "Root (Hong Kong)",
+                            "Root (Macao)",
+                            "Root (Taiwan)",
+                            "Russia",
+                            "Rwanda",
+                            "Réunion",
+                            "Samoa",
+                            "San Marino",
+                            "Sark",
+                            "Saudi Arabia",
+                            "Senegal",
+                            "Serbia",
+                            "Seychelles",
+                            "Sierra Leone",
+                            "Singapore",
+                            "Sint Maarten",
+                            "Slovakia",
+                            "Slovenia",
+                            "So. Georgia & So. Sandwich Isl.",
+                            "Solomon Islands",
+                            "Somalia",
+                            "South Africa",
+                            "South Korea",
+                            "South Sudan",
+                            "Spain",
+                            "Sri Lanka",
+                            "St Barthélemy",
+                            "St Helena",
+                            "St Kitts & Nevis",
+                            "St Lucia",
+                            "St Martin",
+                            "St Pierre & Miquelon",
+                            "St Vincent & the Grenadines",
+                            "Sudan",
+                            "Suriname",
+                            "Svalbard & Jan Mayen",
+                            "Sweden",
+                            "Switzerland",
+                            "Syria",
+                            "São Tomé & Príncipe",
+                            "Tajikistan",
+                            "Tanzania",
+                            "Thailand",
+                            "Timor-Leste",
+                            "Togo",
+                            "Tokelau",
+                            "Tonga",
+                            "Trinidad & Tobago",
+                            "Tristan da Cunha",
+                            "Tunisia",
+                            "Turkmenistan",
+                            "Turks & Caicos Islands",
+                            "Tuvalu",
+                            "Türkiye",
+                            "US Outlying Islands",
+                            "US Virgin Islands",
+                            "Uganda",
+                            "Ukraine",
+                            "United Arab Emirates",
+                            "United Kingdom",
+                            "United States",
+                            "Uruguay",
+                            "Uzbekistan",
+                            "Vanuatu",
+                            "Vatican City",
+                            "Venezuela",
+                            "Vietnam",
+                            "Wallis & Futuna",
+                            "Western Sahara",
+                            "Yemen",
+                            "Zambia",
+                            "Zimbabwe",
+                            "Åland Islands"
+                        ),
+                        onExpandedChange = { profileViewModel.toggleDropdownMenu(2) },
+                        dropdown = true
+                    )
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(27.dp))
+                }
+
+                item {
+                    Text(
+                        text = "EDUCATION INFO",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 36.dp),
+                        color = textColor,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(27.dp))
+                }
+
+                // Major
+                item {
+                    ProfileItem(
+                        value = uiState.major,
+                        onValueChange = profileViewModel::onMajorChanged,
+                        textColor = textColor,
+                        icon = R.drawable.profile_cap,
+                        title = "MAJOR",
+                        editable = uiState.editable,
+                        newValue = listOf(
+                            "Aerospace Engineering",
+                            "Agricultural & Biological Engineering",
+                            "Biomedical Engineering",
+                            "Chemical Engineering",
+                            "Civil Engineering",
+                            "Coastal & Oceanographic Engineering",
+                            "Computer Engineering",
+                            "Computer Science",
+                            "Digital Arts & Science",
+                            "Electrical Engineering",
+                            "Environmental Engineering Sciences",
+                            "Human-Centered Computing",
+                            "Industrial & Systems Engineering",
+                            "Materials Science & Engineering",
+                            "Mechanical Engineering",
+                            "Nuclear Engineering",
+                            "Other"
+                        ),
+                        onExpandedChange = { profileViewModel.toggleDropdownMenu(3) },
+                        dropdown = true
+                    )
+                    HorizontalDivider(
+                        color = Color.LightGray,
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                }
+
+                // Current Year
+                item {
+                    ProfileItem(
+                        value = uiState.year,
+                        onValueChange = profileViewModel::onYearChanged,
+                        textColor = textColor,
+                        icon = R.drawable.profile_year,
+                        title = "YEAR",
+                        editable = uiState.editable,
+                        newValue = listOf(
+                            "1st Year",
+                            "2nd Year",
+                            "3rd Year",
+                            "4th Year",
+                            "5th Year or Higher",
+                            "Graduate",
+                            "Ph.D."
+                        ),
+                        onExpandedChange = { profileViewModel.toggleDropdownMenu(4) },
+                        dropdown = true
+                    )
+                    HorizontalDivider(
+                        color = Color.LightGray,
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                }
+
+                // Graduation Year
+                item {
+                    ProfileItem(
+                        value = uiState.gradYear,
+                        onValueChange = profileViewModel::onGradYearChanged,
+                        textColor = textColor,
+                        icon = R.drawable.profile_cap,
+                        title = "GRADUATION YEAR",
+                        editable = uiState.editable,
+                        newValue = listOf("2025", "2026", "2027", "2028"),
+                        onExpandedChange = { profileViewModel.toggleDropdownMenu(5) },
+                        dropdown = true
+                    )
+                    HorizontalDivider(
+                        color = Color.LightGray,
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                }
+
+                // Classes
+                item {
+                    ProfileLists(
+                        value = uiState.classes ?: listOf(),
+                        onValueChange = profileViewModel::onClassesChanged,
+                        textColor = textColor,
+                        icon = R.drawable.university_campus,
+                        title = "CLASSES",
+                        editable = uiState.editable,
+                        onAddValue = profileViewModel::addClass,
+                        onRemoveValue = profileViewModel::removeClass
+                    )
+                    HorizontalDivider(
+                        color = Color.LightGray,
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                }
+
+                // Internships
+                item {
+                    ProfileLists(
+                        value = uiState.internships ?: listOf(),
+                        onValueChange = profileViewModel::onInternshipsChanged,
+                        onAddValue = profileViewModel::addInternship,
+                        onRemoveValue = profileViewModel::removeInternship,
+                        textColor = textColor,
+                        icon = R.drawable.office,
+                        title = "INTERNSHIPS",
+                        editable = uiState.editable
+                    )
+                    HorizontalDivider(
+                        color = Color.LightGray,
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                }
+
+                // Links
+                item {
+                    ProfileLists(
+                        value = uiState.socialMedia ?: listOf(),
+                        onValueChange = profileViewModel::onSocialMediaChanged,
+                        onAddValue = profileViewModel::addLinks,
+                        onRemoveValue = profileViewModel::removeLink,
+                        textColor = textColor,
+                        icon = R.drawable.internet,
+                        title = "LINKS",
+                        editable = uiState.editable,
+                        listType = 'l'
+                    )
+
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(25.dp))
+                }
+
+                item {
+                    AppearanceToggle(mainViewModel, isDarkMode = isDarkMode)
+                }
+
+                item {
                     Spacer(modifier = Modifier.height(20.dp))
+                }
 
+                item {
+
+                    if (!uiState.editable[0] && uiState.editable[1]) {
+                        LogoutButton(
+
+                            onClick = {
+                                mainViewModel.logoutUser()
+
+                                navController.navigate(NavRoute.LOGIN)
+
+                            })
+                    }
+
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+
+                item {
+
+                    if (!uiState.editable[0] && uiState.editable[1]) {
+                        DeleteAccountButton(profileViewModel)
+
+                    }
+                }
+
+                item {
+                    if (!uiState.editable[0] && uiState.editable[1]) {
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                    }
                 }
             }
         }
+
+
     }
 }
 
@@ -999,8 +1043,8 @@ fun ProfileLists(
                                 .padding(horizontal = 32.dp),
                             placeholder = { Text(text = "Add your ${title.lowercase()} here") },
                             onValueChange = { text = it },
-                            enabled = editable[0],
-                            readOnly = editable[1],
+                            enabled = true,
+                            readOnly = false,
                             singleLine = true,
                             shape = RoundedCornerShape(12.dp),
                             textStyle = TextStyle(fontSize = 15.sp, color = textColor),
@@ -1087,7 +1131,7 @@ fun ProfileLists(
                                         Icons.Filled.RemoveCircle,
                                         contentDescription = "Remove",
                                         modifier = Modifier.size(15.dp),
-                                        tint = Color.White
+                                        tint = Color.Black
                                     )
                                 }
                             }
@@ -1118,6 +1162,7 @@ fun ProfileItem(
     dropdown: Boolean = false,
     newValue: List<String> = listOf(""),
     onExpandedChange: (Boolean) -> Unit,
+    errorMessages: Map<String, String?> = mapOf()
 ) {
 
     Box(
@@ -1162,20 +1207,36 @@ fun ProfileItem(
                     )
                 } else {
                     // Outlined Text Field for Input
-                    TextField(
-                        modifier = Modifier.padding(horizontal = 32.dp, vertical = 12.dp),
-                        value = value,
-                        onValueChange = { newValue -> onValueChange(newValue) },
-                        enabled = true,
-                        readOnly = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        textStyle = TextStyle(fontSize = 15.sp, color = textColor),
 
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            focusedTextColor = Color.White, focusedPlaceholderColor = Color.Gray
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 40.dp)
+                    ) {
+                        TextField(
+                            modifier = Modifier.padding(vertical = 12.dp),
+                            value = value,
+                            onValueChange = { newValue -> onValueChange(newValue) },
+                            enabled = true,
+                            readOnly = false,
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp),
+                            textStyle = TextStyle(fontSize = 15.sp, color = textColor),
+
+                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                focusedTextColor = Color.White, focusedPlaceholderColor = Color.Gray
+                            )
                         )
-                    )
+                        Log.d("error", "$errorMessages")
+                        if (errorMessages[title.lowercase()] != null) {
+                            Text(
+                                text = errorMessages[title.lowercase()]!!,
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
+
                 }
 
 
