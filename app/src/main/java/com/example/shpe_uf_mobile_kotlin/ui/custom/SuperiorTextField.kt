@@ -151,16 +151,14 @@ fun SuperiorTextField(
 
         if(isError && errorMessage != null){
             Text(
-                modifier = Modifier.padding(top = 10.dp),
+                modifier = Modifier.padding(top = 10.dp).width(width),
                 text = errorMessage,
                 style = TextStyle(
                     fontSize = 12.sp,
                     fontFamily = FontFamily(Font(R.font.universltstd)),
                     fontWeight = FontWeight(400)
                 ),
-                color = MaterialTheme.colorScheme.error,
-                maxLines = 1,
-                overflow = TextOverflow.Clip
+                color = MaterialTheme.colorScheme.error
             )
         }
     }
