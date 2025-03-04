@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ContextualFlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -187,7 +188,7 @@ fun StaticProfileScreen(
                         title = "NAME",
                         editable = uiState.editable,
                         onExpandedChange = { profileViewModel.toggleDropdownMenu(6) },
-                        errorMessages = uiState.errorMessages
+                        errorMessage = uiState.errorMessages["fullName"]
                     )
                     HorizontalDivider(
                         color = Color.LightGray,
@@ -224,7 +225,6 @@ fun StaticProfileScreen(
                         title = "EMAIL",
                         editable = listOf(false, true),
                         onExpandedChange = { profileViewModel.toggleDropdownMenu(6) },
-                        errorMessages = uiState.errorMessages
                     )
                     HorizontalDivider(
                         color = Color.LightGray,
@@ -671,13 +671,13 @@ fun StaticProfileScreen(
                 item {
                     ProfileLists(
                         value = uiState.classes ?: listOf(),
-                        onValueChange = profileViewModel::onClassesChanged,
                         textColor = textColor,
                         icon = R.drawable.university_campus,
                         title = "CLASSES",
                         editable = uiState.editable,
                         onAddValue = profileViewModel::addClass,
-                        onRemoveValue = profileViewModel::removeClass
+                        onRemoveValue = profileViewModel::removeClass,
+                        errorMessage = uiState.errorMessages["classes"]
                     )
                     HorizontalDivider(
                         color = Color.LightGray,
@@ -691,13 +691,13 @@ fun StaticProfileScreen(
                 item {
                     ProfileLists(
                         value = uiState.internships ?: listOf(),
-                        onValueChange = profileViewModel::onInternshipsChanged,
                         onAddValue = profileViewModel::addInternship,
                         onRemoveValue = profileViewModel::removeInternship,
                         textColor = textColor,
                         icon = R.drawable.office,
                         title = "INTERNSHIPS",
-                        editable = uiState.editable
+                        editable = uiState.editable,
+                        errorMessage = uiState.errorMessages["internships"]
                     )
                     HorizontalDivider(
                         color = Color.LightGray,
@@ -711,14 +711,14 @@ fun StaticProfileScreen(
                 item {
                     ProfileLists(
                         value = uiState.socialMedia ?: listOf(),
-                        onValueChange = profileViewModel::onSocialMediaChanged,
                         onAddValue = profileViewModel::addLinks,
                         onRemoveValue = profileViewModel::removeLink,
                         textColor = textColor,
                         icon = R.drawable.internet,
                         title = "LINKS",
                         editable = uiState.editable,
-                        listType = 'l'
+                        listType = 'l',
+                        errorMessage = uiState.errorMessages["socialMedia"]
                     )
 
                 }
@@ -942,14 +942,14 @@ fun StaticProfilePageBackground(
 @Composable
 fun ProfileLists(
     value: List<String?>,
-    onValueChange: (List<String?>) -> Unit,
     listType: Char = 'c',
     onAddValue: (String) -> Unit,
     onRemoveValue: (String) -> Unit,
     textColor: Color,
     icon: Int,
     title: String,
-    editable: List<Boolean>
+    editable: List<Boolean>,
+    errorMessage: String?
 ) {
     Box(
         modifier = Modifier
@@ -1034,13 +1034,16 @@ fun ProfileLists(
 
                 var text by remember { mutableStateOf("") }
 
-                Column {
+                Column (
+                    modifier = Modifier
+                        .padding(horizontal = 40.dp)
+                ) {
                     Row(modifier = Modifier.fillMaxSize()) {
                         TextField(
                             value = text,
                             modifier = Modifier
-                                .weight(1f)
-                                .padding(horizontal = 32.dp),
+                                .weight(1f),
+//                                .padding(horizontal = 32.dp),
                             placeholder = { Text(text = "Add your ${title.lowercase()} here") },
                             onValueChange = { text = it },
                             enabled = true,
@@ -1056,7 +1059,10 @@ fun ProfileLists(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         IconButton(
-                            onClick = { onAddValue(text) },
+                            onClick = {
+                                onAddValue(text)
+                                text = ""
+                                      },
                         ) {
                             Icon(
                                 Icons.Filled.AddCircle,
@@ -1065,6 +1071,15 @@ fun ProfileLists(
                                 tint = Color.Blue
                             )
                         }
+                    }
+
+                    if (errorMessage != null) {
+                        Text(
+                            text = errorMessage,
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -1131,7 +1146,7 @@ fun ProfileLists(
                                         Icons.Filled.RemoveCircle,
                                         contentDescription = "Remove",
                                         modifier = Modifier.size(15.dp),
-                                        tint = Color.Black
+                                        tint = Color.White
                                     )
                                 }
                             }
@@ -1150,7 +1165,7 @@ fun ProfileLists(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ProfileItem(
     value: String,
@@ -1162,7 +1177,7 @@ fun ProfileItem(
     dropdown: Boolean = false,
     newValue: List<String> = listOf(""),
     onExpandedChange: (Boolean) -> Unit,
-    errorMessages: Map<String, String?> = mapOf()
+    errorMessage: String? = null,
 ) {
 
     Box(
@@ -1226,10 +1241,10 @@ fun ProfileItem(
                                 focusedTextColor = Color.White, focusedPlaceholderColor = Color.Gray
                             )
                         )
-                        Log.d("error", "$errorMessages")
-                        if (errorMessages[title.lowercase()] != null) {
+                        Log.d("error", "$errorMessage")
+                        if (errorMessage!= null) {
                             Text(
-                                text = errorMessages[title.lowercase()]!!,
+                                text = errorMessage,
                                 color = Color.Red,
                                 fontSize = 12.sp,
                                 modifier = Modifier.padding(top = 4.dp)
