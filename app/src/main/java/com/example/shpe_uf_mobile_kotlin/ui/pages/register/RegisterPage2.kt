@@ -395,7 +395,7 @@ private fun GenderDropDownMenu(
     onValueChange: (String) -> Unit
 
 ){
-    val options = listOf("Male", "Female", "Other")
+    val options = listOf("Male", "Female", "Other", "Prefer not to answer")
 
     SuperiorDropdownMenu(
         label = "Gender",
