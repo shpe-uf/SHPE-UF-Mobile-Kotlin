@@ -59,14 +59,6 @@ class ProfileViewModel : ViewModel() {
         )
     }
 
-    fun validateNameChange(name: String) {
-        val error = if (name.isEmpty()) "Name cannot be empty." else null
-
-        _uiState.value = _uiState.value.copy(
-
-        )
-    }
-
     fun onUserNameChanged(userName: String) {
         _uiState.value = _uiState.value.copy(userName = userName)
     }
@@ -121,20 +113,66 @@ class ProfileViewModel : ViewModel() {
     // Add to the lists
     fun addClass(className: String) {
         val currentClasses = _uiState.value.classes?.toMutableList() ?: mutableListOf()
-        currentClasses.add(className)
-        _uiState.value = _uiState.value.copy(classes = currentClasses)
+
+        val error = when {
+            className.isEmpty() -> "Class cannot be empty."
+            className in currentClasses -> "Class already exists."
+            else -> null
+        }
+
+        if (error != null) {
+            _uiState.value = _uiState.value.copy(
+                errorMessages = _uiState.value.errorMessages.toMutableMap().apply {
+                    put("classes", error)
+                }
+            )
+        } else {
+            currentClasses.add(className)
+            _uiState.value = _uiState.value.copy(classes = currentClasses)
+        }
     }
 
     fun addInternship(internshipName: String) {
+
         val currentInternships = _uiState.value.internships?.toMutableList() ?: mutableListOf()
-        currentInternships.add(internshipName)
-        _uiState.value = _uiState.value.copy(internships = currentInternships)
+
+        val error = when {
+            internshipName.isEmpty() -> "Class cannot be empty."
+            internshipName in currentInternships -> "Class already exists."
+            else -> null
+        }
+
+        if (error != null) {
+            _uiState.value = _uiState.value.copy(
+                errorMessages = _uiState.value.errorMessages.toMutableMap().apply {
+                    put("internships", error)
+                }
+            )
+        } else {
+            currentInternships.add(internshipName)
+            _uiState.value = _uiState.value.copy(classes = currentInternships)
+        }
     }
 
     fun addLinks(link: String) {
-        val currentLinks = _uiState.value.socialMedia?.toMutableList() ?: mutableListOf()
-        currentLinks.add("https://$link")
-        _uiState.value = _uiState.value.copy(socialMedia = currentLinks)
+        val currentLinks = _uiState.value.internships?.toMutableList() ?: mutableListOf()
+
+        val error = when {
+            link.isEmpty() -> "Class cannot be empty."
+            link in currentLinks -> "Class already exists."
+            else -> null
+        }
+
+        if (error != null) {
+            _uiState.value = _uiState.value.copy(
+                errorMessages = _uiState.value.errorMessages.toMutableMap().apply {
+                    put("socialMedia", error)
+                }
+            )
+        } else {
+            currentLinks.add(link)
+            _uiState.value = _uiState.value.copy(classes = currentLinks)
+        }
     }
 
     // Remove from the lists
