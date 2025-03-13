@@ -43,6 +43,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -115,19 +116,19 @@ fun StaticProfileScreen(
             Color(0xFF001627)
         }
 
-        var refreshing by remember { mutableStateOf(false) }
+//        var refreshing by remember { mutableStateOf(false) }
+//
+//        val pullToRefreshState = rememberPullRefreshState(
+//            refreshing = refreshing,
+//            onRefresh = {
+//                refreshing = true
+//                profileViewModel.loadProfile(mainState.id)
+//                // Simulate fetch delay, replace with actual ViewModel observer if necessary
+//                refreshing = false
+//            }
+//        )
 
-        val pullToRefreshState = rememberPullRefreshState(
-            refreshing = refreshing,
-            onRefresh = {
-                refreshing = true
-                profileViewModel.loadProfile(mainState.id)
-                // Simulate fetch delay, replace with actual ViewModel observer if necessary
-                refreshing = false
-            }
-        )
-
-//        profileViewModel.loadProfile(mainState.id)
+        profileViewModel.loadProfile(mainState.id)
 
         StaticProfilePageBackground(
             isDarkMode = isDarkMode,
@@ -141,13 +142,13 @@ fun StaticProfileScreen(
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp.value
 
         Box(
-            modifier = Modifier.pullRefresh(pullToRefreshState)
+//            modifier = Modifier.pullRefresh(pullToRefreshState)
         ) {
-            PullRefreshIndicator(
-                refreshing = refreshing,
-                state = pullToRefreshState,
-                modifier = Modifier.align(Alignment.TopCenter)
-            )
+//            PullRefreshIndicator(
+//                refreshing = refreshing,
+//                state = pullToRefreshState,
+//                modifier = Modifier.align(Alignment.TopCenter)
+//            )
 
             LazyColumn(
                 modifier = Modifier
@@ -185,6 +186,7 @@ fun StaticProfileScreen(
                         onValueChange = profileViewModel::onFullNameChanged,
                         textColor = textColor,
                         icon = R.drawable.profile_circle_orange,
+                        isDarkMode = isDarkMode,
                         title = "NAME",
                         editable = uiState.editable,
                         onExpandedChange = { profileViewModel.toggleDropdownMenu(6) },
@@ -202,6 +204,7 @@ fun StaticProfileScreen(
                     ProfileItem(value = uiState.userName,
                         onValueChange = profileViewModel::onUserNameChanged,
                         textColor = textColor,
+                        isDarkMode = isDarkMode,
                         icon = R.drawable.profile_circle_orange,
                         title = "USERNAME",
                         editable = listOf(false, true),
@@ -220,6 +223,7 @@ fun StaticProfileScreen(
                     ProfileItem(
                         value = uiState.email,
                         onValueChange = profileViewModel::onEmailChanged,
+                        isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_email,
                         title = "EMAIL",
@@ -239,6 +243,7 @@ fun StaticProfileScreen(
                     ProfileItem(
                         value = uiState.gender,
                         onValueChange = profileViewModel::onGenderChanged,
+                        isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_gender_equality,
                         title = "GENDER",
@@ -260,6 +265,7 @@ fun StaticProfileScreen(
                     ProfileItem(
                         value = uiState.ethnicity,
                         onValueChange = profileViewModel::onEthnicityChanged,
+                        isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_globe,
                         title = "ETHNICITY",
@@ -290,6 +296,7 @@ fun StaticProfileScreen(
                     ProfileItem(
                         value = uiState.country,
                         onValueChange = profileViewModel::onCountryChanged,
+                        isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_globe,
                         title = "COUNTRY OF ORIGIN",
@@ -583,6 +590,7 @@ fun StaticProfileScreen(
                     ProfileItem(
                         value = uiState.major,
                         onValueChange = profileViewModel::onMajorChanged,
+                        isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_cap,
                         title = "MAJOR",
@@ -622,6 +630,7 @@ fun StaticProfileScreen(
                     ProfileItem(
                         value = uiState.year,
                         onValueChange = profileViewModel::onYearChanged,
+                        isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_year,
                         title = "YEAR",
@@ -651,6 +660,7 @@ fun StaticProfileScreen(
                     ProfileItem(
                         value = uiState.gradYear,
                         onValueChange = profileViewModel::onGradYearChanged,
+                        isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_cap,
                         title = "GRADUATION YEAR",
@@ -675,6 +685,7 @@ fun StaticProfileScreen(
                         icon = R.drawable.university_campus,
                         title = "CLASSES",
                         editable = uiState.editable,
+                        isDarkMode = isDarkMode,
                         onAddValue = profileViewModel::addClass,
                         onRemoveValue = profileViewModel::removeClass,
                         errorMessage = uiState.errorMessages["classes"]
@@ -697,6 +708,7 @@ fun StaticProfileScreen(
                         icon = R.drawable.office,
                         title = "INTERNSHIPS",
                         editable = uiState.editable,
+                        isDarkMode = isDarkMode,
                         errorMessage = uiState.errorMessages["internships"]
                     )
                     HorizontalDivider(
@@ -714,6 +726,7 @@ fun StaticProfileScreen(
                         onAddValue = profileViewModel::addLinks,
                         onRemoveValue = profileViewModel::removeLink,
                         textColor = textColor,
+                        isDarkMode = isDarkMode,
                         icon = R.drawable.internet,
                         title = "LINKS",
                         editable = uiState.editable,
@@ -728,7 +741,9 @@ fun StaticProfileScreen(
                 }
 
                 item {
-                    AppearanceToggle(mainViewModel, isDarkMode = isDarkMode)
+                    if (!uiState.editable[0] && uiState.editable[1]) {
+                        AppearanceToggle(mainViewModel, isDarkMode = isDarkMode)
+                    }
                 }
 
                 item {
@@ -751,7 +766,9 @@ fun StaticProfileScreen(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(20.dp))
+                    if (!uiState.editable[0] && uiState.editable[1]) {
+                        Spacer(modifier = Modifier.height(20.dp))
+                    }
                 }
 
                 item {
@@ -946,15 +963,19 @@ fun ProfileLists(
     onAddValue: (String) -> Unit,
     onRemoveValue: (String) -> Unit,
     textColor: Color,
+    isDarkMode: Boolean,
     icon: Int,
     title: String,
     editable: List<Boolean>,
     errorMessage: String?
 ) {
+
+    val bg_color = if (isDarkMode) Color(0xFF002139) else Color(0xFFF5F5F5)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .background(bg_color)
     ) {
 
         Column(
@@ -1034,6 +1055,8 @@ fun ProfileLists(
 
                 var text by remember { mutableStateOf("") }
 
+                val underlineColor = if (isDarkMode) Color.White else Color.Black
+
                 Column (
                     modifier = Modifier
                         .padding(horizontal = 40.dp)
@@ -1053,8 +1076,11 @@ fun ProfileLists(
                             textStyle = TextStyle(fontSize = 15.sp, color = textColor),
                             colors = TextFieldDefaults.outlinedTextFieldColors(
                                 focusedTextColor = Color.White,
-                                focusedPlaceholderColor = Color.Gray,
-                                unfocusedPlaceholderColor = Color.Gray
+                                focusedPlaceholderColor = Color.LightGray,
+                                unfocusedPlaceholderColor = Color.LightGray,
+                                focusedBorderColor = underlineColor,
+                                unfocusedBorderColor = underlineColor,
+                                cursorColor = Color.White
                             )
                         )
                         Spacer(modifier = Modifier.width(10.dp))
@@ -1085,12 +1111,16 @@ fun ProfileLists(
                     Spacer(modifier = Modifier.height(10.dp))
 
                     if (listType != 'c') {
+
+                        val containerColor = if (isDarkMode) Color(0xFF003935) else Color(0xFFF5F5F5)
+
+
                         value.forEach { linkItem ->
                             Column(modifier = Modifier.padding(horizontal = 32.dp)) {
                                 Button(
                                     onClick = { onRemoveValue(linkItem ?: "") },
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.Gray, contentColor = textColor
+                                        containerColor = containerColor, contentColor = textColor
                                     ),
                                     modifier = Modifier.wrapContentSize(Alignment.Center)
                                 ) {
@@ -1119,16 +1149,19 @@ fun ProfileLists(
                         }
                     } else {
 
+                        val containerColor = if (isDarkMode) Color(0xFF003935) else Color.Gray
+
                         ContextualFlowRow(
                             modifier = Modifier.padding(horizontal = 32.dp),
                             itemCount = value.size,
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
+                            val safeValue = value.getOrNull(it) ?: ""
 
                             Button(
-                                onClick = { onRemoveValue(value[it] ?: "") },
+                                onClick = { onRemoveValue(safeValue) },
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.Gray, contentColor = textColor
+                                    containerColor = containerColor, contentColor = textColor
                                 ),
                                 modifier = Modifier.wrapContentSize(Alignment.Center)
                             ) {
@@ -1137,7 +1170,7 @@ fun ProfileLists(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = value[it] ?: "",
+                                        text = safeValue,
                                         color = Color.White,
                                         maxLines = 1,
                                         overflow = TextOverflow.Visible
@@ -1176,14 +1209,17 @@ fun ProfileItem(
     editable: List<Boolean> = listOf(false, true),
     dropdown: Boolean = false,
     newValue: List<String> = listOf(""),
+    isDarkMode: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     errorMessage: String? = null,
 ) {
 
+    val bgColor = if (isDarkMode) Color(0xFF002139) else Color(0xFFF5F5F5)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .background(bgColor)
     ) {
         Column(
             modifier = Modifier
@@ -1223,6 +1259,8 @@ fun ProfileItem(
                 } else {
                     // Outlined Text Field for Input
 
+                    val underlineColor = if (isDarkMode) Color.White else Color.Black
+
                     Column(
                         modifier = Modifier
                             .padding(horizontal = 40.dp)
@@ -1238,7 +1276,10 @@ fun ProfileItem(
                             textStyle = TextStyle(fontSize = 15.sp, color = textColor),
 
                             colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedTextColor = Color.White, focusedPlaceholderColor = Color.Gray
+                                focusedTextColor = Color.White, focusedPlaceholderColor = Color.Gray,
+                                unfocusedPlaceholderColor = Color.Gray,
+                                focusedBorderColor = underlineColor,
+                                unfocusedBorderColor = underlineColor
                             )
                         )
                         Log.d("error", "$errorMessage")
@@ -1269,6 +1310,8 @@ fun ProfileItem(
                 } else {
                     var expanded by remember { mutableStateOf(false) }
 
+                    val dropdownColor = if (isDarkMode) Color.White else Color.Black
+
                     Box(
                         modifier = Modifier.padding(vertical = 12.dp)
                     ) {
@@ -1282,7 +1325,12 @@ fun ProfileItem(
                                 fontSize = 15.sp,
                             )
 
-                            IconButton(onClick = { expanded = !expanded }) {
+                            IconButton(onClick = { expanded = !expanded },
+                                colors = IconButtonDefaults.iconButtonColors(
+                                    contentColor = dropdownColor,
+                                    containerColor = Color.Transparent
+                                )
+                            ) {
                                 Icon(
                                     imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                                     contentDescription = if (expanded) "Dropdown on" else "Dropdown off"
