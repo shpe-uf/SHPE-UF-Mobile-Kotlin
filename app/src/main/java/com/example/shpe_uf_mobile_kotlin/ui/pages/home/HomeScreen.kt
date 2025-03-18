@@ -36,22 +36,14 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -59,7 +51,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.AlertDialog
@@ -82,8 +73,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.repository.EventRepository
@@ -111,7 +100,6 @@ import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.TextColor
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
-import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.util.*
 import kotlinx.coroutines.delay
 
@@ -173,13 +161,12 @@ val sampleCardItems = listOf(
     )
 )
 
-// New HomeScreen Things
+// Top header
 @Composable
 fun TopHeader(
     viewModel: HomeViewModel = viewModel()
 ) {
     val homeState by viewModel.homeState.collectAsState()
-
 
     // Take the date from the current viewModel date and display the month
     Row (
@@ -225,31 +212,6 @@ fun TopHeader(
                 .clickable { viewModel.openNotificationWindow() },
             tint = Color.White
         )
-
-
-        // Debug Buttons for Now
-//        Icon(
-//            imageVector = Icons.Default.Storage,
-//            contentDescription = "Get from local storage",
-//            modifier = Modifier
-//                .size(35.dp)
-//                .align(Alignment.Bottom)
-//                .width(33.dp)
-//                .height(32.dp)
-//                .clickable { viewModel.loadEvents() },
-//            tint = Color.White
-//        )
-//       `Icon(
-//            imageVector = Icons.Default.Delete,
-//            contentDescription = "Delete local storage",
-//            modifier = Modifier
-//                .size(35.dp)
-//                .align(Alignment.Bottom)
-//                .width(33.dp)
-//                .height(32.dp)
-//                .clickable { viewModel.eraseEvents() },
-//            tint = Color.White
-//        )
     }
 }
 
@@ -289,13 +251,12 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
         Column (
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp) //add this code
+                .height(200.dp)
         ){
             // image and close button container, could be made into own composable to be used later
             Box(contentAlignment = Alignment.TopStart,
                 modifier = Modifier
                     .fillMaxWidth()
-
             ) {
                 Image(
                     painter = painterResource(id = when (event!!.eventType) {
@@ -312,9 +273,11 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                         .height(240.dp)
                 )
 
-                IconButton(onClick = { viewModel.hideEventDetails() },
+                IconButton(
+                    onClick = { viewModel.hideEventDetails() },
                     modifier = Modifier
-                        .background(Color.Black.copy(alpha = 0.1f), shape = CircleShape)
+                        .offset(y = 10.dp, x = 10.dp)
+                        .background(Color.Black.copy(alpha = 0.3f), shape = CircleShape)
                 ) {
                     Icon(
                         Icons.Default.ArrowBackIosNew,
@@ -406,13 +369,13 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                              )
                          }
                      }
+                     item {
+                         Spacer(modifier = Modifier.height(10.dp))
+                     }
 
-                   item {
-                       Spacer(modifier = Modifier.height(10.dp))
-                   }
-                    // Event Time
-                    item {
-                     Row (modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
+                     // Event Time
+                     item {
+                         Row (modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
                          Image(
                              painter = painterResource(id = R.drawable.timer_ui_icon),
                              contentDescription = "Clock",
@@ -433,14 +396,14 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                                     .align(Alignment.CenterVertically)
                             )
                         }
-                    }
-
-                     item {
-                    Spacer(modifier = Modifier.height(10.dp))
                      }
-                    // Event Location
-                   item{
-                       Row (modifier = Modifier) {
+                     item {
+                        Spacer(modifier = Modifier.height(10.dp))
+                     }
+
+                     // Event Location
+                     item{
+                         Row (modifier = Modifier) {
                            Image (
                                painter = painterResource(id = R.drawable.location_ui_icon),
                                contentDescription = "Location",
@@ -459,29 +422,31 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                            )
                        }
                      }
-                item {
-                    Spacer(modifier = Modifier.height(50.dp))
-                    }
-                     item {  Text(text = "Description:",
-                         style = TextStyle (
+                     item {
+                        Spacer(modifier = Modifier.height(50.dp))
+                     }
+                     item {
+                         Text(text = "Description:",
+                             style = TextStyle (
                              fontSize = 18.sp,
                              fontFamily = Universltstd,
                              fontWeight = FontWeight(400),
                              color = if (isDarkMode) Color.White else Color.Black,)
-                     ) }
-                   item {
-                       Spacer(modifier = Modifier.height(10.dp))
-                   }
+                         )
+                     }
                      item {
-                    Text( modifier = Modifier,
+                         Spacer(modifier = Modifier.height(10.dp))
+                     }
+                     item {
+                        Text( modifier = Modifier,
                         text = event!!.description
                             ?: ("Join us!"),
-                        style = TextStyle (
+                            style = TextStyle (
                             fontSize = 18.sp,
                             fontWeight = FontWeight(400),
                             color = if (isDarkMode) Color.White else Color.Black,)
-                    )
-                         }
+                        )
+                     }
                 }
             }
         }
@@ -920,7 +885,6 @@ fun PermissionsAndDialogs(viewModel: HomeViewModel, context: Context) {
             permissions.forEach { (permission, isGranted) ->
                 if (isGranted) {
                     Log.d("HomeViewModel", "Permission Granted: $permission")
-                    //viewModel.dismissDialog()
                     if (dialogQueue.contains(permission)) {
                         viewModel.dismissDialog()
                     }
@@ -1091,8 +1055,8 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
     LaunchedEffect(isOngoing) {
         if (isOngoing) {
             while (true) {
-                animatedBorderWidth.animateTo(2f, animationSpec = tween(durationMillis = 2000, easing = LinearEasing))
-                animatedBorderWidth.animateTo(0f, animationSpec = tween(durationMillis = 2000, easing = LinearEasing))
+                animatedBorderWidth.animateTo(4f, animationSpec = tween(durationMillis = 1000, easing = LinearEasing))
+                animatedBorderWidth.animateTo(0f, animationSpec = tween(durationMillis = 1000, easing = LinearEasing))
             }
         }
     }
@@ -1101,11 +1065,12 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
     Card(
         modifier = Modifier
             .fillMaxWidth()
+
             .padding(start = 10.dp, top = 5.dp, end = 5.dp, bottom = 5.dp)
             .clickable { viewModel.selectEvent(event) }
             .border(
                 width = if (isOngoing) animatedBorderWidth.value.dp else (-1).dp,
-                brush = SolidColor(OrangeSHPE),
+                brush = SolidColor(Color(0xFFFD9837)),
                 shape = RoundedCornerShape(size = 25.dp)
             ),
         colors = CardDefaults.cardColors(containerColor = event.colorResId),
@@ -1126,6 +1091,7 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
                     ),
                     modifier = Modifier
                         .padding(end = 10.dp, top = 5.dp)
+                        .weight(0.90f)
                 )
 
                 // we need to change this based on the event type
@@ -1139,7 +1105,9 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
                         HomeViewModel.EventType.Default -> R.drawable.social_icon
                     }),
                     contentDescription = "Event Type",
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier
+                        .size(20.dp)
+                        .weight(0.1f),
                     tint = Color.White
                 )
             }
@@ -1201,219 +1169,6 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun SlidingSheet() {
-    val scaffoldSheetState = rememberBottomSheetScaffoldState()
-    val scope = rememberCoroutineScope()
-    Scaffold { innerPadding ->
-        // 40.dp for the drag handle
-        val bottomPadding = innerPadding.calculateBottomPadding() + 40.dp
-        BottomSheetScaffold(
-            scaffoldState = scaffoldSheetState,
-            sheetPeekHeight = bottomPadding,
-            modifier = Modifier.padding(innerPadding),
-            sheetContent = {
-                Column(
-                    Modifier
-                        .padding(bottom = bottomPadding)
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Sheet content")
-                    Spacer(Modifier.height(20.dp))
-                    Button(onClick = {
-                        scope.launch { scaffoldSheetState.bottomSheetState.collapse()}
-                    }) {
-                        Text("Hide bottom sheet")
-                    }
-                    Button(onClick = { }) {
-                        Text("Some button")
-                    }
-                }
-            },
-        ) {
-            // this is where your screen could go
-//            HomeScreen(viewModel = viewModel())
-        }
-    }
-}
-
-// Not being used for good for reference
-@Composable
-fun EventPopUp(event: HomeViewModel.Event, onDismissRequest: () -> Unit ) {
-// Pop up for the event
-    Dialog(onDismissRequest = onDismissRequest,
-        DialogProperties(dismissOnBackPress = true,
-        dismissOnClickOutside = true,
-        usePlatformDefaultWidth = false
-        )
-    ) {
-        // Customize the layout of the dialog
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(1f)
-                .fillMaxHeight(),
-            ) {
-
-            Column(modifier = Modifier
-                .fillMaxWidth()
-            ) {
-
-                // image and close button container, could be made into own composable to be used later
-                Box(contentAlignment = Alignment.TopStart) {
-                    Image(
-                        painter = painterResource(id = R.drawable.shpe_logo_full_color),
-                        contentDescription = "Event Image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                    IconButton(onClick = onDismissRequest,
-                        modifier = Modifier
-                            .background(Color.Black.copy(alpha = 0.1f), shape = CircleShape)
-                    ) {
-                        Icon(
-                            Icons.Default.ArrowBackIosNew,
-                            contentDescription = "Dismiss",
-                            tint = Color.White
-                        )
-                    }
-                }
-
-                // Event details card to have the rounded corner style be there
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(size = 25.dp),
-                    colors = CardDefaults.cardColors(containerColor = blueDarkModeBackground),
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .padding(60.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // Placeholder for the picture at the top
-                        // This is the date, time and location
-                        Column {
-                            Row (
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text (
-                                    modifier = Modifier
-                                        .wrapContentWidth()
-                                        .weight(0.9f),
-                                    textAlign = TextAlign.Center,
-
-                                    text = event.summary,
-                                    style = TextStyle(
-                                        fontSize = 32.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color(0xFFD25917),
-                                    )
-                                )
-                                // current placeholder for the icon, can replace with the actual image we need,
-                                Icon(
-                                    imageVector = Icons.Default.People,
-                                    contentDescription = "People",
-                                    tint = Color(0xFFD25917),
-                                    modifier = Modifier
-                                        .size(45.dp)
-                                        .weight(0.1f)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(82.dp))
-
-                            Row {
-                                Icon(
-                                    imageVector = Icons.Default.CalendarMonth,
-                                    contentDescription = "Date",
-                                    tint = Color.White
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Text(
-                                    text = formatDate(event.start),
-                                    style = TextStyle (
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight(400),
-                                            color = Color(0xFFFFFFFF),
-                                        )
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Row {
-                                Icon(imageVector = Icons.Default.Timer,
-                                    contentDescription = null,
-                                    tint = Color.White
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Text(
-                                    text = formatEventTime(event),
-                                    style = TextStyle (
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight(400),
-                                        color = Color(0xFFFFFFFF),
-                                    )
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Row {
-                                Icon(
-                                    imageVector = Icons.Default.LocationOn,
-                                    contentDescription = "Location",
-                                    tint = Color.White
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Text(
-                                    text = event.location ?: ("TBD"),
-                                    style = TextStyle (
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight(400),
-                                        color = Color(0xFFFFFFFF),
-                                    )
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(82.dp))
-
-                            Text(text = "Description",
-                                style = TextStyle (
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight(400),
-                                    color = Color(0xFFFFFFFF),
-                                )
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Text(
-                                text = event.description
-                                    ?: ("This is basic placeholder of data. In order for this to work" +
-                                            "properly, we need to make sure that in the google calendar these events are updated." +
-                                            "Otherwise we would need a specific functions to update these on later."),
-                                style = TextStyle (
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight(400),
-                                    color = Color(0xFFFFFFFF),
-                                )
-                            )
-                        }
-                        // maybe have the save event be here:
-
-                    }
-                }
-            }
-        }
-    }
-}
-
 @Composable
 fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
     val state by viewModel.homeState.collectAsState()
@@ -1427,8 +1182,6 @@ fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
     val groupedEvents = remember(events) {
         mutableMapOf<LocalDate, MutableList<HomeViewModel.Event>>().apply {
             events.forEach { event ->
-//                val startDate = LocalDate.parse(event.start.dateTime?.substring(0, 10))
-//                val endDate = LocalDate.parse(event.end.dateTime?.substring(0, 10))
                 var startDate = LocalDate.now();
                 var endDate = LocalDate.now();
 
@@ -1443,7 +1196,8 @@ fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
                 }
                 var currentDate = startDate
                 while (!currentDate.isAfter(endDate)) {
-                    if (!currentDate.isBefore(today)) {  // Only consider dates from today onwards
+                    // Only consider dates from today onwards
+                    if (!currentDate.isBefore(today)) {
                         this.getOrPut(currentDate) { mutableListOf() }.add(event)
                     }
                     currentDate = currentDate.plusDays(1)
@@ -1481,7 +1235,6 @@ fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
                                 .background(Color.Transparent)
                         )
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
                 }
             },
             isRefreshing = isRefreshing,
@@ -1503,82 +1256,14 @@ fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
                         val firstVisibleDate = groupedEvents.keys.toList()[firstVisibleIndex]
                         val lastVisibleDate = groupedEvents.keys.toList()[lastVisibleIndex]
 
-//                        Log.d("HomeViewModel", "Last Visible Index: $lastVisibleIndex")
-//                        Log.d("HomeViewModel", "Grouped Events Keys: ${groupedEvents.keys}")
-//                        Log.d("HomeViewModel", "Last Visible Date: $lastVisibleDate")
-//                        Log.d("HomeViewModel", "First Visible Date: $firstVisibleDate")
-
                         if (firstVisibleDate != null && lastVisibleDate != null) {
-
-                        if (firstVisibleDate.month != lastVisibleDate.month) {
-                            viewModel.updateMonthName(
-                                "${
-                                    firstVisibleDate.month.name.substring(0, 3)}/${lastVisibleDate.month.name.substring(0, 3)}"
-                            )
-                        } else {
-                            viewModel.updateMonthName(lastVisibleDate.month.name)
+                            if (firstVisibleDate.month != lastVisibleDate.month) {
+                                viewModel.updateMonthName(lastVisibleDate.month.name)
+                            }
                         }
-
-//                            if (lastVisibleIndex >= groupedEvents.keys.size - 1) {
-//                                // loading more events from the last loaded
-//                                viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
-//                                Log.d("HomeViewModel", "Fetching more event ${state.lastDateLoaded}")
-//                            }
-                        }
-
-                        val lastVal = listState.isScrollInProgress
-
-//                        if (!listState.canScrollForward && !state.isRefreshing && lastVal) {
-//                            // insert delay to prevent multiple calls
-//                            scope.launch {
-//                                Log.d("HomeViewModel", "Fetching more event from ${state.lastDateLoaded}")
-//                                viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
-//                            }
-//                        }
+                    }
                 }
-                }
-
-
-//            snapshotFlow { listState.isScrolledPastEnd() }
-//                .collectLatest {
-//                    scope.launch {
-//                        viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
-//                        Log.d("HomeViewModel", "Fetching more event ${state.lastDateLoaded}")
-//                    }
-//                }
-
         }
-//        var previousOffset by remember { mutableStateOf(0) }
-//
-//        LaunchedEffect(listState) {
-//            snapshotFlow { listState.firstVisibleItemScrollOffset }
-//                .collect { currentOffset ->
-//                    val isScrollingUp = currentOffset < previousOffset
-//                    previousOffset = currentOffset
-//
-//                    if (isScrollingUp && !listState.canScrollForward && !state.isRefreshing) {
-//                        scope.launch {
-//                            Log.d("HomeViewModel", "Fetching more event from ${state.lastDateLoaded}")
-//                            viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
-//                        }
-//                    }
-//                }
-//        }
-
-//        LaunchedEffect(listState, groupedEvents, state) {
-//            snapshotFlow { listState.canScrollForward }
-//                .distinctUntilChanged()
-//                .filter { !it }  // Trigger only when you cannot scroll forward
-//                .collectLatest {
-//                    scope.launch {
-//                        if (!state.isRefreshing) {
-//                            Log.d("HomeViewModel", "Fetching more event from ${state.lastDateLoaded}")
-//                            viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
-//                        }
-//                    }
-//                }
-//        }
-
     }
 }
 
@@ -1680,10 +1365,6 @@ fun DayContainer(
                 .weight(1f)
         ) {
             events.forEach { event ->
-
-                // debug code
-                Log.d("HomeViewModel", "Event: ${event.summary}")
-
                 EventCard(event, viewModel = viewModel)
             }
         }
@@ -1731,8 +1412,7 @@ fun EventCardFeedPreview() {
 }
 
 fun formatEventTime(event: HomeViewModel.Event): String {
-    // used to make the time formatted properly
-
+    // Future Update Here: check system to see if in 24 hour time
     val inputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
     val outputFormatter = DateTimeFormatter.ofPattern("h:mm a")
     val zoneId = ZoneId.of("America/New_York")
@@ -1758,8 +1438,7 @@ fun formatDate(eventDateTime: HomeViewModel.EventDateTime): String {
     val zoneId = ZoneId.systemDefault()
 
     return try {
-        val zonedDateTime =
-            ZonedDateTime.parse(eventDateTime.dateTime, inputFormatter).withZoneSameInstant(zoneId)
+        val zonedDateTime = ZonedDateTime.parse(eventDateTime.dateTime, inputFormatter).withZoneSameInstant(zoneId)
         val dayOfMonth = zonedDateTime.dayOfMonth
         val dayOfMonthWithOrdinal = "$dayOfMonth${getOrdinalIndicator(dayOfMonth)}"
         zonedDateTime.format(outputFormatter).replaceFirst(Regex("\\d+"), dayOfMonthWithOrdinal)
@@ -1784,24 +1463,7 @@ fun getOrdinalIndicator(dayOfMonth: Int): String {
 fun EventCardPreview() {
     SHPEUFMobileKotlinTheme {
         EventCard(
-            event = HomeViewModel.Event(
-                id = "1",
-                summary = "SHPE GBM #1",
-                description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
-                location = "https://ufl.zoom.us/j/95895737986",
-                start = HomeViewModel.EventDateTime(
-                    dateTime = "2023-12-19T18:00:00-04:00",
-                    date = null,
-                    timeZone = "America/New_York"
-                ),
-                end = HomeViewModel.EventDateTime(
-                    dateTime = "2023-12-19T19:00:00-04:00",
-                    date = null,
-                    timeZone = "America/New_York"
-                ),
-                colorResId = blueDarkModeBackground,
-                eventType = HomeViewModel.EventType.GBM
-            ),
+            sampleCardItems[0],
             viewModel = HomeViewModel(
                 notificationRepo = NotificationRepository(
                     context = LocalContext.current
