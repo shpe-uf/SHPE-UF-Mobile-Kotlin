@@ -1654,6 +1654,6 @@ fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel)
         }
 
         SlidingEventWindow(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
-        //SlidingNotificationWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
+        SlidingNotificationWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
     }
 }
