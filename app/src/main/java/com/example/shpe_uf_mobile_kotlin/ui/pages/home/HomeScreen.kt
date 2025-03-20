@@ -103,7 +103,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 import com.example.shpe_uf_mobile_kotlin.util.*
 import kotlinx.coroutines.delay
 
-//create sample card items
+// Sample Card Items that are used for previews
 val sampleCardItems = listOf(
     HomeViewModel.Event(
         id = "1",
@@ -161,16 +161,22 @@ val sampleCardItems = listOf(
     )
 )
 
-// Top header
+/**
+ * @description Top header is used to display current month and notification settings
+ *
+ * @author Josue Vicente & resources
+ * @date 2024
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel this obtains the state to get the current month
+ **/
 @Composable
-fun TopHeader(
-    viewModel: HomeViewModel = viewModel()
-) {
+fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel()) {
     val homeState by viewModel.homeState.collectAsState()
 
     // Take the date from the current viewModel date and display the month
     Row (
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(83.dp)
             .background(color = headerOrange)
@@ -194,7 +200,7 @@ fun TopHeader(
                 fontWeight = FontWeight(400)
             ),
             color = Color.White,
-            modifier = Modifier
+            modifier = modifier
                 .weight(1f)
                 .align(Alignment.Bottom)
                 .padding(vertical = 15.dp, horizontal = 32.dp)
@@ -205,7 +211,7 @@ fun TopHeader(
             painter = painterResource(id = R.drawable.notifications_icon),
             contentDescription = "Notifications",
 
-            modifier = Modifier
+            modifier = modifier
                 .size(33.dp)
                 .align(Alignment.Bottom)
                 .offset(y = (-14).dp, x = (-28).dp)
@@ -215,8 +221,19 @@ fun TopHeader(
     }
 }
 
+/**
+ * @description SlidingEventWindow is used in the calendar screen to display the event a user selects
+ * to display event details
+ *
+ * @author Josue Vicente & resources
+ * @date 2024
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel gets state if window open and the event it would display
+ * @param isDarkMode updates color of background
+ **/
 @Composable
-fun SlidingEventWindow(viewModel: HomeViewModel, isDarkMode: Boolean) {
+fun SlidingEventWindow(modifier: Modifier = Modifier, viewModel: HomeViewModel, isDarkMode: Boolean) {
     val homeState = viewModel.homeState.collectAsState()
     val isVisible = homeState.value.isEventDetailsVisible
     val event = homeState.value.selectedEvent
@@ -235,12 +252,27 @@ fun SlidingEventWindow(viewModel: HomeViewModel, isDarkMode: Boolean) {
         enter = slideInHorizontally(initialOffsetX = { screenWidth.toInt() }),
         exit = slideOutHorizontally(targetOffsetX = { screenWidth.toInt() })
     ) {
-        EventDetails(event, viewModel, isDarkMode)
+        EventDetails(modifier, event, viewModel, isDarkMode)
     }
 }
 
+/**
+ * @author Josue Vicente & resources
+ * @date 2024
+ *
+ * @description EventDetails is used by the Sliding Event Window and is the actual content of the window
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param event this is the event we are to display the details for
+ * @param viewModel this viewModer is used get the event types and to update the state by using some functions
+ * @param isDarkMode updates the color of the background
+ **/
 @Composable
-fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewModel(), isDarkMode: Boolean) {
+fun EventDetails (modifier: Modifier, event: HomeViewModel.Event?, viewModel: HomeViewModel = viewModel(), isDarkMode: Boolean) {
+    if (event == null) {
+        return
+    }
+
     // Event Details
     Surface (
         modifier = Modifier
@@ -457,6 +489,7 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
 @Composable
 fun EventDetailsPreview() {
     EventDetails(
+        modifier = Modifier,
         event = HomeViewModel.Event(
             id = "1",
             summary = "SHPE GBM #1",
@@ -487,8 +520,18 @@ fun EventDetailsPreview() {
     )
 }
 
+/**
+ * @description This is the window that opens up when the user clicks on the notification settings icon
+ *
+ * @author Josue Vicente & resources
+ * @date 2024
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel this viewModel is used to verify if the window is open (state)
+ * @param darkMode updates the color of the background
+ **/
 @Composable
-fun SlidingNotificationWindow(viewModel: HomeViewModel, darkMode: Boolean) {
+fun SlidingNotificationWindow(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolean) {
     val homeState = viewModel.homeState.collectAsState()
     val isVisible = homeState.value.isNotificationWindowVisible
 
@@ -507,12 +550,22 @@ fun SlidingNotificationWindow(viewModel: HomeViewModel, darkMode: Boolean) {
         enter = slideInHorizontally(initialOffsetX = { screenWidth.toInt() }),
         exit = slideOutHorizontally(targetOffsetX = { screenWidth.toInt() })
     ) {
-        NotificationSettingsContent(viewModel = viewModel, darkMode)
+        NotificationSettingsContent(modifier = Modifier, viewModel = viewModel, darkMode)
     }
 }
 
+/**
+ * @description NotificationSettingsContent is part of the sliding notification window and is the actual content
+ *
+ * @author Josue Vicente & Resources
+ * @date 2024
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel this viewModer is used get the event types and to update the state by using some functions
+ * @param darkMode updates the color of the background
+ **/
 @Composable
-fun NotificationSettingsContent(viewModel: HomeViewModel, darkMode: Boolean) {
+fun NotificationSettingsContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolean) {
     val context = LocalContext.current
     val homeState by viewModel.homeState.collectAsState()
 
@@ -861,9 +914,16 @@ fun NotificationSettingsContent(viewModel: HomeViewModel, darkMode: Boolean) {
     }
 }
 
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * @author Josue Vicente & Resources
+ * @date 2025
+ *
+ * @description This allows for easier formatting of text used in the notification settings content
+ *
+ * @param darkMode updates the color of the text based on dark mode for the notification settings
+ ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 @Composable
 fun getTextStyle(darkMode: Boolean): TextStyle {
-    // makes it eaiser to get text style based of dark/light mode
     return TextStyle(
         fontSize = 16.sp,
         fontFamily = Universltstd,
@@ -873,10 +933,17 @@ fun getTextStyle(darkMode: Boolean): TextStyle {
         )
 }
 
-// Permissions and Dialogs
+/**
+ * @description PermissionsAndDialogs is used to request permissions for the notification settings
+ *
+ * @author Josue Vicente & Resources
+ * @date 2024
+ *
+ * @param viewModel used to maintain the state of the dialog queue
+ * @param context used to be able to open up the app settings based on the application information
+ **/
 @Composable
 fun PermissionsAndDialogs(viewModel: HomeViewModel, context: Context) {
-    // Notification Permission Request
     val dialogQueue = viewModel.visiblePermissionDialogQueue
 
     val multiplePermissionResultLauncher = rememberLauncherForActivityResult(
@@ -930,6 +997,16 @@ fun PermissionsAndDialogs(viewModel: HomeViewModel, context: Context) {
         }
 }
 
+/**
+ * @description Permission Dialog is used to let users open app settings and remind them we need
+ * notification permissions
+ *
+ * @author Josue Vicente & Resources
+ * @date 2024
+ *
+ * @param viewModel used to maintain the state of the dialog queue
+ * @param context used to be able to open up the app settings based on the application information
+ **/
 @Composable
 fun PermissionDialog (
     permissionTextProvider: PermissionTextProvider,
@@ -1001,6 +1078,7 @@ class NotificationsPermissionProvider : PermissionTextProvider {
 @Composable
 fun NotificationSettingsPreview() {
     NotificationSettingsContent(
+        modifier = Modifier,
         viewModel = HomeViewModel(
             notificationRepo = NotificationRepository(
                 context = LocalContext.current
@@ -1028,10 +1106,20 @@ fun TopHeaderPreview() {
     )
 }
 
-// The Event that is displayed on the screen
+/**
+ * @description EventCard is used to display event details on the main calendar
+ *
+ * @author Josue Vicente & Resources
+ * @date 2024
+ *
+ * @param modifier used to maintain the state of the dialog queue
+ * @param event is the event we obtain the information to display
+ * @param viewModel used to compare what the current event type is to determine color and icon. It
+ * helps update the home screen state when to update the current event selected
+ **/
 @Composable
-fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()) {
-    // Have to have a mutable state of for recomposition, otherwise when the event started, there would 
+fun EventCard(modifier: Modifier, event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()) {
+    // Have to have a mutable state of for recomposition, otherwise when the event started, there would
     // be no highlight unless changing page or updating the viewModel
     val currentTime = remember { mutableStateOf(ZonedDateTime.now(ZoneId.of("America/New_York"))) }
     LaunchedEffect(Unit) {
@@ -1169,8 +1257,18 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
     }
 }
 
+/**
+ * @description EventCardFeed displays DayContainer cards in a LazyColumn for the calendar page
+ *
+ * @author Josue Vicente & Resources
+ * @date 2024
+ *
+ * @param modifier used to maintain the state of the dialog queue
+ * @param viewModel is used to get all of the events being stored
+ * @param isDarkMode Used to determine color of the background when in dark mode
+ **/
 @Composable
-fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
+fun EventCardFeed(modifier: Modifier, viewModel: HomeViewModel, isDarkMode : Boolean) {
     val state by viewModel.homeState.collectAsState()
     val events = state.events
     val listState = rememberLazyListState()
@@ -1215,7 +1313,7 @@ fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
         PullToRefreshLazyColumn(
             items = groupedEvents.keys.toList(),
             content = { date ->
-                DayContainer(date = date, events = groupedEvents[date]!!, viewModel = viewModel,
+                DayContainer(modifier = Modifier, date = date, events = groupedEvents[date]!!, viewModel = viewModel,
                     isDarkMode = isDarkMode)
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -1267,6 +1365,18 @@ fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
     }
 }
 
+/**
+ * @description PullToRefreshLazyColumn displays events in a LazyColumn with a pull to refresh feature
+ *
+ * @author Josue Vicente & Resources
+ * @date 2024
+ *
+ * @param modifier used to maintain the state of the dialog queue
+ * @param content The things that are placed inside the lazy column
+ * @param isRefreshing used for state on whether or not the screen is refreshing
+ * @param onRefresh a function passed in that will do something when the user refreshes
+ * @param state the current state of the lazy column, essentially at what spot are the current items at
+ **/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> PullToRefreshLazyColumn(
@@ -1318,8 +1428,22 @@ fun <T> PullToRefreshLazyColumn(
     }
 }
 
+/**
+ * @description DayContainer uses events passed in to create a list of event cards for that date passed in
+ *
+ * @author Josue Vicente & Resources
+ * @date 2024
+ *
+ * @param modifier used to maintain the state of the dialog queue
+ * @param date The date events are displayed for
+ * @param events a list of events that occur at the date passed in
+ * @param viewModel used to compare what the current event type is to determine color and icon. It
+ * helps update the home screen state when to update the current event selected
+ * @param isDarkMode changes the color of the DayContainers based on dark mode
+ **/
 @Composable
 fun DayContainer(
+    modifier: Modifier,
     date: LocalDate,
     events: List<HomeViewModel.Event>,
     viewModel: HomeViewModel,
@@ -1365,7 +1489,7 @@ fun DayContainer(
                 .weight(1f)
         ) {
             events.forEach { event ->
-                EventCard(event, viewModel = viewModel)
+                EventCard(modifier = Modifier, event, viewModel = viewModel)
             }
         }
     }
@@ -1377,6 +1501,7 @@ fun DayContainerPreview() {
     SHPEUFMobileKotlinTheme {
         Box(modifier = Modifier.fillMaxSize()) {
             DayContainer(
+                modifier = Modifier,
                 date = LocalDate.now(),
                 events = sampleCardItems,
                 viewModel = HomeViewModel(
@@ -1398,6 +1523,7 @@ fun DayContainerPreview() {
 fun EventCardFeedPreview() {
     SHPEUFMobileKotlinTheme {
         EventCardFeed(
+            modifier = Modifier,
             viewModel = HomeViewModel(
                 notificationRepo = NotificationRepository(
                     context = LocalContext.current
@@ -1411,6 +1537,14 @@ fun EventCardFeedPreview() {
     }
 }
 
+/**
+ * @description Helper function to format time for display of events
+ *
+ * @author Josue Vicente & Resources
+ * @date 2024
+ *
+ * @param event used to get the time event occurs to return a formatted time
+ **/
 fun formatEventTime(event: HomeViewModel.Event): String {
     // Future Update Here: check system to see if in 24 hour time
     val inputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
@@ -1432,6 +1566,14 @@ fun formatEventTime(event: HomeViewModel.Event): String {
     }
 }
 
+/**
+ * @description formatDate is a helper function to format the date an event occurs for display on calendar
+ *
+ * @author Josue Vicente & Resources
+ * @date 2024
+ *
+ * @param eventDateTime holds the date and time information for the date being formatted
+ **/
 fun formatDate(eventDateTime: HomeViewModel.EventDateTime): String {
     val inputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
     val outputFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH)
@@ -1448,6 +1590,14 @@ fun formatDate(eventDateTime: HomeViewModel.EventDateTime): String {
     }
 }
 
+/**
+ * @description getOrdinalIndicator is a helper function that gets whether the date should be 1st, 2nd, 3rd, 4th, etc.
+ *
+ * @author Josue Vicente & Resources
+ * @date 2024
+ *
+ * @param dayOfMonth is an integer that represents the day of the month to get formatting for
+ **/
 fun getOrdinalIndicator(dayOfMonth: Int): String {
         return when {
             dayOfMonth in 11..13 -> "th"
@@ -1463,6 +1613,7 @@ fun getOrdinalIndicator(dayOfMonth: Int): String {
 fun EventCardPreview() {
     SHPEUFMobileKotlinTheme {
         EventCard(
+            modifier = Modifier,
             sampleCardItems[0],
             viewModel = HomeViewModel(
                 notificationRepo = NotificationRepository(
@@ -1476,6 +1627,16 @@ fun EventCardPreview() {
     }
 }
 
+/**
+ * @description HomeScreen displays the event calendar and allows users to change notifications settings
+ * as well as being able to open up event details to explore more about the event.
+ *
+ * @author Josue Vicente & Resources
+ * @date 2024
+ *
+ * @param viewModel a HomeViewModel used to pass events and state of feeds and windows to see if they are displayed
+ * @param shpeufAppViewModel used to obtain the state of dark mode from the app settings
+ **/
 @Composable
 fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel) {
     val userState by shpeufAppViewModel.uiState.collectAsState()
@@ -1488,11 +1649,11 @@ fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel)
         color = if(isDarkMode) Color.Black else Color.White
     ) {
         Box {
-            EventCardFeed(viewModel = viewModel, isDarkMode = isDarkMode)
-            TopHeader(viewModel = viewModel)
+            EventCardFeed(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
+            TopHeader(modifier = Modifier, viewModel = viewModel)
         }
 
-        SlidingEventWindow(viewModel = viewModel, isDarkMode = isDarkMode)
-        SlidingNotificationWindow(viewModel = viewModel, darkMode = isDarkMode)
+        SlidingEventWindow(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
+        //SlidingNotificationWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
     }
 }
