@@ -42,8 +42,6 @@ class PointsPageViewModel : ViewModel() {
         return validateEventRedeem(Optional.presentIfNotNull(pointsInput))
     }
 
-
-
     //Function to ensure that event code is valid, and to return appropriate error
     //messages for when it is not.
     suspend fun validateEventRedeem(pointsInput: Optional<RedeemPointsInput>): String? {
