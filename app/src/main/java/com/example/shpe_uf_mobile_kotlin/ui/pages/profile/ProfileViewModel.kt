@@ -137,8 +137,8 @@ class ProfileViewModel : ViewModel() {
         val currentInternships = _uiState.value.internships?.toMutableList() ?: mutableListOf()
 
         val error = when {
-            internshipName.isEmpty() -> "Class cannot be empty."
-            internshipName in currentInternships -> "Class already exists."
+            internshipName.isEmpty() -> "Internship cannot be empty."
+            internshipName in currentInternships -> "Internship already exists."
             else -> null
         }
 
@@ -150,16 +150,16 @@ class ProfileViewModel : ViewModel() {
             )
         } else {
             currentInternships.add(internshipName)
-            _uiState.value = _uiState.value.copy(classes = currentInternships)
+            _uiState.value = _uiState.value.copy(internships = currentInternships)
         }
     }
 
     fun addLinks(link: String) {
-        val currentLinks = _uiState.value.internships?.toMutableList() ?: mutableListOf()
+        val currentLinks = _uiState.value.socialMedia?.toMutableList() ?: mutableListOf()
 
         val error = when {
-            link.isEmpty() -> "Class cannot be empty."
-            link in currentLinks -> "Class already exists."
+            link.isEmpty() -> "Links cannot be empty."
+            link in currentLinks -> "Link already exists."
             else -> null
         }
 
@@ -171,7 +171,7 @@ class ProfileViewModel : ViewModel() {
             )
         } else {
             currentLinks.add(link)
-            _uiState.value = _uiState.value.copy(classes = currentLinks)
+            _uiState.value = _uiState.value.copy(socialMedia = currentLinks)
         }
     }
 
