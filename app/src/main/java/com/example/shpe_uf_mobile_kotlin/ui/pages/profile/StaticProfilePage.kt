@@ -832,8 +832,9 @@ fun StaticProfilePageBackground(
     editable: List<Boolean>,
     profileViewModel: ProfileViewModel
 ) {
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val uiState by profileViewModel.uiState.collectAsState() // getting ui state
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp // getting screen height
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp // getting screen width
     val imageSize = screenWidth * 0.3f // 30% of the screen width
     val topPadding = screenWidth * 0.15f // 20% of the screen width
     val orangeHeight = screenHeight * (1.01f / 5f) // Orange covers about a fourth of the screen
@@ -901,15 +902,32 @@ fun StaticProfilePageBackground(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(bottom = 16.dp)
             ) {
-                Image(
-                    painter = painterResource(
-                        id = if (isDarkMode) R.drawable.empty_profile_picture_dark
-                        else R.drawable.empty_profile_picture_light
-                    ), contentDescription = "PROFILE PIC CIRCLE", modifier = Modifier
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 93.dp)
+                ){
+                    if(uiState.photo != null){
+                        Image(
+                            bitmap = uiState.photoBitmap!!.asImageBitmap(),
+                            contentDescription = "User Profile Picture",
+                            modifier = Modifier
+                                .align(Alignment.Center) // only works inside a box
+                                .width(116.dp)
+                                .height(110.dp)
+                                .clip(CircleShape)
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(
+                                id = if (isDarkMode) R.drawable.empty_profile_picture_dark
+                                else R.drawable.empty_profile_picture_light
+                            ), contentDescription = "PROFILE PIC CIRCLE", modifier = Modifier
 //                        .align(Alignment.Center)
-                        .size(imageSize)
-                        .clip(CircleShape), contentScale = ContentScale.Crop
-                )
+                                .size(imageSize)
+                                .clip(CircleShape), contentScale = ContentScale.Crop
+                        )
+                    }
+                }
 
                 Text(
                     text = name, color = textColor, fontSize = 24.sp, fontWeight = FontWeight.Bold
