@@ -1027,7 +1027,6 @@ fun ProfileLists(
             // Not editable
 
             if (!editable[0] && editable[1]) {
-                val ctx = LocalContext.current
 
                 // Now loop through the value and display each class
                 value.forEach { classItem ->
@@ -1038,6 +1037,7 @@ fun ProfileLists(
                     ) {
 
                         if (listType != 'c') {
+                            val ctx = LocalContext.current
 
                             // Simple fix if you put https://
                             if (classItem != null) {
@@ -1054,11 +1054,11 @@ fun ProfileLists(
                                     )
                                     ctx.startActivity(urlIntent)
                                 } catch (e: Exception) {
-                                    Toast.makeText(ctx, "Invalid URL", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(ctx, "Could not open link.", Toast.LENGTH_SHORT).show()
                                 }
 
                             }) {
-                                if (classItem != null) {
+                                if (classItem != null) { // null checking again
                                     Text(
                                         text = classItem.removePrefix("https://"),
                                         modifier = Modifier.fillMaxWidth(),
@@ -1144,7 +1144,7 @@ fun ProfileLists(
 
                     if (listType != 'c') {
 
-                        val containerColor = if (isDarkMode) Color(0xFF003935) else Color(0xFFF5F5F5)
+                        val containerColor = if (isDarkMode) Color(0xFF003935) else Color.Gray
 
 
                         value.forEach { linkItem ->
