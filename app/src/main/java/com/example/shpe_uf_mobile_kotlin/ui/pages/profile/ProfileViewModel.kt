@@ -1,8 +1,12 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.util.Base64
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -19,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import kotlin.io.encoding.Base64.Default.encodeToByteArray
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -369,4 +374,75 @@ class ProfileViewModel : ViewModel() {
                 _uiState.value.copy(isGraduationExpanded = !_uiState.value.isGraduationExpanded)
         }
     }
+
+
+    //edit profile picture image handler function
+    fun handleSelectedImage(context: Context, uri: Uri) {
+        viewModelScope.launch {
+            try {
+                // Process the image using non-deprecated methods
+                val bitmap = when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> {
+                        // For Android 9 (API 28) and above
+                        val source = ImageDecoder.createSource(context.contentResolver, uri)
+                        ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
+                            decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+                            decoder.isMutableRequired = true
+                        }
+                    }
+                    else -> {
+                        // For Android 8.1 and below
+                        // Although deprecated, this is still the recommended way for older Android versions
+                        @Suppress("DEPRECATION")
+                        MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                    }
+                }
+
+                // Resize and process as before
+                val resizedBitmap = scaleBitmap(bitmap, 500)
+                val base64Image = bitmapToBase64String(resizedBitmap)
+
+                // Update the state
+                _uiState.value = _uiState.value.copy(
+                    photo = base64Image,
+                    photoBitmap = resizedBitmap
+                )
+            } catch (e: Exception) {
+                // Handle any errors
+                Log.e("ProfileViewModel", "Error handling image: ${e.message}", e)
+            }
+        }
+    }
+
+    //helper functions
+    // Helper function to resize bitmap
+    private fun scaleBitmap(bitmap: Bitmap, maxDimension: Int): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+
+        val scaleFactor = when {
+            width > height && width > maxDimension -> maxDimension.toFloat() / width
+            height > maxDimension -> maxDimension.toFloat() / height
+            else -> 1.0f // No scaling needed
+        }
+
+        return if (scaleFactor < 1.0f) {
+            val scaledWidth = (width * scaleFactor).toInt()
+            val scaledHeight = (height * scaleFactor).toInt()
+            Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, true)
+        } else {
+            bitmap
+        }
+    }
+
+    // Convert bitmap to base64 string
+    private fun bitmapToBase64String(bitmap: Bitmap): String {
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
+        val byteArray = outputStream.toByteArray()
+        val base64String = Base64.encodeToString(byteArray, Base64.DEFAULT)
+        return "data:image/jpeg;base64,$base64String"
+    }
+
+
 }
