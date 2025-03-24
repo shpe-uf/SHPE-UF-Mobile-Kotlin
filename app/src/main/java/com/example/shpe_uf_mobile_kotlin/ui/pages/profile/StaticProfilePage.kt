@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -157,10 +160,6 @@ fun StaticProfileScreen(
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-
-                item {
-                    Spacer(modifier = Modifier.height(39.dp))
-                }
 
                 item {
                     Text(
@@ -796,32 +795,70 @@ fun StaticProfileScreen(
 @Composable
 fun ProfileImage(
     isDarkMode: Boolean,
+    editable: List<Boolean>,
     profileViewModel: ProfileViewModel,
+    onEditClick: () -> Unit = {}
 ) {
     val uiState by profileViewModel.uiState.collectAsState()
 
-    if (uiState.photoBitmap != null) {
-        Image(
-            bitmap = uiState.photoBitmap!!.asImageBitmap(),
-            contentDescription = "USER PROFILE PIC",
-            modifier = Modifier
-                .width(116.dp)
-                .height(110.dp)
-                .clip(CircleShape)
-        )
-    } else {
-        Image(
-            painter = painterResource(
-                id = if (isDarkMode) R.drawable.empty_profile_picture_dark
-                else R.drawable.empty_profile_picture_light
-            ),
-            contentDescription = "PROFILE PIC CIRCLE",
-            modifier = Modifier
-                .width(116.dp)
-                .height(110.dp)
-        )
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(116.dp)
+    ) {
+        // Main profile image
+        if (uiState.photoBitmap != null) {
+            Image(
+                bitmap = uiState.photoBitmap!!.asImageBitmap(),
+                contentDescription = "USER PROFILE PIC",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Image(
+                painter = painterResource(
+                    id = if (isDarkMode) R.drawable.empty_profile_picture_dark
+                    else R.drawable.empty_profile_picture_light
+                ),
+                contentDescription = "PROFILE PIC CIRCLE",
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        if (editable[0] && !editable[1]) {
+            // Edit button overlay - positioned at top-right corner
+            // Make sure the boxes are clearly visible with correct z-order
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .align(Alignment.TopEnd)
+                    .clickable { onEditClick() }
+                    .background(Color(0xFFD25917), CircleShape) // Set the orange background directly here
+                    .padding(4.dp)
+            ) {
+                // Middle gray circle (slightly smaller than parent)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.LightGray, CircleShape)
+                        .padding(5.dp) // Add some padding for the icon
+                ) {
+                    // File icon on top (sized to fit inside gray circle)
+                    Image(
+                        painter = painterResource(R.drawable.fileicon),
+                        contentDescription = "Edit Profile Picture",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(1.dp)
+                    )
+                }
+            }
+        }
     }
 }
+
 
 @Composable
 fun StaticProfilePageBackground(
@@ -838,8 +875,19 @@ fun StaticProfilePageBackground(
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp // getting screen width
     val imageSize = screenWidth * 0.3f // 30% of the screen width
     val topPadding = screenWidth * 0.15f // 20% of the screen width
-    val orangeHeight = screenHeight * (1.01f / 5f) // Orange covers about a fourth of the screen
+    val orangeHeight = screenHeight * (1.01f / 4f) // Orange covers about a fourth of the screen
     val blueHeight = screenHeight * (3.4f / 5f)  // Blue covers the remaining three-fourths
+
+    val context = LocalContext.current
+
+    //create image picker launcher using SAF
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { profileViewModel.handleSelectedImage(context, it) }
+    }
+
+    val launchImagePicker = {imagePickerLauncher.launch("image/*")}
 
     Box(modifier = modifier.fillMaxSize()) {
         Box(
@@ -903,31 +951,12 @@ fun StaticProfilePageBackground(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(bottom = 16.dp)
             ) {
-//                Box(modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(top = 93.dp)
-//                ){
-                    if(uiState.photo.isNotEmpty()){
-                        Image(
-                            bitmap = uiState.photoBitmap!!.asImageBitmap(),
-                            contentDescription = "User Profile Picture",
-                            modifier = Modifier
-                                .width(116.dp)
-                                .height(110.dp)
-                                .clip(CircleShape)
-                        )
-                    } else {
-                        Image(
-                            painter = painterResource(
-                                id = if (isDarkMode) R.drawable.empty_profile_picture_dark
-                                else R.drawable.empty_profile_picture_light
-                            ), contentDescription = "PROFILE PIC CIRCLE", modifier = Modifier
-//                        .align(Alignment.Center)
-                                .size(imageSize)
-                                .clip(CircleShape), contentScale = ContentScale.Crop
-                        )
-                    }
-              //  }
+                ProfileImage(
+                    isDarkMode = isDarkMode,
+                    editable = editable,
+                    profileViewModel = profileViewModel,
+                    onEditClick = { launchImagePicker() }
+                )
 
                 Text(
                     text = name, color = textColor, fontSize = 24.sp, fontWeight = FontWeight.Bold
