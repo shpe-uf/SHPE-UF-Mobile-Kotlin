@@ -3,6 +3,7 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -1046,10 +1047,16 @@ fun ProfileLists(
                             }
 
                             TextButton(onClick = {
-                                val urlIntent = Intent(
-                                    Intent.ACTION_VIEW, Uri.parse("https://"+classItem)
-                                )
-                                ctx.startActivity(urlIntent)
+                                // When in doubt, try catching the error.
+                                try {
+                                    val urlIntent = Intent(
+                                        Intent.ACTION_VIEW, Uri.parse("https://$classItem")
+                                    )
+                                    ctx.startActivity(urlIntent)
+                                } catch (e: Exception) {
+                                    Toast.makeText(ctx, "Invalid URL", Toast.LENGTH_SHORT).show()
+                                }
+
                             }) {
                                 if (classItem != null) {
                                     Text(
