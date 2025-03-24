@@ -71,6 +71,7 @@ fun SuperiorTextField(
     isError: Boolean = false,
     errorMessage: String? = null,
     leadingIconModifier: Modifier = Modifier,
+    trailingIconTint: Color = Color.Unspecified
 ) {
     val labelColor = if (isSystemInDarkTheme()) {
         Color.White
@@ -118,7 +119,8 @@ fun SuperiorTextField(
                             Icon(
                                 painter = painterResource(leadingIcon),
                                 contentDescription = "Leading Icon",
-                                modifier = leadingIconModifier
+                                modifier = leadingIconModifier,
+                                tint = Color.Gray
                             )
                         }
                         Box(
@@ -142,6 +144,7 @@ fun SuperiorTextField(
                                 Icon(
                                     painter = painterResource(trailingIcon),
                                     contentDescription = "Trailing Icon",
+                                    tint = trailingIconTint
                                 )
                             }
 
@@ -151,16 +154,14 @@ fun SuperiorTextField(
 
         if(isError && errorMessage != null){
             Text(
-                modifier = Modifier.padding(top = 10.dp),
+                modifier = Modifier.padding(top = 10.dp).width(width),
                 text = errorMessage,
                 style = TextStyle(
                     fontSize = 12.sp,
                     fontFamily = FontFamily(Font(R.font.universltstd)),
                     fontWeight = FontWeight(400)
                 ),
-                color = MaterialTheme.colorScheme.error,
-                maxLines = 1,
-                overflow = TextOverflow.Clip
+                color = Color.Red
             )
         }
     }
