@@ -902,16 +902,15 @@ fun StaticProfilePageBackground(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(bottom = 16.dp)
             ) {
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 93.dp)
-                ){
-                    if(uiState.photo != null){
+//                Box(modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(top = 93.dp)
+//                ){
+                    if(uiState.photo.isNotEmpty()){
                         Image(
                             bitmap = uiState.photoBitmap!!.asImageBitmap(),
                             contentDescription = "User Profile Picture",
                             modifier = Modifier
-                                .align(Alignment.Center) // only works inside a box
                                 .width(116.dp)
                                 .height(110.dp)
                                 .clip(CircleShape)
@@ -927,7 +926,7 @@ fun StaticProfilePageBackground(
                                 .clip(CircleShape), contentScale = ContentScale.Crop
                         )
                     }
-                }
+              //  }
 
                 Text(
                     text = name, color = textColor, fontSize = 24.sp, fontWeight = FontWeight.Bold
@@ -1038,9 +1037,17 @@ fun ProfileLists(
                     ) {
 
                         if (listType != 'c') {
+
+                            // Simple fix if you put https://
+                            if (classItem != null) {
+                                if (classItem.startsWith("https://")){
+                                    classItem.removePrefix("https://")
+                                }
+                            }
+
                             TextButton(onClick = {
                                 val urlIntent = Intent(
-                                    Intent.ACTION_VIEW, Uri.parse(classItem)
+                                    Intent.ACTION_VIEW, Uri.parse("https://"+classItem)
                                 )
                                 ctx.startActivity(urlIntent)
                             }) {
