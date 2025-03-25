@@ -58,11 +58,20 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import android.app.Activity
+import android.content.Intent
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.shpe_uf_mobile_kotlin.EventsQuery.Event
 import com.example.shpe_uf_mobile_kotlin.PointsQuery
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
@@ -76,7 +85,11 @@ import java.time.LocalDateTime
 import java.time.Month
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-
+import android.os.Bundle
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.appcompat.app.AppCompatActivity
+import com.example.shpe_uf_mobile_kotlin.ui.customscanner.MyCustomScannerActivity
 
 /*
 ******************************************************
@@ -444,12 +457,15 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
 /*
 ******************************************************
 FUNCTION: RedeemPoints()
-* Design of slide up screen that is called when "Redeem
-* Code" is pressed. Functionality includes a textbox
-* for event code, adding up to 5 guests with plus or minus
-* button, and a "Redeem" button to submit the request that
-* connects to a GraphQL mutation that provides proper error
-* statements to the textbox if necessary.
+* Displays a slide-up screen when "Redeem Code" is pressed.
+* Functionality includes:
+* - Textbox for event code input.
+* - Ability to add up to 5 guests using plus/minus buttons.
+* - "Redeem" button submits the request via a GraphQL mutation.
+* - Now includes a QR scanning feature with a camera icon
+*   that launches a custom scanner.
+* - Automatically redeems points if a valid QR code is scanned.
+* - Uses custom toast messages to provide feedback.
 ******************************************************
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -466,6 +482,48 @@ fun RedeemPoints(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
+    // Used to show messages to the user
+    val context = LocalContext.current
+
+    // 1. Launcher to handle the result from your local qr code scanner
+    val qrScannerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val contents = result.data?.getStringExtra("SCAN_RESULT")
+            if (contents != null) {
+                val scannedCode = contents.removePrefix("[SHPEUF]:")
+
+                // Update the ViewModel with the scanned code
+                pointsPageViewModel.updateEventCode(scannedCode)
+                pointsPageViewModel.updateGuestsCount(1)
+
+                // Immediately redeem and close the bottom sheet if successful
+                coroutineScope.launch {
+                    val error = pointsPageViewModel.redeemEvent(username)
+                    if (error == null) {
+                        onCloseBottomSheet()
+                    } else {
+                        errorMessage = error
+                    }
+                }
+            }
+        }
+    }
+
+    // 2. Launcher to request CAMERA permission
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Launch the QR scanner
+            val intent = Intent(context, MyCustomScannerActivity::class.java)
+            intent.putExtra("SCAN_MODE", "QR_CODE_MODE")
+            qrScannerLauncher.launch(intent)
+        } else {
+            errorMessage = "Camera permissions denied.";
+        }
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -522,6 +580,19 @@ fun RedeemPoints(
                     text = newText
                     pointsPageViewModel.updateEventCode(newText)
                 },
+                leadingIcon = {
+                    IconButton(
+                        onClick = {
+                            // Handle camera icon click here
+                            cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.camera), // REPLACE WITH .CAMERA
+                            contentDescription = "Camera icon"
+                        )
+                    }
+                },
                 placeholder = {
                     Text(
                         "Event Code",
@@ -535,6 +606,10 @@ fun RedeemPoints(
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
+                },
+                trailingIcon = {
+                    // Used to center the Event Code Text
+                    Box(modifier = Modifier.size(48.dp)) {}
                 },
                 singleLine = true,
                 textStyle = TextStyle(
@@ -673,7 +748,7 @@ fun RedeemPoints(
             Button(
                 onClick = {
                     coroutineScope.launch {
-                        //Call to viewmodel function to validate the event code
+                        // Call to viewmodel function to validate the event code
                         errorMessage = pointsPageViewModel.redeemEvent(username).toString()
                     }
                 },
