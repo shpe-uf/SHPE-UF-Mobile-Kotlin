@@ -105,7 +105,7 @@ class ValidationTests {
     // Testing valid login with correct credentials.
     @Test
     fun testValidLogin() = runTest {
-        val result = loginUser("andreiursu", "Password1!")
+        val result = loginUser("AnthonyZ", "anthonyZ123$")
         assertEquals(true, result)
     }
 }
