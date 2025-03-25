@@ -147,6 +147,7 @@ fun NavHostContainer(
     LaunchedEffect(userState.isLoggedIn) {
         val isLoggedIn = userState.isLoggedIn
         Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
+        Log.d("Logged In True", "isLoggedIn: ${isLoggedIn==true}")
 
         if (isLoggedIn) {
             navHostController.navigate(NavRoute.HOME) {
@@ -154,13 +155,14 @@ fun NavHostContainer(
                 launchSingleTop = true
             }
         } else {
+            Log.d("Current Screen", "Current Screen: ${navHostController.currentDestination?.route}")
             navHostController.navigate(NavRoute.OPENING) {
                 popUpTo(0) { inclusive = true }  // Clears all back stack entries
             }
         }
     }
 
-    LaunchedEffect(notificationSummary) {
+    LaunchedEffect(notificationSummary, userState.isLoggedIn) {
         val event = homeViewModel.getEventBySummary(notificationSummary)
         Log.d("NotificationsTest", "Passed In, Inside: $notificationSummary")
         Log.d("NotificationsTest", "Event, Inside: $event")
@@ -172,7 +174,10 @@ fun NavHostContainer(
             homeViewModel.selectEvent(event)
         }
 
-        navHostController.navigate(NavRoute.HOME)
+        // Quick fix for notifications
+        if (userState.isLoggedIn){
+            navHostController.navigate(NavRoute.HOME)
+        }
     }
 
 
