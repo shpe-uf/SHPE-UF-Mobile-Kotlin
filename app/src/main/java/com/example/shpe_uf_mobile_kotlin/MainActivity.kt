@@ -58,6 +58,10 @@ class MainActivity() : ComponentActivity() {
                 val registerViewModel = RegisterPage1ViewModel()
                 val profileViewModel = ProfileViewModel()
 
+//                Log.d("Logged In", UserState.isLoggedIn.toString())
+//                Log.d("Logged Out", UserState.isLoggedOut.toString())
+//                Log.d("User Id", UserState.id)
+
                 val viewModelFactory = HomeViewModelFactory(
                     NotificationRepository(applicationContext),
                     EventRepository(applicationContext)
