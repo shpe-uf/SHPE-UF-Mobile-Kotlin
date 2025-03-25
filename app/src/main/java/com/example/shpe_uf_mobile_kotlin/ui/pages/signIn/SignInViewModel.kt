@@ -99,6 +99,8 @@ class SignInViewModel : ViewModel() {
         if (!response.hasErrors()) {
             val id = response.data?.login?.id
 
+            Log.d("Debugging", "$response")
+
             Log.d("GraphQL", "$id")
 
             Log.d("Welcome!", "Welcome $username to SHPE UF!")
