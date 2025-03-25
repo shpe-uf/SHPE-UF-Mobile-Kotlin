@@ -1,5 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin.data
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -124,6 +125,9 @@ class SHPEUFAppViewModel(
         saveUserId("")
         saveLoggedIn(false)
         saveLoggedOut(true)
+        Log.d("id", "id:${uiState.value.id}")
+        Log.d("loggedIn", "loggedIn:${uiState.value.isLoggedIn}")
+        Log.d("loggedOut", "loggedOut:${uiState.value.isLoggedOut}")
     }
 
 
