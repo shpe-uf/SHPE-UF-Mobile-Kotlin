@@ -26,6 +26,8 @@ import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import kotlin.io.encoding.Base64.Default.encodeToByteArray
 import kotlin.io.encoding.ExperimentalEncodingApi
+// added this so we can update to SignedOut
+import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 
 
 class ProfileViewModel : ViewModel() {
@@ -218,9 +220,12 @@ class ProfileViewModel : ViewModel() {
             _uiState.value = it.copy(editable = listOf(false, true))
         }
     }
-
-    fun deleteProfile(email: String) {
-        deleteUserProfile(email)
+//RESOLVE THIS DELETE PROFILE THING
+//    fun deleteProfile(email: String) {
+//        deleteUserProfile(email)
+    fun deleteProfile(shpeUFAppViewModel: SHPEUFAppViewModel): Boolean{
+        val output = deleteUserProfile(shpeUFAppViewModel)
+        return output
     }
 
     fun editProfile() {
@@ -324,11 +329,27 @@ class ProfileViewModel : ViewModel() {
     }
 
     // Functions for delete the user from the SHPE server.
-    private fun deleteUserProfile(email: String): Boolean {
+    private fun deleteUserProfile(shpeUFAppViewModel: SHPEUFAppViewModel): Boolean {
+
+        val userEmail = _uiState.value.email ?: return false  // Return false if email is null
+
+
         var output = false
         viewModelScope.launch {
-            output = deleteUserProfileCoroutine(email)
+            output = deleteUserProfileCoroutine(userEmail)
+            // Check if output == false meaning no errors when performing mutation
+            // Update state values to reflect that no user is signed in
+            if (!output) {
+                shpeUFAppViewModel.saveUserId("")
+                shpeUFAppViewModel.saveUsername("")
+                shpeUFAppViewModel.saveLoggedIn(false)
+                shpeUFAppViewModel.saveLoggedOut(true)
+            }
             // TODO: Add navigation to opening page after user account is deleted.
+            // Example code in SignInViewModel line 81
+            // We have to update the values to reflect that we are signed out (i.e id to "") so when
+            // we are performing code in onClick() of StaticProfilePage it knows we are signed out
+            // So navigation is performed correctly. Real navigation performed in onClick() func
         }
         return output
     }

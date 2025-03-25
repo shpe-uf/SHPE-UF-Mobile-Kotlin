@@ -24,4 +24,9 @@ class EventRepository(context: Context) {
         return eventDao.getAllEvents().map { it.toHomeViewModelEvent() }
     }
 
+    suspend fun getEventBySummary(summary: String): HomeViewModel.Event? {
+        val event = eventDao.getEventBySummary(summary)
+        return event?.toHomeViewModelEvent()
+    }
+
 }

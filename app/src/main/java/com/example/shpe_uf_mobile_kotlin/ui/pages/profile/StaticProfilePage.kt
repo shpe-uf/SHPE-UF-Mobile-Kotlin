@@ -774,7 +774,7 @@ fun StaticProfileScreen(
                 item {
 
                     if (!uiState.editable[0] && uiState.editable[1]) {
-                        DeleteAccountButton(profileViewModel)
+                        DeleteAccountButton(profileViewModel, mainViewModel, navController)
 
                     }
                 }
@@ -1506,14 +1506,16 @@ private fun LogoutButton(
 }
 
 @Composable
-private fun DeleteAccountButton(
-    profileViewModel: ProfileViewModel
+private fun DeleteAccountButton(profileViewModel: ProfileViewModel,
+                                shpeUFAppViewModel: SHPEUFAppViewModel,
+                                navController: NavHostController
 ) {
 
     var showDialog by remember { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier.fillMaxWidth() // Ensure the Box takes up the full width of the screen
+        modifier = Modifier
+            .fillMaxWidth() // Ensure the Box takes up the full width of the screen
     ) {
         Button(
             modifier = Modifier
@@ -1522,7 +1524,8 @@ private fun DeleteAccountButton(
             onClick = { showDialog = true },
             shape = RoundedCornerShape(20.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Red, contentColor = Color.White
+                containerColor = Color.Red,
+                contentColor = Color.White
             ),
         ) {
             Text(
@@ -1536,28 +1539,35 @@ private fun DeleteAccountButton(
 
 
     if (showDialog) {
-        AlertDialog(onDismissRequest = { showDialog = false },
-            title = {
-                Text(
-                    text = "Delete Account?", textAlign = TextAlign.Center
-                )
-            },
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(text = "Delete Account?",
+                    textAlign = TextAlign.Center
+            ) },
             text = { Text("Deleting your account will remove all your personal data forever. This cannot be undone.") },
             confirmButton = {
                 Button(
                     onClick = {
-                        profileViewModel.tempDeleteUser()
+                        val deleteUnsuccessful = profileViewModel.deleteProfile(shpeUFAppViewModel)
                         showDialog = false
-                    }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                        if (!deleteUnsuccessful) {
+                            navController.navigate(NavRoute.OPENING)
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
                     Text("Delete", color = Color.White)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
+                TextButton(
+                    onClick = { showDialog = false }
+                ) {
                     Text("Cancel")
                 }
-            })
+            }
+            //commit to publish
+        )
     }
 }
 
@@ -1622,11 +1632,13 @@ fun ModeButton(
     ) {
         // Row containing the mode icon, label, and selection indicator
         Row(
-            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
                 // Change background color when selected
                 .background(
 //                    color = if (selected) Color(0xFF001627) else Color.Transparent,
-                    color = Color.Transparent, shape = RoundedCornerShape(8.dp)
+                    color = Color.Transparent,
+                    shape = RoundedCornerShape(8.dp)
                 )
                 .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
@@ -1641,8 +1653,10 @@ fun ModeButton(
 
             // Mode label text
             Text(
-                text = label, color = Color(0xFFD25917), // Orange color
-                fontSize = 20.sp, fontWeight = FontWeight.Bold
+                text = label,
+                color = Color(0xFFD25917), // Orange color
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
 
             // Spacer to push the selection indicator to the end
@@ -1652,7 +1666,8 @@ fun ModeButton(
             Image(
                 painter = painterResource(
                     id = if (selected) R.drawable.ic_checked else R.drawable.ic_unchecked
-                ), contentDescription = if (selected) "Selected" else "Not Selected",
+                ),
+                contentDescription = if (selected) "Selected" else "Not Selected",
                 // Adjust size based on selection state
                 modifier = Modifier.size(if (selected) 35.dp else 31.dp)
             )

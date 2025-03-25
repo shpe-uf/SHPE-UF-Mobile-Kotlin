@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- The scanner preview and reticle/controls come from this view -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/cameraPreview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Back Button -->
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/back_button"
+        android:src="@drawable/backbuttonicon"
+        android:background="?attr/selectableItemBackgroundBorderless"/>
+
+    <!-- Zoom SeekBar -->
+    <SeekBar
+        android:id="@+id/zoomSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="35dp"
+        android:max="10"
+        android:progress="0"/>
+
+    <!-- Custom text -->
+    <TextView
+        android:id="@+id/scannerPrompt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Scan your SHPE Points QR Code"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/universltstd"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:paddingStart="100dp"
+        android:paddingEnd="100dp"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:background="@android:color/transparent"
+        android:maxLines="2"
+        android:breakStrategy="simple"/>
+    />
+</RelativeLayout>
