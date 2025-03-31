@@ -97,7 +97,7 @@ class HomeViewModel(
     fun dismissDialog() {
         if (visiblePermissionDialogQueue.isNotEmpty()) {
             Log.d("HomeViewModel", "Removing, ${visiblePermissionDialogQueue.last()}")
-            visiblePermissionDialogQueue.removeLast()
+            visiblePermissionDialogQueue.removeAt(visiblePermissionDialogQueue.lastIndex)
         }
     }
 
