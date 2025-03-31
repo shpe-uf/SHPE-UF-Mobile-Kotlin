@@ -8,16 +8,20 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,22 +40,14 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -59,7 +55,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.AlertDialog
@@ -82,8 +77,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.repository.EventRepository
@@ -106,16 +99,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.IntOffset
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.TextColor
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
-import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.util.*
 import kotlinx.coroutines.delay
 
-//create sample card items
+// Sample Card Items that are used for previews
 val sampleCardItems = listOf(
     HomeViewModel.Event(
         id = "1",
@@ -173,17 +166,100 @@ val sampleCardItems = listOf(
     )
 )
 
-// New HomeScreen Things
-@Composable
-fun TopHeader(
-    viewModel: HomeViewModel = viewModel()
-) {
-    val homeState by viewModel.homeState.collectAsState()
+/** Used with AnchoredDraggableState to define start and end anchors. These are here because we must
+ * define them outside as anchored draggable state doesn't define them itself. These are given a
+ * value when we initialize the AnchoredDraggableState within the SlidingWindow composable **/
+enum class DragAnchors {
+    Start, End
+}
 
+/**
+ * @description SlidingWindow is a reusable window meant to be activated outside of the function and
+ * is disabled within the sliding window. As of right now, is being used by the SlidingEventWindow and
+ * SlidingNotificationWindow. In theory could be used by itself to create a sliding window
+ *
+ * @author Josue Vicente & resources
+ * @date Created March 2025
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel was used to get a the functions to change state but may not be needed (TBD)
+ * @param isVisible state passed in to see if window is open. This comes from the viewModel or stateHolder
+ * @param content this function should contain everything that needs to be seen displayed in the window
+ * @param toggleOff This function is used to update isVisible within this window. Updates the viewModel
+ **/
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun SlidingWindow(modifier: Modifier, viewModel: HomeViewModel, isVisible: Boolean, content: @Composable () -> Unit, toggleOff: () -> Unit = {}) {
+    val screenWidth = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
+    val density = LocalDensity.current
+    val decay = rememberSplineBasedDecay<Float>()
+
+    // This is the anchored state that defines where we should start and how the animations should behave
+    // We also update anchors to define start and end positions
+    val state = remember {
+        AnchoredDraggableState(
+            initialValue = DragAnchors.End,
+            positionalThreshold = { distance: Float -> distance * 0.5f },
+            velocityThreshold = { with(density) { 32.dp.toPx() } },
+            snapAnimationSpec = tween(
+                durationMillis = 300,
+                easing = LinearEasing
+            ),
+            decayAnimationSpec = decay,
+            confirmValueChange = { true }
+        ).apply {
+            updateAnchors(
+                DraggableAnchors {
+                    DragAnchors.Start at 0f
+                    DragAnchors.End at screenWidth
+                }
+            )
+        }
+    }
+
+    // This is used to animate the window in and and out based on isVisible
+    LaunchedEffect(isVisible) {
+        if (isVisible) {
+            state.animateTo(DragAnchors.Start)
+        } else {
+            state.animateTo(DragAnchors.End)
+        }
+    }
+
+    // checks to see if the window is dragged closed and if so, reset the isVisible state in the viewModel
+    LaunchedEffect(state.offset) {
+        if (state.offset == screenWidth) {
+            toggleOff()
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .offset {
+                IntOffset(x = state.requireOffset().toInt(), y = 0)
+            }
+            .anchoredDraggable(state, orientation = Orientation.Horizontal),
+    ) {
+        content()
+    }
+}
+
+/**
+ * @description Top header is used to display current month and icon to display notification settings
+ *
+ * @author Josue Vicente & resources
+ * @date 2024
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel used to obtain the state to get the current month
+ **/
+@Composable
+fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel()) {
+    val homeState by viewModel.homeState.collectAsState()
 
     // Take the date from the current viewModel date and display the month
     Row (
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(83.dp)
             .background(color = headerOrange)
@@ -193,7 +269,6 @@ fun TopHeader(
                     .calculateTopPadding()
             ),
         verticalAlignment = Alignment.CenterVertically
-
     ) {
         // display month together "Month Year"
         Text(
@@ -207,7 +282,7 @@ fun TopHeader(
                 fontWeight = FontWeight(400)
             ),
             color = Color.White,
-            modifier = Modifier
+            modifier = modifier
                 .weight(1f)
                 .align(Alignment.Bottom)
                 .padding(vertical = 15.dp, horizontal = 32.dp)
@@ -218,49 +293,48 @@ fun TopHeader(
             painter = painterResource(id = R.drawable.notifications_icon),
             contentDescription = "Notifications",
 
-            modifier = Modifier
+            modifier = modifier
                 .size(33.dp)
                 .align(Alignment.Bottom)
                 .offset(y = (-14).dp, x = (-28).dp)
                 .clickable { viewModel.openNotificationWindow() },
             tint = Color.White
         )
-
-
-        // Debug Buttons for Now
-//        Icon(
-//            imageVector = Icons.Default.Storage,
-//            contentDescription = "Get from local storage",
-//            modifier = Modifier
-//                .size(35.dp)
-//                .align(Alignment.Bottom)
-//                .width(33.dp)
-//                .height(32.dp)
-//                .clickable { viewModel.loadEvents() },
-//            tint = Color.White
-//        )
-//       `Icon(
-//            imageVector = Icons.Default.Delete,
-//            contentDescription = "Delete local storage",
-//            modifier = Modifier
-//                .size(35.dp)
-//                .align(Alignment.Bottom)
-//                .width(33.dp)
-//                .height(32.dp)
-//                .clickable { viewModel.eraseEvents() },
-//            tint = Color.White
-//        )
     }
 }
 
+@Preview (showBackground = true)
 @Composable
-fun SlidingEventWindow(viewModel: HomeViewModel, isDarkMode: Boolean) {
+fun TopHeaderPreview() {
+    TopHeader(
+        viewModel = HomeViewModel(
+            notificationRepo = NotificationRepository(
+                context = LocalContext.current
+            ),
+            eventRepo = EventRepository(
+                context = LocalContext.current
+            ),
+        )
+    )
+}
+
+/**
+ * @description SlidingEventWindow is used in the calendar screen to display the event a user selects
+ * to display event details. This is the outer function that wraps the SlidingWindow and passes in
+ * the content to be displayed (EventDetails).
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024 - Modified March 2025
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel gets state if window open and the event it would display
+ * @param isDarkMode updates color of background
+ **/
+@Composable
+fun SlidingEventWindow(modifier: Modifier = Modifier, viewModel: HomeViewModel, isDarkMode: Boolean) {
     val homeState = viewModel.homeState.collectAsState()
     val isVisible = homeState.value.isEventDetailsVisible
     val event = homeState.value.selectedEvent
-
-    // Dynamically calculate screen width
-    val screenWidth = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
 
     if (isVisible) {
         BackHandler {
@@ -268,20 +342,39 @@ fun SlidingEventWindow(viewModel: HomeViewModel, isDarkMode: Boolean) {
         }
     }
 
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = slideInHorizontally(initialOffsetX = { screenWidth.toInt() }),
-        exit = slideOutHorizontally(targetOffsetX = { screenWidth.toInt() })
-    ) {
-        EventDetails(event, viewModel, isDarkMode)
-    }
+    SlidingWindow(modifier, viewModel, isVisible, {
+        EventDetails(
+            modifier = Modifier,
+            event = event,
+            viewModel = viewModel,
+            isDarkMode = isDarkMode
+        )
+    },
+    toggleOff = { viewModel.hideEventDetails() }
+    )
 }
 
+/**
+ * @description EventDetails is used by the SlidingEventWindow to be passed to the slidingWindow
+ * composable as it is the actual content of the SlidingEventWindow
+ *
+ * @author Josue Vicente & resources
+ * @date Created 2024 - Modified March 2025
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param event this is the event we are to display the details for
+ * @param viewModel this viewModer is used get the event types and to update the state by using some functions
+ * @param isDarkMode updates the color of the background
+ **/
 @Composable
-fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewModel(), isDarkMode: Boolean) {
+fun EventDetails (modifier: Modifier, event: HomeViewModel.Event?, viewModel: HomeViewModel = viewModel(), isDarkMode: Boolean) {
+    if (event == null) {
+        return
+    }
+
     // Event Details
     Surface (
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(1f)
             .fillMaxHeight()
             .background(if (isDarkMode) blueDarkModeBackground else WhiteSHPE),
@@ -289,16 +382,15 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
         Column (
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp) //add this code
+                .height(200.dp)
         ){
             // image and close button container, could be made into own composable to be used later
             Box(contentAlignment = Alignment.TopStart,
                 modifier = Modifier
                     .fillMaxWidth()
-
             ) {
                 Image(
-                    painter = painterResource(id = when (event!!.eventType) {
+                    painter = painterResource(id = when (event.eventType) {
                         HomeViewModel.EventType.GBM -> R.drawable.gbm_background
                         HomeViewModel.EventType.InfoSession -> R.drawable.info_session_background
                         HomeViewModel.EventType.Workshop -> R.drawable.workshop_background
@@ -312,9 +404,11 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                         .height(240.dp)
                 )
 
-                IconButton(onClick = { viewModel.hideEventDetails() },
+                IconButton(
+                    onClick = { viewModel.hideEventDetails() },
                     modifier = Modifier
-                        .background(Color.Black.copy(alpha = 0.1f), shape = CircleShape)
+                        .offset(y = 10.dp, x = 10.dp)
+                        .background(Color.Black.copy(alpha = 0.3f), shape = CircleShape)
                 ) {
                     Icon(
                         Icons.Default.ArrowBackIosNew,
@@ -325,8 +419,8 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
             }
 
             // Event details card to have the rounded corner style be there
-            //Lazy Column houses all composable for event details
-            //Saving changes bc merge error occurred
+            // Lazy Column houses all composable for event details but tbh
+            // the lazy column could be replaced with boxes and weights but would be its own update
             Card(
                 modifier = Modifier
                     .fillMaxSize()
@@ -335,12 +429,11 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                 shape = RoundedCornerShape(size = 25.dp),
                 colors = CardDefaults.cardColors(containerColor =
                 if (isDarkMode) blueDarkModeBackground else WhiteSHPE),
-
             ) {
                  LazyColumn (modifier = Modifier
-                      .fillMaxWidth()
-                      .fillMaxHeight()
-                      .padding(50.dp))
+                     .fillMaxWidth()
+                     .fillMaxHeight()
+                     .padding(50.dp))
                  {
                      item {
                          //Title
@@ -353,7 +446,7 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                              Text(
                                  modifier = Modifier
                                      .weight(0.9f),
-                                 text = event!!.summary,
+                                 text = event.summary,
                                  style = TextStyle(
                                      fontFamily = Viga,
                                      fontSize = 32.sp,
@@ -395,7 +488,7 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                              Spacer(modifier = Modifier.width(10.dp))
 
                              Text(
-                                 text = formatDate(event!!.start),
+                                 text = formatDate(event.start),
                                  style = TextStyle(
                                      fontSize = 18.sp,
                                      fontFamily = Universltstd,
@@ -406,13 +499,13 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                              )
                          }
                      }
+                     item {
+                         Spacer(modifier = Modifier.height(10.dp))
+                     }
 
-                   item {
-                       Spacer(modifier = Modifier.height(10.dp))
-                   }
-                    // Event Time
-                    item {
-                     Row (modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
+                     // Event Time
+                     item {
+                         Row (modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
                          Image(
                              painter = painterResource(id = R.drawable.timer_ui_icon),
                              contentDescription = "Clock",
@@ -423,7 +516,7 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                             Spacer(modifier = Modifier.width(10.dp))
 
                             Text(
-                                text = formatEventTime(event!!),
+                                text = formatEventTime(event),
                                 style = TextStyle(
                                     fontSize = 18.sp,
                                     fontFamily = Universltstd,
@@ -433,14 +526,14 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                                     .align(Alignment.CenterVertically)
                             )
                         }
-                    }
-
-                     item {
-                    Spacer(modifier = Modifier.height(10.dp))
                      }
-                    // Event Location
-                   item{
-                       Row (modifier = Modifier) {
+                     item {
+                        Spacer(modifier = Modifier.height(10.dp))
+                     }
+
+                     // Event Location
+                     item{
+                         Row (modifier = Modifier) {
                            Image (
                                painter = painterResource(id = R.drawable.location_ui_icon),
                                contentDescription = "Location",
@@ -449,7 +542,7 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                            )
                            Spacer(modifier = Modifier.width(10.dp))
                            Text(
-                               text = event!!.location ?: ("TBD"),
+                               text = event.location ?: ("TBD"),
                                style = TextStyle (
                                    fontSize = 18.sp,
                                    fontWeight = FontWeight(400),
@@ -459,29 +552,31 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
                            )
                        }
                      }
-                item {
-                    Spacer(modifier = Modifier.height(50.dp))
-                    }
-                     item {  Text(text = "Description:",
-                         style = TextStyle (
+                     item {
+                        Spacer(modifier = Modifier.height(50.dp))
+                     }
+                     item {
+                         Text(text = "Description:",
+                             style = TextStyle (
                              fontSize = 18.sp,
                              fontFamily = Universltstd,
                              fontWeight = FontWeight(400),
                              color = if (isDarkMode) Color.White else Color.Black,)
-                     ) }
-                   item {
-                       Spacer(modifier = Modifier.height(10.dp))
-                   }
+                         )
+                     }
                      item {
-                    Text( modifier = Modifier,
-                        text = event!!.description
+                         Spacer(modifier = Modifier.height(10.dp))
+                     }
+                     item {
+                        Text( modifier = Modifier,
+                        text = event.description
                             ?: ("Join us!"),
-                        style = TextStyle (
+                            style = TextStyle (
                             fontSize = 18.sp,
                             fontWeight = FontWeight(400),
                             color = if (isDarkMode) Color.White else Color.Black,)
-                    )
-                         }
+                        )
+                     }
                 }
             }
         }
@@ -492,6 +587,7 @@ fun EventDetails (event: HomeViewModel.Event?, viewModel: HomeViewModel = viewMo
 @Composable
 fun EventDetailsPreview() {
     EventDetails(
+        modifier = Modifier,
         event = HomeViewModel.Event(
             id = "1",
             summary = "SHPE GBM #1",
@@ -522,14 +618,22 @@ fun EventDetailsPreview() {
     )
 }
 
+/**
+ * @description This is the wrapper function for the notifications settings window. This will be
+ * displayed in the home screen when the user clicks on the notification settings icon. This function
+ * calls the reusable SlidingWindow and passes in the content to be displayed (NotificationSettingsContent).
+ *
+ * @author Josue Vicente & resources
+ * @date Created 2024 - Modified March 2025
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel this viewModel is used to verify if the window is open (state)
+ * @param darkMode updates the color of the background
+ **/
 @Composable
-fun SlidingNotificationWindow(viewModel: HomeViewModel, darkMode: Boolean) {
+fun SlidingNotificationWindow(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolean) {
     val homeState = viewModel.homeState.collectAsState()
     val isVisible = homeState.value.isNotificationWindowVisible
-
-    // Dynamically calculate screen width
-    val screenWidth =
-        with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
 
     if (isVisible) {
         BackHandler {
@@ -537,17 +641,30 @@ fun SlidingNotificationWindow(viewModel: HomeViewModel, darkMode: Boolean) {
         }
     }
 
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = slideInHorizontally(initialOffsetX = { screenWidth.toInt() }),
-        exit = slideOutHorizontally(targetOffsetX = { screenWidth.toInt() })
-    ) {
-        NotificationSettingsContent(viewModel = viewModel, darkMode)
-    }
+    SlidingWindow(
+        modifier = modifier,
+        viewModel = viewModel,
+        isVisible = isVisible,
+        content = {
+            NotificationSettingsContent(modifier = Modifier, viewModel = viewModel, darkMode)
+        },
+        toggleOff = { viewModel.hideNotificationWindow() }
+    )
 }
 
+/**
+ * @description NotificationSettingsContent is part of the sliding notification window and is the
+ * actual content that is passed to the reusable SlidingWindow.
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel this viewModel is used get the event types and to update the state by using some functions
+ * @param darkMode updates the color of the background
+ **/
 @Composable
-fun NotificationSettingsContent(viewModel: HomeViewModel, darkMode: Boolean) {
+fun NotificationSettingsContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolean) {
     val context = LocalContext.current
     val homeState by viewModel.homeState.collectAsState()
 
@@ -896,9 +1013,33 @@ fun NotificationSettingsContent(viewModel: HomeViewModel, darkMode: Boolean) {
     }
 }
 
+@Preview (showBackground = true)
+@Composable
+fun NotificationSettingsPreview() {
+    NotificationSettingsContent(
+        modifier = Modifier,
+        viewModel = HomeViewModel(
+            notificationRepo = NotificationRepository(
+                context = LocalContext.current
+            ),
+            eventRepo = EventRepository(
+                context = LocalContext.current
+            ),
+        ),
+        darkMode = true
+    )
+}
+
+/**
+ * @description This allows for easier formatting of text used in the notification settings content
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * @author Josue Vicente & Resources
+ * @date Created February 2025
+ *
+ * @param darkMode updates the color of the text based on dark mode for the notification settings
+ ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 @Composable
 fun getTextStyle(darkMode: Boolean): TextStyle {
-    // makes it eaiser to get text style based of dark/light mode
     return TextStyle(
         fontSize = 16.sp,
         fontFamily = Universltstd,
@@ -908,10 +1049,18 @@ fun getTextStyle(darkMode: Boolean): TextStyle {
         )
 }
 
-// Permissions and Dialogs
+/**
+ * @description PermissionsAndDialogs is used to request permissions for the notification settings.
+ * This function will also call to the app's settings depending on user input.
+ *
+ * @author Josue Vicente & Resources - Philipp Lackner YouTube
+ * @date Created 2024 - Modified March 2025
+ *
+ * @param viewModel used to maintain the state of the dialog queue
+ * @param context used to be able to open up the app settings based on the application information
+ **/
 @Composable
 fun PermissionsAndDialogs(viewModel: HomeViewModel, context: Context) {
-    // Notification Permission Request
     val dialogQueue = viewModel.visiblePermissionDialogQueue
 
     val multiplePermissionResultLauncher = rememberLauncherForActivityResult(
@@ -920,14 +1069,13 @@ fun PermissionsAndDialogs(viewModel: HomeViewModel, context: Context) {
             permissions.forEach { (permission, isGranted) ->
                 if (isGranted) {
                     Log.d("HomeViewModel", "Permission Granted: $permission")
-                    //viewModel.dismissDialog()
                     if (dialogQueue.contains(permission)) {
                         viewModel.dismissDialog()
                     }
                 }
                 else {
                     viewModel.dismissDialog()
-                    viewModel.onPermissionResult(permission, isGranted)
+                    viewModel.onPermissionResult(permission, false)
                     Log.d("HomeViewModel", "Permission Denied: $permission")
                 }
             }
@@ -966,6 +1114,19 @@ fun PermissionsAndDialogs(viewModel: HomeViewModel, context: Context) {
         }
 }
 
+/**
+ * @description Permission Dialog is used to let users open app settings and remind them we need
+ * notification permissions
+ *
+ * @author Josue Vicente & Resources - Philipp Lackner YouTube
+ * @date Created 2024
+ *
+ * @param permissionTextProvider used to provide text based on permission type needed
+ * @param isPermanentlyDeclined tells functions if permission was permanently denied (denied twice)
+ * @param onDismiss function that is called when the dialog is dismissed
+ * @param onOkayClick function that is called when the okay button is clicked
+ * @param onGoToAppSettingsClick function called that
+ **/
 @Composable
 fun PermissionDialog (
     permissionTextProvider: PermissionTextProvider,
@@ -1012,6 +1173,13 @@ fun PermissionDialog (
     )
 }
 
+/**
+ * @description This is used to track the permissions we need to request at runtime
+ * when requesting notifications permission. This is used to remind users why we need this permission
+ *
+ * @author Josue Vicente & Resources - Philipp Lackner YouTube
+ * @date Created 2024
+ **/
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private val permissionsToRequest = arrayOf(
     Manifest.permission.USE_EXACT_ALARM,
@@ -1019,10 +1187,23 @@ private val permissionsToRequest = arrayOf(
     Manifest.permission.WAKE_LOCK
 )
 
+/**
+ * @description Interface that obtains desired permission text based on the permission type
+ *
+ * @author Josue Vicente & Resources - Philipp Lackner YouTube
+ * @date Created 2024
+ **/
 interface PermissionTextProvider{
     fun getDesiredPermissionText(isPermanentlyDeclined: Boolean, permission: String): String
 }
 
+/**
+ * @description NotificationsPermissionProvider is used to provide text for the permission dialog
+ * when requesting notifications permission. Will remind users why we need the permission
+ *
+ * @author Josue Vicente & Resources - Philipp Lackner YouTube
+ * @date Created 2024
+ **/
 class NotificationsPermissionProvider : PermissionTextProvider {
     override fun getDesiredPermissionText(isPermanentlyDeclined: Boolean, permission: String): String {
         return if (isPermanentlyDeclined) {
@@ -1033,41 +1214,21 @@ class NotificationsPermissionProvider : PermissionTextProvider {
     }
 }
 
-@Preview (showBackground = true)
+/**
+ * @description EventCard is used to display quick event details on the main calendar such time, day
+ * and the name and the type of event that it is. It is also responsible highlighting current events
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024 - Modified March 2025
+ *
+ * @param modifier used to maintain the state of the dialog queue
+ * @param event is the event we obtain the information to display
+ * @param viewModel used to compare what the current event type is to determine color and icon. It
+ * helps update the home screen state when to update the current event selected
+ **/
 @Composable
-fun NotificationSettingsPreview() {
-    NotificationSettingsContent(
-        viewModel = HomeViewModel(
-            notificationRepo = NotificationRepository(
-                context = LocalContext.current
-            ),
-            eventRepo = EventRepository(
-                context = LocalContext.current
-            ),
-        ),
-        darkMode = true
-    )
-}
-
-@Preview (showBackground = true)
-@Composable
-fun TopHeaderPreview() {
-    TopHeader(
-        viewModel = HomeViewModel(
-            notificationRepo = NotificationRepository(
-                context = LocalContext.current
-            ),
-            eventRepo = EventRepository(
-                context = LocalContext.current
-            ),
-        )
-    )
-}
-
-// The Event that is displayed on the screen
-@Composable
-fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()) {
-    // Have to have a mutable state of for recomposition, otherwise when the event started, there would 
+fun EventCard(modifier: Modifier, event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()) {
+    // Have to have a mutable state of for recomposition, otherwise when the event started, there would
     // be no highlight unless changing page or updating the viewModel
     val currentTime = remember { mutableStateOf(ZonedDateTime.now(ZoneId.of("America/New_York"))) }
     LaunchedEffect(Unit) {
@@ -1091,13 +1252,13 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
     LaunchedEffect(isOngoing) {
         if (isOngoing) {
             while (true) {
-                animatedBorderWidth.animateTo(2f, animationSpec = tween(durationMillis = 2000, easing = LinearEasing))
-                animatedBorderWidth.animateTo(0f, animationSpec = tween(durationMillis = 2000, easing = LinearEasing))
+                animatedBorderWidth.animateTo(4f, animationSpec = tween(durationMillis = 1000, easing = LinearEasing))
+                animatedBorderWidth.animateTo(0f, animationSpec = tween(durationMillis = 1000, easing = LinearEasing))
             }
         }
     }
 
-    // a borderw width of -1 used as with 0 it would still be faintly around the event
+    // a border width of -1 used as with 0 it would still be faintly around the event
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1105,7 +1266,7 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
             .clickable { viewModel.selectEvent(event) }
             .border(
                 width = if (isOngoing) animatedBorderWidth.value.dp else (-1).dp,
-                brush = SolidColor(OrangeSHPE),
+                brush = SolidColor(Color(0xFFFD9837)),
                 shape = RoundedCornerShape(size = 25.dp)
             ),
         colors = CardDefaults.cardColors(containerColor = event.colorResId),
@@ -1126,6 +1287,7 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
                     ),
                     modifier = Modifier
                         .padding(end = 10.dp, top = 5.dp)
+                        .weight(0.90f)
                 )
 
                 // we need to change this based on the event type
@@ -1139,7 +1301,9 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
                         HomeViewModel.EventType.Default -> R.drawable.social_icon
                     }),
                     contentDescription = "Event Type",
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier
+                        .size(20.dp)
+                        .weight(0.1f),
                     tint = Color.White
                 )
             }
@@ -1201,221 +1365,39 @@ fun EventCard(event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@Preview(showBackground = true)
 @Composable
-fun SlidingSheet() {
-    val scaffoldSheetState = rememberBottomSheetScaffoldState()
-    val scope = rememberCoroutineScope()
-    Scaffold { innerPadding ->
-        // 40.dp for the drag handle
-        val bottomPadding = innerPadding.calculateBottomPadding() + 40.dp
-        BottomSheetScaffold(
-            scaffoldState = scaffoldSheetState,
-            sheetPeekHeight = bottomPadding,
-            modifier = Modifier.padding(innerPadding),
-            sheetContent = {
-                Column(
-                    Modifier
-                        .padding(bottom = bottomPadding)
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Sheet content")
-                    Spacer(Modifier.height(20.dp))
-                    Button(onClick = {
-                        scope.launch { scaffoldSheetState.bottomSheetState.collapse()}
-                    }) {
-                        Text("Hide bottom sheet")
-                    }
-                    Button(onClick = { }) {
-                        Text("Some button")
-                    }
-                }
-            },
-        ) {
-            // this is where your screen could go
-//            HomeScreen(viewModel = viewModel())
-        }
-    }
-}
-
-// Not being used for good for reference
-@Composable
-fun EventPopUp(event: HomeViewModel.Event, onDismissRequest: () -> Unit ) {
-// Pop up for the event
-    Dialog(onDismissRequest = onDismissRequest,
-        DialogProperties(dismissOnBackPress = true,
-        dismissOnClickOutside = true,
-        usePlatformDefaultWidth = false
+fun EventCardPreview() {
+    SHPEUFMobileKotlinTheme {
+        EventCard(
+            modifier = Modifier,
+            sampleCardItems[0],
+            viewModel = HomeViewModel(
+                notificationRepo = NotificationRepository(
+                    context = LocalContext.current
+                ),
+                eventRepo = EventRepository(
+                    context = LocalContext.current
+                ),
+            )
         )
-    ) {
-        // Customize the layout of the dialog
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(1f)
-                .fillMaxHeight(),
-            ) {
-
-            Column(modifier = Modifier
-                .fillMaxWidth()
-            ) {
-
-                // image and close button container, could be made into own composable to be used later
-                Box(contentAlignment = Alignment.TopStart) {
-                    Image(
-                        painter = painterResource(id = R.drawable.shpe_logo_full_color),
-                        contentDescription = "Event Image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                    IconButton(onClick = onDismissRequest,
-                        modifier = Modifier
-                            .background(Color.Black.copy(alpha = 0.1f), shape = CircleShape)
-                    ) {
-                        Icon(
-                            Icons.Default.ArrowBackIosNew,
-                            contentDescription = "Dismiss",
-                            tint = Color.White
-                        )
-                    }
-                }
-
-                // Event details card to have the rounded corner style be there
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(size = 25.dp),
-                    colors = CardDefaults.cardColors(containerColor = blueDarkModeBackground),
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .padding(60.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // Placeholder for the picture at the top
-                        // This is the date, time and location
-                        Column {
-                            Row (
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text (
-                                    modifier = Modifier
-                                        .wrapContentWidth()
-                                        .weight(0.9f),
-                                    textAlign = TextAlign.Center,
-
-                                    text = event.summary,
-                                    style = TextStyle(
-                                        fontSize = 32.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color(0xFFD25917),
-                                    )
-                                )
-                                // current placeholder for the icon, can replace with the actual image we need,
-                                Icon(
-                                    imageVector = Icons.Default.People,
-                                    contentDescription = "People",
-                                    tint = Color(0xFFD25917),
-                                    modifier = Modifier
-                                        .size(45.dp)
-                                        .weight(0.1f)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(82.dp))
-
-                            Row {
-                                Icon(
-                                    imageVector = Icons.Default.CalendarMonth,
-                                    contentDescription = "Date",
-                                    tint = Color.White
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Text(
-                                    text = formatDate(event.start),
-                                    style = TextStyle (
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight(400),
-                                            color = Color(0xFFFFFFFF),
-                                        )
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Row {
-                                Icon(imageVector = Icons.Default.Timer,
-                                    contentDescription = null,
-                                    tint = Color.White
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Text(
-                                    text = formatEventTime(event),
-                                    style = TextStyle (
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight(400),
-                                        color = Color(0xFFFFFFFF),
-                                    )
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Row {
-                                Icon(
-                                    imageVector = Icons.Default.LocationOn,
-                                    contentDescription = "Location",
-                                    tint = Color.White
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Text(
-                                    text = event.location ?: ("TBD"),
-                                    style = TextStyle (
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight(400),
-                                        color = Color(0xFFFFFFFF),
-                                    )
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(82.dp))
-
-                            Text(text = "Description",
-                                style = TextStyle (
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight(400),
-                                    color = Color(0xFFFFFFFF),
-                                )
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Text(
-                                text = event.description
-                                    ?: ("This is basic placeholder of data. In order for this to work" +
-                                            "properly, we need to make sure that in the google calendar these events are updated." +
-                                            "Otherwise we would need a specific functions to update these on later."),
-                                style = TextStyle (
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight(400),
-                                    color = Color(0xFFFFFFFF),
-                                )
-                            )
-                        }
-                        // maybe have the save event be here:
-
-                    }
-                }
-            }
-        }
     }
 }
 
+/**
+ * @description EventCardFeed displays DayContainer cards in a LazyColumn for the calendar page. This
+ * displays all of the events held in the viewModel in order of date. The DayContainers containing events
+ * are displayed in a PullToRefreshLazyColumn.
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024
+ *
+ * @param modifier used to maintain the state of the dialog queue
+ * @param viewModel is used to get all of the events being stored
+ * @param isDarkMode Used to determine color of the background when in dark mode
+ **/
 @Composable
-fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
+fun EventCardFeed(modifier: Modifier, viewModel: HomeViewModel, isDarkMode : Boolean) {
     val state by viewModel.homeState.collectAsState()
     val events = state.events
     val listState = rememberLazyListState()
@@ -1427,10 +1409,8 @@ fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
     val groupedEvents = remember(events) {
         mutableMapOf<LocalDate, MutableList<HomeViewModel.Event>>().apply {
             events.forEach { event ->
-//                val startDate = LocalDate.parse(event.start.dateTime?.substring(0, 10))
-//                val endDate = LocalDate.parse(event.end.dateTime?.substring(0, 10))
-                var startDate = LocalDate.now();
-                var endDate = LocalDate.now();
+                val startDate: LocalDate
+                val endDate: LocalDate
 
                 // not all have date time, some have date
                 if (event.start.dateTime == null) {
@@ -1443,7 +1423,8 @@ fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
                 }
                 var currentDate = startDate
                 while (!currentDate.isAfter(endDate)) {
-                    if (!currentDate.isBefore(today)) {  // Only consider dates from today onwards
+                    // Only consider dates from today onwards
+                    if (!currentDate.isBefore(today)) {
                         this.getOrPut(currentDate) { mutableListOf() }.add(event)
                     }
                     currentDate = currentDate.plusDays(1)
@@ -1461,7 +1442,7 @@ fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
         PullToRefreshLazyColumn(
             items = groupedEvents.keys.toList(),
             content = { date ->
-                DayContainer(date = date, events = groupedEvents[date]!!, viewModel = viewModel,
+                DayContainer(modifier = Modifier, date = date, events = groupedEvents[date]!!, viewModel = viewModel,
                     isDarkMode = isDarkMode)
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -1481,7 +1462,6 @@ fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
                                 .background(Color.Transparent)
                         )
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
                 }
             },
             isRefreshing = isRefreshing,
@@ -1503,85 +1483,50 @@ fun EventCardFeed(viewModel: HomeViewModel, isDarkMode : Boolean) {
                         val firstVisibleDate = groupedEvents.keys.toList()[firstVisibleIndex]
                         val lastVisibleDate = groupedEvents.keys.toList()[lastVisibleIndex]
 
-//                        Log.d("HomeViewModel", "Last Visible Index: $lastVisibleIndex")
-//                        Log.d("HomeViewModel", "Grouped Events Keys: ${groupedEvents.keys}")
-//                        Log.d("HomeViewModel", "Last Visible Date: $lastVisibleDate")
-//                        Log.d("HomeViewModel", "First Visible Date: $firstVisibleDate")
-
                         if (firstVisibleDate != null && lastVisibleDate != null) {
-
-                        if (firstVisibleDate.month != lastVisibleDate.month) {
-                            viewModel.updateMonthName(
-                                "${
-                                    firstVisibleDate.month.name.substring(0, 3)}/${lastVisibleDate.month.name.substring(0, 3)}"
-                            )
-                        } else {
-                            viewModel.updateMonthName(lastVisibleDate.month.name)
+                            if (firstVisibleDate.month != lastVisibleDate.month) {
+                                viewModel.updateMonthName(lastVisibleDate.month.name)
+                            }
                         }
-
-//                            if (lastVisibleIndex >= groupedEvents.keys.size - 1) {
-//                                // loading more events from the last loaded
-//                                viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
-//                                Log.d("HomeViewModel", "Fetching more event ${state.lastDateLoaded}")
-//                            }
-                        }
-
-                        val lastVal = listState.isScrollInProgress
-
-//                        if (!listState.canScrollForward && !state.isRefreshing && lastVal) {
-//                            // insert delay to prevent multiple calls
-//                            scope.launch {
-//                                Log.d("HomeViewModel", "Fetching more event from ${state.lastDateLoaded}")
-//                                viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
-//                            }
-//                        }
+                    }
                 }
-                }
-
-
-//            snapshotFlow { listState.isScrolledPastEnd() }
-//                .collectLatest {
-//                    scope.launch {
-//                        viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
-//                        Log.d("HomeViewModel", "Fetching more event ${state.lastDateLoaded}")
-//                    }
-//                }
-
         }
-//        var previousOffset by remember { mutableStateOf(0) }
-//
-//        LaunchedEffect(listState) {
-//            snapshotFlow { listState.firstVisibleItemScrollOffset }
-//                .collect { currentOffset ->
-//                    val isScrollingUp = currentOffset < previousOffset
-//                    previousOffset = currentOffset
-//
-//                    if (isScrollingUp && !listState.canScrollForward && !state.isRefreshing) {
-//                        scope.launch {
-//                            Log.d("HomeViewModel", "Fetching more event from ${state.lastDateLoaded}")
-//                            viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
-//                        }
-//                    }
-//                }
-//        }
-
-//        LaunchedEffect(listState, groupedEvents, state) {
-//            snapshotFlow { listState.canScrollForward }
-//                .distinctUntilChanged()
-//                .filter { !it }  // Trigger only when you cannot scroll forward
-//                .collectLatest {
-//                    scope.launch {
-//                        if (!state.isRefreshing) {
-//                            Log.d("HomeViewModel", "Fetching more event from ${state.lastDateLoaded}")
-//                            viewModel.fetchEventsMonths(state.lastDateLoaded, 2)
-//                        }
-//                    }
-//                }
-//        }
-
     }
 }
 
+@Preview (showBackground = true)
+@Composable
+fun EventCardFeedPreview() {
+    SHPEUFMobileKotlinTheme {
+        EventCardFeed(
+            modifier = Modifier,
+            viewModel = HomeViewModel(
+                notificationRepo = NotificationRepository(
+                    context = LocalContext.current
+                ),
+                eventRepo = EventRepository(
+                    context = LocalContext.current
+                ),
+            ),
+            isDarkMode = true
+        )
+    }
+}
+
+/**
+ * @description PullToRefreshLazyColumn is a reusable component to display any list of items in a
+ * lazy column with a pull to refresh feature. In the HomeScreen it is used to display events in a
+ * for the calendar for the forseable future and the refresh updates the events
+ *
+ * @author Josue Vicente & Resources - Philipp Lackner YouTube
+ * @date Created 2024
+ *
+ * @param modifier used to maintain the state of the dialog queue
+ * @param content The things that are placed inside the lazy column
+ * @param isRefreshing used for state on whether or not the screen is refreshing
+ * @param onRefresh a function passed in that will do something when the user refreshes
+ * @param state the current state of the lazy column, essentially at what spot are the current items at
+ **/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> PullToRefreshLazyColumn(
@@ -1633,8 +1578,23 @@ fun <T> PullToRefreshLazyColumn(
     }
 }
 
+/**
+ * @description DayContainer uses events passed in to create a list of event cards for that date passed in
+ * it will display them in one card. These day containers utilized in the event card feed to display all the events
+ *
+ * @author Josue Vicente & Resources
+ * @date Created2024
+ *
+ * @param modifier used to maintain the state of the dialog queue
+ * @param date The date events are displayed for in that DayContainer. Used to get the date to display
+ * @param events a list of events that occur at the date passed in
+ * @param viewModel used to compare what the current event type is to determine color and icon. It
+ * helps update the home screen state when to update the current event selected
+ * @param isDarkMode changes the color of the DayContainers based on dark mode
+ **/
 @Composable
 fun DayContainer(
+    modifier: Modifier,
     date: LocalDate,
     events: List<HomeViewModel.Event>,
     viewModel: HomeViewModel,
@@ -1680,11 +1640,7 @@ fun DayContainer(
                 .weight(1f)
         ) {
             events.forEach { event ->
-
-                // debug code
-                Log.d("HomeViewModel", "Event: ${event.summary}")
-
-                EventCard(event, viewModel = viewModel)
+                EventCard(modifier = Modifier, event, viewModel = viewModel)
             }
         }
     }
@@ -1696,6 +1652,7 @@ fun DayContainerPreview() {
     SHPEUFMobileKotlinTheme {
         Box(modifier = Modifier.fillMaxSize()) {
             DayContainer(
+                modifier = Modifier,
                 date = LocalDate.now(),
                 events = sampleCardItems,
                 viewModel = HomeViewModel(
@@ -1712,27 +1669,16 @@ fun DayContainerPreview() {
     }
 }
 
-@Preview (showBackground = true)
-@Composable
-fun EventCardFeedPreview() {
-    SHPEUFMobileKotlinTheme {
-        EventCardFeed(
-            viewModel = HomeViewModel(
-                notificationRepo = NotificationRepository(
-                    context = LocalContext.current
-                ),
-                eventRepo = EventRepository(
-                    context = LocalContext.current
-                ),
-            ),
-            isDarkMode = true
-        )
-    }
-}
-
+/**
+ * @description Helper function to format time for display of events
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024
+ *
+ * @param event used to get the time event occurs to return a formatted time
+ **/
 fun formatEventTime(event: HomeViewModel.Event): String {
-    // used to make the time formatted properly
-
+    // Future Update Here: check system to see if in 24 hour time
     val inputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
     val outputFormatter = DateTimeFormatter.ofPattern("h:mm a")
     val zoneId = ZoneId.of("America/New_York")
@@ -1752,14 +1698,21 @@ fun formatEventTime(event: HomeViewModel.Event): String {
     }
 }
 
+/**
+ * @description formatDate is a helper function to format the date an event occurs for display on calendar
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024
+ *
+ * @param eventDateTime holds the date and time information for the date being formatted
+ **/
 fun formatDate(eventDateTime: HomeViewModel.EventDateTime): String {
     val inputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
     val outputFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH)
     val zoneId = ZoneId.systemDefault()
 
     return try {
-        val zonedDateTime =
-            ZonedDateTime.parse(eventDateTime.dateTime, inputFormatter).withZoneSameInstant(zoneId)
+        val zonedDateTime = ZonedDateTime.parse(eventDateTime.dateTime, inputFormatter).withZoneSameInstant(zoneId)
         val dayOfMonth = zonedDateTime.dayOfMonth
         val dayOfMonthWithOrdinal = "$dayOfMonth${getOrdinalIndicator(dayOfMonth)}"
         zonedDateTime.format(outputFormatter).replaceFirst(Regex("\\d+"), dayOfMonthWithOrdinal)
@@ -1769,51 +1722,34 @@ fun formatDate(eventDateTime: HomeViewModel.EventDateTime): String {
     }
 }
 
+/**
+ * @description getOrdinalIndicator is a helper function that gets whether the date should be 1st, 2nd, 3rd, 4th, etc.
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024
+ *
+ * @param dayOfMonth is an integer that represents the day of the month to get formatting for
+ **/
 fun getOrdinalIndicator(dayOfMonth: Int): String {
-        return when {
-            dayOfMonth in 11..13 -> "th"
-            dayOfMonth % 10 == 1 -> "st"
-            dayOfMonth % 10 == 2 -> "nd"
-            dayOfMonth % 10 == 3 -> "rd"
-            else -> "th"
-        }
-    }
-
-@Preview(showBackground = true)
-@Composable
-fun EventCardPreview() {
-    SHPEUFMobileKotlinTheme {
-        EventCard(
-            event = HomeViewModel.Event(
-                id = "1",
-                summary = "SHPE GBM #1",
-                description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
-                location = "https://ufl.zoom.us/j/95895737986",
-                start = HomeViewModel.EventDateTime(
-                    dateTime = "2023-12-19T18:00:00-04:00",
-                    date = null,
-                    timeZone = "America/New_York"
-                ),
-                end = HomeViewModel.EventDateTime(
-                    dateTime = "2023-12-19T19:00:00-04:00",
-                    date = null,
-                    timeZone = "America/New_York"
-                ),
-                colorResId = blueDarkModeBackground,
-                eventType = HomeViewModel.EventType.GBM
-            ),
-            viewModel = HomeViewModel(
-                notificationRepo = NotificationRepository(
-                    context = LocalContext.current
-                ),
-                eventRepo = EventRepository(
-                    context = LocalContext.current
-                ),
-            )
-        )
+    return when {
+        dayOfMonth in 11..13 -> "th"
+        dayOfMonth % 10 == 1 -> "st"
+        dayOfMonth % 10 == 2 -> "nd"
+        dayOfMonth % 10 == 3 -> "rd"
+        else -> "th"
     }
 }
 
+/**
+ * @description HomeScreen displays the event calendar and allows users to change notifications settings
+ * as well as being able to open up event details to explore more about the event.
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024
+ *
+ * @param viewModel a HomeViewModel used to pass events and state of feeds and windows to see if they are displayed
+ * @param shpeufAppViewModel used to obtain the state of dark mode from the app settings
+ **/
 @Composable
 fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel) {
     val userState by shpeufAppViewModel.uiState.collectAsState()
@@ -1826,11 +1762,11 @@ fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel)
         color = if(isDarkMode) Color.Black else Color.White
     ) {
         Box {
-            EventCardFeed(viewModel = viewModel, isDarkMode = isDarkMode)
-            TopHeader(viewModel = viewModel)
+            EventCardFeed(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
+            TopHeader(modifier = Modifier, viewModel = viewModel)
         }
 
-        SlidingEventWindow(viewModel = viewModel, isDarkMode = isDarkMode)
-        SlidingNotificationWindow(viewModel = viewModel, darkMode = isDarkMode)
+        SlidingEventWindow(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
+        SlidingNotificationWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
     }
 }
