@@ -60,7 +60,7 @@ data class BottomNavigationItem(
     val badgeCount: Int? = null
 )
 
-val items = listOf(
+val userItems = listOf(
     BottomNavigationItem(
         title = NavRoute.HOME,
         selectedIcon = R.drawable.calendar_dm_on,
@@ -82,11 +82,34 @@ val items = listOf(
     ),
 )
 
+//Alternative list for guest navbar
+val guestItems = listOf(
+    BottomNavigationItem( // place holder for the whatever goes here in the figma
+        title = "PLACEHOLDER",
+        selectedIcon = R.drawable.leaderboard_dm_on,
+        unselectedIcon = R.drawable.leaderboard_dm_off,
+        hasNews = false
+    ),
+    BottomNavigationItem(
+        title = NavRoute.HOME,  // Calendar for guests
+        selectedIcon = R.drawable.calendar_dm_on,
+        unselectedIcon = R.drawable.calendar_dm_off,
+        hasNews = false
+    ),
+    BottomNavigationItem( // placeholder for corporate sponsors
+        title = "PARTNERS",
+        selectedIcon = R.drawable.pfp_dm_on,
+        unselectedIcon = R.drawable.pfp_dm_off,
+        hasNews = false
+    )
+)
+
 @Composable
-fun BottomNavigationBar(navController: NavHostController, isDarkMode: Boolean) {
-    val items = remember { items }
+fun BottomNavigationBar(navController: NavHostController, isDarkMode: Boolean, isGuest: Boolean) {
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry.value?.destination?.route
+
+    val items = if (isGuest) guestItems else userItems // Set items based on isGuest
 
     BottomNavigation(
         modifier = Modifier
@@ -232,5 +255,5 @@ fun NavHostContainer(
 @Preview
 @Composable
 fun BottomNavigationBarPreview() {
-    BottomNavigationBar(navController = rememberNavController(), isDarkMode = false)
+    BottomNavigationBar(navController = rememberNavController(), isDarkMode = false, isGuest = false)
 }
