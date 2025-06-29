@@ -83,6 +83,7 @@ val userItems = listOf(
 )
 
 //Alternative list for guest navbar
+//TODO: add icons and routing for community and corporate sponsors
 val guestItems = listOf(
     BottomNavigationItem( // place holder for the whatever goes here in the figma
         title = "PLACEHOLDER",
@@ -105,7 +106,7 @@ val guestItems = listOf(
 )
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController, isDarkMode: Boolean, isGuest: Boolean) {
+fun BottomNavigationBar(navController: NavHostController, isDarkMode: Boolean, isGuest: Boolean = false) {
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry.value?.destination?.route
 
@@ -209,22 +210,17 @@ fun NavHostContainer(
         startDestination = NavRoute.OPENING,
     ) {
         composable(NavRoute.OPENING){
-            OpeningPage(navHostController)
+            OpeningPage(navHostController, mainViewModel)
         }
-
         composable(NavRoute.LOGIN) {
             SignIn(navHostController, mainViewModel)
         }
         composable(NavRoute.REGISTER){
             RegistrationPage1Preview(registerPage1ViewModel = registerViewModel, navController = navHostController)
         }
-
         composable(NavRoute.HOME)
         {
-            HomeScreen(
-                viewModel = homeViewModel,
-                shpeufAppViewModel = mainViewModel
-            )
+            HomeScreen(viewModel = homeViewModel, shpeufAppViewModel = mainViewModel, navController = navHostController)
         }
         composable(NavRoute.POINTS)
         {
@@ -238,22 +234,19 @@ fun NavHostContainer(
         {
             ProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
         }
-
         composable(NavRoute.REGISTER_2)
         {
             RegistrationPage2Preview(navController = navHostController, registerPage1ViewModel = registerViewModel )
         }
-
         composable(NavRoute.REGISTER_3)
         {
             RegistrationPage3Preview(navController = navHostController, registerPage1ViewModel = registerViewModel )
         }
-
     }
 }
 
 @Preview
 @Composable
 fun BottomNavigationBarPreview() {
-    BottomNavigationBar(navController = rememberNavController(), isDarkMode = false, isGuest = false)
+    BottomNavigationBar(navController = rememberNavController(), isDarkMode = false, isGuest = true)
 }

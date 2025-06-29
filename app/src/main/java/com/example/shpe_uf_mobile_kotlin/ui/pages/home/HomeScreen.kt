@@ -58,6 +58,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -101,7 +102,10 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.IntOffset
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.example.shpe_uf_mobile_kotlin.ui.theme.TextColor
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
@@ -254,7 +258,8 @@ fun SlidingWindow(modifier: Modifier, viewModel: HomeViewModel, isVisible: Boole
  * @param viewModel used to obtain the state to get the current month
  **/
 @Composable
-fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel()) {
+fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel(),isGuest: Boolean = false,
+              navController: NavHostController) {
     val homeState by viewModel.homeState.collectAsState()
 
     // Take the date from the current viewModel date and display the month
@@ -289,32 +294,43 @@ fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewMode
         )
 
         // Icon for bell
-        Icon(
-            painter = painterResource(id = R.drawable.notifications_icon),
-            contentDescription = "Notifications",
+        if (!isGuest){
+            Icon(
+                painter = painterResource(id = R.drawable.notifications_icon),
+                contentDescription = "Notifications",
 
-            modifier = modifier
-                .size(33.dp)
-                .align(Alignment.Bottom)
-                .offset(y = (-14).dp, x = (-28).dp)
-                .clickable { viewModel.openNotificationWindow() },
-            tint = Color.White
-        )
+                modifier = modifier
+                    .size(33.dp)
+                    .align(Alignment.Bottom)
+                    .offset(y = (-14).dp, x = (-28).dp)
+                    .clickable { viewModel.openNotificationWindow() },
+                tint = Color.White
+            )
+        }
+
+        if (isGuest) {//TODO: add Login / exit icon
+            TextButton(
+                onClick = { navController.navigate(NavRoute.LOGIN) },
+                modifier = modifier
+                    .align(Alignment.Bottom)
+                    .offset(y = (-8).dp, x = (-66).dp)
+            ) {
+                Text("Login", color = Color.White)
+            }
+        }
     }
 }
 
-@Preview (showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun TopHeaderPreview() {
     TopHeader(
         viewModel = HomeViewModel(
-            notificationRepo = NotificationRepository(
-                context = LocalContext.current
-            ),
-            eventRepo = EventRepository(
-                context = LocalContext.current
-            ),
-        )
+            notificationRepo = NotificationRepository(context = LocalContext.current),
+            eventRepo = EventRepository(context = LocalContext.current)
+        ),
+        isGuest = true, // or false if you want user view
+        navController = rememberNavController()
     )
 }
 
@@ -1751,9 +1767,10 @@ fun getOrdinalIndicator(dayOfMonth: Int): String {
  * @param shpeufAppViewModel used to obtain the state of dark mode from the app settings
  **/
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel) {
+fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel, navController: NavHostController) {
     val userState by shpeufAppViewModel.uiState.collectAsState()
     val isDarkMode = userState.isDarkMode
+    val isGuest = userState.isGuest
 
     Surface (
         modifier = Modifier
@@ -1763,7 +1780,7 @@ fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel)
     ) {
         Box {
             EventCardFeed(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
-            TopHeader(modifier = Modifier, viewModel = viewModel)
+            TopHeader(modifier = Modifier, viewModel = viewModel, navController = navController, isGuest = isGuest)
         }
 
         SlidingEventWindow(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)

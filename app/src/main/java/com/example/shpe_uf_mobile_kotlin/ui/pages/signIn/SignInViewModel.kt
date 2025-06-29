@@ -83,6 +83,7 @@ class SignInViewModel : ViewModel() {
                 shpeUFAppViewModel.saveUsername(username)
                 shpeUFAppViewModel.saveLoggedIn(true)
                 shpeUFAppViewModel.saveLoggedOut(false)
+                shpeUFAppViewModel.saveGuest(false) //some foresight
             }
         }
     }

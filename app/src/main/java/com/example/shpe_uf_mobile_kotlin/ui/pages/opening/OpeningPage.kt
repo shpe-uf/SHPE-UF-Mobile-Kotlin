@@ -28,6 +28,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,14 +48,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
+import kotlinx.coroutines.launch
 
 
 // The goat source: https://blog.protein.tech/jetpack-compose-auto-image-slider-with-dots-indicator-45dfeba37712
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun OpeningPage(navController: NavHostController) {
+fun OpeningPage(navController: NavHostController, shpeufAppViewModel: SHPEUFAppViewModel) {
 
     val viewModel = remember { OpeningPageViewModel() }
 
@@ -82,6 +85,10 @@ fun OpeningPage(navController: NavHostController) {
         Spacer(Modifier.weight(1f)) // Space between caption and button.
         Row {
             GettingStartedButton(navController) // Button is fourth.
+        }
+        Spacer(Modifier.height(12.dp)) // NEW: space between buttons
+        Row {
+            GuestAccessButton(navController, shpeufAppViewModel)
         }
         Spacer(Modifier.height(23.dp))
         Row {
@@ -174,7 +181,7 @@ fun GettingStartedButton(
 ) {
     Button(
         onClick = { navController.navigate(NavRoute.LOGIN) },
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF011F35)),
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0070C0)),
         modifier = Modifier
             .shadow(
                 elevation = 10.dp,
@@ -196,6 +203,45 @@ fun GettingStartedButton(
         )
     }
 }
+
+@Composable
+fun GuestAccessButton(
+    navController: NavHostController,
+    shpeufAppViewModel: SHPEUFAppViewModel
+) {
+    val scope = rememberCoroutineScope()
+
+    Button(
+        onClick = {
+            shpeufAppViewModel.saveGuest(true)
+            navController.navigate(NavRoute.HOME) {
+                launchSingleTop = true
+                restoreState = true
+            }
+        },
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF011F35)),
+        modifier = Modifier
+            .shadow(
+                elevation = 10.dp,
+                spotColor = Color(0x40000000),
+                ambientColor = Color(0x40000000)
+            )
+            .width(325.dp)
+            .height(69.dp),
+        shape = RoundedCornerShape(size = 20.dp)
+    ) {
+        Text(
+            text = "Continue as Guest",
+            style = TextStyle(
+                fontSize = 25.sp,
+                fontWeight = FontWeight(400),
+                color = Color(0xFFFFFFFF),
+            ),
+            modifier = Modifier.offset(y = (-4).dp)
+        )
+    }
+}
+
 
 // Represents a dot that can either have a white or gray color. White = selected, gray = unselected.
 @Composable
