@@ -313,9 +313,17 @@ fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewMode
                 onClick = { navController.navigate(NavRoute.LOGIN) },
                 modifier = modifier
                     .align(Alignment.Bottom)
-                    .offset(y = (-8).dp, x = (-66).dp)
+                    .offset(y = (-10).dp, x = (-18).dp)
             ) {
                 Text("Login", color = Color.White)
+                Icon(
+                    painter = painterResource(id = R.drawable.guestloginicon),  // ✅ replace with your actual drawable ID
+                    contentDescription = "Login Icon",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(24.dp)  // ✅ adjust size as you like
+                        .padding(end = 8.dp) // ✅ space between icon and text
+                )
             }
         }
     }

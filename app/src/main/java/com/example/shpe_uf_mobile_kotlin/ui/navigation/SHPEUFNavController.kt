@@ -87,8 +87,8 @@ val userItems = listOf(
 val guestItems = listOf(
     BottomNavigationItem( // place holder for the whatever goes here in the figma
         title = "PLACEHOLDER",
-        selectedIcon = R.drawable.leaderboard_dm_on,
-        unselectedIcon = R.drawable.leaderboard_dm_off,
+        selectedIcon = R.drawable.communityselected,
+        unselectedIcon = R.drawable.communityicon,
         hasNews = false
     ),
     BottomNavigationItem(
@@ -99,8 +99,8 @@ val guestItems = listOf(
     ),
     BottomNavigationItem( // placeholder for corporate sponsors
         title = "PARTNERS",
-        selectedIcon = R.drawable.pfp_dm_on,
-        unselectedIcon = R.drawable.pfp_dm_off,
+        selectedIcon = R.drawable.handshakeselected,
+        unselectedIcon = R.drawable.handshakeicon,
         hasNews = false
     )
 )
