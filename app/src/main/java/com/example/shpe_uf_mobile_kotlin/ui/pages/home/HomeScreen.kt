@@ -317,12 +317,12 @@ fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewMode
             ) {
                 Text("Login", color = Color.White)
                 Icon(
-                    painter = painterResource(id = R.drawable.guestloginicon),  // ✅ replace with your actual drawable ID
+                    painter = painterResource(id = R.drawable.guestloginicon),
                     contentDescription = "Login Icon",
                     tint = Color.White,
                     modifier = Modifier
-                        .size(24.dp)  // ✅ adjust size as you like
-                        .padding(end = 8.dp) // ✅ space between icon and text
+                        .size(24.dp)
+                        .padding(end = 8.dp)
                 )
             }
         }

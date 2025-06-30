@@ -30,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.data.AppState
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.guest.GuestPlaceholderPage
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
@@ -47,6 +48,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2Prev
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3Preview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
+import com.example.shpe_uf_mobile_kotlin.ui.pages.sponsors.SponsorsPage
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
@@ -85,8 +87,8 @@ val userItems = listOf(
 //Alternative list for guest navbar
 //TODO: add icons and routing for community and corporate sponsors
 val guestItems = listOf(
-    BottomNavigationItem( // place holder for the whatever goes here in the figma
-        title = "PLACEHOLDER",
+    BottomNavigationItem(
+        title = NavRoute.GUEST_PLACEHOLDER,
         selectedIcon = R.drawable.communityselected,
         unselectedIcon = R.drawable.communityicon,
         hasNews = false
@@ -97,8 +99,8 @@ val guestItems = listOf(
         unselectedIcon = R.drawable.calendar_dm_off,
         hasNews = false
     ),
-    BottomNavigationItem( // placeholder for corporate sponsors
-        title = "PARTNERS",
+    BottomNavigationItem(
+        title = NavRoute.SPONSORS,
         selectedIcon = R.drawable.handshakeselected,
         unselectedIcon = R.drawable.handshakeicon,
         hasNews = false
@@ -241,6 +243,14 @@ fun NavHostContainer(
         composable(NavRoute.REGISTER_3)
         {
             RegistrationPage3Preview(navController = navHostController, registerPage1ViewModel = registerViewModel )
+        }
+        composable(NavRoute.SPONSORS) {
+            SponsorsPage(navController = navHostController, shpeufAppViewModel = mainViewModel
+            )
+        }
+        composable(NavRoute.GUEST_PLACEHOLDER) {
+            GuestPlaceholderPage(navController = navHostController, shpeufAppViewModel = mainViewModel
+            )
         }
     }
 }
