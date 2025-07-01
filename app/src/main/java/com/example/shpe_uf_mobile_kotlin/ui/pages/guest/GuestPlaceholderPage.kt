@@ -17,6 +17,7 @@ import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.sponsors.GuestTopHeader
+import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.headerOrange
 
 @Composable
@@ -24,11 +25,9 @@ fun GuestPlaceholderPage(navController: NavHostController, shpeufAppViewModel: S
     val uiState by shpeufAppViewModel.uiState.collectAsState()
     val isDarkMode = uiState.isDarkMode
 
-    Surface (
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
-        color = if(isDarkMode) Color.Black else Color.White
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
     ) {
         Box{
             GuestTopHeader(navController = navController)
