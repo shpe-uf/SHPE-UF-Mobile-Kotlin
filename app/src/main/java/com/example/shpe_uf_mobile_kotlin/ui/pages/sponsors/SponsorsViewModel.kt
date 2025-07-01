@@ -1,5 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.sponsors
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shpe_uf_mobile_kotlin.apolloClient
@@ -12,11 +13,20 @@ class SponsorsViewModel : ViewModel() {
     private val _partners = MutableStateFlow<List<GetPartnersQuery.GetPartner>>(emptyList())
     val partners: StateFlow<List<GetPartnersQuery.GetPartner>> = _partners
 
+    init {
+        fetchPartners()
+    }
+
     fun fetchPartners() {
         viewModelScope.launch {
-            val response = apolloClient.query(GetPartnersQuery()).execute()
-            response.data?.getPartners?.let {
-                _partners.value = it.filterNotNull()
+            try {
+                val response = apolloClient.query(GetPartnersQuery()).execute()
+                response.data?.getPartners?.let {
+                    val filtered = it.filterNotNull()
+                    _partners.value = filtered
+                } ?: Log.d("SponsorsViewModel", "No data received in getPartners")
+            } catch (e: Exception) {
+                Log.e("SponsorsViewModel", "Error fetching partners", e)
             }
         }
     }
