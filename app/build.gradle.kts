@@ -157,7 +157,6 @@ dependencies {
 
 }
 
-
 apollo {
     service("service") {
         packageName.set("com.example.shpe_uf_mobile_kotlin")
