@@ -30,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.data.AppState
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.guest.GuestPlaceholderPage
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
@@ -47,6 +48,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2Prev
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3Preview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
+import com.example.shpe_uf_mobile_kotlin.ui.pages.sponsors.SponsorsPage
 import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
@@ -60,7 +62,7 @@ data class BottomNavigationItem(
     val badgeCount: Int? = null
 )
 
-val items = listOf(
+val userItems = listOf(
     BottomNavigationItem(
         title = NavRoute.HOME,
         selectedIcon = R.drawable.calendar_dm_on,
@@ -82,11 +84,35 @@ val items = listOf(
     ),
 )
 
+//Alternative list for guest navbar
+//TODO: add icons and routing for community and corporate sponsors
+val guestItems = listOf(
+    BottomNavigationItem(
+        title = NavRoute.GUEST_PLACEHOLDER,
+        selectedIcon = R.drawable.communityselected,
+        unselectedIcon = R.drawable.communityicon,
+        hasNews = false
+    ),
+    BottomNavigationItem(
+        title = NavRoute.HOME,  // Calendar for guests
+        selectedIcon = R.drawable.calendar_dm_on,
+        unselectedIcon = R.drawable.calendar_dm_off,
+        hasNews = false
+    ),
+    BottomNavigationItem(
+        title = NavRoute.SPONSORS,
+        selectedIcon = R.drawable.handshakeselected,
+        unselectedIcon = R.drawable.handshakeicon,
+        hasNews = false
+    )
+)
+
 @Composable
-fun BottomNavigationBar(navController: NavHostController, isDarkMode: Boolean) {
-    val items = remember { items }
+fun BottomNavigationBar(navController: NavHostController, isDarkMode: Boolean, isGuest: Boolean = false) {
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry.value?.destination?.route
+
+    val items = if (isGuest) guestItems else userItems // Set items based on isGuest
 
     BottomNavigation(
         modifier = Modifier
@@ -186,22 +212,17 @@ fun NavHostContainer(
         startDestination = NavRoute.OPENING,
     ) {
         composable(NavRoute.OPENING){
-            OpeningPage(navHostController)
+            OpeningPage(navHostController, mainViewModel)
         }
-
         composable(NavRoute.LOGIN) {
             SignIn(navHostController, mainViewModel)
         }
         composable(NavRoute.REGISTER){
             RegistrationPage1Preview(registerPage1ViewModel = registerViewModel, navController = navHostController)
         }
-
         composable(NavRoute.HOME)
         {
-            HomeScreen(
-                viewModel = homeViewModel,
-                shpeufAppViewModel = mainViewModel
-            )
+            HomeScreen(viewModel = homeViewModel, shpeufAppViewModel = mainViewModel, navController = navHostController)
         }
         composable(NavRoute.POINTS)
         {
@@ -215,22 +236,26 @@ fun NavHostContainer(
         {
             ProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
         }
-
         composable(NavRoute.REGISTER_2)
         {
             RegistrationPage2Preview(navController = navHostController, registerPage1ViewModel = registerViewModel )
         }
-
         composable(NavRoute.REGISTER_3)
         {
             RegistrationPage3Preview(navController = navHostController, registerPage1ViewModel = registerViewModel )
         }
-
+        composable(NavRoute.SPONSORS) {
+            SponsorsPage(navController = navHostController, mainViewModel = mainViewModel)
+        }
+        composable(NavRoute.GUEST_PLACEHOLDER) {
+            GuestPlaceholderPage(navController = navHostController, shpeufAppViewModel = mainViewModel
+            )
+        }
     }
 }
 
 @Preview
 @Composable
 fun BottomNavigationBarPreview() {
-    BottomNavigationBar(navController = rememberNavController(), isDarkMode = false)
+    BottomNavigationBar(navController = rememberNavController(), isDarkMode = false, isGuest = true)
 }

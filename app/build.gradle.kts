@@ -85,6 +85,10 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:$camerax_version")
     implementation("androidx.camera:camera-view:$camerax_version")
 
+    // Renders image URLs for the Sponsor Logos
+
+    implementation("io.coil-kt:coil-compose:2.2.2")
+
     // ML Kit Barcode Scanning
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
     implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.0.2")
@@ -156,7 +160,6 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
 
 }
-
 
 apollo {
     service("service") {

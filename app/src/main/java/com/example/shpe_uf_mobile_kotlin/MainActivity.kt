@@ -42,6 +42,8 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 import android.util.Log
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 
 class MainActivity() : ComponentActivity() {
@@ -69,6 +71,10 @@ class MainActivity() : ComponentActivity() {
                 val navController = rememberNavController()
 
                 val isDarkMode = UserState.isDarkMode
+                val isGuest = UserState.isGuest
+
+                val currentBackStackEntry = navController.currentBackStackEntryAsState()
+                val currentRoute = currentBackStackEntry.value?.destination?.route
 
                 enableEdgeToEdge(
                     statusBarStyle = if(isDarkMode) SystemBarStyle.dark(
@@ -95,7 +101,22 @@ class MainActivity() : ComponentActivity() {
                     color = blueDarkModeBackground,
                 ) {
                     Scaffold(
-                        bottomBar = { if(!UserState.isLoggedIn && UserState.isLoggedOut) null else BottomNavigationBar(navController, isDarkMode) }
+                        bottomBar = {
+                            if (
+                                currentRoute in listOf(
+                                    NavRoute.OPENING,
+                                    NavRoute.LOGIN,
+                                    NavRoute.REGISTER,
+                                    NavRoute.REGISTER_2,
+                                    NavRoute.REGISTER_3
+                                ) ||
+                                ((!UserState.isLoggedIn && UserState.isLoggedOut) && !UserState.isGuest)
+                            ) {
+                                null
+                            } else {
+                                BottomNavigationBar(navController, isDarkMode, isGuest)
+                            }
+                        }
                     ) {
                         Box(
                             modifier = Modifier

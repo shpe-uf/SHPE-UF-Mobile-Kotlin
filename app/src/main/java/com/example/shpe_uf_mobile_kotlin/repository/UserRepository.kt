@@ -17,6 +17,7 @@ class UserRepository(private val dataStore: DataStore<Preferences>) {
         val IS_REGISTERED = booleanPreferencesKey("is_registered")
         val DARK_MODE = booleanPreferencesKey("dark_mode") // true = dark mode, false = light mode
         val LOADING = booleanPreferencesKey("loading")
+        val IS_GUEST = booleanPreferencesKey("is_guest")
     }
 
 
@@ -87,4 +88,15 @@ class UserRepository(private val dataStore: DataStore<Preferences>) {
             preferences[LOADING] = isLoading
         }
     }
+
+    val currentGuest: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[IS_GUEST] ?: false
+    }
+
+    suspend fun saveGuest(isGuest: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[IS_GUEST] = isGuest
+        }
+    }
+
 }

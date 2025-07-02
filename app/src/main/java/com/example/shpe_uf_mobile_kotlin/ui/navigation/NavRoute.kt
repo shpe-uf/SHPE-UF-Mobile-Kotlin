@@ -10,4 +10,7 @@ object NavRoute {
     const val REGISTER = "register"
     const val REGISTER_2 = "register_2"
     const val REGISTER_3 = "register_3"
+    const val SPONSORS = "sponsors"
+    const val GUEST_PLACEHOLDER = "guest_placeholder"
+
 }

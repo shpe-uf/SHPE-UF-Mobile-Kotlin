@@ -300,6 +300,14 @@ type User {
   socialMedia: [String]
 }
 
+type Partner {
+  name: String!
+
+  photo: String!
+
+  tier: String!
+}
+
 type Coordinates {
   latitude: Float!
 
@@ -398,6 +406,14 @@ input CreateCorporationInput {
   recruitmentDay: String!
 
   signUpLink: String
+}
+
+input CreatePartnerInput {
+  name: String!
+
+  photo: String!
+
+  tier: String!
 }
 
 input CreateEventInput {
@@ -701,6 +717,8 @@ type Query {
 
   getUsers: [User]
 
+  getPartners: [Partner]
+
   getYearStat: [StatData]
 }
 
@@ -720,6 +738,8 @@ type Mutation {
   confirmUser(id: String!): User!
 
   createCorporation(createCorporationInput: CreateCorporationInput): [Corporation]
+
+  createPartner(createPartnerInput: CreatePartnerInput): [Partner]
 
   createEvent(createEventInput: CreateEventInput): [Event]
 
