@@ -55,14 +55,14 @@ fun AboutUsTopBar(isDarkMode: Boolean) {
 
 @Composable
 fun MissionStatementSection(isDarkMode: Boolean) {
-    val textColor = if (isDarkMode) Color.White else Color.Black
+    val textColor = if (isDarkMode) Color.White else Color(0xFF011F35)
     val logoRes = if (isDarkMode) R.drawable.guest_logo_dark else R.drawable.guest_logo_light
-    val horizontalPadding = 32.dp // wider margins
+    val horizontalPadding = 32.dp
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 24.dp, bottom = 16.dp),
+            .padding(top = 48.dp, bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
@@ -77,11 +77,12 @@ fun MissionStatementSection(isDarkMode: Boolean) {
             text = "SHPE",
             style = MaterialTheme.typography.headlineLarge,
             color = textColor,
-            fontSize = 28.sp
+            fontSize = 72.sp
         )
         Text(
             text = "Leading Hispanics in STEM",
-            color = Color(0xFFD25917)
+            color = Color(0xFFD25917),
+            fontSize = 14.sp
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -244,7 +245,7 @@ fun InstagramImageItem(post: InstagramPost, useLowRes: Boolean = false) {
 //Im not adding a triangle drawable blud
 @Composable
 fun QuoteTriangle(isDarkMode: Boolean) {
-    val backgroundColor = if (isDarkMode) Color(0xFF011F35) else Color(0xFFFFFFFF) // white for dark mode, SHPE blue for light
+    val backgroundColor = if (isDarkMode) Color(0xFF011F35) else Color(0xFFFFFFFF)
 
     Canvas(
         modifier = Modifier
@@ -318,7 +319,7 @@ fun GuestPlaceholderPage(navController: NavHostController, shpeufAppViewModel: S
             ) {
                 item { MissionStatementSection(isDarkMode = isDarkMode) }
 
-                item { InstagramCarousel(instagramPosts) }
+                //item { InstagramCarousel(instagramPosts) }
 
                 item { QuoteSection(isDarkMode = isDarkMode) }
             }
