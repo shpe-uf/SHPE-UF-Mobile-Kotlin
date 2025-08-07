@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId = "com.example.shpe_uf_mobile_kotlin"
         minSdk = 30
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -73,6 +73,7 @@ dependencies {
     implementation("androidx.datastore:datastore-core-android:1.1.1")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("androidx.datastore:datastore-preferences-core-jvm:1.1.1")
+    implementation("androidx.compose.foundation:foundation-android:1.6.8")
     val nav_version = "2.8.0"
     implementation("androidx.navigation:navigation-compose:$nav_version")
     ksp( "androidx.room:room-compiler:2.5.0")
