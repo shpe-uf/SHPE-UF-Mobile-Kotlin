@@ -147,7 +147,6 @@ fun InstagramCarousel(posts: List<InstagramPost>) {
             }
         }
 
-        // 🎠 Carousel
         HorizontalPager(
             state = pagerState,
             pageSpacing = -(imageWidth / 2f), // less occlusion
@@ -182,7 +181,6 @@ fun InstagramCarousel(posts: List<InstagramPost>) {
             }
         }
 
-        // ⬅️ Left Button
         IconButton(
             onClick = {
                 coroutineScope.launch {
@@ -202,7 +200,6 @@ fun InstagramCarousel(posts: List<InstagramPost>) {
             )
         }
 
-        // ➡️ Right Button
         IconButton(
             onClick = {
                 coroutineScope.launch {

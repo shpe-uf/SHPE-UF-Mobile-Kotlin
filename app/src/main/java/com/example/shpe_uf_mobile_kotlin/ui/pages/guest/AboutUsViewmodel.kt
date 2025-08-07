@@ -28,7 +28,6 @@ class GuestAboutViewModel : ViewModel() {
     fun fetchInstagramPostsFromAPI() {
         viewModelScope.launch {
             try {
-                // TODO: Add real URL and network logic
                 val response = emptyList<InstagramPost>() // Placeholder
                 _posts.value = response
             } catch (e: Exception) {
