@@ -300,8 +300,8 @@ fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewMode
             modifier = modifier
                 .size(26.dp)
                 .align(Alignment.Bottom)
-                .offset(y = (-20).dp, x = (-38).dp),
-                //.clickable { navController.navigate(NavRoute.SOCIAL) }, // TODO: Implement ts
+                .offset(y = (-20).dp, x = (-38).dp)
+                .clickable { viewModel.openSocialWindow() },
             tint = Color.White
         )
 
@@ -733,7 +733,7 @@ fun NotificationSettingsContent(modifier: Modifier, viewModel: HomeViewModel, da
                         .fillMaxWidth()
                         .height(83.dp)
                         .background(color = headerOrange)
-                        .padding(10.dp),
+                        .padding(15.dp),
                 ) {
                     // Used to Exit the notification window
                     IconButton(
@@ -755,7 +755,7 @@ fun NotificationSettingsContent(modifier: Modifier, viewModel: HomeViewModel, da
                             color = Color.White,
                             fontFamily = Viga,
                             fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight(400)
                         ),
                         color = Color.White,
                         modifier = Modifier
@@ -1059,6 +1059,106 @@ fun NotificationSettingsContent(modifier: Modifier, viewModel: HomeViewModel, da
 @Composable
 fun NotificationSettingsPreview() {
     NotificationSettingsContent(
+        modifier = Modifier,
+        viewModel = HomeViewModel(
+            notificationRepo = NotificationRepository(
+                context = LocalContext.current
+            ),
+            eventRepo = EventRepository(
+                context = LocalContext.current
+            ),
+        ),
+        darkMode = true
+    )
+}
+
+@Composable
+fun SlidingSocialWindow(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolean) {
+    val homeState = viewModel.homeState.collectAsState()
+    val isVisible = homeState.value.isSocialWindowVisible
+
+    if (isVisible) {
+        BackHandler {
+            viewModel.hideSocialWindow()
+        }
+    }
+
+    SlidingWindow(
+        modifier = modifier,
+        viewModel = viewModel,
+        isVisible = isVisible,
+        content = {
+            SocialContent(modifier = Modifier, viewModel = viewModel, darkMode)
+        },
+        toggleOff = {viewModel.hideSocialWindow() }
+    )
+}
+
+@Composable
+fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolean) {
+    val context = LocalContext.current
+    val homeState by viewModel.homeState.collectAsState()
+
+    Surface (
+        modifier = Modifier
+            .fillMaxWidth(1f)
+            .fillMaxHeight(),
+        color = if(darkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // image and close button container, could be made into own composable to be used later
+            Box(contentAlignment = Alignment.TopStart) {
+                // Header for notification window
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(83.dp)
+                        .background(color = headerOrange)
+                        .padding(15.dp),
+                ) {
+                    // Used to Exit the notification window
+                    IconButton(
+                        onClick = { viewModel.hideSocialWindow() },
+                        modifier = Modifier
+                            .align(Alignment.Bottom)
+                            .height(35.dp)
+                            .width(35.dp),
+                    ) {
+                        Icon(
+                            Icons.Default.ArrowBackIosNew,
+                            contentDescription = "Dismiss",
+                            tint = Color.White
+                        )
+                    }
+                    Text(
+                        text = "Our Socials",
+                        style = TextStyle(
+                            color = Color.White,
+                            fontFamily = Viga,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight(400)
+                        ),
+                        color = Color.White,
+                        modifier = Modifier
+                            .weight(1f)
+                            .align(Alignment.Bottom)
+                            .width(107.dp)
+                            .height(31.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview (showBackground = true)
+@Composable
+fun SocialPreview() {
+    SocialContent(
         modifier = Modifier,
         viewModel = HomeViewModel(
             notificationRepo = NotificationRepository(
@@ -1811,5 +1911,6 @@ fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel,
 
         SlidingEventWindow(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
         SlidingNotificationWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
+        SlidingSocialWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
     }
 }
