@@ -293,6 +293,18 @@ fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewMode
                 .padding(vertical = 15.dp, horizontal = 32.dp)
         )
 
+        //Icon for socials will be available in guest view as well
+        Icon(
+            painter = painterResource(id = R.drawable.socials_icon),
+            contentDescription = "Socials",
+            modifier = modifier
+                .size(26.dp)
+                .align(Alignment.Bottom)
+                .offset(y = (-20).dp, x = (-38).dp),
+                //.clickable { navController.navigate(NavRoute.SOCIAL) }, // TODO: Implement ts
+            tint = Color.White
+        )
+
         // Icon for bell
         if (!isGuest){
             Icon(
@@ -302,7 +314,7 @@ fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewMode
                 modifier = modifier
                     .size(33.dp)
                     .align(Alignment.Bottom)
-                    .offset(y = (-14).dp, x = (-28).dp)
+                    .offset(y = (-16).dp, x = (-18).dp)
                     .clickable { viewModel.openNotificationWindow() },
                 tint = Color.White
             )
@@ -313,16 +325,22 @@ fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewMode
                 onClick = { navController.navigate(NavRoute.LOGIN) },
                 modifier = modifier
                     .align(Alignment.Bottom)
-                    .offset(y = (-10).dp, x = (-18).dp)
+                    .offset(y = (-10).dp, x = (-28).dp)
             ) {
-                Text("Login", color = Color.White)
+                Text(
+                    text = "Login",
+                    color = Color.White,
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight(400)
+                    )
+                )
                 Icon(
                     painter = painterResource(id = R.drawable.guestloginicon),
                     contentDescription = "Login Icon",
                     tint = Color.White,
                     modifier = Modifier
-                        .size(24.dp)
-                        .padding(end = 8.dp)
+                        .size(21.dp)
                 )
             }
         }
