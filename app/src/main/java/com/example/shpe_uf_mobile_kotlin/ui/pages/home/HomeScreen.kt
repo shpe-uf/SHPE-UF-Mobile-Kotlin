@@ -2,8 +2,11 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.home
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -1151,8 +1154,6 @@ fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolea
                     )
                 }
             }
-
-
             // Box for instructions text
             Box(
                 modifier = Modifier
@@ -1173,8 +1174,188 @@ fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolea
                 )
             }
 
+            // Box the options for notifications
+            Box(
+                modifier = Modifier
+                    .weight(0.5f),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .padding(start = 20.dp, end = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Row{
+                        // SHPE-UF Main Instagram Page
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.shpe_main_icon),
+                                contentDescription = "Visit SHPE-UF's Main Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openWebsite(context, "https://www.instagram.com/shpeuf/")
+                                    }
+                            )
+                            Text(
+                                text = "SHPE UF",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+
+                            Image(
+                                painter = painterResource(id = R.drawable.fylp_icon),
+                                contentDescription = "Visit SHPE-UF FYLP Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openWebsite(context, "https://www.instagram.com/fylp.shpeuf/")
+                                    }
+                            )
+                            Text(
+                                text = "FYLP",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.mentorshpe_icon),
+                                contentDescription = "Visit SHPE-UF MentorSHPE Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openWebsite(context, "https://www.instagram.com/ufmentorshpe/")
+                                    }
+                            )
+                            Text(
+                                text = "MentorSHPE",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+
+                        }
+                    }
+                    Row {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.gradshpe_icon),
+                                contentDescription = "Visit SHPE-UF GradSHPE Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openWebsite(context, "https://www.instagram.com/gradshpeuf/")
+                                    }
+                            )
+                            Text(
+                                text = "GradSHPE",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.pkyoung_shpe_icon),
+                                contentDescription = "Visit SHPE-UF PKY Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openWebsite(context, "https://www.instagram.com/pky.shpe/")
+                                    }
+                            )
+                            Text(
+                                text = "PKY SHPE",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+                        }
+
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.linktree_icon),
+                                contentDescription = "Visit SHPE-UF Linktree",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openWebsite(context, "https://linktr.ee/shpeuf?fbclid=PAZXh0bgNhZW0CMTEAAaf52SOeeRNZhBP3AviG3UFfAOyHqGRyhwQg3e2fsKAFpUf1UBI-v3WCYJiaVg_aem_2dpt3QkzNqD13zLK9RSsOg")
+                                    }
+                            )
+                            Text(
+                                text = "Linktree",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+                        }
+
+                    }
+                }
+            }
+
 
         }
+    }
+}
+
+/**
+ * @description openWebsite is used to send a request to the Android OS system that the SHPE-UF app
+ * would like to open a link on the internet. It makes this request known and is able to be
+ * processed by using an Intent (a message to the system saying "I want to do something")
+ * This function will also give a toast message if there is something wrong with opening the link.
+ *
+ * @author Anthony Zurita
+ * @date Created September 2025
+ *
+ * @param context used to request to open up the browser based on the app's link information
+ * @param url the specific link in a form of a string that you would like to be opened
+ **/
+fun openWebsite(context: Context, url: String) {
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        // handle error if something is wrong with the link
+        Toast.makeText(context, "Unable to open link", Toast.LENGTH_SHORT).show()
     }
 }
 
