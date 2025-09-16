@@ -1151,6 +1151,29 @@ fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolea
                     )
                 }
             }
+
+
+            // Box for instructions text
+            Box(
+                modifier = Modifier
+                    .weight(0.3f),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    modifier = Modifier,
+                    text = "Tap an icon to visit out social media",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontFamily = Viga,
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFFB7B7B7),
+                        textAlign = TextAlign.Center,
+                    ),
+                    color = if (darkMode) Color(0xFFB7B7B7) else Color(0xFF011F35),
+                )
+            }
+
+
         }
     }
 }
