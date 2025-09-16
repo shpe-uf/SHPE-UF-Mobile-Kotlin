@@ -3,6 +3,7 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.register
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -48,6 +49,7 @@ import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorDropdownMenu
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
+import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
 
 //@Preview
@@ -71,6 +73,28 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
     RegisterPage2Background(navController)
 
+    // for background of page
+    val background = if (isSystemInDarkTheme()) {
+        ThemeColors.Night.background
+    } else {
+        ThemeColors.Day.background
+    }
+
+    // for text of page w/o register
+
+    val labelColor = if (isSystemInDarkTheme()) {
+        ThemeColors.Night.text
+    } else {
+        ThemeColors.Day.text
+    }
+
+    // for profile icon background
+    val profileBackground = if (isSystemInDarkTheme()) {
+        painterResource(R.drawable.personaldetailsicon)
+    } else {
+        painterResource(R.drawable.user_cicrle_duotone)
+    }
+
 
     Box(
         modifier = Modifier
@@ -79,7 +103,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
         LazyColumn (
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF011F35)),
+                .background(background),
             horizontalAlignment = Alignment.CenterHorizontally
 
         ){
@@ -143,7 +167,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                     style = TextStyle(
                         fontSize = 14.sp,
                         fontWeight = FontWeight(400),
-                        color = Color(0xFFFFFFFF)
+                        color = labelColor
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -173,7 +197,7 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
                     Row{
                         Image(
-                            painter = painterResource(id = R.drawable.personaldetailsicon),
+                            painter = profileBackground,
                             contentDescription = "PersonalDetailsIcon",
                             modifier = Modifier.size(50.dp)
                         )
@@ -283,6 +307,12 @@ fun RegistrationPage2(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 //@Preview
 @Composable
 fun RegisterPage2Background(navController: NavController) {
+    // Dark mode support
+    val gator = if (isSystemInDarkTheme()) {
+        painterResource(R.drawable.gator)
+    } else {
+        painterResource(R.drawable.light_gator)
+    }
 
     // Used boxes to layer things on top of each other to help arrange things as needed
 
@@ -293,7 +323,7 @@ fun RegisterPage2Background(navController: NavController) {
     ) {
         // Image centered at the top
         Image(
-            painter = painterResource(R.drawable.gatordark),
+            painter = gator,
             contentDescription = "Gator",
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
