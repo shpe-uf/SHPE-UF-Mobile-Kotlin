@@ -1294,7 +1294,8 @@ fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolea
                                     .width(92.dp)
                                     .height(90.dp)
                                     .clickable {
-                                        openWebsite(context, "https://www.instagram.com/pky.shpe/")
+                                        openInstagram(context, "pky.shpe")
+//                                        openWebsite(context, "https://www.instagram.com/pky.shpe/")
                                     }
                             )
                             Text(
@@ -1356,6 +1357,31 @@ fun openWebsite(context: Context, url: String) {
     } catch (e: Exception) {
         // handle error if something is wrong with the link
         Toast.makeText(context, "Unable to open link", Toast.LENGTH_SHORT).show()
+    }
+}
+
+/**
+ * @description openInstagram is used to send a request to the Android OS system that the SHPE-UF
+ * app would like to open a link on the Instagram app. It makes this request known and is able to be
+ * processed by using an Intent (a message to the system saying "I want to do something")
+ * This function will also give a toast message if there is something wrong with opening the link.
+ *
+ * @author Anthony Zurita
+ * @date Created September 2025
+ *
+ * @param context used to request to open up the browser based on the app's link information
+ * @param url the specific link in a form of a string that you would like to be opened
+ **/
+fun openInstagram(context: Context, username: String) {
+    try{
+        val instagramAppUri = Uri.parse("http://instagram.com/_u/$username")
+        val instagramIntent = Intent(Intent.ACTION_VIEW, instagramAppUri)
+
+        instagramIntent.setPackage("com.instagram.android")
+
+        context.startActivity(instagramIntent)
+    } catch (e: Exception) {
+        openWebsite(context, "http://instagram.com/$username")
     }
 }
 
