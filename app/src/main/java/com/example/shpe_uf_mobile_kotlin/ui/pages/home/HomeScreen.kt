@@ -1154,40 +1154,46 @@ fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolea
                     )
                 }
             }
-            // Box for instructions text
-            Box(
-                modifier = Modifier
-                    .weight(0.3f),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    modifier = Modifier,
-                    text = "Tap an icon to visit out social media",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        fontFamily = Viga,
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFFB7B7B7),
-                        textAlign = TextAlign.Center,
-                    ),
-                    color = if (darkMode) Color(0xFFB7B7B7) else Color(0xFF011F35),
-                )
-            }
 
-            // Box the options for notifications
+            // Box the options for text and social media icons
             Box(
                 modifier = Modifier
-                    .weight(0.5f),
+                    .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight()
-                        .padding(start = 20.dp, end = 20.dp),
+                        .padding(start = 10.dp, end = 10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceEvenly
+//                    verticalArrangement = Arrangement.SpaceEvenly
                 ) {
+                    Spacer(modifier = Modifier.weight(0.3f))
+
+                    Row{
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Text(
+                                modifier = Modifier,
+                                text = "Tap an icon to visit out social media",
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    fontFamily = Viga,
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFB7B7B7),
+                                    textAlign = TextAlign.Center,
+                                ),
+                                color = if (darkMode) Color(0xFFB7B7B7) else Color(0xFF011F35),
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.weight(0.1f))
+
                     Row{
                         // SHPE-UF Main Instagram Page
                         Column(
@@ -1202,14 +1208,14 @@ fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolea
                                     .width(92.dp)
                                     .height(90.dp)
                                     .clickable {
-                                        openWebsite(context, "https://www.instagram.com/shpeuf/")
+                                        openInstagram(context, "shpeuf")
                                     }
                             )
                             Text(
                                 text = "SHPE UF",
                                 style = getTextStyle(darkMode),
                                 modifier = Modifier
-                                    .padding(top = 10.dp)
+                                    .padding(top = 20.dp)
                             )
                         }
                         Column(
@@ -1225,14 +1231,14 @@ fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolea
                                     .width(92.dp)
                                     .height(90.dp)
                                     .clickable {
-                                        openWebsite(context, "https://www.instagram.com/fylp.shpeuf/")
+                                        openInstagram(context, "fylp.shpeuf")
                                     }
                             )
                             Text(
                                 text = "FYLP",
                                 style = getTextStyle(darkMode),
                                 modifier = Modifier
-                                    .padding(top = 10.dp)
+                                    .padding(top = 20.dp)
                             )
                         }
                         Column(
@@ -1247,18 +1253,21 @@ fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolea
                                     .width(92.dp)
                                     .height(90.dp)
                                     .clickable {
-                                        openWebsite(context, "https://www.instagram.com/ufmentorshpe/")
+                                        openInstagram(context, "ufmentorshpe")
                                     }
                             )
                             Text(
                                 text = "MentorSHPE",
                                 style = getTextStyle(darkMode),
                                 modifier = Modifier
-                                    .padding(top = 10.dp)
+                                    .padding(top = 20.dp)
                             )
 
                         }
                     }
+
+                    Spacer(modifier = Modifier.weight(0.1f))
+
                     Row {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -1272,14 +1281,14 @@ fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolea
                                     .width(92.dp)
                                     .height(90.dp)
                                     .clickable {
-                                        openWebsite(context, "https://www.instagram.com/gradshpeuf/")
+                                        openInstagram(context, "gradshpeuf")
                                     }
                             )
                             Text(
                                 text = "GradSHPE",
                                 style = getTextStyle(darkMode),
                                 modifier = Modifier
-                                    .padding(top = 10.dp)
+                                    .padding(top = 20.dp)
                             )
                         }
                         Column(
@@ -1295,14 +1304,13 @@ fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolea
                                     .height(90.dp)
                                     .clickable {
                                         openInstagram(context, "pky.shpe")
-//                                        openWebsite(context, "https://www.instagram.com/pky.shpe/")
                                     }
                             )
                             Text(
                                 text = "PKY SHPE",
                                 style = getTextStyle(darkMode),
                                 modifier = Modifier
-                                    .padding(top = 10.dp)
+                                    .padding(top = 20.dp)
                             )
                         }
 
@@ -1325,11 +1333,11 @@ fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolea
                                 text = "Linktree",
                                 style = getTextStyle(darkMode),
                                 modifier = Modifier
-                                    .padding(top = 10.dp)
+                                    .padding(top = 20.dp)
                             )
                         }
-
                     }
+                    Spacer(modifier = Modifier.weight(0.4f))
                 }
             }
 
