@@ -3,9 +3,9 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.guest
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -24,11 +23,22 @@ import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.IconButton
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.delay
@@ -117,132 +127,151 @@ fun MissionStatementSection(isDarkMode: Boolean) {
 //https://proandroiddev.com/swipeable-image-carousel-with-smooth-animations-in-jetpack-compose-76eacdc89bfb
 
 @Composable
-fun InstagramCarousel(posts: List<InstagramPost>) {
-    val virtualPageCount = Int.MAX_VALUE
-    val startIndex = virtualPageCount / 2
-    val pagerState = rememberPagerState(initialPage = startIndex) { virtualPageCount }
-    val coroutineScope = rememberCoroutineScope()
+fun InstagramImageItem(post: InstagramPost, isDarkMode: Boolean) {
+    val context = LocalContext.current
+    val imageName = post.localImageName!!
+    val drawableResId = context.resources.getIdentifier(imageName, "drawable", context.packageName)
 
-    val imageWidth = 190.dp
-    val imageAspectRatio = 4f / 5f
-    val imageHeight = imageWidth / imageAspectRatio
+    val imageAspectRatio = 4f / 3f
+    val textColor = if (isDarkMode) Color.White else Color.Black
+    val avatarBorder = if (isDarkMode) Color(0x22FFFFFF) else Color(0x22000000)
 
-    val arrowButtonSize = 40.dp
-    val edgePadding = 16.dp
-    val totalHorizontalPadding = arrowButtonSize * 2 + edgePadding * 2
-
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(imageHeight + 40.dp),
-        contentAlignment = Alignment.Center
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.wrapContentHeight()
     ) {
-        val boxWidth = maxWidth
-
-        // ⏱️ Auto-scroll every 4s
-        LaunchedEffect(pagerState.currentPage) {
-            delay(4000)
-            coroutineScope.launch {
-                pagerState.animateScrollToPage(pagerState.currentPage + 1)
-            }
-        }
-
-        HorizontalPager(
-            state = pagerState,
-            pageSpacing = -(imageWidth / 2f), // less occlusion
-            contentPadding = PaddingValues(horizontal = edgePadding),
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .width(boxWidth - totalHorizontalPadding)
-                .height(imageHeight)
-        ) { index ->
-            val actualIndex = index % posts.size
-            val post = posts[actualIndex]
-
-            val pageOffset = (
-                    (pagerState.currentPage - index) +
-                            pagerState.currentPageOffsetFraction
-                    ).absoluteValue
-
-            val scale = lerp(0.85f, 1.1f, 1f - pageOffset.coerceIn(0f, 1f))
-
-            Box(
-                modifier = Modifier
-                    .graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                    }
-                    .zIndex(if (pageOffset < 0.5f) 1f else 0f)
-                    .width(imageWidth)
-                    .aspectRatio(imageAspectRatio)
-                    .clip(RoundedCornerShape(0.dp))
-                    .background(Color.LightGray)
-            ) {
-                InstagramImageItem(post = post)
-            }
-        }
-
-        IconButton(
-            onClick = {
-                coroutineScope.launch {
-                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
-                }
-            },
-            modifier = Modifier
-                .size(arrowButtonSize)
-                .align(Alignment.CenterStart)
-                .padding(start = edgePadding)
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 6.dp)
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.backbuttonicon),
-                contentDescription = "Previous",
-                tint = Color.Unspecified,
-                modifier = Modifier.size(arrowButtonSize * 0.75f)
+            Image(
+                painter = painterResource(id = R.drawable.shpe_1),
+                contentDescription = "profile picture",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, avatarBorder, CircleShape)
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = "shpeuf",
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
+            )
+        }
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            modifier = Modifier
+                .aspectRatio(imageAspectRatio)
+                .clip(RoundedCornerShape(16.dp))
+        ) {
+            Image(
+                painter = painterResource(id = drawableResId),
+                contentDescription = post.caption,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
         }
 
-        IconButton(
-            onClick = {
-                coroutineScope.launch {
-                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text =buildAnnotatedString {
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append("shpeuf ")
                 }
+                append(post.caption ?: "")
             },
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = textColor,
+            ),
             modifier = Modifier
-                .size(arrowButtonSize)
-                .align(Alignment.CenterEnd)
-                .padding(end = edgePadding)
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.backbuttonicon),
-                contentDescription = "Next",
-                tint = Color.Unspecified,
-                modifier = Modifier
-                    .graphicsLayer { rotationY = 180f }
-                    .size(arrowButtonSize * 0.75f)
-            )
-        }
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+        )
     }
 }
 
 @Composable
-fun InstagramImageItem(post: InstagramPost, useLowRes: Boolean = false) {
-    val context = LocalContext.current
-    val imageName = if (useLowRes) "${post.localImageName}_lowres" else post.localImageName!!
-    val drawableResId = context.resources.getIdentifier(imageName, "drawable", context.packageName)
+fun InstagramCarousel(posts: List<InstagramPost>, isDarkMode: Boolean) {
+    val virtualPageCount = Int.MAX_VALUE
+    val startIndex = virtualPageCount / 2
+    val pagerState = rememberPagerState(initialPage = startIndex) { virtualPageCount }
+    val scope = rememberCoroutineScope()
 
-    Image(
-        painter = painterResource(id = drawableResId),
-        contentDescription = post.caption,
-        contentScale = ContentScale.Crop,
-        modifier = Modifier
-            .fillMaxSize()
-            .aspectRatio(4f/5f)
-    )
+    // Width & spacing
+    val imageWidth = 250.dp
+    val pageGap = 24.dp
+
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        val boxWidth = maxWidth
+
+        val density = LocalDensity.current
+        var pageItemHeight by remember { mutableStateOf(0.dp) }
+        val fallbackHeight = (imageWidth / (4f / 3f)) + 120.dp // safe first layout
+        val resolvedHeight = if (pageItemHeight > 0.dp) pageItemHeight else fallbackHeight
+
+        LaunchedEffect(pagerState.currentPage) {
+            delay(5000)
+            scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+        }
+
+        HorizontalPager(
+            state = pagerState,
+            pageSpacing = pageGap,
+            contentPadding = PaddingValues(horizontal = (boxWidth - imageWidth) / 2),
+            modifier = Modifier
+                .width(boxWidth)
+                .height(resolvedHeight)
+        ) { index ->
+            val actual = index % posts.size
+            val post = posts[actual]
+
+            val pageOffset = (
+                    (pagerState.currentPage - index) + pagerState.currentPageOffsetFraction
+                    ).absoluteValue
+
+            val scale = lerp(start = 0.85f, stop  = 1.08f, fraction = (1f - pageOffset).coerceIn(0f, 1f))
+            val alpha = lerp(0.5f, 1f, 1f - pageOffset.coerceIn(0f, 1f))
+
+            Box(
+                modifier = Modifier
+                    .width(imageWidth)
+                    .wrapContentHeight()
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        this.alpha = alpha
+                    }
+                    .zIndex(if (pageOffset < 0.5f) 1f else 0f) // keep the middle on top
+                    .onGloballyPositioned { coords ->
+                        val h = with(density) { coords.size.height.toDp() }
+                        if (h > 0.dp && pageItemHeight == 0.dp) pageItemHeight = h
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                InstagramImageItem(post = post, isDarkMode = isDarkMode)
+            }
+        }
+    }
 }
 
 //Im not adding a triangle drawable blud
 @Composable
 fun QuoteTriangle(isDarkMode: Boolean) {
-    val backgroundColor = if (isDarkMode) Color(0xFF011F35) else Color(0xFFFFFFFF)
+    val backgroundColor =  if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
 
     Canvas(
         modifier = Modifier
@@ -316,7 +345,11 @@ fun GuestPlaceholderPage(navController: NavHostController, shpeufAppViewModel: S
             ) {
                 item { MissionStatementSection(isDarkMode = isDarkMode) }
 
-                //item { InstagramCarousel(instagramPosts) }
+                item {Spacer(modifier = Modifier.height(6.dp))}
+
+                item { InstagramCarousel(instagramPosts, isDarkMode = isDarkMode) }
+
+                item {Spacer(modifier = Modifier.height(24.dp))}
 
                 item { QuoteSection(isDarkMode = isDarkMode) }
             }
