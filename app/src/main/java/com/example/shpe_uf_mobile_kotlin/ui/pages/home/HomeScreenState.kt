@@ -1,6 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
 
 import androidx.compose.ui.graphics.Color
+import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -21,6 +22,19 @@ data class HomeScreenState(
     val notificationSettings: NotificationSelection = NotificationSelection(),
     val allNotificationCurrentColor: Color = Color(0xFF933815),
     // -------------------
+
+    val selectedEventLocation: LatLng? = null,
+    val isMapLoading: Boolean = false,
+    val mapError: String? = null,
+
+    val appScreenMode: AppScreenMode = AppScreenMode.HOME_FEED,
+    val mapDestinationLatLng: LatLng? = null,
+    val mapUserLocationLatLng: LatLng? = null,
+    val mapDrivingRoute: RouteDetails? = null,
+    val mapWalkingRoute: RouteDetails? = null,
+    val mapSelectedTravelMode: TravelMode = TravelMode.DRIVING,
+    val isMapDataLoading: Boolean = false,
+    val mapErrorMessage: String? = null
 
 )
 

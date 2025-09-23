@@ -1,6 +1,7 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
 import android.Manifest
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -111,6 +112,16 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 import com.example.shpe_uf_mobile_kotlin.util.*
 import kotlinx.coroutines.delay
+import androidx.compose.material3.CircularProgressIndicator
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.*
+import android.content.Intent
+import android.location.Geocoder
+import android.net.Uri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlin.collections.isNotEmpty
 
 // Sample Card Items that are used for previews
 val sampleCardItems = listOf(
@@ -334,13 +345,16 @@ fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewMode
 fun TopHeaderPreview() {
     TopHeader(
         viewModel = HomeViewModel(
+            application = Application(), // dummy instance for Preview only!
             notificationRepo = NotificationRepository(context = LocalContext.current),
-            eventRepo = EventRepository(context = LocalContext.current)
+            eventRepo = EventRepository(context = LocalContext.current),
+            directionsApiKey = "DUMMY_API_KEY" // fake key for Preview
         ),
-        isGuest = true, // or false if you want user view
+        isGuest = true,
         navController = rememberNavController()
     )
 }
+
 
 /**
  * @description SlidingEventWindow is used in the calendar screen to display the event a user selects
@@ -355,10 +369,14 @@ fun TopHeaderPreview() {
  * @param isDarkMode updates color of background
  **/
 @Composable
-fun SlidingEventWindow(modifier: Modifier = Modifier, viewModel: HomeViewModel, isDarkMode: Boolean) {
-    val homeState = viewModel.homeState.collectAsState()
-    val isVisible = homeState.value.isEventDetailsVisible
-    val event = homeState.value.selectedEvent
+fun SlidingEventWindow(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel,
+    isDarkMode: Boolean
+) {
+    val homeState by viewModel.homeState.collectAsState()
+    val isVisible = homeState.isEventDetailsVisible
+    val event = homeState.selectedEvent
 
     if (isVisible) {
         BackHandler {
@@ -366,17 +384,22 @@ fun SlidingEventWindow(modifier: Modifier = Modifier, viewModel: HomeViewModel, 
         }
     }
 
-    SlidingWindow(modifier, viewModel, isVisible, {
-        EventDetails(
-            modifier = Modifier,
-            event = event,
-            viewModel = viewModel,
-            isDarkMode = isDarkMode
-        )
-    },
-    toggleOff = { viewModel.hideEventDetails() }
+    SlidingWindow(
+        modifier = modifier,
+        viewModel = viewModel,
+        isVisible = isVisible,
+        content = {
+            EventDetails(
+                modifier = Modifier,
+                event = event,
+                viewModel = viewModel,
+                isDarkMode = isDarkMode
+            )
+        },
+        toggleOff = { viewModel.hideEventDetails() }
     )
 }
+
 
 /**
  * @description EventDetails is used by the SlidingEventWindow to be passed to the slidingWindow
@@ -391,41 +414,44 @@ fun SlidingEventWindow(modifier: Modifier = Modifier, viewModel: HomeViewModel, 
  * @param isDarkMode updates the color of the background
  **/
 @Composable
-fun EventDetails (modifier: Modifier, event: HomeViewModel.Event?, viewModel: HomeViewModel = viewModel(), isDarkMode: Boolean) {
-    if (event == null) {
-        return
-    }
+fun EventDetails(
+    modifier: Modifier = Modifier,
+    event: HomeViewModel.Event?,
+    viewModel: HomeViewModel = viewModel(),
+    isDarkMode: Boolean
+) {
+    if (event == null) return
 
-    // Event Details
-    Surface (
+    val homeState by viewModel.homeState.collectAsState()
+
+    Surface(
         modifier = modifier
-            .fillMaxWidth(1f)
+            .fillMaxWidth()
             .fillMaxHeight()
             .background(if (isDarkMode) blueDarkModeBackground else WhiteSHPE),
     ) {
-        Column (
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-        ){
-            // image and close button container, could be made into own composable to be used later
-            Box(contentAlignment = Alignment.TopStart,
-                modifier = Modifier
-                    .fillMaxWidth()
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Top image and back button
+            Box(
+                contentAlignment = Alignment.TopStart,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Image(
-                    painter = painterResource(id = when (event.eventType) {
-                        HomeViewModel.EventType.GBM -> R.drawable.gbm_background
-                        HomeViewModel.EventType.InfoSession -> R.drawable.info_session_background
-                        HomeViewModel.EventType.Workshop -> R.drawable.workshop_background
-                        HomeViewModel.EventType.Social -> R.drawable.social_background
-                        HomeViewModel.EventType.Volunteering -> R.drawable.volunteering_background
-                        HomeViewModel.EventType.Default -> R.drawable.social_background
-                    }),
+                    painter = painterResource(
+                        id = when (event.eventType) {
+                            HomeViewModel.EventType.GBM -> R.drawable.gbm_background
+                            HomeViewModel.EventType.InfoSession -> R.drawable.info_session_background
+                            HomeViewModel.EventType.Workshop -> R.drawable.workshop_background
+                            HomeViewModel.EventType.Social -> R.drawable.social_background
+                            HomeViewModel.EventType.Volunteering -> R.drawable.volunteering_background
+                            HomeViewModel.EventType.Default -> R.drawable.social_background
+                        }
+                    ),
                     contentDescription = "Event Image",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .height(240.dp)
+                    modifier = Modifier.height(240.dp)
                 )
 
                 IconButton(
@@ -442,205 +468,216 @@ fun EventDetails (modifier: Modifier, event: HomeViewModel.Event?, viewModel: Ho
                 }
             }
 
-            // Event details card to have the rounded corner style be there
-            // Lazy Column houses all composable for event details but tbh
-            // the lazy column could be replaced with boxes and weights but would be its own update
+            // Event details card
             Card(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(if (isDarkMode) blueDarkModeBackground else WhiteSHPE)
                     .offset(y = (-23).dp),
                 shape = RoundedCornerShape(size = 25.dp),
-                colors = CardDefaults.cardColors(containerColor =
-                if (isDarkMode) blueDarkModeBackground else WhiteSHPE),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isDarkMode) blueDarkModeBackground else WhiteSHPE
+                ),
             ) {
-                 LazyColumn (modifier = Modifier
-                     .fillMaxWidth()
-                     .fillMaxHeight()
-                     .padding(50.dp))
-                 {
-                     item {
-                         //Title
-                         Row(
-                             modifier = Modifier
-                                 .fillMaxWidth(),
-                             horizontalArrangement = Arrangement.SpaceBetween,
-                             verticalAlignment = Alignment.CenterVertically
-                         ) {
-                             Text(
-                                 modifier = Modifier
-                                     .weight(0.9f),
-                                 text = event.summary,
-                                 style = TextStyle(
-                                     fontFamily = Viga,
-                                     fontSize = 32.sp,
-                                     fontWeight = FontWeight(400),
-                                     color = Color(0xFFD25917),
-                                 )
-                             )
-                             Image(
-                                 painter = painterResource(
-                                     id = when (event.eventType) {
-                                         HomeViewModel.EventType.GBM -> R.drawable.gbm_icon
-                                         HomeViewModel.EventType.InfoSession -> R.drawable.infosession_icon
-                                         HomeViewModel.EventType.Workshop -> R.drawable.workshop_icon
-                                         HomeViewModel.EventType.Social -> R.drawable.social_icon
-                                         HomeViewModel.EventType.Volunteering -> R.drawable.volunteering_icon
-                                         HomeViewModel.EventType.Default -> R.drawable.social_icon
-                                     }
-                                 ),
-                                 contentDescription = "Favorite",
-                                 modifier = Modifier
-                                     .size(37.dp)
-                             )
-                         }
-                     }
-                     item {
-                         Spacer(modifier = Modifier.height(50.dp))
-                     }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                ) {
+                    // Title Row
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = Modifier.weight(0.9f),
+                                text = event.summary,
+                                style = TextStyle(
+                                    fontFamily = Viga,
+                                    fontSize = 32.sp,
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFD25917),
+                                )
+                            )
+                            Image(
+                                painter = painterResource(
+                                    id = when (event.eventType) {
+                                        HomeViewModel.EventType.GBM -> R.drawable.gbm_icon
+                                        HomeViewModel.EventType.InfoSession -> R.drawable.infosession_icon
+                                        HomeViewModel.EventType.Workshop -> R.drawable.workshop_icon
+                                        HomeViewModel.EventType.Social -> R.drawable.social_icon
+                                        HomeViewModel.EventType.Volunteering -> R.drawable.volunteering_icon
+                                        HomeViewModel.EventType.Default -> R.drawable.social_icon
+                                    }
+                                ),
+                                contentDescription = "Event type icon",
+                                modifier = Modifier.size(37.dp)
+                            )
+                        }
+                    }
 
-                     // Event Date
-                     item {
-                         Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
-                             Image(
-                                 painterResource(R.drawable.calendar_ui_icon),
-                                 contentDescription = "Calendar",
-                                 modifier = Modifier
-                                     .size(37.dp)
-                             )
+                    item { Spacer(modifier = Modifier.height(24.dp)) }
 
-                             Spacer(modifier = Modifier.width(10.dp))
-
-                             Text(
-                                 text = formatDate(event.start),
-                                 style = TextStyle(
-                                     fontSize = 18.sp,
-                                     fontFamily = Universltstd,
-                                     fontWeight = FontWeight(400),
-                                     color = if (isDarkMode) Color.White else Color.Black,),
-                                 modifier = Modifier
-                                     .align(Alignment.CenterVertically)
-                             )
-                         }
-                     }
-                     item {
-                         Spacer(modifier = Modifier.height(10.dp))
-                     }
-
-                     // Event Time
-                     item {
-                         Row (modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
-                         Image(
-                             painter = painterResource(id = R.drawable.timer_ui_icon),
-                             contentDescription = "Clock",
-                             modifier = Modifier
-                                 .size(37.dp)
-                         )
-
+                    // Event Date
+                    item {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painterResource(R.drawable.calendar_ui_icon),
+                                contentDescription = "Calendar",
+                                modifier = Modifier.size(37.dp)
+                            )
                             Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = formatDate(event.start),
+                                style = TextStyle(
+                                    fontSize = 18.sp,
+                                    fontFamily = Universltstd,
+                                    fontWeight = FontWeight.Normal,
+                                    color = if (isDarkMode) Color.White else Color.Black
+                                )
+                            )
+                        }
+                    }
 
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
+
+                    // Event Time
+                    item {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(R.drawable.timer_ui_icon),
+                                contentDescription = "Clock",
+                                modifier = Modifier.size(37.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
                             Text(
                                 text = formatEventTime(event),
                                 style = TextStyle(
                                     fontSize = 18.sp,
                                     fontFamily = Universltstd,
-                                    fontWeight = FontWeight(400),
-                                    color = if (isDarkMode) Color.White else Color.Black,),
-                                modifier = Modifier
-                                    .align(Alignment.CenterVertically)
+                                    fontWeight = FontWeight.Normal,
+                                    color = if (isDarkMode) Color.White else Color.Black
+                                )
                             )
                         }
-                     }
-                     item {
-                        Spacer(modifier = Modifier.height(10.dp))
-                     }
+                    }
 
-                     // Event Location
-                     item{
-                         Row (modifier = Modifier) {
-                           Image (
-                               painter = painterResource(id = R.drawable.location_ui_icon),
-                               contentDescription = "Location",
-                               modifier = Modifier
-                                   .size(37.dp)
-                           )
-                           Spacer(modifier = Modifier.width(10.dp))
-                           Text(
-                               text = event.location ?: ("TBD"),
-                               style = TextStyle (
-                                   fontSize = 18.sp,
-                                   fontWeight = FontWeight(400),
-                                   color = if (isDarkMode) Color.White else Color.Black,),
-                               modifier = Modifier
-                                   .align(Alignment.CenterVertically)
-                           )
-                       }
-                     }
-                     item {
-                        Spacer(modifier = Modifier.height(50.dp))
-                     }
-                     item {
-                         Text(text = "Description:",
-                             style = TextStyle (
-                             fontSize = 18.sp,
-                             fontFamily = Universltstd,
-                             fontWeight = FontWeight(400),
-                             color = if (isDarkMode) Color.White else Color.Black,)
-                         )
-                     }
-                     item {
-                         Spacer(modifier = Modifier.height(10.dp))
-                     }
-                     item {
-                        Text( modifier = Modifier,
-                        text = event.description
-                            ?: ("Join us!"),
-                            style = TextStyle (
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight(400),
-                            color = if (isDarkMode) Color.White else Color.Black,)
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
+
+                    // Event Location (clickable)
+                    item {
+                        if (!event.location.isNullOrBlank()) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.location_ui_icon),
+                                    contentDescription = "Location",
+                                    modifier = Modifier.size(37.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = event.location,
+                                    color = Color(0xFF1E88E5), // hyperlink style
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.clickable {
+                                        viewModel.toggleEventMapVisibility()
+                                    }
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // Show map only when user clicked location
+                            if (viewModel.isEventMapVisible) {
+                                EventLocationMap(
+                                    homeState = homeState,
+                                    context = LocalContext.current
+                                )
+                            }
+                        } else {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.location_ui_icon),
+                                    contentDescription = "Location",
+                                    modifier = Modifier.size(37.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = "TBD",
+                                    style = TextStyle(
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = if (isDarkMode) Color.White else Color.Black
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    item { Spacer(modifier = Modifier.height(24.dp)) }
+
+                    // Event Description
+                    item {
+                        Text(
+                            text = "Description:",
+                            style = TextStyle(
+                                fontSize = 18.sp,
+                                fontFamily = Universltstd,
+                                fontWeight = FontWeight.Normal,
+                                color = if (isDarkMode) Color.White else Color.Black
+                            )
                         )
-                     }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = event.description ?: "Join us!",
+                            style = TextStyle(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = if (isDarkMode) Color.White else Color.Black
+                            )
+                        )
+                    }
+
+                    item { Spacer(modifier = Modifier.height(50.dp)) }
                 }
             }
         }
     }
 }
 
-@Preview (showBackground = true)
+
+
+@Preview(showBackground = true)
 @Composable
 fun EventDetailsPreview() {
+    val mockEvent = HomeViewModel.Event(
+        id = "1",
+        summary = "SHPE GBM #1",
+        description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+        location = "https://ufl.zoom.us/j/95895737986",
+        start = HomeViewModel.EventDateTime(
+            dateTime = "2023-12-19T18:00:00-04:00",
+            date = null,
+            timeZone = "America/New_York"
+        ),
+        end = HomeViewModel.EventDateTime(
+            dateTime = "2023-12-19T19:00:00-04:00",
+            date = null,
+            timeZone = "America/New_York"
+        ),
+        colorResId = Color.White,
+        eventType = HomeViewModel.EventType.GBM
+    )
+
     EventDetails(
         modifier = Modifier,
-        event = HomeViewModel.Event(
-            id = "1",
-            summary = "SHPE GBM #1",
-            description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
-            location = "https://ufl.zoom.us/j/95895737986",
-            start = HomeViewModel.EventDateTime(
-                dateTime = "2023-12-19T18:00:00-04:00",
-                date = null,
-                timeZone = "America/New_York"
-            ),
-            end = HomeViewModel.EventDateTime(
-                dateTime = "2023-12-19T19:00:00-04:00",
-                date = null,
-                timeZone = "America/New_York"
-            ),
-            colorResId = Color.White,
-            eventType = HomeViewModel.EventType.GBM
-        ),
-        viewModel = HomeViewModel(
-            notificationRepo = NotificationRepository(
-                context = LocalContext.current
-            ),
-            eventRepo = EventRepository(
-                context = LocalContext.current
-            ),
-        ),
+        event = mockEvent,
+        viewModel = viewModel(), // default ViewModel instance
         isDarkMode = true
     )
 }
+
+
 
 /**
  * @description This is the wrapper function for the notifications settings window. This will be
@@ -1037,19 +1074,12 @@ fun NotificationSettingsContent(modifier: Modifier, viewModel: HomeViewModel, da
     }
 }
 
-@Preview (showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun NotificationSettingsPreview() {
     NotificationSettingsContent(
         modifier = Modifier,
-        viewModel = HomeViewModel(
-            notificationRepo = NotificationRepository(
-                context = LocalContext.current
-            ),
-            eventRepo = EventRepository(
-                context = LocalContext.current
-            ),
-        ),
+        viewModel = previewHomeViewModel(),
         darkMode = true
     )
 }
@@ -1396,14 +1426,7 @@ fun EventCardPreview() {
         EventCard(
             modifier = Modifier,
             sampleCardItems[0],
-            viewModel = HomeViewModel(
-                notificationRepo = NotificationRepository(
-                    context = LocalContext.current
-                ),
-                eventRepo = EventRepository(
-                    context = LocalContext.current
-                ),
-            )
+            viewModel = previewHomeViewModel()
         )
     }
 }
@@ -1518,20 +1541,13 @@ fun EventCardFeed(modifier: Modifier, viewModel: HomeViewModel, isDarkMode : Boo
     }
 }
 
-@Preview (showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun EventCardFeedPreview() {
     SHPEUFMobileKotlinTheme {
         EventCardFeed(
             modifier = Modifier,
-            viewModel = HomeViewModel(
-                notificationRepo = NotificationRepository(
-                    context = LocalContext.current
-                ),
-                eventRepo = EventRepository(
-                    context = LocalContext.current
-                ),
-            ),
+            viewModel = previewHomeViewModel(),
             isDarkMode = true
         )
     }
@@ -1670,7 +1686,7 @@ fun DayContainer(
     }
 }
 
-@Preview (showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun DayContainerPreview() {
     SHPEUFMobileKotlinTheme {
@@ -1679,14 +1695,7 @@ fun DayContainerPreview() {
                 modifier = Modifier,
                 date = LocalDate.now(),
                 events = sampleCardItems,
-                viewModel = HomeViewModel(
-                    notificationRepo = NotificationRepository(
-                        context = LocalContext.current
-                    ),
-                    eventRepo = EventRepository(
-                        context = LocalContext.current
-                    ),
-                ),
+                viewModel = previewHomeViewModel(),
                 isDarkMode = true
             )
         }
@@ -1763,6 +1772,129 @@ fun getOrdinalIndicator(dayOfMonth: Int): String {
         else -> "th"
     }
 }
+
+
+suspend fun getLatLngFromAddress(context: Context, addressString: String): LatLng? {
+    return try {
+        val geocoder = Geocoder(context, Locale.getDefault())
+        withContext(Dispatchers.IO) {
+            val addresses = geocoder.getFromLocationName(addressString, 1)
+            if (!addresses.isNullOrEmpty()) {
+                LatLng(addresses[0].latitude, addresses[0].longitude)
+            } else null
+        }
+    } catch (e: Exception) {
+        Log.e("Geocoding", "Failed for $addressString", e)
+        null
+    }
+}
+
+@Composable
+fun EventLocationMap(
+    homeState: HomeScreenState,
+    context: Context = LocalContext.current
+) {
+    when {
+        homeState.isMapLoading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        homeState.mapError != null -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(homeState.mapError)
+            }
+        }
+
+        homeState.selectedEventLocation != null -> {
+            val validLatLng = homeState.selectedEventLocation
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Google Map
+                val cameraPositionState = rememberCameraPositionState {
+                    position = CameraPosition.fromLatLngZoom(validLatLng, 15f)
+                }
+
+                GoogleMap(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp),
+                    cameraPositionState = cameraPositionState,
+                    uiSettings = MapUiSettings(
+                        zoomControlsEnabled = true,
+                        mapToolbarEnabled = false
+                    )
+                ) {
+                    Marker(
+                        state = MarkerState(position = validLatLng),
+                        title = homeState.selectedEvent?.summary ?: "Event Location",
+                        snippet = homeState.selectedEvent?.location
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Open in Google Maps button
+                Button(
+                    onClick = {
+                        val address = homeState.selectedEvent?.location ?: ""
+                        val mapUri = Uri.parse(
+                            "geo:${validLatLng.latitude},${validLatLng.longitude}?q=${Uri.encode(address)}"
+                        )
+                        val intent = Intent(Intent.ACTION_VIEW, mapUri).apply {
+                            setPackage("com.google.android.apps.maps")
+                        }
+                        if (intent.resolveActivity(context.packageManager) != null) {
+                            context.startActivity(intent)
+                        } else {
+                            // fallback to browser
+                            val webUri = Uri.parse("https://maps.google.com/maps?q=${Uri.encode(address)}")
+                            context.startActivity(Intent(Intent.ACTION_VIEW, webUri))
+                        }
+                    }
+                ) {
+                    Text("Open in Google Maps")
+                }
+            }
+        }
+
+        else -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Location information is unavailable.")
+            }
+        }
+    }
+}
+
+fun previewHomeViewModel(): HomeViewModel {
+    return HomeViewModel(
+        application = Application(), // This is safe for previews
+        notificationRepo = NotificationRepository(null), // Pass null, or use a mock/fake
+        eventRepo = EventRepository(null),
+        directionsApiKey = "PREVIEW_KEY"
+    )
+}
+
+
 
 /**
  * @description HomeScreen displays the event calendar and allows users to change notifications settings

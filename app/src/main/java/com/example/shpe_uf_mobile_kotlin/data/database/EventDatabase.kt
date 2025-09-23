@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
 import com.example.shpe_uf_mobile_kotlin.data.models.Event
 import com.example.shpe_uf_mobile_kotlin.data.DAO.EventDao
 
@@ -15,10 +14,10 @@ abstract class EventDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: EventDatabase? = null
 
-        fun getInstance(context: Context): EventDatabase {
+        fun getInstance(context: Context?): EventDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
-                    context.applicationContext,
+                    context?.applicationContext ?: throw IllegalStateException("Application context cannot be null when creating database"),
                     EventDatabase::class.java,
                     "events.db"
                 ).build()

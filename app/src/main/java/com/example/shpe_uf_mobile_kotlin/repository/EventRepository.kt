@@ -8,7 +8,7 @@ import com.example.shpe_uf_mobile_kotlin.data.models.toHomeViewModelEvent
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 
 
-class EventRepository(context: Context) {
+class EventRepository(context: Context?) {
     private val eventDao: EventDao
 
     init {
