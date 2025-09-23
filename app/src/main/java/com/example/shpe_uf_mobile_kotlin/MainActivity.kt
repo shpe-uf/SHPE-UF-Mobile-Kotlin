@@ -17,7 +17,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -44,7 +43,6 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 import android.util.Log
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
-import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
 
 class MainActivity() : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,8 +63,10 @@ class MainActivity() : ComponentActivity() {
 //                Log.d("User Id", UserState.id)
 
                 val viewModelFactory = HomeViewModelFactory(
+                    application, // <-- THIS is of type Application, REQUIRED as the first parameter
                     NotificationRepository(applicationContext),
-                    EventRepository(applicationContext)
+                    EventRepository(applicationContext),
+                    BuildConfig.GOOGLEMAPS_API_KEY // Pass API key
                 )
                 val navController = rememberNavController()
 
