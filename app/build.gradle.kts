@@ -31,6 +31,7 @@ android {
         buildConfigField("String", "CALENDAR_ID", "\"${localProperties["calendar_id"]}\"")
         buildConfigField("String", "CALENDAR_API_KEY", "\"${localProperties["CALENDAR_API_KEY"]}\"")
         buildConfigField("String", "SERVER_URL", "\"${localProperties["SERVER_URL"]}\"")
+        buildConfigField("String", "GOOGLEMAPS_API_KEY", "\"${localProperties["GOOGLEMAPS_API_KEY"]}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -161,6 +162,19 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
 
+    // Maps SDK for Android
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+
+    // Maps Compose Library
+    implementation("com.google.maps.android:maps-compose:4.3.3")
+    implementation("com.google.maps.android:maps-compose-utils:4.3.3") // For utilities like clustering
+    implementation("com.google.maps.android:maps-compose-widgets:4.3.3") // For widgets like ScaleBar
+
+
+    // Needed for location services
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.0")
 }
 
 apollo {
