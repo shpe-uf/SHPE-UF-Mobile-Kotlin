@@ -23,17 +23,5 @@ class GuestAboutViewModel : ViewModel() {
     fun loadMockPosts() {
         _posts.value = mockInstagramPosts
     }
-
-    //For da future
-    fun fetchInstagramPostsFromAPI() {
-        viewModelScope.launch {
-            try {
-                val response = emptyList<InstagramPost>() // Placeholder
-                _posts.value = response
-            } catch (e: Exception) {
-                Log.e("GuestAboutViewModel", "Error fetching posts", e)
-            }
-        }
-    }
 }
 
