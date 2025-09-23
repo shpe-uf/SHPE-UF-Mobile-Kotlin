@@ -2,8 +2,11 @@ package com.example.shpe_uf_mobile_kotlin.ui.pages.home
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -293,6 +296,18 @@ fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewMode
                 .padding(vertical = 15.dp, horizontal = 32.dp)
         )
 
+        //Icon for socials will be available in guest view as well
+        Icon(
+            painter = painterResource(id = R.drawable.socials_icon),
+            contentDescription = "Socials",
+            modifier = modifier
+                .size(26.dp)
+                .align(Alignment.Bottom)
+                .offset(y = (-20).dp, x = (-38).dp)
+                .clickable { viewModel.openSocialWindow() },
+            tint = Color.White
+        )
+
         // Icon for bell
         if (!isGuest){
             Icon(
@@ -302,7 +317,7 @@ fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewMode
                 modifier = modifier
                     .size(33.dp)
                     .align(Alignment.Bottom)
-                    .offset(y = (-14).dp, x = (-28).dp)
+                    .offset(y = (-16).dp, x = (-18).dp)
                     .clickable { viewModel.openNotificationWindow() },
                 tint = Color.White
             )
@@ -313,16 +328,22 @@ fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewMode
                 onClick = { navController.navigate(NavRoute.LOGIN) },
                 modifier = modifier
                     .align(Alignment.Bottom)
-                    .offset(y = (-10).dp, x = (-18).dp)
+                    .offset(y = (-10).dp, x = (-28).dp)
             ) {
-                Text("Login", color = Color.White)
+                Text(
+                    text = "Login",
+                    color = Color.White,
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight(400)
+                    )
+                )
                 Icon(
                     painter = painterResource(id = R.drawable.guestloginicon),
                     contentDescription = "Login Icon",
                     tint = Color.White,
                     modifier = Modifier
-                        .size(24.dp)
-                        .padding(end = 8.dp)
+                        .size(21.dp)
                 )
             }
         }
@@ -715,7 +736,7 @@ fun NotificationSettingsContent(modifier: Modifier, viewModel: HomeViewModel, da
                         .fillMaxWidth()
                         .height(83.dp)
                         .background(color = headerOrange)
-                        .padding(10.dp),
+                        .padding(15.dp),
                 ) {
                     // Used to Exit the notification window
                     IconButton(
@@ -737,7 +758,7 @@ fun NotificationSettingsContent(modifier: Modifier, viewModel: HomeViewModel, da
                             color = Color.White,
                             fontFamily = Viga,
                             fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight(400)
                         ),
                         color = Color.White,
                         modifier = Modifier
@@ -1041,6 +1062,341 @@ fun NotificationSettingsContent(modifier: Modifier, viewModel: HomeViewModel, da
 @Composable
 fun NotificationSettingsPreview() {
     NotificationSettingsContent(
+        modifier = Modifier,
+        viewModel = HomeViewModel(
+            notificationRepo = NotificationRepository(
+                context = LocalContext.current
+            ),
+            eventRepo = EventRepository(
+                context = LocalContext.current
+            ),
+        ),
+        darkMode = true
+    )
+}
+
+@Composable
+fun SlidingSocialWindow(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolean) {
+    val homeState = viewModel.homeState.collectAsState()
+    val isVisible = homeState.value.isSocialWindowVisible
+
+    if (isVisible) {
+        BackHandler {
+            viewModel.hideSocialWindow()
+        }
+    }
+
+    SlidingWindow(
+        modifier = modifier,
+        viewModel = viewModel,
+        isVisible = isVisible,
+        content = {
+            SocialContent(modifier = Modifier, viewModel = viewModel, darkMode)
+        },
+        toggleOff = {viewModel.hideSocialWindow() }
+    )
+}
+
+@Composable
+fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolean) {
+    val context = LocalContext.current
+    val homeState by viewModel.homeState.collectAsState()
+
+    Surface (
+        modifier = Modifier
+            .fillMaxWidth(1f)
+            .fillMaxHeight(),
+        color = if(darkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // image and close button container, could be made into own composable to be used later
+            Box(contentAlignment = Alignment.TopStart) {
+                // Header for notification window
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(83.dp)
+                        .background(color = headerOrange)
+                        .padding(15.dp),
+                ) {
+                    // Used to Exit the notification window
+                    IconButton(
+                        onClick = { viewModel.hideSocialWindow() },
+                        modifier = Modifier
+                            .align(Alignment.Bottom)
+                            .height(35.dp)
+                            .width(35.dp),
+                    ) {
+                        Icon(
+                            Icons.Default.ArrowBackIosNew,
+                            contentDescription = "Dismiss",
+                            tint = Color.White
+                        )
+                    }
+                    Text(
+                        text = "Our Socials",
+                        style = TextStyle(
+                            color = Color.White,
+                            fontFamily = Viga,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight(400)
+                        ),
+                        color = Color.White,
+                        modifier = Modifier
+                            .weight(1f)
+                            .align(Alignment.Bottom)
+                            .width(107.dp)
+                            .height(31.dp)
+                    )
+                }
+            }
+
+            // Box the options for text and social media icons
+            Box(
+                modifier = Modifier
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .padding(start = 10.dp, end = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+//                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Spacer(modifier = Modifier.weight(0.3f))
+
+                    Row{
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Text(
+                                modifier = Modifier,
+                                text = "Tap an icon to visit out social media",
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    fontFamily = Viga,
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFB7B7B7),
+                                    textAlign = TextAlign.Center,
+                                ),
+                                color = if (darkMode) Color(0xFFB7B7B7) else Color(0xFF011F35),
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.weight(0.1f))
+
+                    Row{
+                        // SHPE-UF Main Instagram Page
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.shpe_main_icon),
+                                contentDescription = "Visit SHPE-UF's Main Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openInstagram(context, "shpeuf")
+                                    }
+                            )
+                            Text(
+                                text = "SHPE UF",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 20.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+
+                            Image(
+                                painter = painterResource(id = R.drawable.fylp_icon),
+                                contentDescription = "Visit SHPE-UF FYLP Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openInstagram(context, "fylp.shpeuf")
+                                    }
+                            )
+                            Text(
+                                text = "FYLP",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 20.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.mentorshpe_icon),
+                                contentDescription = "Visit SHPE-UF MentorSHPE Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openInstagram(context, "ufmentorshpe")
+                                    }
+                            )
+                            Text(
+                                text = "MentorSHPE",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 20.dp)
+                            )
+
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.weight(0.1f))
+
+                    Row {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.gradshpe_icon),
+                                contentDescription = "Visit SHPE-UF GradSHPE Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openInstagram(context, "gradshpeuf")
+                                    }
+                            )
+                            Text(
+                                text = "GradSHPE",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 20.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.pkyoung_shpe_icon),
+                                contentDescription = "Visit SHPE-UF PKY Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openInstagram(context, "pky.shpe")
+                                    }
+                            )
+                            Text(
+                                text = "PKY SHPE",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 20.dp)
+                            )
+                        }
+
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.linktree_icon),
+                                contentDescription = "Visit SHPE-UF Linktree",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openWebsite(context, "https://linktr.ee/shpeuf?fbclid=PAZXh0bgNhZW0CMTEAAaf52SOeeRNZhBP3AviG3UFfAOyHqGRyhwQg3e2fsKAFpUf1UBI-v3WCYJiaVg_aem_2dpt3QkzNqD13zLK9RSsOg")
+                                    }
+                            )
+                            Text(
+                                text = "Linktree",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 20.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.weight(0.4f))
+                }
+            }
+
+
+        }
+    }
+}
+
+/**
+ * @description openWebsite is used to send a request to the Android OS system that the SHPE-UF app
+ * would like to open a link on the internet. It makes this request known and is able to be
+ * processed by using an Intent (a message to the system saying "I want to do something")
+ * This function will also give a toast message if there is something wrong with opening the link.
+ *
+ * @author Anthony Zurita
+ * @date Created September 2025
+ *
+ * @param context used to request to open up the browser based on the app's link information
+ * @param url the specific link in a form of a string that you would like to be opened
+ **/
+fun openWebsite(context: Context, url: String) {
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        // handle error if something is wrong with the link
+        Toast.makeText(context, "Unable to open link", Toast.LENGTH_SHORT).show()
+    }
+}
+
+/**
+ * @description openInstagram is used to send a request to the Android OS system that the SHPE-UF
+ * app would like to open a link on the Instagram app. It makes this request known and is able to be
+ * processed by using an Intent (a message to the system saying "I want to do something")
+ * This function will also give a toast message if there is something wrong with opening the link.
+ *
+ * @author Anthony Zurita
+ * @date Created September 2025
+ *
+ * @param context used to request to open up the browser based on the app's link information
+ * @param url the specific link in a form of a string that you would like to be opened
+ **/
+fun openInstagram(context: Context, username: String) {
+    try{
+        val instagramAppUri = Uri.parse("http://instagram.com/_u/$username")
+        val instagramIntent = Intent(Intent.ACTION_VIEW, instagramAppUri)
+
+        instagramIntent.setPackage("com.instagram.android")
+
+        context.startActivity(instagramIntent)
+    } catch (e: Exception) {
+        openWebsite(context, "http://instagram.com/$username")
+    }
+}
+
+@Preview (showBackground = true)
+@Composable
+fun SocialPreview() {
+    SocialContent(
         modifier = Modifier,
         viewModel = HomeViewModel(
             notificationRepo = NotificationRepository(
@@ -1793,5 +2149,6 @@ fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel,
 
         SlidingEventWindow(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
         SlidingNotificationWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
+        SlidingSocialWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
     }
 }

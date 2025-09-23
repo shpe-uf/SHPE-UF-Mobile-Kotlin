@@ -18,6 +18,7 @@ data class HomeScreenState(
     val selectedEvent: HomeViewModel.Event? = null,
 
     val isNotificationWindowVisible: Boolean = false,
+    val isSocialWindowVisible: Boolean = false,
     val notificationSettings: NotificationSelection = NotificationSelection(),
     val allNotificationCurrentColor: Color = Color(0xFF933815),
     // -------------------
