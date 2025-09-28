@@ -1,6 +1,9 @@
-package com.shpeuf.shpe_uf_mobile_kotlin.ui.navigation
+package com.example.shpe_uf_mobile_kotlin.ui.navigation
 
 import android.util.Log
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -11,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
@@ -23,26 +27,32 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.shpeuf.shpe_uf_mobile_kotlin.R
-import com.shpeuf.shpe_uf_mobile_kotlin.data.AppState
-import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.guest.GuestPlaceholderPage
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.ProfilePagePreview
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePreview
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1Preview
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2Preview
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3Preview
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.sponsors.SponsorsPage
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
+import com.example.shpe_uf_mobile_kotlin.R
+import com.example.shpe_uf_mobile_kotlin.data.AppState
+import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.guest.GuestPlaceholderPage
+import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
+import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
+import com.example.shpe_uf_mobile_kotlin.ui.pages.opening.OpeningPage
+import com.example.shpe_uf_mobile_kotlin.ui.pages.points.PointsView
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfilePagePreview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePreview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.admin.AdminPanelScreen
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterRoutes
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1Preview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2Preview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3
+import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3Preview
+import com.example.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
+import com.example.shpe_uf_mobile_kotlin.ui.pages.sponsors.SponsorsPage
+import com.example.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
+import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
+import com.example.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
 
 
 data class BottomNavigationItem(
@@ -227,6 +237,16 @@ fun NavHostContainer(
         {
             ProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
         }
+        composable(NavRoute.ADMIN)
+        {
+            AdminPanelScreen(
+                isUserAdmin = true, // Set to true for now for testing purposes
+                onBack = {
+                    navHostController.popBackStack() // Goes back to previous screen
+                }
+            )
+        }
+
         composable(NavRoute.REGISTER_2)
         {
             RegistrationPage2Preview(navController = navHostController, registerPage1ViewModel = registerViewModel )
