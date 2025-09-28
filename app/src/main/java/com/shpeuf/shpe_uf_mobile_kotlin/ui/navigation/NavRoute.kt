@@ -5,6 +5,7 @@ object NavRoute {
     const val POINTS = "points"
     const val PROFILE = "profile"
     const val EDITPROFILE = "editprofile"
+    const val ADMIN = "admin"
     const val LOGIN = "login"
     const val OPENING = "opening"
     const val REGISTER = "register"
