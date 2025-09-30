@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -43,6 +44,7 @@ import androidx.navigation.NavHostController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.ui.custom.SuperiorDropdownMenu
 import com.example.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
+import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
 
 //@Preview
@@ -61,6 +63,29 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
     RegisterPage3Background(navController)
 
+    // for background of page
+    val background = if (isSystemInDarkTheme()) {
+        ThemeColors.Night.background
+    } else {
+        ThemeColors.Day.background
+    }
+
+    // for text of page w/o register
+
+    val labelColor = if (isSystemInDarkTheme()) {
+        ThemeColors.Night.text
+    } else {
+        ThemeColors.Day.text
+    }
+
+
+    // for book icon background
+    val bookBackground = if (isSystemInDarkTheme()) {
+        painterResource(R.drawable.bookicon)
+    } else {
+        painterResource(R.drawable.book_open_duotone_line)
+    }
+
     Box(
         modifier = Modifier
             .padding(top = 83.dp)
@@ -68,7 +93,7 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel, navControl
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF011F35)),
+                .background(background),
             horizontalAlignment = Alignment.CenterHorizontally
 
         ){
@@ -117,7 +142,7 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 style = TextStyle(
                     fontSize = 14.sp,
                     fontWeight = FontWeight(400),
-                    color = Color(0xFFFFFFFF)
+                    color = labelColor
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -142,7 +167,7 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
                 Row{
                     Image(
-                        painter = painterResource(id = R.drawable.bookicon),
+                        painter = bookBackground,
                         contentDescription = "bookIcon",
                         modifier = Modifier.size(50.dp)
                     )
@@ -201,6 +226,13 @@ fun RegistrationPage3(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 @Composable
 fun RegisterPage3Background(navController: NavController) {
 
+    // Dark mode support
+    val gator = if (isSystemInDarkTheme()) {
+        painterResource(R.drawable.gator)
+    } else {
+        painterResource(R.drawable.light_gator)
+    }
+
     // Used boxes to layer things on top of each other to help arrange things as needed
 
     Box(
@@ -210,7 +242,7 @@ fun RegisterPage3Background(navController: NavController) {
     ) {
         // Image centered at the top
         Image(
-            painter = painterResource(R.drawable.gatordark),
+            painter = gator,
             contentDescription = "Gator",
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
