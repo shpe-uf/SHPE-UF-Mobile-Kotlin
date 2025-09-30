@@ -1,5 +1,6 @@
 package com.example.shpe_uf_mobile_kotlin.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.graphics.Color
 
 val Purple80 = Color(0xFFD0BCFF)
@@ -44,18 +45,21 @@ sealed class ThemeColors(
     val text: Color,
     val topBar: Color,
     val navBar: Color,
+    val registerText: Color
 ) {
     object Night : ThemeColors(
         background = dark_bg,
         topBar = headerOrange,
         navBar = blueDarkModeBackground,
-        text = Color.White
+        text = Color.White,
+        registerText = Color(0xFF93E1FF)
     )
 
     object Day : ThemeColors(
         background = light_bg,
         topBar = headerOrange,
         navBar = Color.White,
-        text = Color.Black
+        text = Color.Black,
+        registerText = Color(0xFF0B70BA)
     )
 }
