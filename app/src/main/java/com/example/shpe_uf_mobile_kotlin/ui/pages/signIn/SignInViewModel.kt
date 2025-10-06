@@ -76,8 +76,7 @@ class SignInViewModel : ViewModel() {
                 password
             ) // This call will suspend the coroutine until the login operation is complete.
 
-            // If login is unsuccessful, do nothing, else change it to logged in.
-            //if (loginSuccess) updateErrorMessage("Logged in.") else updateErrorMessage("Could not login.")
+
             if(id != null){
                 shpeUFAppViewModel.saveUserId(id)
                 shpeUFAppViewModel.saveUsername(username)
@@ -108,6 +107,10 @@ class SignInViewModel : ViewModel() {
 
             return id
         } else { // Else, the user provided incorrect credentials.
+
+            // If login is unsuccessful, display to user why the error occurred.
+            updateErrorMessage(response.errors?.firstOrNull()?.message?:"Could not login")
+            //Log.d("Error Checker", response.errors?.firstOrNull()?.message?:"Could not login")
             Log.w("GraphQL", "Could not login.")
             return null
         }
@@ -119,6 +122,8 @@ class SignInViewModel : ViewModel() {
         _uiState.value = currentState.copy(
             loginErrorMessage = message
         )
+        // see what the error message is
+        Log.d("Error Message", "${currentState.loginErrorMessage}")
     }
 
     // Getters for username, password, and the current app state.
