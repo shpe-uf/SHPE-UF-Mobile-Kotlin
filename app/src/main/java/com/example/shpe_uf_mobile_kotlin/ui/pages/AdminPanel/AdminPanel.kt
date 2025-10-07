@@ -12,10 +12,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.shpe_uf_mobile_kotlin.R
+
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewAdminPanel() {
+//    AdminPanelScreen(isUserAdmin = true)
+//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,151 +37,154 @@ fun AdminPanelScreen(
 ) {
     // Define colors
     val darkBlue = Color(0xFF011F35)
-    val lightBlue = Color(0xBF2457C5)
-    val orange = Color(0xFFD25917)
+    val lightBlue = Color(36 / 255f, 87 / 255f, 197 / 255f, 0.75f)
+    val orange = Color(210 / 255f, 89 / 255f, 23 / 255f, 0.75f);
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(darkBlue)
     ) {
-        // Top bar with back arrow and title
+        // Top bar with back arrow
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(
-                onClick = onBack,
-                modifier = Modifier.weight(1f)
-            ) {
+            IconButton(onClick = onBack) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    painter = painterResource(id = R.drawable.back),
                     contentDescription = "Back",
                     tint = Color.White,
                     modifier = Modifier.size(24.dp)
                 )
             }
+        }
 
+        // Centered title below the back arrow
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
             Text(
                 text = "Admin Panel",
                 color = Color.White,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(4f),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                fontSize = 28.sp,
+                fontFamily = FontFamily(Font(R.font.viga)),
             )
-
-            // Empty space to balance the back button
-            Spacer(modifier = Modifier.weight(1f))
         }
+
+        Spacer(modifier = Modifier.height(40.dp))
 
         // Scrollable grid of admin options
-        androidx.compose.foundation.lazy.LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(30.dp),
-            contentPadding = PaddingValues(bottom = 16.dp)
+                .weight(1f) // Takes up remaining space
+                .padding(horizontal = 26.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            item {
-                // First row: Events and Members
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    AdminCard(
-                        title = "Events",
-                        iconRes = R.drawable.calendar_dm_on, // placeholder
-                        backgroundColor = lightBlue,
-                        modifier = Modifier.weight(1f),
-                        onClick = { /* Handle Events click */ }
-                    )
+            // First row: Events and Members
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f), // Equal height distribution
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                AdminCard(
+                    title = "Events",
+                    iconRes = R.drawable.calendar_dm_on,
+                    backgroundColor = lightBlue,
+                    modifier = Modifier.weight(1f),
+                    onClick = { /* Handle Events click */ }
+                )
 
-                    AdminCard(
-                        title = "Members",
-                        iconRes = R.drawable.pfp_dm_on, // placeholder
-                        backgroundColor = lightBlue,
-                        modifier = Modifier.weight(1f),
-                        onClick = { /* Handle Members click */ }
-                    )
-                }
+                AdminCard(
+                    title = "Members",
+                    iconRes = R.drawable.profile,
+                    backgroundColor = lightBlue,
+                    modifier = Modifier.weight(1f),
+                    onClick = { /* Handle Members click */ }
+                )
             }
 
-            item {
-                // Second row: Resources and Requests
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    AdminCard(
-                        title = "Resources",
-                        iconRes = R.drawable.leaderboard_dm_on, // placeholder
-                        backgroundColor = orange,
-                        modifier = Modifier.weight(1f),
-                        onClick = { /* Handle Resources click */ }
-                    )
+            // Second row: Resources and Requests
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                AdminCard(
+                    title = "Resources",
+                    iconRes = R.drawable.resources,
+                    backgroundColor = orange,
+                    modifier = Modifier.weight(1f),
+                    onClick = { /* Handle Resources click */ }
+                )
 
-                    AdminCard(
-                        title = "Requests",
-                        iconRes = R.drawable.handshakeicon, // placeholder
-                        backgroundColor = orange,
-                        modifier = Modifier.weight(1f),
-                        onClick = { /* Handle Requests click */ }
-                    )
-                }
+                AdminCard(
+                    title = "Requests",
+                    iconRes = R.drawable.requests,
+                    backgroundColor = orange,
+                    modifier = Modifier.weight(1f),
+                    onClick = { /* Handle Requests click */ }
+                )
             }
 
-            item {
-                // Third row: Statistics and Corporate Database
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    AdminCard(
-                        title = "Statistics",
-                        iconRes = R.drawable.calendar_dm_on, // placeholder
-                        backgroundColor = lightBlue,
-                        modifier = Modifier.weight(1f),
-                        onClick = { /* Handle Statistics click */ }
-                    )
+            // Third row: Statistics and Corporate Database
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                AdminCard(
+                    title = "Statistics",
+                    iconRes = R.drawable.statistics,
+                    backgroundColor = lightBlue,
+                    modifier = Modifier.weight(1f),
+                    onClick = { /* Handle Statistics click */ }
+                )
 
-                    AdminCard(
-                        title = "Corporate Database",
-                        iconRes = R.drawable.communityicon, // placeholder
-                        backgroundColor = lightBlue,
-                        modifier = Modifier.weight(1f),
-                        onClick = { /* Handle Corporate Database click */ }
-                    )
-                }
+                AdminCard(
+                    title = "Corporate Database",
+                    iconRes = R.drawable.corporate_database,
+                    backgroundColor = lightBlue,
+                    modifier = Modifier.weight(1f),
+                    onClick = { /* Handle Corporate Database click */ }
+                )
             }
 
-            item {
-                // Fourth row: Reimburse and SHPE Rentals
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    AdminCard(
-                        title = "Reimburse",
-                        iconRes = R.drawable.profile_circle_orange, // placeholder
-                        backgroundColor = orange,
-                        modifier = Modifier.weight(1f),
-                        onClick = { /* Handle Reimburse click */ }
-                    )
+            // Fourth row: Reimburse and SHPE Rentals
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                AdminCard(
+                    title = "Reimburse",
+                    iconRes = R.drawable.reimburse,
+                    backgroundColor = orange,
+                    modifier = Modifier.weight(1f),
+                    onClick = { /* Handle Reimburse click */ }
+                )
 
-                    AdminCard(
-                        title = "SHPE Rentals",
-                        iconRes = R.drawable.profile_cap, // placeholder
-                        backgroundColor = orange,
-                        modifier = Modifier.weight(1f),
-                        onClick = { /* Handle SHPE Rentals click */ }
-                    )
-                }
+                AdminCard(
+                    title = "SHPE Rentals",
+                    iconRes = R.drawable.shpe_rentals,
+                    backgroundColor = orange,
+                    modifier = Modifier.weight(1f),
+                    onClick = { /* Handle SHPE Rentals click */ }
+                )
             }
         }
+
+        Spacer(modifier = Modifier.height(40.dp))
     }
 }
 
@@ -186,9 +198,9 @@ fun AdminCard(
 ) {
     Card(
         modifier = modifier
-            .height(120.dp) // Fixed height instead of square
+            .fillMaxHeight() // Fill the row's height
             .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -203,7 +215,7 @@ fun AdminCard(
                 painter = painterResource(id = iconRes),
                 contentDescription = title,
                 tint = Color.White,
-                modifier = Modifier.size(28.dp) // Smaller icon
+                modifier = Modifier.size(30.dp)
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -211,7 +223,8 @@ fun AdminCard(
             Text(
                 text = title,
                 color = Color.White,
-                fontSize = 14.sp, // Smaller text
+                fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.universltstd)),
                 fontWeight = FontWeight.Medium,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
