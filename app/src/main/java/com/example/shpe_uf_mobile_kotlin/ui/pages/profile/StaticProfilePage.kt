@@ -859,7 +859,6 @@ fun ProfileImage(
     }
 }
 
-
 @Composable
 fun StaticProfilePageBackground(
     modifier: Modifier = Modifier,
@@ -957,6 +956,7 @@ fun StaticProfilePageBackground(
                     profileViewModel = profileViewModel,
                     onEditClick = { launchImagePicker() }
                 )
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
                     text = name, color = textColor, fontSize = 24.sp, fontWeight = FontWeight.Bold
