@@ -19,7 +19,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
-
 class WrappedViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(WrappedState())
     val uiState = _uiState.asStateFlow()
@@ -46,7 +45,7 @@ class WrappedViewModel : ViewModel() {
             .maxByOrNull { it.value }
             ?.key
             ?.let { monthNumber ->
-                // Convert the month number to its full name (e.g., 9 -> "September")
+                // Convert the month number to its full name
                 Month.of(monthNumber).getDisplayName(
                     TextStyle.FULL,
                     Locale.getDefault())
@@ -121,7 +120,6 @@ class WrappedViewModel : ViewModel() {
                 val topMonth = if (events.isNotEmpty()) calculateTopMonth(events) else "No events attended"
 
                 val (semesterName, points, percentile) = processPointsData(pointsResponse)
-
                 val memberSince = processUserJoinDate(userResponse)
 
                 _uiState.update {
