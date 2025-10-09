@@ -197,7 +197,7 @@ fun UserNameInput(
     onValueChange: (String) -> Unit,
 ) {
     SuperiorTextField(
-        label = "Username",
+        label = "Username or Email",
         labelModifier = Modifier.padding(horizontal = 11.dp, vertical = 6.53.dp),
         value = value,
         onValueChange = onValueChange,
