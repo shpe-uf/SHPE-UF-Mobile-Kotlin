@@ -1,6 +1,9 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.wrapped
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -21,15 +24,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 //@Composable
 //fun WrappedPage(shpeufAppViewModel: SHPEUFAppViewModel)
@@ -247,6 +256,127 @@ fun MarqueeLazyColumn(
             }
         }
     }
+}
+
+@Composable
+fun WrappedHost(
+    steps: List<WrappedStep>,
+    modifier: Modifier = Modifier,
+    viewModel: WrappedViewModel = WrappedViewModel(),
+    onFinished: () -> Unit = {}
+) {
+    val ui by viewModel.uiState.collectAsState()
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { steps.size })
+    val scope = rememberCoroutineScope()
+
+    // Load storyboard on first composition
+    LaunchedEffect(steps) { viewModel.loadTimeline(steps) }
+
+    // Sync pager with current step
+    LaunchedEffect(ui.index) {
+        if (pagerState.currentPage != ui.index) {
+            scope.launch { pagerState.animateScrollToPage(ui.index) }
+        }
+        if (ui.finished) onFinished()
+    }
+
+    // Tap gestures (pause/resume + manual navigation)
+    val tapModifier = Modifier.pointerInput(ui.index, ui.progress) {
+        detectTapGestures(
+            onPress = {
+                viewModel.pause()
+                tryAwaitRelease()
+                viewModel.play()
+            },
+            onTap = { offset ->
+                if (!viewModel.canManuallyAdvance()) return@detectTapGestures
+                val width = size.width
+                if (offset.x < width / 3f) viewModel.prev()
+                else viewModel.next()
+            }
+        )
+    }
+
+    Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Box(Modifier.fillMaxSize()) {
+
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clipToBounds()
+                    .then(tapModifier),
+                userScrollEnabled = false // swipe disabled; tap to control
+            ) { page ->
+                // TODO: Replace with your actual per-page renderer
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    androidx.compose.material3.Text(
+                        text = "Page ${page + 1}",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color(0xFFD25917)
+                    )
+                }
+            }
+
+            // Top segmented progress bar
+            SegmentedProgressBar(
+                progresses = viewModel.segmentProgresses(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
+                    .align(Alignment.TopCenter),
+                activeColor = Color(0xFFD25917),
+                inactiveColor = Color(0x44FFFFFF),
+                height = 4.dp,
+                gap = 4.dp
+            )
+        }
+    }
+}
+
+@Composable
+private fun SegmentedProgressBar(
+    progresses: List<Float>,
+    modifier: Modifier = Modifier,
+    activeColor: Color,
+    inactiveColor: Color,
+    height: Dp,
+    gap: Dp
+) {
+    Row(
+        modifier = modifier
+            .height(height)
+            .clipToBounds(),
+        horizontalArrangement = Arrangement.spacedBy(gap)
+    ) {
+        progresses.forEach { p ->
+            val animatedP by animateFloatAsState(targetValue = p, label = "progressSeg")
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(inactiveColor)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(fraction = animatedP.coerceIn(0f, 1f))
+                        .background(activeColor)
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun WrappedHostPreview() {
+    val sampleSteps = listOf(
+        WrappedStep("intro", durationMs = 2500),
+        WrappedStep("month", durationMs = 3000),
+        WrappedStep("grid", durationMs = 2500)
+    )
+    WrappedHost(steps = sampleSteps)
 }
 
 @Preview(showBackground = true)
