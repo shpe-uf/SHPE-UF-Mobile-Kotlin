@@ -131,10 +131,6 @@ class WrappedViewModel : ViewModel() {
         }
     }
 
-    // =============================
-    // Internal ticker
-    // =============================
-
     private fun restartTicker() {
         ticker?.cancel()
         val frameMs = 16L
