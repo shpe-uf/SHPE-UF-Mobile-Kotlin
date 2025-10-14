@@ -31,6 +31,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -40,53 +41,76 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-//@Composable
-//fun WrappedPage(shpeufAppViewModel: SHPEUFAppViewModel)
+@Composable
+fun MarqueeIntroScene(progress: Float) {
+    // Start state: diagonal ±35°, centered near middle
+    val baseAngle = 35f
+    val angleTop = lerp(baseAngle, 0f, 0f)     // static here; actual change happens in split scene
+    val angleBottom = lerp(-baseAngle, 0f, 0f)
 
-//@Composable
-//fun WrappedCarousel
+    Box(Modifier.fillMaxSize()) {
+        // Two top-leaning and two bottom-leaning, alternating directions
+        MarqueeStrip("SHPEWRAPPED", rotationDeg = angleTop,    yOffset = (-90).dp, speed = 110f, reverse = false)
+        MarqueeStrip("SHPEWRAPPED", rotationDeg = angleBottom, yOffset = (-30).dp, speed = 110f, reverse = true)
+        MarqueeStrip("SHPEWRAPPED", rotationDeg = angleTop,    yOffset = (30).dp,  speed = 110f, reverse = false)
+        MarqueeStrip("SHPEWRAPPED", rotationDeg = angleBottom, yOffset = (90).dp,  speed = 110f, reverse = true)
 
-//@Composable
-//fun OpeningPage
+        // Center headline (static in this first scene)
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(
+                text = "Your Year in SHPE",
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color(0xFFD25917)
+            )
+        }
+    }
+}
 
-//@Composable
-//fun MonthPrelude
+@Composable
+fun MarqueeSplitScene(progress: Float) {
+    // Animate stripes from diagonal to straight (0°) and move them to top/bottom bands.
+    val angleFrom = 35f
+    val angleTo = 0f
+    val topAngle    = lerp(angleFrom, 0f, progress)
+    val bottomAngle = lerp(-angleFrom, 0f, progress)
 
-//@Composable
-//fun Month
+    // Y offsets: start near center, end outside center to form distinct top/bottom groups
+    val top1Y    = lerpDp((-90).dp, (-160).dp, progress)
+    val top2Y    = lerpDp((-30).dp, (-120).dp, progress)
+    val bottom1Y = lerpDp((30).dp,   (120).dp,  progress)
+    val bottom2Y = lerpDp((90).dp,   (160).dp,  progress)
 
-//@Composable
-//fun PointsPrelude
+    // Center text: 0 → 360°; swap phrase at halfway
+    val spin = lerp(0f, 360f, progress)
+    val phraseA = "Your Year in SHPE"
+    val phraseB = "Most Active Month: October"
 
-//@Composable
-//fun Points
+    Box(Modifier.fillMaxSize()) {
+        // Top group
+        MarqueeStrip("SHPEWRAPPED", rotationDeg = topAngle,    yOffset = top1Y,    speed = 110f, reverse = false, height = 36.dp)
+        MarqueeStrip("SHPEWRAPPED", rotationDeg = topAngle,    yOffset = top2Y,    speed = 110f, reverse = true,  height = 36.dp)
+        // Bottom group
+        MarqueeStrip("SHPEWRAPPED", rotationDeg = bottomAngle, yOffset = bottom1Y, speed = 110f, reverse = false, height = 36.dp)
+        MarqueeStrip("SHPEWRAPPED", rotationDeg = bottomAngle, yOffset = bottom2Y, speed = 110f, reverse = true,  height = 36.dp)
 
-//@Composable
-//fun CategoryPrelude
+        // Center headline with spin & phrase swap; quick crossfade
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            val showA = progress < 0.5f
+            val alphaA = 1f - (progress * 2f).coerceIn(0f, 1f)
+            val alphaB = ((progress - 0.5f) * 2f).coerceIn(0f, 1f)
 
-//@Composable
-//fun Category
-
-//@Composable
-//fun MemberSincePrelude
-
-//@Composable
-//fun MemberSince
-
-//@Composable
-//fun OverallPrelude
-
-//@Composable
-//fun Overall
-
-//@Composable
-//fun WrappedPage(shpeufAppViewModel: SHPEUFAppViewModel, wrappedViewModel: WrappedViewModel) {
-//    val UserState by shpeufAppViewModel.uiState.collectAsState()
-//    val id = UserState.id
-//    val isDarkMode = UserState.isDarkMode
-//    val UsernameState by shpeufAppViewModel.userState.collectAsState()
-//    val username = UsernameState.username
-//}
+            Text(
+                text = if (showA) phraseA else phraseB,
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color(0xFFD25917),
+                modifier = Modifier.graphicsLayer {
+                    rotationZ = spin
+                    alpha = if (showA) alphaA else alphaB
+                }
+            )
+        }
+    }
+}
 
 enum class MarqueeDirection { RightToLeft, LeftToRight }
 
@@ -259,6 +283,32 @@ fun MarqueeLazyColumn(
 }
 
 @Composable
+private fun MarqueeStrip(
+    text: String,
+    rotationDeg: Float,
+    yOffset: Dp,
+    speed: Float,
+    reverse: Boolean = false,
+    height: Dp = 40.dp
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height)
+            .offset(y = yOffset)
+            .graphicsLayer { rotationZ = rotationDeg }
+            .clipToBounds()
+    ) {
+        MarqueeLazyRow(
+            items = listOf(text, text),
+            speedDpPerSec = speed,
+            direction = if (reverse) MarqueeDirection.LeftToRight else MarqueeDirection.RightToLeft,
+            gap = 8.dp
+        )
+    }
+}
+
+@Composable
 fun WrappedHost(
     steps: List<WrappedStep>,
     modifier: Modifier = Modifier,
@@ -306,15 +356,22 @@ fun WrappedHost(
                     .fillMaxSize()
                     .clipToBounds()
                     .then(tapModifier),
-                userScrollEnabled = false // swipe disabled; tap to control
+                userScrollEnabled = false
             ) { page ->
-                // TODO: Replace with your actual per-page renderer
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    androidx.compose.material3.Text(
-                        text = "Page ${page + 1}",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = Color(0xFFD25917)
-                    )
+                val sceneId = steps[page].id
+                val p = when {
+                    page < ui.index -> 1f
+                    page > ui.index -> 0f
+                    else -> ui.progress
+                }
+                Box(Modifier.fillMaxSize()) {
+                    when (sceneId) {
+                        "marquee_intro" -> MarqueeIntroScene(progress = p)
+                        "marquee_split" -> MarqueeSplitScene(progress = p)
+                        else -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text("Page ${page + 1}")
+                        }
+                    }
                 }
             }
 
@@ -370,72 +427,15 @@ private fun SegmentedProgressBar(
 
 @Preview(showBackground = true)
 @Composable
-private fun WrappedHostPreview() {
-    val sampleSteps = listOf(
-        WrappedStep("intro", durationMs = 2500),
-        WrappedStep("month", durationMs = 3000),
-        WrappedStep("grid", durationMs = 2500)
-    )
-    WrappedHost(steps = sampleSteps)
-}
+private fun WrappedHostFirstTwoPreview() {
 
-@Preview(showBackground = true)
-@Composable
-fun MarqueeLazyRowPreview() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.Center
-    ) {
-        MarqueeLazyRow(
-            items = listOf("SHPEWRAPPED", "SHPEWRAPPED"),
-            speedDpPerSec = 110f,
-            gap = 8.dp
+    val steps = listOf(
+        WrappedStep("marquee_intro", durationMs = 3000, cooldownMs = 600),
+        WrappedStep("marquee_split", durationMs = 3000, cooldownMs = 600),
         )
-
-        MarqueeLazyRow(
-            items = listOf("SHPEWRAPPED", "SHPEWRAPPED"),
-            speedDpPerSec = 110f,
-            direction = MarqueeDirection.LeftToRight,
-            gap = 8.dp
-        )
-    }
+    WrappedHost(steps = steps)
 }
 
-@Preview(showBackground = true)
-@Composable
-fun VerticalMarqueeInRowPreview() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .width(180.dp)
-                .fillMaxHeight()
-        ) {
-            MarqueeLazyColumn(
-                items = listOf("21","21","21","21"),
-                speedDpPerSec = 70f,
-                gap = 8.dp
-            )
-        }
 
-        Box(
-            modifier = Modifier
-                .width(180.dp)
-                .fillMaxHeight()
-        ) {
-            MarqueeLazyColumn(
-                items = listOf("21","21","21","21"),
-                direction = VerticalMarqueeDirection.Down,
-                speedDpPerSec = 70f,
-                gap = 6.dp
-            )
-        }
-    }
-}
-
+private fun lerp(start: Float, end: Float, t: Float) = start + (end - start) * t
+private fun lerpDp(start: Dp, end: Dp, t: Float) = (start.value + (end.value - start.value) * t).dp
