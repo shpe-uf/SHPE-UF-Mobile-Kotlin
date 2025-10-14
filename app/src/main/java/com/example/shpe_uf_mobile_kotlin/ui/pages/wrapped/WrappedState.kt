@@ -8,5 +8,19 @@ data class WrappedState(
     val semester: String = "loading ...",
     val points: Int = 0,
     val percentile: Int = 0,
-    val error: String? = null
+    val error: String? = null,
+
+    val steps: List<WrappedStep> = emptyList(),
+    val index: Int = 0,
+    val progress: Float = 0f,
+    val isPlaying: Boolean = true,
+    val isUserScrubbing: Boolean = false,
+    val lastAdvanceAtMs: Long = 0L,
+    val finished: Boolean = false
+)
+
+data class WrappedStep(
+    val id: String,
+    val durationMs: Long = 3500L,
+    val cooldownMs: Long = 800L
 )
