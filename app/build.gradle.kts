@@ -10,15 +10,15 @@ plugins {
 
 android {
 
-    namespace = "com.example.shpe_uf_mobile_kotlin"
-    compileSdk = 34
+    namespace = "com.shpeuf.shpe_uf_mobile_kotlin"
+    compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.shpe_uf_mobile_kotlin"
+        applicationId = "com.shpeuf.shpe_uf_mobile_kotlin"
         minSdk = 30
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 35
+        versionCode = 7
+        versionName = "1.1"
 
         val localPropertiesFile = rootProject.file("local.properties")
         val localProperties = Properties()
@@ -164,6 +164,6 @@ dependencies {
 
 apollo {
     service("service") {
-        packageName.set("com.example.shpe_uf_mobile_kotlin")
+        packageName.set("com.shpeuf.shpe_uf_mobile_kotlin")
     }
 }
