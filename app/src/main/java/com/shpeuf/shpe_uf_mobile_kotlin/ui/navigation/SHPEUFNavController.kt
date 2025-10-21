@@ -41,6 +41,7 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2Previ
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3Preview
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.sponsors.SponsorsPage
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped.WrappedHost
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
@@ -164,7 +165,7 @@ fun NavHostContainer(
     LaunchedEffect(userState.isLoggedIn) {
         val isLoggedIn = userState.isLoggedIn
         Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
-        Log.d("Logged In True", "isLoggedIn: ${isLoggedIn==true}")
+        Log.d("Logged In True", "isLoggedIn: ${isLoggedIn == true}")
 
         if (isLoggedIn) {
             navHostController.navigate(NavRoute.HOME) {
@@ -183,7 +184,7 @@ fun NavHostContainer(
         val event = homeViewModel.getEventBySummary(notificationSummary)
         Log.d("NotificationsTest", "Passed In, Inside: $notificationSummary")
         Log.d("NotificationsTest", "Event, Inside: $event")
-        Log.d ("NotificationsTest", "Event ID, Inside: ${event?.id}")
+        Log.d("NotificationsTest", "Event ID, Inside: ${event?.id}")
         Log.d("NotificationsTest", "Event ID, Inside: ${event?.summary}")
 
         if (event != null) {
@@ -192,7 +193,7 @@ fun NavHostContainer(
         }
 
         // Quick fix for notifications
-        if (userState.isLoggedIn){
+        if (userState.isLoggedIn) {
             navHostController.navigate(NavRoute.HOME)
         }
     }
@@ -202,7 +203,7 @@ fun NavHostContainer(
         navController = navHostController,
         startDestination = NavRoute.OPENING,
     ) {
-        composable(NavRoute.OPENING){
+        composable(NavRoute.OPENING) {
             OpeningPage(navHostController, mainViewModel)
         }
         composable(NavRoute.LOGIN) {
@@ -241,6 +242,9 @@ fun NavHostContainer(
         composable(NavRoute.GUEST_PLACEHOLDER) {
             GuestPlaceholderPage(navController = navHostController, shpeufAppViewModel = mainViewModel
             )
+        }
+        composable(NavRoute.WRAPPED) {
+            // TODO: add actual call to screen WrappedHost(navController = navHostController, mainViewModel = mainViewModel)
         }
     }
 }
