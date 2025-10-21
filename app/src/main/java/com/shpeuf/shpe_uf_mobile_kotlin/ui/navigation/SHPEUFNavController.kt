@@ -41,7 +41,7 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage2Previ
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3Preview
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.sponsors.SponsorsPage
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped.WrappedHost
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped.WrappedScreen
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
@@ -244,7 +244,7 @@ fun NavHostContainer(
             )
         }
         composable(NavRoute.WRAPPED) {
-            // TODO: add actual call to screen WrappedHost(navController = navHostController, mainViewModel = mainViewModel)
+            WrappedScreen(onExit = { navHostController.popBackStack() })
         }
     }
 }

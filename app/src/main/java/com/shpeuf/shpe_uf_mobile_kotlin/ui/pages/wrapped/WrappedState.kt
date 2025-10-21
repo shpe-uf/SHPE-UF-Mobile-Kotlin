@@ -24,3 +24,9 @@ data class WrappedStep(
     val durationMs: Long = 3500L,
     val cooldownMs: Long = 800L
 )
+
+data class WrappedPage(
+    val id: String,
+    val title: String,
+    val durationMs: Long
+)
