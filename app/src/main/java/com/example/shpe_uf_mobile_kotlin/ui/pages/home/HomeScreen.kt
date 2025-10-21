@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -111,6 +112,9 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.example.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 import com.example.shpe_uf_mobile_kotlin.util.*
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import java.time.format.TextStyle as DateTextStyle
 
 // Sample Card Items that are used for previews
 val sampleCardItems = listOf(
@@ -277,7 +281,6 @@ fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewMode
     ) {
         // display month together "Month Year"
         Text(
-            // I think we should add the year as well
             text = homeState.monthDisplayedName.lowercase()
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
             style = TextStyle(
@@ -390,7 +393,7 @@ fun SlidingEventWindow(modifier: Modifier = Modifier, viewModel: HomeViewModel, 
  * @param viewModel this viewModer is used get the event types and to update the state by using some functions
  * @param isDarkMode updates the color of the background
  **/
-@Composable
+@Composable //removed = viewmodel(). Added again but can't check if it changes anything
 fun EventDetails (modifier: Modifier, event: HomeViewModel.Event?, viewModel: HomeViewModel = viewModel(), isDarkMode: Boolean) {
     if (event == null) {
         return
@@ -1250,7 +1253,7 @@ class NotificationsPermissionProvider : PermissionTextProvider {
  * @param viewModel used to compare what the current event type is to determine color and icon. It
  * helps update the home screen state when to update the current event selected
  **/
-@Composable
+@Composable //removed = viewmodel() and added again
 fun EventCard(modifier: Modifier, event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()) {
     // Have to have a mutable state of for recomposition, otherwise when the event started, there would
     // be no highlight unless changing page or updating the viewModel
@@ -1456,6 +1459,7 @@ fun EventCardFeed(modifier: Modifier, viewModel: HomeViewModel, isDarkMode : Boo
             }
         }.toSortedMap()
     }
+val datesList = remember(groupedEvents){ groupedEvents.keys.toList() }
 
     Box (
         modifier = Modifier
@@ -1496,22 +1500,32 @@ fun EventCardFeed(modifier: Modifier, viewModel: HomeViewModel, isDarkMode : Boo
             },
             state = listState
         )
-
-        LaunchedEffect(listState, groupedEvents, state) {
+        /**
+         * @description Observes the scroll state of the event list and updates the
+         * header month based on the first visible event currently on screen.
+         *
+         * @author Luisa Almeida Quintella
+         * @date October 2025
+         *
+         * @param listState state of the event list used to detect scroll position
+         * @param datesList ordered list of LocalDate values corresponding to event days
+         * @param viewModel used to update the displayed month in the header
+         */
+        LaunchedEffect(listState, datesList) {
             snapshotFlow { listState.layoutInfo.visibleItemsInfo }
-                .collect { visibleItems ->
-                    if (visibleItems.isNotEmpty()) {
-                        val firstVisibleIndex = visibleItems.first().index
-                        val lastVisibleIndex = visibleItems.last().index
-
-                        val firstVisibleDate = groupedEvents.keys.toList()[firstVisibleIndex]
-                        val lastVisibleDate = groupedEvents.keys.toList()[lastVisibleIndex]
-
-                        if (firstVisibleDate != null && lastVisibleDate != null) {
-                            if (firstVisibleDate.month != lastVisibleDate.month) {
-                                viewModel.updateMonthName(lastVisibleDate.month.name)
-                            }
-                        }
+                .map { visible ->
+                    visible.firstOrNull { info ->
+                        info.index in 0 until datesList.size
+                    }?.index
+                }
+                .distinctUntilChanged()
+                .collect { idx: Int? ->
+                    if (idx != null) {
+                        val dateAtTop = datesList[idx]
+                        android.util.Log.d("MonthHeader", "topIdx=$idx date=$dateAtTop month=${dateAtTop.month}")
+                        viewModel.updateMonthName(dateAtTop.month.name)  // month-only, your existing API
+                    } else {
+                        android.util.Log.d("MonthHeader", "No matching top date in visible items")
                     }
                 }
         }
