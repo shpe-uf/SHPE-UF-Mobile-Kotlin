@@ -18,7 +18,9 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.allNotificationsOff
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.allNotificationsOn
 import com.shpeuf.shpe_uf_mobile_kotlin.util.NotificationsUtil
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -478,6 +480,39 @@ class HomeViewModel(
         val date: String?,
         val timeZone: String?
     )
+
+    //SHPE wrapped button stuff
+    private var hasShownWrappedPromptThisSession = false
+
+    sealed class NavEvent { object ToWrapped : NavEvent() }
+
+    private val _navEvents = MutableSharedFlow<NavEvent>(extraBufferCapacity = 1)
+    val navEvents: SharedFlow<NavEvent> = _navEvents
+
+    fun maybeCheckWrappedPrompt() {
+        if (hasShownWrappedPromptThisSession) return
+        viewModelScope.launch {
+            val show = isWrappedAvailable()
+            if (show) {
+                hasShownWrappedPromptThisSession = true
+                _homeUIState.update { it.copy(isWrappedPromptVisible = true) }
+            }
+        }
+    }
+
+    private suspend fun isWrappedAvailable(): Boolean {
+        // for when the isWrapped query is implemented
+        return true
+    }
+
+    fun onWrappedMaybeLater() {
+        _homeUIState.update { it.copy(isWrappedPromptVisible = false) }
+    }
+
+    fun onWrappedLetsGo() {
+        _homeUIState.update { it.copy(isWrappedPromptVisible = false) }
+        _navEvents.tryEmit(NavEvent.ToWrapped)
+    }
 
     // Google API Things
     interface GoogleCalendarService {
