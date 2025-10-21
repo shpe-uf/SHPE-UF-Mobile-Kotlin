@@ -1,4 +1,4 @@
-package com.example.shpe_uf_mobile_kotlin.ui.pages.wrapped
+package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped
 
 data class WrappedState(
     val isLoading: Boolean = true,

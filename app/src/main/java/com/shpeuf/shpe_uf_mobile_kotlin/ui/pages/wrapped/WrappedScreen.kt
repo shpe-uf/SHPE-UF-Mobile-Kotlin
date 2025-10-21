@@ -1,6 +1,5 @@
-package com.example.shpe_uf_mobile_kotlin.ui.pages.wrapped
+package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures

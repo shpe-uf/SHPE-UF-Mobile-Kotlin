@@ -1,12 +1,12 @@
-package com.example.shpe_uf_mobile_kotlin.ui.pages.wrapped
+package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apollographql.apollo3.api.ApolloResponse
-import com.example.shpe_uf_mobile_kotlin.EventsQuery
-import com.example.shpe_uf_mobile_kotlin.GetUserQuery // Import the GetUserQuery
-import com.example.shpe_uf_mobile_kotlin.PointsQuery // Import the PointsQuery
-import com.example.shpe_uf_mobile_kotlin.apolloClient
-import com.example.shpe_uf_mobile_kotlin.ui.pages.points.formatDate
+import com.shpeuf.shpe_uf_mobile_kotlin.EventsQuery
+import com.shpeuf.shpe_uf_mobile_kotlin.GetUserQuery // Import the GetUserQuery
+import com.shpeuf.shpe_uf_mobile_kotlin.PointsQuery // Import the PointsQuery
+import com.shpeuf.shpe_uf_mobile_kotlin.apolloClient
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.points.formatDate
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
