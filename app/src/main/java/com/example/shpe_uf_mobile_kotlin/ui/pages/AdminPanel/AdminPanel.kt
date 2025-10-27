@@ -31,15 +31,69 @@ import com.example.shpe_uf_mobile_kotlin.R
 fun AdminPanelScreen(
     isUserAdmin: Boolean,
     onBack: () -> Unit = {},
-    onNavigateToUserManagement: () -> Unit = {},
-    onViewLogs: () -> Unit = {},
-    onDeleteUser: (email: String) -> Unit = {}
 ) {
     // Define colors
     val darkBlue = Color(0xFF011F35)
     val lightBlue = Color(36 / 255f, 87 / 255f, 197 / 255f, 0.75f)
-    val orange = Color(210 / 255f, 89 / 255f, 23 / 255f, 0.75f);
+    val orange = Color(210 / 255f, 89 / 255f, 23 / 255f, 0.75f)
 
+    // Show loading state while checking permissions
+//    if (!isUserAdmin) {
+//        // User is not admin - show access denied message
+//        Column(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .background(darkBlue),
+//            verticalArrangement = Arrangement.Center,
+//            horizontalAlignment = Alignment.CenterHorizontally
+//        ) {
+//            Icon(
+//                painter = painterResource(id = R.drawable.error),
+//                contentDescription = "Access Denied",
+//                tint = Color.Red,
+//                modifier = Modifier.size(64.dp)
+//            )
+//
+//            Spacer(modifier = Modifier.height(24.dp))
+//
+//            Text(
+//                text = "Access Denied",
+//                color = Color.White,
+//                fontSize = 28.sp,
+//                fontFamily = FontFamily(Font(R.font.viga)),
+//                fontWeight = FontWeight.Bold
+//            )
+//
+//            Spacer(modifier = Modifier.height(12.dp))
+//
+//            Text(
+//                text = "You don't have permission to access this page",
+//                color = Color.White,
+//                fontSize = 16.sp,
+//                fontFamily = FontFamily(Font(R.font.universltstd)),
+//                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+//                modifier = Modifier.padding(horizontal = 32.dp)
+//            )
+//
+//            Spacer(modifier = Modifier.height(32.dp))
+//
+//            Button(
+//                onClick = onBack,
+//                colors = ButtonDefaults.buttonColors(
+//                    containerColor = orange
+//                )
+//            ) {
+//                Text(
+//                    text = "Go Back",
+//                    fontSize = 18.sp,
+//                    color = Color.White
+//                )
+//            }
+//        }
+//        return
+//    }
+
+    // Only shown if user is admin
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -83,7 +137,7 @@ fun AdminPanelScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .weight(1f) // Takes up remaining space
+                .weight(1f)
                 .padding(horizontal = 26.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
@@ -91,7 +145,7 @@ fun AdminPanelScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f), // Equal height distribution
+                    .weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 AdminCard(
