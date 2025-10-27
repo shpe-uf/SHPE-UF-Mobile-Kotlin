@@ -240,7 +240,7 @@ fun NavHostContainer(
         composable(NavRoute.ADMIN)
         {
             AdminPanelScreen(
-                isUserAdmin = true, // Set to true for now for testing purposes
+                isUserAdmin = profileViewModel.isUserAdmin(), // Set to true for now for testing purposes
                 onBack = {
                     navHostController.popBackStack() // Goes back to previous screen
                 }
