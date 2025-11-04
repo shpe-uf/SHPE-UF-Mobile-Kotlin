@@ -1,0 +1,10 @@
+mutation CreateEvent($createEventInput: CreateEventInput!) {
+    createEvent(createEventInput: $createEventInput) {
+        id
+        name
+        code
+        category
+        points
+        expiration
+    }
+}

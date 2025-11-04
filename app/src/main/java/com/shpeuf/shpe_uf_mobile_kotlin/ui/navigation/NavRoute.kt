@@ -6,6 +6,7 @@ object NavRoute {
     const val PROFILE = "profile"
     const val EDITPROFILE = "editprofile"
     const val ADMIN = "admin"
+    const val CREATE_EVENTS = "create_events"
     const val LOGIN = "login"
     const val OPENING = "opening"
     const val REGISTER = "register"
