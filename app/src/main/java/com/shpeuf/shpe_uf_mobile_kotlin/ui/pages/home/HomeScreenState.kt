@@ -6,6 +6,7 @@ import java.time.LocalDate
 data class HomeScreenState(
     val events: List<HomeViewModel.Event> = emptyList(),
     val currentDate: LocalDate = LocalDate.now(),
+    val displayedMonth: YearMonth = YearMonth.now(),
     val monthDisplayedName : String = LocalDate.now().month.name,
     val isRefreshing: Boolean = false,
     val lastDateLoaded: LocalDate = LocalDate.now(),
