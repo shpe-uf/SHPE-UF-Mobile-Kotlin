@@ -19,8 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,176 +33,185 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
+import kotlin.math.tan
 
 /**
  * Public entry point: call from NavHost with composable(NavRoute.WRAPPED) { WrappedScreen() }
  */
 @Composable
 fun WrappedScreen(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier, shpeufAppViewModel: SHPEUFAppViewModel,
     onExit: () -> Unit = {}
 ) {
     val pages = remember {
         listOf(
-            WrappedPage(
-                id = "marquees",
-                title = "Your SHPE\nWrapped is\nhere.",
-                durationMs = 4200L // how long this page auto-plays
-            ),
-            WrappedPage(
-                id = "straighten",
-                title = "Let’s look\nat your year.",
-                durationMs = 4200L
-            ),
-            WrappedPage(
-                id = "stats1",
-                title = "Most Active\nMonth: October",
-                durationMs = 4200L
-            )
+            WrappedPage("intro",  "Your SHPE\nWrapped is\nhere.",       4200L),
+            WrappedPage("story",  "Let’s look\nat your year.",         4200L),
+            WrappedPage("stats1", "Most Active\nMonth: October",       4200L)
+            // add your other pages here as before
         )
     }
 
-    val pagerState = rememberPagerState(
-        initialPage = 0,
-        pageCount = { pages.size }
-    )
+    val uiState by shpeufAppViewModel.uiState.collectAsState()
+    val isDarkMode = uiState.isDarkMode
 
-    val scope = rememberCoroutineScope()
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { pages.size })
 
-    // --- Auto-advance + cooldown logic ---
-    val cooldownMs = 500L // time after a swipe before we allow another instant-advance
-    var lastUserSwipeTs by remember { mutableStateOf(0L) }
+    var settledPage by remember { mutableIntStateOf(0) }
+    var timeProgress by remember { mutableFloatStateOf(0f) }
+    var pageStartTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var autoScrollEnabled by remember { mutableStateOf(true) }
+    var isHolding by remember { mutableStateOf(false) }
 
-    // auto-advance with per-page durations
-    LaunchedEffect(pagerState.currentPage) {
-        val targetDuration = pages[pagerState.currentPage].durationMs
-        val startedAt = System.currentTimeMillis()
-        while (System.currentTimeMillis() - startedAt < targetDuration) {
-            // break early if user swipes
-            if (!pagerState.isScrollInProgress) {
-                delay(16L)
-            } else break
-        }
-        if (!pagerState.isScrollInProgress) {
-            val next = (pagerState.currentPage + 1) % pages.size
-            pagerState.animateScrollToPage(next)
-        }
+    // Initial alignment with pager
+    LaunchedEffect(Unit) {
+        settledPage = pagerState.currentPage
+        pageStartTime = System.currentTimeMillis()
     }
 
-    // capture swipe finish to enforce cooldown
-    LaunchedEffect(pagerState.isScrollInProgress) {
-        if (!pagerState.isScrollInProgress) {
-            lastUserSwipeTs = System.currentTimeMillis()
-        }
-    }
+    // Timer + auto-scroll loop, driven by the "settled" page, and paused while
+    LaunchedEffect(pagerState, pages.size, isHolding) {
+        while (true) {
+            delay(16L)
 
-    // top progress fraction (for the overall linear indicator if you want it)
-    val overallProgress by remember {
-        derivedStateOf {
-            (pagerState.currentPage + pagerState.currentPageOffsetFraction.coerceIn(0f, 1f)) / pages.size
-        }
-    }
+            // Pause timer while the pager is moving, or while user is pressing to "pause"
+            if (pagerState.isScrollInProgress || isHolding) continue
 
-    Surface(modifier = modifier.fillMaxSize(), color = Color.Black) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 14.dp, start = 12.dp, end = 12.dp, bottom = 16.dp)
-        ) {
+            val now = System.currentTimeMillis()
+            val duration = pages[settledPage].durationMs
 
-            // Segmented "stories" progress bar (like Instagram/Spotify Wrapped)
-            WrappedProgressBar(
-                modifier = Modifier.fillMaxWidth(),
-                pageCount = pages.size,
-                currentPage = pagerState.currentPage,
-                currentPageOffset = pagerState.currentPageOffsetFraction.coerceIn(0f, 1f),
-                trackColor = Color.White.copy(0.25f),
-                progressColor = Color.White
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            // The pager with animated content
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-            ) {
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize(),
-                    beyondViewportPageCount = 1,
-                    userScrollEnabled = true // user can swipe; cooldown handled above
-                ) { pageIndex ->
-                    val page = pages[pageIndex]
-
-                    // Per-page content/animations
-                    WrappedPageContent(
-                        page = page,
-                        pagerState = pagerState,
-                        index = pageIndex
-                    )
+            if (!autoScrollEnabled) {
+                // When we've finished the last page, keep its bar full
+                if (settledPage == pages.lastIndex) {
+                    timeProgress = 1f
                 }
-
-                // Optional: small "X" to exit
-                TextButton(
-                    onClick = onExit,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                ) {
-                    Text("Exit", color = Color.White)
-                }
+                continue
             }
 
-            // Optional overall linear indicator (subtle)
-            LinearProgressIndicator(
-                progress = overallProgress,
+            val elapsed = now - pageStartTime
+            timeProgress = (elapsed.toFloat() / duration).coerceIn(0f, 1f)
+
+            if (timeProgress >= 1f) {
+                val next = settledPage + 1
+                if (next < pages.size) {
+                    // Keep current segment full during the scroll animation
+                    timeProgress = 1f
+                    pagerState.animateScrollToPage(next)
+                    // We do NOT reset here; that happens when the scroll settles.
+                } else {
+                    autoScrollEnabled = false
+                    timeProgress = 1f
+                }
+            }
+        }
+    }
+
+    // Detect when scrolling has finished and the displayed page has actually changed.
+    // Only then do we adopt the new page as "settled" and reset its timer.
+    LaunchedEffect(pagerState) {
+        var lastPage = pagerState.currentPage
+
+        snapshotFlow { pagerState.currentPage to pagerState.isScrollInProgress }
+            .collect { (page, scrolling) ->
+                if (!scrolling && page != lastPage) {
+                    lastPage = page
+                    settledPage = page
+                    pageStartTime = System.currentTimeMillis()
+                    timeProgress = 0f
+                    autoScrollEnabled = page < pages.lastIndex
+                }
+            }
+    }
+
+    // Purely time-based fraction for the current settled page
+    val segmentFraction = timeProgress.coerceIn(0f, 1f)
+
+    Surface(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        color = Color.Black
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                // "Hold to pause" – any finger down on the screen freezes the timer
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            val anyPressed = event.changes.any { it.pressed }
+                            if (isHolding != anyPressed) {
+                                isHolding = anyPressed
+                            }
+                        }
+                    }
+                }
+        ) {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(3.dp)
-                    .clip(RoundedCornerShape(2.dp)),
-                trackColor = Color.White.copy(0.08f),
-                color = Color(0xFF0B70BA)
-            )
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp, vertical = 16.dp)
+            ) {
+                // Top segmented progress bar (one segment per "slide/animation")
+                WrappedProgressBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    pageCount = pages.size,
+                    currentPage = settledPage,
+                    currentFraction = segmentFraction,
+                    trackColor = Color.White.copy(alpha = 0.25f),
+                    progressColor = Color.White
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f)
+                ) { index ->
+                    val page = pages[index]
+                    val perPageProgress = if (index == settledPage) segmentFraction else 0f
+                    WrappedPageContent(
+                        page = page, pagerState = pagerState, index = index,
+                        isDarkMode = isDarkMode, segmentProgress = perPageProgress
+                    )
+                }
+            }
         }
     }
 }
 
-/* ------------------------------- Models ---------------------------------- */
-
-/* ------------------------------ Progress UI ------------------------------- */
-
 @Composable
-fun WrappedProgressBar(
-    modifier: Modifier = Modifier,
-    pageCount: Int,
-    currentPage: Int,
-    currentPageOffset: Float,
-    gap: Dp = 6.dp,
-    height: Dp = 4.dp,
-    trackColor: Color = Color.LightGray,
-    progressColor: Color = Color.White
-) {
+fun WrappedProgressBar(modifier: Modifier, pageCount: Int, currentPage: Int,
+    currentFraction: Float, trackColor: Color, progressColor: Color) {
     Row(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(gap)
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         repeat(pageCount) { i ->
             val fraction = when {
                 i < currentPage -> 1f
-                i == currentPage -> currentPageOffset
+                i == currentPage -> currentFraction
                 else -> 0f
             }
-            StorySegment(
-                modifier = Modifier.weight(1f),
-                height = height,
-                fraction = fraction,
-                trackColor = trackColor,
-                progressColor = progressColor
-            )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(trackColor)
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(fraction)
+                        .background(progressColor)
+                )
+            }
         }
     }
 }
@@ -232,20 +245,25 @@ fun StorySegment(
 private fun WrappedPageContent(
     page: WrappedPage,
     pagerState: PagerState,
-    index: Int
+    index: Int,
+    segmentProgress: Float,
+    isDarkMode: Boolean
 ) {
-    // Shared transition factor for subtle depth/scale between pages
     val pageOffset = (pagerState.currentPage - index) + pagerState.currentPageOffsetFraction
     val scale by animateFloatAsState(
         targetValue = if (index == pagerState.currentPage) 1f else 0.95f,
-        animationSpec = tween(350, easing = LinearOutSlowInEasing)
+        animationSpec = tween(350, easing = LinearOutSlowInEasing),
+        label = "pageScale"
     )
     val blurAmount = if (index == pagerState.currentPage) 0.dp else 2.dp
 
     when (page.id) {
-        "marquees" -> FirstAnimationPage(title = page.title, scale = scale, blur = blurAmount)
-        "straighten" -> SecondAnimationPage(title = page.title, scale = scale, blur = blurAmount)
-        else -> StatsPage(title = page.title, scale = scale, blur = blurAmount)
+        "marquees" -> FirstAnimationPage(
+            scale = scale,
+            blur = blurAmount,
+            segmentProgress = segmentProgress,
+            isDarkMode = isDarkMode
+        )
     }
 }
 
@@ -253,96 +271,214 @@ private fun WrappedPageContent(
  * Page 1 demo: four diagonal marquees moving in alternating directions, with center text.
  */
 @Composable
-private fun FirstAnimationPage(title: String, scale: Float, blur: Dp) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFFF7A2F))
-            .blur(blur)
-    ) {
-        // Two diagonal layers moving in opposite directions
-        DiagonalMarqueeLayer(
-            text = "SHPE Wrapped   ",
-            angle = 22f,
-            speed = 28f,
-            alpha = 0.18f,
-            reverse = false
-        )
-        DiagonalMarqueeLayer(
-            text = "SHPE Wrapped   ",
-            angle = -22f,
-            speed = 24f,
-            alpha = 0.18f,
-            reverse = true
-        )
+private fun FirstAnimationPage(
+    scale: Float,
+    blur: Dp,
+    segmentProgress: Float,
+    isDarkMode: Boolean,
+    mostActiveMonth: String = "October",
+    secondMonth: String = "November",
+    thirdMonth: String = "September"
+) {
+    val bgColor = if (isDarkMode) Color(0xFF001B2F) else Color(0xFF022642)
+    val primaryTextColor = if (isDarkMode) Color(0xFFFF7A2F) else Color(0xFFFF7A2F)
+    val secondaryTextColor = if (isDarkMode) Color.White else Color.White
 
-        // Center title with a subtle rotation pop on first appearance
-        val rotation = remember { Animatable(0f) }
-        LaunchedEffect(Unit) {
-            rotation.snapTo(-6f)
-            rotation.animateTo(0f, tween(600, easing = OvershootInterpolatorLike))
-        }
-
-        Text(
-            text = title,
-            color = Color.White,
-            fontSize = 36.sp,
-            fontWeight = FontWeight.W700,
-            lineHeight = 40.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .rotate(rotation.value)
-                .padding(24.dp)
-        )
+    // Helper to remap [start, end] → 0..1
+    fun phase(start: Float, end: Float): Float {
+        if (segmentProgress <= start) return 0f
+        if (segmentProgress >= end) return 1f
+        return ((segmentProgress - start) / (end - start)).coerceIn(0f, 1f)
     }
-}
 
-/**
- * Page 2 demo: the marquees "straighten" to top/bottom bands; center text rotates once.
- */
-@Composable
-private fun SecondAnimationPage(title: String, scale: Float, blur: Dp) {
-    Box(
+    val spinPhase = phase(0.25f, 0.40f)       // center text spin / morph
+    val straightenPhase = phase(0.40f, 0.65f) // marquees + center text straighten
+    val exitPhase = phase(0.65f, 0.80f)       // marquees + center text exit
+    val statsPhase = phase(0.80f, 1.0f)       // stats appear
+
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFF7A2F))
+            .background(bgColor)
             .blur(blur)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
     ) {
-        StraightMarqueeBand(
+        val maxH = maxHeight
+        val maxW = maxWidth
+        val density = LocalDensity.current
+
+        // ───────────── Diagonal marquee bands (top & bottom) ──────────────
+        AnimatedMarqueeBand(
             text = "SHPE Wrapped   ",
-            alignment = Alignment.TopCenter,
-            speed = 30f,
-            height = 90.dp,
-            alpha = 0.18f
-        )
-        StraightMarqueeBand(
-            text = "SHPE Wrapped   ",
-            alignment = Alignment.BottomCenter,
-            speed = 22f,
-            height = 90.dp,
-            alpha = 0.18f,
-            reverse = true
+            isTop = true,
+            reverse = false,
+            straightenPhase = straightenPhase,
+            exitPhase = exitPhase,
+            baseColor = secondaryTextColor.copy(alpha = 0.20f),
+            containerWidth = maxW,
+            containerHeight = maxH
         )
 
-        val rotation = remember { Animatable(0f) }
-        LaunchedEffect(Unit) {
-            rotation.animateTo(360f, tween(900, easing = FastOutSlowInEasing))
-            rotation.snapTo(0f)
-        }
+        AnimatedMarqueeBand(
+            text = "SHPE Wrapped   ",
+            isTop = false,
+            reverse = true,
+            straightenPhase = straightenPhase,
+            exitPhase = exitPhase,
+            baseColor = secondaryTextColor.copy(alpha = 0.20f),
+            containerWidth = maxW,
+            containerHeight = maxH
+        )
 
-        Text(
-            text = title,
-            color = Color.White,
-            fontSize = 34.sp,
-            fontWeight = FontWeight.W700,
-            lineHeight = 38.sp,
-            textAlign = TextAlign.Center,
+        // ───────────── Center text: SHPE Wrapped → Most Active Month ──────
+        val centerStartAngle =  -18f
+        val centerEndAngle = 0f
+        val centerAngle = centerStartAngle * (1f - straightenPhase) + centerEndAngle * straightenPhase
+
+        // Spin amount: 0 → 360 during spinPhase
+        val spinRotation = 360f * spinPhase
+
+        // Crossfade between the two labels
+        val wrappedAlpha = 1f - spinPhase
+        val mostActiveAlpha = spinPhase
+
+        Box(
             modifier = Modifier
-                .align(Alignment.Center)
-                .rotate(rotation.value)
-                .padding(24.dp)
-        )
+                .fillMaxSize()
+        ) {
+            // Centered stack
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .graphicsLayer {
+                        rotationZ = centerAngle + spinRotation
+                    }
+            ) {
+                // Base "SHPE Wrapped" in orange with clipped white copies behind
+                if (wrappedAlpha > 0f) {
+                    Box(
+                        modifier = Modifier.graphicsLayer {
+                            alpha = wrappedAlpha
+                        }
+                    ) {
+                        // Orange focus text
+                        Text(
+                            text = "SHPE Wrapped",
+                            color = primaryTextColor,
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                        )
+
+                        // Faint white copies offset slightly (to mimic your old look)
+                        Text(
+                            text = "SHPE Wrapped   SHPE Wrapped   SHPE Wrapped",
+                            color = secondaryTextColor.copy(alpha = 0.25f),
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .offset(x = (-12).dp)
+                        )
+                    }
+                }
+
+                // "Most Active Month" text
+                if (mostActiveAlpha > 0f) {
+                    Text(
+                        text = "Most Active Month",
+                        color = primaryTextColor,
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .graphicsLayer {
+                                alpha = mostActiveAlpha
+                            }
+                    )
+                }
+            }
+
+            // ───────────── Stats block (slides in after center exits) ──────
+            if (statsPhase > 0f) {
+                val statsOffsetY = with(density) { (maxH * (0.25f + (1f - statsPhase) * 0.15f)).toPx() }
+
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .graphicsLayer {
+                            translationY = statsOffsetY
+                            alpha = statsPhase
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Your most active",
+                        color = secondaryTextColor,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Month was:",
+                        color = secondaryTextColor,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = mostActiveMonth,
+                        color = primaryTextColor,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                // Bottom "followed closely by" text
+                val bottomPhase = phase(0.85f, 1.0f) // slightly delayed within statsPhase
+                if (bottomPhase > 0f) {
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 32.dp)
+                            .graphicsLayer {
+                                alpha = bottomPhase
+                            },
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "followed closely by:",
+                            color = secondaryTextColor.copy(alpha = 0.9f),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = secondMonth,
+                            color = secondaryTextColor,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = thirdMonth,
+                            color = secondaryTextColor,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -406,7 +542,7 @@ private fun DiagonalMarqueeLayer(
 
     Canvas(modifier = Modifier.fillMaxSize()) {
         val step = size.minDimension / 6f
-        val diag = kotlin.math.tan(Math.toRadians(angle.toDouble())).toFloat()
+        val diag = tan(Math.toRadians(angle.toDouble())).toFloat()
         val dir = if (reverse) -1f else 1f
 
         // draw repeated slanted rows of text using translate + drawContext.canvas.nativeCanvas if needed
@@ -416,7 +552,7 @@ private fun DiagonalMarqueeLayer(
             translate(left = 0f, top = y) {
                 drawRect(
                     color = Color.Black.copy(alpha = alpha),
-                    size = androidx.compose.ui.geometry.Size(width = size.width, height = 10f)
+                    size = Size(width = size.width, height = 10f)
                 )
             }
         }
@@ -424,47 +560,76 @@ private fun DiagonalMarqueeLayer(
 }
 
 @Composable
-private fun StraightMarqueeBand(
+private fun AnimatedMarqueeBand(
     text: String,
-    alignment: Alignment,
-    speed: Float,
-    height: Dp,
-    alpha: Float,
-    reverse: Boolean = false
+    isTop: Boolean,
+    reverse: Boolean,
+    straightenPhase: Float,
+    exitPhase: Float,
+    baseColor: Color,
+    containerWidth: Dp,
+    containerHeight: Dp
 ) {
-    val infinite = rememberInfiniteTransition(label = "straight-marquee")
-    val offset by infinite.animateFloat(
+    val density = LocalDensity.current
+    val infiniteTransition = rememberInfiniteTransition(label = "marqueeBase")
+
+    // Base horizontal scrolling (looping)
+    val baseShift by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween((60000 / speed).toInt(), easing = LinearEasing),
+            animation = tween(durationMillis = 9000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
-        label = "offset"
+        label = "marqueeShift"
     )
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = alignment
+    // Angle from ±18° → 0°
+    val startAngle = if (isTop) 18f else -18f
+    val angle = startAngle * (1f - straightenPhase)
+
+    // Move toward "poles"
+    val startBias = if (isTop) 0.35f else 0.65f
+    val endBias = if (isTop) 0.12f else 0.88f
+    val bias = startBias * (1f - straightenPhase) + endBias * straightenPhase
+
+    // Extra horizontal offset to exit off screen
+    val exitDir = if (reverse) 1f else -1f
+    val exitPx = with(density) { (containerWidth * 0.6f * exitPhase).toPx() }
+
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
     ) {
-        Canvas(
+        val widthPx = constraints.maxWidth.toFloat()
+
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(height)
+                .height(56.dp)
+                .graphicsLayer {
+                    rotationZ = angle
+                    translationY = with(density) {
+                        (containerHeight * (bias - 0.5f)).toPx()
+                    }
+                }
         ) {
-            val dir = if (reverse) -1f else 1f
-            val bandHeight = size.height
-            val tileW = size.minDimension / 3f
-            val xShift = (offset * tileW * dir)
-
-            // same lightweight placeholder bands; replace with repeated text as needed
-            for (i in -2..8) {
-                val x = (i * tileW) + xShift
-                translate(left = x, top = bandHeight / 2f - 5f) {
-                    drawRect(
-                        color = Color.Black.copy(alpha = alpha),
-                        size = androidx.compose.ui.geometry.Size(width = tileW * 0.8f, height = 10f)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer {
+                        val dir = if (reverse) -1f else 1f
+                        translationX = dir * baseShift * widthPx + exitDir * exitPx
+                    },
+                horizontalArrangement = Arrangement.spacedBy(32.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Two copies to cover the width while scrolling
+                repeat(3) {
+                    Text(
+                        text = text,
+                        color = baseColor,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
