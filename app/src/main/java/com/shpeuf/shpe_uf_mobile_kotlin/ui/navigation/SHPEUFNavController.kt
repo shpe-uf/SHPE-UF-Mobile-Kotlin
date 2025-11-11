@@ -42,6 +42,7 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage3Previ
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.signIn.SignIn
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.sponsors.SponsorsPage
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped.WrappedScreen
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped.WrappedViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
@@ -244,7 +245,7 @@ fun NavHostContainer(
             )
         }
         composable(NavRoute.WRAPPED) {
-            WrappedScreen(onExit = { navHostController.popBackStack() })
+            WrappedScreen(onExit = { navHostController.popBackStack() }, shpeufAppViewModel = mainViewModel)
         }
     }
 }
