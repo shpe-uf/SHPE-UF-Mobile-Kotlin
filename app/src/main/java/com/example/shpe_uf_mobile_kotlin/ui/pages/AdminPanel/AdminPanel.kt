@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.shpe_uf_mobile_kotlin.R
 
+
 //@Preview(showBackground = true)
 //@Composable
 //fun PreviewAdminPanel() {
@@ -31,6 +32,7 @@ import com.example.shpe_uf_mobile_kotlin.R
 fun AdminPanelScreen(
     isUserAdmin: Boolean,
     onBack: () -> Unit = {},
+    onNavigateToEvents: () -> Unit = {}
 ) {
     // Define colors
     val darkBlue = Color(0xFF011F35)
@@ -111,7 +113,7 @@ fun AdminPanelScreen(
                     painter = painterResource(id = R.drawable.back),
                     contentDescription = "Back",
                     tint = Color.White,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(26.dp)
                 )
             }
         }
@@ -153,7 +155,7 @@ fun AdminPanelScreen(
                     iconRes = R.drawable.calendar_dm_on,
                     backgroundColor = lightBlue,
                     modifier = Modifier.weight(1f),
-                    onClick = { /* Handle Events click */ }
+                    onClick = onNavigateToEvents
                 )
 
                 AdminCard(
