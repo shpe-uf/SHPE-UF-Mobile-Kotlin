@@ -59,7 +59,6 @@ class HomeViewModel(
         fetchEventsMonths(localDate = LocalDate.now(), monthsToFetch = 4)
         loadEvents()
     }
-
     // UI
     fun updateMonthName(month: String) {
         _homeUIState.update { it.copy(monthDisplayedName = month) }
