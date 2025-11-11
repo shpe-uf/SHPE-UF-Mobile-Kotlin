@@ -40,6 +40,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfilePagePreview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePreview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.admin.AdminPanelScreen
+import com.example.shpe_uf_mobile_kotlin.ui.pages.events.CreateEventsScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterRoutes
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
@@ -240,9 +241,30 @@ fun NavHostContainer(
         composable(NavRoute.ADMIN)
         {
             AdminPanelScreen(
-                isUserAdmin = profileViewModel.isUserAdmin(), // Set to true for now for testing purposes
+                isUserAdmin = profileViewModel.isUserAdmin(),
                 onBack = {
-                    navHostController.popBackStack() // Goes back to previous screen
+                    navHostController.popBackStack()
+                },
+                onNavigateToEvents = {
+                    navHostController.navigate(NavRoute.CREATE_EVENTS)
+                }
+            )
+        }
+
+        composable(NavRoute.CREATE_EVENTS)
+        {
+            CreateEventsScreen(
+                isDarkMode = isSystemInDarkTheme(),
+                onSave = { eventDraft ->
+                    // Handle saving the event (call GraphQL mutation here)
+                    // For now, just go back
+                    navHostController.popBackStack()
+                },
+                onCancel = {
+                    navHostController.popBackStack()
+                },
+                onBack = {
+                    navHostController.popBackStack()
                 }
             )
         }

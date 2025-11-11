@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,12 +33,12 @@ import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 // for dark-mode preview constant
 import android.content.res.Configuration
 
-
 @Composable
-fun EventsCreateScreen(
+fun CreateEventsScreen(
     isDarkMode: Boolean,
     onSave: (EventDraft) -> Unit,
     onCancel: () -> Unit,
+    onBack: () -> Unit = {},
     // optionally pass initial values to "edit" existing. Prob won't need until we include edit
     // event functionality.
     initial: EventDraft = EventDraft() // Initially empty
@@ -54,7 +56,7 @@ fun EventsCreateScreen(
 
     // Header / background
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val orangeHeight = screenHeight * (1.01f / 4f)
+    val orangeHeight = 150.dp
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Orange top
@@ -65,38 +67,52 @@ fun EventsCreateScreen(
                 .background(Color(0xFFD25917))
         )
 
-        // Alligator + "EVENTS" + "Create Event"
+        // Alligator + "Create Event"
+        // Orange Header with Back Button + Title + Gator
         Box(
             Modifier
                 .fillMaxWidth()
-                .padding(top = 28.dp, start = 16.dp, end = 16.dp)
+                .padding(top = 28.dp)
         ) {
-            // Gator left
-            Image(
-                painter = painterResource(id = if (isDarkMode) R.drawable.gator_dark_mode else R.drawable.gator_light_mode),
-                contentDescription = "Gator",
+            // Back button (top-left) — small padding to match AdminPanel
+            IconButton(
+                onClick = onBack,
                 modifier = Modifier
-                    .size(80.dp)
                     .align(Alignment.TopStart)
-            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(start = 16.dp, top = 8.dp)
+                    .offset(x = (-8).dp, y = (-10).dp)
             ) {
-                Text("EVENTS", color = Color(0xFFC8CDD2), fontSize = 36.sp, fontWeight = FontWeight.Bold)
+                Icon(
+                    painter = painterResource(id = R.drawable.back),
+                    contentDescription = "Back",
+                    tint = Color.White,
+                    modifier = Modifier.size(26.dp)
+                )
             }
 
+            // Centered title — keep same top padding as before so it remains vertically consistent
             Text(
-                text = "Create Event", // Changed from figma
+                text = "CREATE EVENTS",
                 color = Color.White,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = 32.sp,
+                fontFamily = FontFamily(Font(R.font.viga)),
                 modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(top = 72.dp)
+                    .align(Alignment.TopCenter)
+                    .padding(top = 24.dp)
+            )
+
+            // Gator - positioned to overlap the orange and background
+            Image(
+                painter = painterResource(
+                    id = if (isDarkMode) R.drawable.gator_dark_mode else R.drawable.gator_light_mode
+                ),
+                contentDescription = "SHPE GATOR",
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 0.dp)
+                    .offset(y = 80.dp)
+                    .width(90.dp)
+                    .height(90.dp)
             )
         }
 
@@ -110,10 +126,8 @@ fun EventsCreateScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = orangeHeight - 24.dp)
+                .padding(top = orangeHeight)
         ) {
-            item { Spacer(modifier = Modifier.height(72.dp)) }
-
             // Title
             item {
                 FieldBlock(
@@ -201,6 +215,11 @@ fun EventsCreateScreen(
                 }
             }
 
+            // Add space between last field and buttons
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+
             // Buttons
             item {
                 Row(
@@ -226,17 +245,16 @@ fun EventsCreateScreen(
                         modifier = Modifier.weight(1f)
                     ) { Text("Save", fontSize = 18.sp) }
 
-                    OutlinedButton(
+                    Button(
                         onClick = onCancel,
                         shape = RoundedCornerShape(20.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                        colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = Color.White),
                         modifier = Modifier.weight(1f),
-                        border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp)
                     ) { Text("Cancel", fontSize = 18.sp) }
                 }
             }
 
-            item { Spacer(modifier = Modifier.height(40.dp)) }
+            item { Spacer(modifier = Modifier.height(45.dp)) }
         }
     }
 }
@@ -278,7 +296,7 @@ private fun FieldBlock(
             content()
         }
 
-        Divider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
+        Divider(color = Color.LightGray.copy(alpha = 0.3f), thickness = 1.dp, modifier = Modifier.fillMaxWidth())
     }
 }
 
@@ -368,7 +386,7 @@ private fun DropdownField(
 )
 @Composable
 private fun EventsCreateScreenPreview_Light() {
-    EventsCreateScreen(
+    CreateEventsScreen(
         isDarkMode = false,
         onSave = { /* blank for preview */ },
         onCancel = { /* blank for preview */ },
@@ -392,7 +410,7 @@ private fun EventsCreateScreenPreview_Light() {
 )
 @Composable
 private fun EventsCreateScreenPreview_Dark() {
-    EventsCreateScreen(
+    CreateEventsScreen(
         isDarkMode = true,
         onSave = { /* blank for preview */ },
         onCancel = { /* blank for preview */ },
@@ -425,7 +443,7 @@ private fun EventsCreateScreenPreview_Editable() {
         )
     }
 
-    EventsCreateScreen(
+    CreateEventsScreen(
         isDarkMode = false,
         onSave = { saved -> draft = saved }, // capture result in preview state (visible in debugger)
         onCancel = { /* blank */ },
