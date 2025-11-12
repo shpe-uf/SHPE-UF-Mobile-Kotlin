@@ -4,6 +4,7 @@ package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,9 +44,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.shpeuf.shpe_uf_mobile_kotlin.R
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
 
 /*
@@ -63,8 +66,13 @@ fun RegistrationPage1Preview(navController: NavHostController, registerPage1View
     RegistrationPage1(registerPage1ViewModel = registerPage1ViewModel, navController = navController)
 
 }
-
-
+// Preview for Register
+@Preview(showBackground = true)
+@Composable
+fun RegisteScreenPreview() {
+    val mockViewModel = RegisterPage1ViewModel()
+    RegistrationPage1( mockViewModel, (rememberNavController()))
+}
 /*
 Function is used for housing all the different separate components that
 ultimately make up the final UI
@@ -76,6 +84,28 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 
     RegisterBackground()
 
+    // for background of page
+    val background = if (isSystemInDarkTheme()) {
+        ThemeColors.Night.background
+    } else {
+        ThemeColors.Day.background
+    }
+
+    // for text of page w/o register
+
+    val labelColor = if (isSystemInDarkTheme()) {
+        ThemeColors.Night.text
+    } else {
+        ThemeColors.Day.text
+    }
+
+    // for sign in text
+    val signInColor = if (isSystemInDarkTheme()) {
+        ThemeColors.Night.registerText
+    } else {
+        ThemeColors.Day.registerText
+    }
+
     Box(
         modifier = Modifier
             .padding(top = 83.dp)
@@ -84,7 +114,7 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF011F35)),
+                .background(background),
             horizontalAlignment = Alignment.CenterHorizontally
 
         )
@@ -136,7 +166,7 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 style = TextStyle(
                     fontSize = 14.sp,
                     fontWeight = FontWeight(400),
-                    color = Color(0xFFFFFFFF),
+                    color = labelColor,
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -236,7 +266,7 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
             ) {
                 Text(
                     text = "Already have an account?",
-                    color = Color(0xFFFFFFFF),
+                    color = labelColor,
                     fontSize = 18.sp,
                     style = MaterialTheme.typography.labelLarge
                 )
@@ -245,7 +275,7 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
                 }) {
                     Text(
                         text = "Sign In",
-                        color = Color(0XFF93E1FF),
+                        color = signInColor,
                         fontSize = 18.sp,
                         style = MaterialTheme.typography.labelLarge
                     )
@@ -261,13 +291,19 @@ fun RegistrationPage1(registerPage1ViewModel: RegisterPage1ViewModel, navControl
 @Preview
 @Composable
 fun RegisterBackground() {
+    // Dark mode support
+    val gator = if (isSystemInDarkTheme()) {
+        painterResource(R.drawable.gator)
+    } else {
+        painterResource(R.drawable.light_gator)
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFD25917))
     ) {
         Image(
-            painter = painterResource(R.drawable.gatordark),
+            painter = gator,
             contentDescription = "Gator",
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
