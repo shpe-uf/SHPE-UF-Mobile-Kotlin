@@ -1,11 +1,11 @@
 package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.guest
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 data class InstagramPost(
     val id: String,

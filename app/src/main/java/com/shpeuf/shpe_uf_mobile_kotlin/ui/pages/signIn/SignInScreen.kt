@@ -38,11 +38,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.shpeuf.shpe_uf_mobile_kotlin.R
 import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import com.shpeuf.shpe_uf_mobile_kotlin.initializeViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
@@ -78,7 +81,12 @@ fun SignInBackground() {
         )
     }
 }
-
+@Preview(showBackground = true)
+@Composable
+fun SignInScreenPreview() {
+    val mockViewModel = initializeViewModel()
+    SignInScreen(rememberNavController(), mockViewModel)
+}
 @Composable
 fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFAppViewModel) {
 
@@ -186,7 +194,7 @@ fun UserNameInput(
     onValueChange: (String) -> Unit,
 ) {
     SuperiorTextField(
-        label = "Username",
+        label = "Username or Email",
         labelModifier = Modifier.padding(horizontal = 11.dp, vertical = 6.53.dp),
         value = value,
         onValueChange = onValueChange,

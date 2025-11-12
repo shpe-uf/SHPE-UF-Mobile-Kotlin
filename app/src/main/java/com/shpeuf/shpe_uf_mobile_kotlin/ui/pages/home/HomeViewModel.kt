@@ -88,6 +88,14 @@ class HomeViewModel(
         _homeUIState.value = _homeUIState.value.copy(isNotificationWindowVisible = false)
     }
 
+    fun openSocialWindow(){
+        _homeUIState.value = _homeUIState.value.copy(isSocialWindowVisible = true)
+    }
+
+    fun hideSocialWindow() {
+        _homeUIState.value = _homeUIState.value.copy(isSocialWindowVisible = false)
+    }
+
     // UI - Permission Handling
     val visiblePermissionDialogQueue = mutableStateListOf<String>()
 

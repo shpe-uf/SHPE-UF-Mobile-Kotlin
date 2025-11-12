@@ -44,18 +44,21 @@ sealed class ThemeColors(
     val text: Color,
     val topBar: Color,
     val navBar: Color,
+    val registerText: Color
 ) {
     object Night : ThemeColors(
         background = dark_bg,
         topBar = headerOrange,
         navBar = blueDarkModeBackground,
-        text = Color.White
+        text = Color.White,
+        registerText = Color(0xFF93E1FF)
     )
 
     object Day : ThemeColors(
         background = light_bg,
         topBar = headerOrange,
         navBar = Color.White,
-        text = Color.Black
+        text = Color.Black,
+        registerText = Color(0xFF0B70BA)
     )
 }

@@ -108,6 +108,10 @@ class SignInViewModel : ViewModel() {
 
             return id
         } else { // Else, the user provided incorrect credentials.
+
+            // If login is unsuccessful, display to user why the error occurred.
+            updateErrorMessage(response.errors?.firstOrNull()?.message?:"Could not login")
+            //Log.d("Error Checker", response.errors?.firstOrNull()?.message?:"Could not login")
             Log.w("GraphQL", "Could not login.")
             return null
         }
@@ -119,6 +123,8 @@ class SignInViewModel : ViewModel() {
         _uiState.value = currentState.copy(
             loginErrorMessage = message
         )
+        // see what the error message is
+        Log.d("Error Message", "${currentState.loginErrorMessage}")
     }
 
     // Getters for username, password, and the current app state.
