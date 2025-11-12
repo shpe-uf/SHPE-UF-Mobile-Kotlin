@@ -45,6 +45,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -114,6 +115,9 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 import com.shpeuf.shpe_uf_mobile_kotlin.util.*
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import java.time.format.TextStyle as DateTextStyle
 
 // Sample Card Items that are used for previews
 val sampleCardItems = listOf(
@@ -1812,6 +1816,7 @@ fun EventCardFeed(modifier: Modifier, viewModel: HomeViewModel, isDarkMode : Boo
             }
         }.toSortedMap()
     }
+val datesList = remember(groupedEvents){ groupedEvents.keys.toList() }
 
     Box (
         modifier = Modifier
@@ -1852,22 +1857,32 @@ fun EventCardFeed(modifier: Modifier, viewModel: HomeViewModel, isDarkMode : Boo
             },
             state = listState
         )
-
-        LaunchedEffect(listState, groupedEvents, state) {
+        /**
+         * @description Observes the scroll state of the event list and updates the
+         * header month based on the first visible event currently on screen.
+         *
+         * @author Luisa Almeida Quintella
+         * @date October 2025
+         *
+         * @param listState state of the event list used to detect scroll position
+         * @param datesList ordered list of LocalDate values corresponding to event days
+         * @param viewModel used to update the displayed month in the header
+         */
+        LaunchedEffect(listState, datesList) {
             snapshotFlow { listState.layoutInfo.visibleItemsInfo }
-                .collect { visibleItems ->
-                    if (visibleItems.isNotEmpty()) {
-                        val firstVisibleIndex = visibleItems.first().index
-                        val lastVisibleIndex = visibleItems.last().index
-
-                        val firstVisibleDate = groupedEvents.keys.toList()[firstVisibleIndex]
-                        val lastVisibleDate = groupedEvents.keys.toList()[lastVisibleIndex]
-
-                        if (firstVisibleDate != null && lastVisibleDate != null) {
-                            if (firstVisibleDate.month != lastVisibleDate.month) {
-                                viewModel.updateMonthName(lastVisibleDate.month.name)
-                            }
-                        }
+                .map { visible ->
+                    visible.firstOrNull { info ->
+                        info.index in 0 until datesList.size
+                    }?.index
+                }
+                .distinctUntilChanged()
+                .collect { idx: Int? ->
+                    if (idx != null) {
+                        val dateAtTop = datesList[idx]
+                        android.util.Log.d("MonthHeader", "topIdx=$idx date=$dateAtTop month=${dateAtTop.month}")
+                        viewModel.updateMonthName(dateAtTop.month.name)  // month-only, your existing API
+                    } else {
+                        android.util.Log.d("MonthHeader", "No matching top date in visible items")
                     }
                 }
         }
