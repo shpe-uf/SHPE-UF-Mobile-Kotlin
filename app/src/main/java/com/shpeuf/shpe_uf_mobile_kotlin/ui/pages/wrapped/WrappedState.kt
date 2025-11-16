@@ -10,7 +10,7 @@ data class WrappedState(
     val percentile: Int = 0,
     val error: String? = null,
 
-    val steps: List<WrappedStep> = emptyList(),
+    val steps: List<PageTiming> = emptyList(),
     val index: Int = 0,
     val progress: Float = 0f,
     val isPlaying: Boolean = true,
@@ -19,10 +19,10 @@ data class WrappedState(
     val finished: Boolean = false
 )
 
-data class WrappedStep(
-    val id: String,
-    val durationMs: Long = 3500L,
-    val cooldownMs: Long = 800L
+data class PageTiming(
+    val index: Int,
+    val startMs: Long,
+    val endMs: Long
 )
 
 data class WrappedPage(
