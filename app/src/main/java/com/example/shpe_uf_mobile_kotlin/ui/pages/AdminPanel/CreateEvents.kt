@@ -1,5 +1,9 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.events
 
+import android.util.Log
+import android.view.Gravity
+import android.widget.TextView
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,33 +19,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
+import android.text.Html
 import com.example.shpe_uf_mobile_kotlin.R
-import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
-import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
-import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfileScreen
 import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
-
-// for dark-mode preview constant
 import android.content.res.Configuration
 
 @Composable
 fun CreateEventsScreen(
     isDarkMode: Boolean,
-    onSave: (EventDraft) -> Unit,
+    viewModel: CreateEventViewModel,
+    onSuccess: () -> Unit,
     onCancel: () -> Unit,
     onBack: () -> Unit = {},
-    // optionally pass initial values to "edit" existing. Prob won't need until we include edit
-    // event functionality.
-    initial: EventDraft = EventDraft() // Initially empty
+    initial: EventDraft = EventDraft()
 ) {
 
     var title by remember { mutableStateOf(initial.title) }
@@ -50,12 +49,29 @@ fun CreateEventsScreen(
     var points by remember { mutableStateOf(initial.points) }
     var expiresIn by remember { mutableStateOf(initial.expiresIn) }
 
+    val createEventState by viewModel.createEventState.collectAsState()
+    val context = LocalContext.current
+
+    // Handle state changes with custom toasts
+    LaunchedEffect(createEventState) {
+        when (val state = createEventState) {
+            is CreateEventState.Success -> {
+                showCustomToast(context, "Event <b>${title.trim()}</b> created successfully!", isError = false)
+                viewModel.resetState()
+                onSuccess()
+            }
+            is CreateEventState.Error -> {
+                showCustomToast(context, "Error: ${state.message}", isError = true)
+            }
+            else -> { /* Idle or Loading */ }
+        }
+    }
+
     val textColor = if (isDarkMode) Color.White else Color.Black
     val containerColor = if (!isDarkMode) Color(0xFFD25917) else Color(0xFF001627)
     val bgSection = if (isDarkMode) Color(0xFF002139) else Color(0xFFF5F5F5)
+    val isLoading = createEventState is CreateEventState.Loading
 
-    // Header / background
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val orangeHeight = 150.dp
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -67,14 +83,12 @@ fun CreateEventsScreen(
                 .background(Color(0xFFD25917))
         )
 
-        // Alligator + "Create Event"
-        // Orange Header with Back Button + Title + Gator
+        // Header with Back Button + Title + Gator
         Box(
             Modifier
                 .fillMaxWidth()
                 .padding(top = 28.dp)
         ) {
-            // Back button (top-left) — small padding to match AdminPanel
             IconButton(
                 onClick = onBack,
                 modifier = Modifier
@@ -90,7 +104,6 @@ fun CreateEventsScreen(
                 )
             }
 
-            // Centered title — keep same top padding as before so it remains vertically consistent
             Text(
                 text = "CREATE EVENTS",
                 color = Color.White,
@@ -101,7 +114,6 @@ fun CreateEventsScreen(
                     .padding(top = 24.dp)
             )
 
-            // Gator - positioned to overlap the orange and background
             Image(
                 painter = painterResource(
                     id = if (isDarkMode) R.drawable.gator_dark_mode else R.drawable.gator_light_mode
@@ -139,23 +151,25 @@ fun CreateEventsScreen(
                     EditTextField(
                         value = title,
                         onValueChange = { title = it },
-                        isDarkMode = isDarkMode
+                        isDarkMode = isDarkMode,
+                        enabled = !isLoading
                     )
                 }
             }
 
-            // Code (email/code)
+            // Code
             item {
                 FieldBlock(
                     bg = bgSection,
                     label = "CODE",
-                    icon = R.drawable.profile_email,
+                    icon = R.drawable.lock,
                     textColor = textColor
                 ) {
                     EditTextField(
                         value = code,
                         onValueChange = { code = it },
-                        isDarkMode = isDarkMode
+                        isDarkMode = isDarkMode,
+                        enabled = !isLoading
                     )
                 }
             }
@@ -165,13 +179,15 @@ fun CreateEventsScreen(
                 FieldBlock(
                     bg = bgSection,
                     label = "CATEGORY",
-                    icon = R.drawable.profile_circle_orange,
+                    icon = R.drawable.category,
+                    iconSize = 20.dp,
                     textColor = textColor
                 ) {
                     DropdownField(
                         value = category,
                         onValueChange = { category = it },
                         isDarkMode = isDarkMode,
+                        enabled = !isLoading,
                         options = listOf(
                             "General Body Meeting",
                             "Cabinet Meeting",
@@ -187,13 +203,14 @@ fun CreateEventsScreen(
                 FieldBlock(
                     bg = bgSection,
                     label = "POINTS",
-                    icon = R.drawable.profile_year,
+                    icon = R.drawable.points,
                     textColor = textColor
                 ) {
                     EditTextField(
                         value = points,
                         onValueChange = { points = it.filter { ch -> ch.isDigit() } },
-                        isDarkMode = isDarkMode
+                        isDarkMode = isDarkMode,
+                        enabled = !isLoading
                     )
                 }
             }
@@ -210,14 +227,14 @@ fun CreateEventsScreen(
                         value = expiresIn,
                         onValueChange = { expiresIn = it },
                         isDarkMode = isDarkMode,
+                        enabled = !isLoading,
                         options = listOf("1 hour", "2 hours", "3 hours", "4 hours")
                     )
                 }
             }
 
-            // Add space between last field and buttons
             item {
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(10.dp))
             }
 
             // Buttons
@@ -230,7 +247,7 @@ fun CreateEventsScreen(
                 ) {
                     Button(
                         onClick = {
-                            onSave(
+                            viewModel.createEvent(
                                 EventDraft(
                                     title = title.trim(),
                                     code = code.trim(),
@@ -242,15 +259,27 @@ fun CreateEventsScreen(
                         },
                         shape = RoundedCornerShape(20.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = Color.White),
-                        modifier = Modifier.weight(1f)
-                    ) { Text("Save", fontSize = 18.sp) }
+                        modifier = Modifier.weight(1f),
+                        enabled = !isLoading
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Save", fontSize = 18.sp, fontFamily = FontFamily(Font(R.font.viga)))
+                        }
+                    }
 
                     Button(
                         onClick = onCancel,
                         shape = RoundedCornerShape(20.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = Color.White),
                         modifier = Modifier.weight(1f),
-                    ) { Text("Cancel", fontSize = 18.sp) }
+                        enabled = !isLoading
+                    ) { Text("Cancel", fontSize = 18.sp, fontFamily = FontFamily(Font(R.font.viga))) }
                 }
             }
 
@@ -259,7 +288,23 @@ fun CreateEventsScreen(
     }
 }
 
-// Simple value holder
+// Custom toast function matching QR scanner pattern
+private fun showCustomToast(context: android.content.Context, message: String, isError: Boolean = false) {
+    val layoutInflater = android.view.LayoutInflater.from(context)
+    val view = layoutInflater.inflate(R.layout.custom_toast, null)
+
+    val textView = view.findViewById<TextView>(R.id.toast_message)
+    val boldedText = Html.fromHtml(message, Html.FROM_HTML_MODE_LEGACY)
+    textView.text = boldedText
+
+    val toast = Toast(context)
+    // Error messages stay longer (LONG ~3.5 seconds), success messages shorter (SHORT ~2 seconds)
+    toast.duration = if (isError) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
+    toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 100)
+    toast.view = view
+    toast.show()
+}
+
 data class EventDraft(
     val title: String = "",
     val code: String = "",
@@ -274,6 +319,7 @@ private fun FieldBlock(
     label: String,
     icon: Int,
     textColor: Color,
+    iconSize: Dp = 26.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
@@ -287,9 +333,9 @@ private fun FieldBlock(
             modifier = Modifier
                 .padding(horizontal = 40.dp, vertical = 4.dp)
         ) {
-            Image(painter = painterResource(icon), contentDescription = null, modifier = Modifier.size(26.dp))
+            Image(painter = painterResource(icon), contentDescription = null, modifier = Modifier.size(iconSize))
             Spacer(Modifier.width(10.dp))
-            Text(label, color = Color(0xFFD25917), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(label, color = Color(0xFFD25917), fontSize = 20.sp, fontFamily = FontFamily(Font(R.font.viga)))
         }
 
         Column(modifier = Modifier.padding(horizontal = 40.dp)) {
@@ -305,7 +351,8 @@ private fun FieldBlock(
 private fun EditTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    isDarkMode: Boolean
+    isDarkMode: Boolean,
+    enabled: Boolean = true
 ) {
     val underline = if (isDarkMode) Color.White else Color.Black
     TextField(
@@ -314,16 +361,19 @@ private fun EditTextField(
             .padding(vertical = 12.dp),
         value = value,
         onValueChange = onValueChange,
+        enabled = enabled,
         singleLine = true,
         shape = RoundedCornerShape(12.dp),
-        textStyle = TextStyle(fontSize = 15.sp, color = if (isDarkMode) Color.White else Color.Black),
+        textStyle = TextStyle(fontSize = 15.sp, color = if (isDarkMode) Color.White else Color.Black, fontFamily = FontFamily(Font(R.font.universltstd))),
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedTextColor = if (isDarkMode) Color.White else Color.Black,
             focusedPlaceholderColor = Color.Gray,
             unfocusedPlaceholderColor = Color.Gray,
             focusedBorderColor = underline,
             unfocusedBorderColor = underline,
-            cursorColor = if (isDarkMode) Color.White else Color.Black
+            cursorColor = if (isDarkMode) Color.White else Color.Black,
+            disabledTextColor = if (isDarkMode) Color.White.copy(alpha = 0.5f) else Color.Black.copy(alpha = 0.5f),
+            disabledBorderColor = underline.copy(alpha = 0.5f)
         )
     )
 }
@@ -333,6 +383,7 @@ private fun DropdownField(
     value: String,
     onValueChange: (String) -> Unit,
     isDarkMode: Boolean,
+    enabled: Boolean = true,
     options: List<String>
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -346,17 +397,21 @@ private fun DropdownField(
     ) {
         Text(
             text = if (value.isBlank()) "Select…" else value,
-            color = if (isDarkMode) Color.White else Color.Black,
+            color = if (enabled) {
+                if (isDarkMode) Color.White else Color.Black
+            } else {
+                if (isDarkMode) Color.White.copy(alpha = 0.5f) else Color.Black.copy(alpha = 0.5f)
+            },
             fontSize = 15.sp,
             modifier = Modifier
                 .weight(1f)
-                .clickable { expanded = true }
+                .clickable(enabled = enabled) { expanded = true }
         )
-        IconButton(onClick = { expanded = !expanded }) {
+        IconButton(onClick = { expanded = !expanded }, enabled = enabled) {
             Icon(
                 imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                 contentDescription = null,
-                tint = iconTint
+                tint = if (enabled) iconTint else iconTint.copy(alpha = 0.5f)
             )
         }
 
@@ -374,10 +429,6 @@ private fun DropdownField(
     }
 }
 
-// Preview Tests
-/* They don't require a ViewModel or Nav. Later iterations prob should */
-
-/** Light mode preview */
 @Preview(
     name = "Events – Light",
     showBackground = true,
@@ -386,21 +437,9 @@ private fun DropdownField(
 )
 @Composable
 private fun EventsCreateScreenPreview_Light() {
-    CreateEventsScreen(
-        isDarkMode = false,
-        onSave = { /* blank for preview */ },
-        onCancel = { /* blank for preview */ },
-        initial = EventDraft(
-            title = "Daniel Dovale",
-            code = "ddovale2004@gmail.com",
-            category = "Workshop",
-            points = "10",
-            expiresIn = "2 hours"
-        )
-    )
+    // Preview placeholder
 }
 
-/** Dark mode preview */
 @Preview(
     name = "Events – Dark",
     showBackground = true,
@@ -410,44 +449,5 @@ private fun EventsCreateScreenPreview_Light() {
 )
 @Composable
 private fun EventsCreateScreenPreview_Dark() {
-    CreateEventsScreen(
-        isDarkMode = true,
-        onSave = { /* blank for preview */ },
-        onCancel = { /* blank for preview */ },
-        initial = EventDraft(
-            title = "Daniel Dovale",
-            code = "ddovale2004@gmail.com",
-            category = "General Body Meeting",
-            points = "5",
-            expiresIn = "1 hour"
-        )
-    )
+    // Preview placeholder
 }
-
-/**
- * You can change fields live while the preview is running.
- * (Uses remember state so you can type in the preview.)
- */
-@Preview(name = "Events – Editable Preview", showBackground = true, showSystemUi = true)
-@Composable
-private fun EventsCreateScreenPreview_Editable() {
-    var draft by remember {
-        mutableStateOf(
-            EventDraft(
-                title = "Daniel Dovale",
-                code = "ddovale2004@gmail.com",
-                category = "",
-                points = "",
-                expiresIn = ""
-            )
-        )
-    }
-
-    CreateEventsScreen(
-        isDarkMode = false,
-        onSave = { saved -> draft = saved }, // capture result in preview state (visible in debugger)
-        onCancel = { /* blank */ },
-        initial = draft
-    )
-}
-

@@ -30,6 +30,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.shpe_uf_mobile_kotlin.R
 import com.example.shpe_uf_mobile_kotlin.data.AppState
 import com.example.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.collectAsState
+import com.example.shpe_uf_mobile_kotlin.SHPEUFApp
 import com.example.shpe_uf_mobile_kotlin.ui.pages.guest.GuestPlaceholderPage
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
@@ -41,6 +44,7 @@ import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePreview
 import com.example.shpe_uf_mobile_kotlin.ui.pages.admin.AdminPanelScreen
 import com.example.shpe_uf_mobile_kotlin.ui.pages.events.CreateEventsScreen
+import com.example.shpe_uf_mobile_kotlin.ui.pages.events.CreateEventViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegisterRoutes
 import com.example.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
@@ -238,10 +242,12 @@ fun NavHostContainer(
         {
             ProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
         }
-        composable(NavRoute.ADMIN)
-        {
+        composable(NavRoute.ADMIN) {
+            val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
+
             AdminPanelScreen(
                 isUserAdmin = profileViewModel.isUserAdmin(),
+                isDarkMode = isDarkMode,
                 onBack = {
                     navHostController.popBackStack()
                 },
@@ -251,21 +257,16 @@ fun NavHostContainer(
             )
         }
 
-        composable(NavRoute.CREATE_EVENTS)
-        {
+        composable(NavRoute.CREATE_EVENTS) {
+            val createEventViewModel = CreateEventViewModel()
+            val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
+
             CreateEventsScreen(
-                isDarkMode = isSystemInDarkTheme(),
-                onSave = { eventDraft ->
-                    // Handle saving the event (call GraphQL mutation here)
-                    // For now, just go back
-                    navHostController.popBackStack()
-                },
-                onCancel = {
-                    navHostController.popBackStack()
-                },
-                onBack = {
-                    navHostController.popBackStack()
-                }
+                isDarkMode = isDarkMode,
+                viewModel = createEventViewModel,
+                onSuccess = { navHostController.popBackStack() },
+                onCancel = { navHostController.popBackStack() },
+                onBack = { navHostController.popBackStack() }
             )
         }
 
