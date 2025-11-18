@@ -21,85 +21,35 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.shpe_uf_mobile_kotlin.R
 
 
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewAdminPanel() {
-//    AdminPanelScreen(isUserAdmin = true)
-//}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPanelScreen(
     isUserAdmin: Boolean,
+    isDarkMode: Boolean,
     onBack: () -> Unit = {},
     onNavigateToEvents: () -> Unit = {}
 ) {
-    // Define colors
-    val darkBlue = Color(0xFF011F35)
-    val lightBlue = Color(36 / 255f, 87 / 255f, 197 / 255f, 0.75f)
-    val orange = Color(210 / 255f, 89 / 255f, 23 / 255f, 0.75f)
+    // Define colors based on dark mode - matching app's color scheme
+    val backgroundColor = if (isDarkMode) Color(0xFF011F35) else Color(0xFFF5F5F5)
+    val textColor = if (isDarkMode) Color.White else Color(0xFF011F35)
 
-    // Show loading state while checking permissions
-//    if (!isUserAdmin) {
-//        // User is not admin - show access denied message
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .background(darkBlue),
-//            verticalArrangement = Arrangement.Center,
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            Icon(
-//                painter = painterResource(id = R.drawable.error),
-//                contentDescription = "Access Denied",
-//                tint = Color.Red,
-//                modifier = Modifier.size(64.dp)
-//            )
-//
-//            Spacer(modifier = Modifier.height(24.dp))
-//
-//            Text(
-//                text = "Access Denied",
-//                color = Color.White,
-//                fontSize = 28.sp,
-//                fontFamily = FontFamily(Font(R.font.viga)),
-//                fontWeight = FontWeight.Bold
-//            )
-//
-//            Spacer(modifier = Modifier.height(12.dp))
-//
-//            Text(
-//                text = "You don't have permission to access this page",
-//                color = Color.White,
-//                fontSize = 16.sp,
-//                fontFamily = FontFamily(Font(R.font.universltstd)),
-//                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-//                modifier = Modifier.padding(horizontal = 32.dp)
-//            )
-//
-//            Spacer(modifier = Modifier.height(32.dp))
-//
-//            Button(
-//                onClick = onBack,
-//                colors = ButtonDefaults.buttonColors(
-//                    containerColor = orange
-//                )
-//            ) {
-//                Text(
-//                    text = "Go Back",
-//                    fontSize = 18.sp,
-//                    color = Color.White
-//                )
-//            }
-//        }
-//        return
-//    }
+    // Using the same blue found in Points/Profile screens
+    val cardLightBlue = if (isDarkMode) {
+        Color(0xFF2457C5) // Brighter blue for dark mode
+    } else {
+        Color(0xFF1E4A94) // Darker blue for light mode
+    }
+
+    // Using the exact orange from Points/Profile screens
+    val cardOrange = Color(0xFFD25917)
+
+    val iconTint = Color.White // Icons always white on colored cards
 
     // Only shown if user is admin
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(darkBlue)
+            .background(backgroundColor)
     ) {
         // Top bar with back arrow
         Row(
@@ -112,7 +62,7 @@ fun AdminPanelScreen(
                 Icon(
                     painter = painterResource(id = R.drawable.back),
                     contentDescription = "Back",
-                    tint = Color.White,
+                    tint = textColor,
                     modifier = Modifier.size(26.dp)
                 )
             }
@@ -127,7 +77,7 @@ fun AdminPanelScreen(
         ) {
             Text(
                 text = "Admin Panel",
-                color = Color.White,
+                color = textColor,
                 fontSize = 28.sp,
                 fontFamily = FontFamily(Font(R.font.viga)),
             )
@@ -152,8 +102,9 @@ fun AdminPanelScreen(
             ) {
                 AdminCard(
                     title = "Events",
-                    iconRes = R.drawable.calendar_dm_on,
-                    backgroundColor = lightBlue,
+                    iconRes = R.drawable.events,
+                    backgroundColor = cardLightBlue,
+                    iconTint = iconTint,
                     modifier = Modifier.weight(1f),
                     onClick = onNavigateToEvents
                 )
@@ -161,7 +112,8 @@ fun AdminPanelScreen(
                 AdminCard(
                     title = "Members",
                     iconRes = R.drawable.profile,
-                    backgroundColor = lightBlue,
+                    backgroundColor = cardLightBlue,
+                    iconTint = iconTint,
                     modifier = Modifier.weight(1f),
                     onClick = { /* Handle Members click */ }
                 )
@@ -177,7 +129,8 @@ fun AdminPanelScreen(
                 AdminCard(
                     title = "Resources",
                     iconRes = R.drawable.resources,
-                    backgroundColor = orange,
+                    backgroundColor = cardOrange,
+                    iconTint = iconTint,
                     modifier = Modifier.weight(1f),
                     onClick = { /* Handle Resources click */ }
                 )
@@ -185,7 +138,8 @@ fun AdminPanelScreen(
                 AdminCard(
                     title = "Requests",
                     iconRes = R.drawable.requests,
-                    backgroundColor = orange,
+                    backgroundColor = cardOrange,
+                    iconTint = iconTint,
                     modifier = Modifier.weight(1f),
                     onClick = { /* Handle Requests click */ }
                 )
@@ -201,7 +155,8 @@ fun AdminPanelScreen(
                 AdminCard(
                     title = "Statistics",
                     iconRes = R.drawable.statistics,
-                    backgroundColor = lightBlue,
+                    backgroundColor = cardLightBlue,
+                    iconTint = iconTint,
                     modifier = Modifier.weight(1f),
                     onClick = { /* Handle Statistics click */ }
                 )
@@ -209,7 +164,8 @@ fun AdminPanelScreen(
                 AdminCard(
                     title = "Corporate Database",
                     iconRes = R.drawable.corporate_database,
-                    backgroundColor = lightBlue,
+                    backgroundColor = cardLightBlue,
+                    iconTint = iconTint,
                     modifier = Modifier.weight(1f),
                     onClick = { /* Handle Corporate Database click */ }
                 )
@@ -225,7 +181,8 @@ fun AdminPanelScreen(
                 AdminCard(
                     title = "Reimburse",
                     iconRes = R.drawable.reimburse,
-                    backgroundColor = orange,
+                    backgroundColor = cardOrange,
+                    iconTint = iconTint,
                     modifier = Modifier.weight(1f),
                     onClick = { /* Handle Reimburse click */ }
                 )
@@ -233,7 +190,8 @@ fun AdminPanelScreen(
                 AdminCard(
                     title = "SHPE Rentals",
                     iconRes = R.drawable.shpe_rentals,
-                    backgroundColor = orange,
+                    backgroundColor = cardOrange,
+                    iconTint = iconTint,
                     modifier = Modifier.weight(1f),
                     onClick = { /* Handle SHPE Rentals click */ }
                 )
@@ -249,12 +207,13 @@ fun AdminCard(
     title: String,
     iconRes: Int,
     backgroundColor: Color,
+    iconTint: Color = Color.White,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
     Card(
         modifier = modifier
-            .fillMaxHeight() // Fill the row's height
+            .fillMaxHeight()
             .clickable { onClick() },
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
@@ -270,7 +229,7 @@ fun AdminCard(
             Icon(
                 painter = painterResource(id = iconRes),
                 contentDescription = title,
-                tint = Color.White,
+                tint = iconTint,
                 modifier = Modifier.size(30.dp)
             )
 
