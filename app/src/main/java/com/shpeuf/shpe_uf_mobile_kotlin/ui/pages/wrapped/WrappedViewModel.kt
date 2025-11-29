@@ -19,6 +19,7 @@ import java.time.Month
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
+import java.time.temporal.ChronoUnit
 import java.util.Locale
 import kotlin.math.max
 
@@ -65,6 +66,22 @@ class WrappedViewModel : ViewModel() {
                     Locale.getDefault()
                 )
             }
+    }
+
+    private fun calculateYearsInShpe(response: ApolloResponse<GetUserQuery.Data>): Int {
+        val createdAt = response.data?.getUser?.createdAt ?: return 0
+
+        return try {
+            val zonedDateTime = ZonedDateTime.parse(createdAt.toString())
+            val joinDate = zonedDateTime.toLocalDate()
+            // Use the same zone as the stored timestamp for consistency
+            val today = LocalDate.now(zonedDateTime.zone)
+
+            val years = ChronoUnit.YEARS.between(joinDate, today).toInt()
+            if (years < 0) 0 else years
+        } catch (e: Exception) {
+            0
+        }
     }
 
     /**
@@ -157,6 +174,7 @@ class WrappedViewModel : ViewModel() {
                 val (semesterName, points, percentile) =
                     processPointsData(pointsResponse)
                 val memberSince = processUserJoinDate(userResponse)
+                val yearsInShpe = calculateYearsInShpe(userResponse)
 
                 _uiState.update {
                     it.copy(
@@ -170,6 +188,7 @@ class WrappedViewModel : ViewModel() {
                         points = points,
                         percentile = percentile,
                         memberSince = memberSince,
+                        yearsInShpe = yearsInShpe,
                         error = null
                     )
                 }

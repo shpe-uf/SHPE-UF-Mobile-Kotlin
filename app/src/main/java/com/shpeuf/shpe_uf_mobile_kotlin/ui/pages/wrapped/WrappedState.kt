@@ -11,6 +11,7 @@ data class WrappedState(
     val points: Int = 0,
     val percentile: Int = 100,
     val topCategoryCount: Int = 0,
+    val yearsInShpe: Int = 0,
     val error: String? = null,
 
     val steps: List<PageTiming> = emptyList(),

@@ -596,34 +596,29 @@ fun CircularMarqueeRing(
     radiusFraction: Float,          // 0–0.5 of the min dimension
     sweepDegrees: Float,
     clockwise: Boolean,
+    scrollFraction: Float,          // drives the “rotation”
     spawnMore: Boolean,
-    isPaused: Boolean,
-    baseAngularSpeedRadPerSec: Float,
     fontSize: TextUnit
 ) {
+    // Ensure trailing space so tiles don't touch
     val phrase = remember(text) {
         if (text.endsWith(" ")) text else "$text "
     }
 
     var phraseWidthPx by remember { mutableStateOf(0f) }
     var phraseHeightPx by remember { mutableStateOf(0f) }
-    var phase by remember { mutableStateOf(0f) }
 
     val density = LocalDensity.current
-    val currentIsPaused by rememberUpdatedState(isPaused)
 
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
     ) {
         val minDimPx = with(density) { min(maxWidth, maxHeight).toPx() }
         val radiusPx = minDimPx * radiusFraction
-
-        if (radiusPx <= 0f) return@BoxWithConstraints
-
         val centerX = constraints.maxWidth / 2f
         val centerY = constraints.maxHeight / 2f
 
-        // Invisible text to measure one tile
+        // Invisible text to measure one tile – always composed
         Text(
             text = phrase,
             color = color,
@@ -640,7 +635,9 @@ fun CircularMarqueeRing(
             }
         )
 
-        if (phraseWidthPx <= 0f) return@BoxWithConstraints
+        if (radiusPx <= 0f || phraseWidthPx <= 0f) {
+            return@BoxWithConstraints
+        }
 
         val tileArcLengthPx = phraseWidthPx
         val sweepRad = sweepDegrees * (PI.toFloat() / 180f)
@@ -648,45 +645,24 @@ fun CircularMarqueeRing(
 
         val copies = (arcLengthPx / tileArcLengthPx).toInt() + 3
 
-        // *** KEY PART: linear speed ∝ radius ***
-        val speedPxPerSec = baseAngularSpeedRadPerSec * radiusPx
-
-        LaunchedEffect(clockwise, spawnMore, tileArcLengthPx, radiusPx) {
-            var last = withFrameNanos { it }
-            while (true) {
-                val now = withFrameNanos { it }
-                var dt = (now - last) / 1_000_000_000f
-
-                if (currentIsPaused || tileArcLengthPx <= 0f) {
-                    last = now
-                    continue
-                }
-
-                if (dt > 0.05f) dt = 0.05f
-                last = now
-
-                val step = speedPxPerSec * dt
-
-                phase = if (spawnMore) {
-                    (phase + step) % tileArcLengthPx
-                } else {
-                    phase + step
-                }
-            }
+        // Normalize scrollFraction into [0, 1)
+        val normPhase = run {
+            val raw = scrollFraction % 1f
+            if (raw < 0f) raw + 1f else raw
         }
+        val scrollOffsetPx = normPhase * tileArcLengthPx
 
-        // Draw tiled phrases along the arc
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
             for (i in -2 until copies) {
                 val baseArcOffsetPx = if (clockwise) {
-                    -phase + i * tileArcLengthPx
+                    -scrollOffsetPx + i * tileArcLengthPx
                 } else {
-                    phase + i * tileArcLengthPx
+                    scrollOffsetPx + i * tileArcLengthPx
                 }
 
-                // When we’ve stopped spawning, let phrases drift off the arc
+                // When we've stopped spawning, let phrases drift off the arc
                 if (!spawnMore &&
                     (baseArcOffsetPx < -tileArcLengthPx ||
                             baseArcOffsetPx > arcLengthPx + tileArcLengthPx)
@@ -694,13 +670,13 @@ fun CircularMarqueeRing(
                     continue
                 }
 
-                // Normalized position [0,1] along the sweep
+                // Position along sweep [0,1] (with a bit of extra to avoid popping)
                 val t = (baseArcOffsetPx / arcLengthPx)
-                    .coerceIn(0f - 0.2f, 1f + 0.2f)
+                    .coerceIn(-0.2f, 1.2f)
 
                 val angleOffset = t * sweepRad
-                val startAngleRad = (180f + (180f - sweepDegrees) / 2f) *
-                        (PI.toFloat() / 180f)  // arc roughly hugging left side
+                val startAngleRad =
+                    (180f + (180f - sweepDegrees) / 2f) * (PI.toFloat() / 180f)
 
                 val angle = if (clockwise) {
                     startAngleRad + angleOffset
@@ -711,7 +687,8 @@ fun CircularMarqueeRing(
                 val x = centerX + radiusPx * cos(angle)
                 val y = centerY + radiusPx * sin(angle)
 
-                val rotationDeg = angle * 180f / PI.toFloat() + if (clockwise) 90f else -90f
+                val rotationDeg =
+                    angle * 180f / PI.toFloat() + if (clockwise) 90f else -90f
 
                 Box(
                     modifier = Modifier
