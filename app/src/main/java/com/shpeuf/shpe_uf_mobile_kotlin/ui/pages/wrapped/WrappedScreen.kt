@@ -50,12 +50,10 @@ import kotlin.math.sin
  * Public entry point: call from NavHost with composable(NavRoute.WRAPPED) { WrappedScreen() }
  */
 @Composable
-fun WrappedScreen(
-    modifier: Modifier = Modifier,
+fun WrappedScreen(modifier: Modifier = Modifier,
     shpeufAppViewModel: SHPEUFAppViewModel,
     onExit: () -> Unit = {}
 ) {
-    // this is disjoint from page transition logic.
     val segments = remember {
         listOf(
             WrappedPage("marquee_shpe", "SHPE Wrapped", 2500L), // seg 0
@@ -66,6 +64,8 @@ fun WrappedScreen(
             WrappedPage("points_stats", "Total SHPoints stats", 6000L), // seg 5
             WrappedPage("top_category_intro", "Top Category intro", 5500L), // seg 6
             WrappedPage("top_category_stats", "Top Category stats", 6000L), // seg 7
+            WrappedPage("years_radar", "Years radar animation", 5000L), // seg 8
+            WrappedPage("years_stats", "Years stat page", 6000L), // seg 9
         )
     }
 
@@ -74,8 +74,8 @@ fun WrappedScreen(
             0..2,
             3..3,
             4..5,
-            6..7,
-
+            6..7, //bluh
+            8..9,
         )
     }
 
@@ -297,6 +297,27 @@ fun WrappedScreen(
         }
     }
 
+    val yearsRadarProgress by remember {
+        derivedStateOf {
+            when {
+                currentSegmentIndex < 8 -> 0f
+                currentSegmentIndex == 8 -> currentSegmentFraction
+                else -> 1f
+            }
+        }
+    }
+
+    val yearsStatsProgress by remember {
+        derivedStateOf {
+            when {
+                currentSegmentIndex < 9 -> 0f
+                currentSegmentIndex == 9 -> currentSegmentFraction
+                else -> 1f
+            }
+        }
+    }
+
+
     val isMarqueePaused = isHolding || isSettling
 
     // Progress bar still has 3 segments (for the 3 timeline segments above)
@@ -454,6 +475,35 @@ fun WrappedScreen(
                                 }
                             }
                         }
+
+                        4 -> {
+                            when (currentSegmentIndex) {
+                                8 -> {
+                                    YearsRadarMarqueePage(
+                                        progress = yearsRadarProgress,
+                                        isDarkMode = isDarkMode,
+                                        years = wrappedState.yearsInShpe,
+                                        isPaused = isMarqueePaused
+                                    )
+                                }
+
+                                9 -> {
+                                    YearsAsShpeitoStatsPage(
+                                        progress = yearsStatsProgress,
+                                        isDarkMode = isDarkMode,
+                                        yearsInShpe = wrappedState.yearsInShpe
+                                    )
+                                }
+
+                                else -> {
+                                    YearsAsShpeitoStatsPage(
+                                        progress = yearsStatsProgress,
+                                        isDarkMode = isDarkMode,
+                                        yearsInShpe = wrappedState.yearsInShpe
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -552,6 +602,7 @@ private fun MarqueeCombinedPage(
         )
     }
 }
+
 
 @Composable
 private fun MostActiveMonthStatsPage(
@@ -791,6 +842,7 @@ private fun PointsStatsPage(
     }
 }
 
+
 @Composable
 private fun TopCategoryIntroPage(
     progress: Float,
@@ -1022,89 +1074,203 @@ fun YearsRadarMarqueePage(
 ) {
     val (bgColor, whiteText, shpeOrange) = marqueeColors(isDarkMode)
 
-    // Text used in the curved marquee rings
-    val phrase = remember(years) { "${years.coerceAtLeast(1)} YEARS " }
+    val clampedYears = years.coerceAtLeast(1)
+    val phrase = "$clampedYears YEARS IN SHPE"
 
-    // When progress < stopThreshold, rings keep looping and respawning;
-    // after that, they stop spawning and text drains away.
-    val stopSpawnThreshold = 0.8f
-    val spawnMore = progress < stopSpawnThreshold
+    // How "exited" this page is (for slide/alpha)
+    val exitProgress = ((progress - 0.8f) / 0.2f).coerceIn(0f, 1f)
+    val containerRotation = 6f * exitProgress
+    val containerAlpha = 1f - exitProgress
+    val containerSlideUp = -120f * exitProgress
 
-    val appearEnd = 0.25f
-    val appearPhase = (progress / appearEnd).coerceIn(0f, 1f)
-
-    val exitStart = 0.8f
-    val exitProgress = ((progress - exitStart) / (1f - exitStart)).coerceIn(0f, 1f)
-
-    val rotationDeg = (1f - appearPhase) * 50f  // spin in
-    val alpha = 1f - exitProgress
-    val slideUp = -200f * exitProgress
+    // Simple infinite rotation for the ring
+    val infiniteTransition = rememberInfiniteTransition(label = "years_ring")
+    val rawRotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 16000,
+                easing = LinearEasing
+            ),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "years_ring_rotation"
+    )
+    val ringRotation = if (isPaused) 0f else rawRotation
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(bgColor)
-            .padding(horizontal = 24.dp, vertical = 24.dp)
+            .padding(24.dp)
     ) {
+        // Rotating ring of text
         Box(
             modifier = Modifier
-                .fillMaxSize()
+                .size(260.dp)
+                .align(Alignment.Center)
                 .graphicsLayer {
-                    rotationZ = rotationDeg
-                    this.alpha = alpha
-                    translationY = slideUp
+                    rotationZ = ringRotation + containerRotation
+                    alpha = containerAlpha
+                    translationY = containerSlideUp
                 }
         ) {
-            // 3–4 concentric rings, all using the same base angular speed.
-            // Outer rings move faster because v = ω * r.
-            val baseAngularSpeedRadPerSec = 0.7f
+            val segments = 12
+            repeat(segments) { index ->
+                val segmentAngle = 360f / segments * index
 
-            CircularMarqueeRing(
-                text = phrase,
-                color = shpeOrange,
-                radiusFraction = 0.23f,
-                sweepDegrees = 220f,
-                clockwise = true,
-                spawnMore = spawnMore,
-                isPaused = isPaused,
-                baseAngularSpeedRadPerSec = baseAngularSpeedRadPerSec,
-                fontSize = 24.sp
-            )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            rotationZ = segmentAngle
+                        }
+                ) {
+                    Text(
+                        text = phrase,
+                        color = if (index % 2 == 0) shpeOrange else whiteText,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        maxLines = 1,
+                        softWrap = false,
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 6.dp)
+                    )
+                }
+            }
+        }
 
-            CircularMarqueeRing(
-                text = phrase,
+        // Center numeric label
+        Column(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .graphicsLayer {
+                    alpha = containerAlpha
+                    translationY = containerSlideUp
+                },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = clampedYears.toString(),
                 color = whiteText,
-                radiusFraction = 0.32f,
-                sweepDegrees = 220f,
-                clockwise = false,
-                spawnMore = spawnMore,
-                isPaused = isPaused,
-                baseAngularSpeedRadPerSec = baseAngularSpeedRadPerSec,
-                fontSize = 24.sp
+                fontSize = 50.sp,
+                fontWeight = FontWeight.ExtraBold
             )
-
-            CircularMarqueeRing(
-                text = phrase,
-                color = shpeOrange,
-                radiusFraction = 0.41f,
-                sweepDegrees = 220f,
-                clockwise = true,
-                spawnMore = spawnMore,
-                isPaused = isPaused,
-                baseAngularSpeedRadPerSec = baseAngularSpeedRadPerSec,
-                fontSize = 24.sp
-            )
-
-            CircularMarqueeRing(
-                text = phrase,
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = "YEARS IN SHPE",
                 color = whiteText,
-                radiusFraction = 0.50f,
-                sweepDegrees = 220f,
-                clockwise = false,
-                spawnMore = spawnMore,
-                isPaused = isPaused,
-                baseAngularSpeedRadPerSec = baseAngularSpeedRadPerSec,
-                fontSize = 24.sp
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+
+
+@Composable
+private fun YearsAsShpeitoStatsPage(
+    progress: Float,
+    isDarkMode: Boolean,
+    yearsInShpe: Int
+) {
+    val bg =
+        if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    val primaryText =
+        if (isDarkMode) Color.White else Color.Black
+
+    val yearsLabel = when {
+        yearsInShpe <= 0 -> "1 Year!"
+        yearsInShpe == 1 -> "1 Year!"
+        else -> "$yearsInShpe Years!"
+    }
+
+    val mainEnterEnd = 0.25f
+    val mainEnter = (progress / mainEnterEnd).coerceIn(0f, 1f)
+    val mainOffset = (1f - mainEnter) * 200f
+    val mainAlpha = mainEnter
+
+    val bottomEnterStart = 0.20f
+    val bottomEnterEnd = 0.35f
+    val bottomEnter =
+        ((progress - bottomEnterStart) / (bottomEnterEnd - bottomEnterStart))
+            .coerceIn(0f, 1f)
+    val bottomOffset = (1f - bottomEnter) * 200f
+    val bottomAlpha = bottomEnter
+
+    val exitStart = 0.8f
+    val exitProgress =
+        ((progress - exitStart) / (1f - exitStart)).coerceIn(0f, 1f)
+    val exitOffset = -200f * exitProgress
+    val exitAlphaFactor = 1f - exitProgress
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(bg)
+            .padding(horizontal = 24.dp, vertical = 32.dp)
+    ) {
+        // Center block: "[X] Years!\nSince you first\nbecame a SHPEito"
+        Column(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .graphicsLayer {
+                    translationY = mainOffset + exitOffset
+                    alpha = mainAlpha * exitAlphaFactor
+                },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = yearsLabel,
+                color = OrangeSHPE,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = "Since you first",
+                color = primaryText,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "became a SHPEito",
+                color = primaryText,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
+        }
+
+        // Bottom block: "Thank you for being\na part of the familia :)"
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 32.dp)
+                .graphicsLayer {
+                    translationY = bottomOffset + exitOffset
+                    alpha = bottomAlpha * exitAlphaFactor
+                },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Thank you for being",
+                color = primaryText,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "a part of the familia :)",
+                color = primaryText,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
             )
         }
     }
