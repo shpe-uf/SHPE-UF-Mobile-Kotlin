@@ -3,11 +3,13 @@ package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped
 data class WrappedState(
     val isLoading: Boolean = true,
     val topMonth: String = "loading ...",
+    val secondMonth: String = "loading ...",
+    val thirdMonth: String = "loading ...",
     val topCategory: String = "loading ...",
     val memberSince: String = "loading ...",
     val semester: String = "loading ...",
     val points: Int = 0,
-    val percentile: Int = 0,
+    val percentile: Int = 100,
     val error: String? = null,
 
     val steps: List<PageTiming> = emptyList(),

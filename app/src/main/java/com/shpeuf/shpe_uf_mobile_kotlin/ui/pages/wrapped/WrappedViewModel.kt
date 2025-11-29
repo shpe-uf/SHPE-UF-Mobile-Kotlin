@@ -39,20 +39,32 @@ class WrappedViewModel : ViewModel() {
      * Calculates the month with the most events from a given list.
      * Assumes `createdAt` is a String in "YYYY-MM-DD" format.
      */
-    private fun calculateTopMonth(events: List<EventsQuery.Event>): String {
-        return events.mapNotNull { event ->
-            event.createdAt.substring(5, 7).toIntOrNull()
-        }
-            .groupBy { it }
-            .mapValues { it.value.size }
-            .maxByOrNull { it.value }
-            ?.key
-            ?.let { monthNumber ->
-                // Convert the month number to its full name
+    private fun calculateTopMonths(
+        events: List<EventsQuery.Event>,
+        topN: Int = 3
+    ): List<String> {
+        val countsByMonthNumber = events.mapNotNull { event ->
+            val createdAt = event.createdAt
+            if (createdAt.length >= 7) {
+                createdAt.substring(5, 7).toIntOrNull()
+            } else {
+                null
+            }
+        }.groupingBy { it }
+            .eachCount()
+
+        return countsByMonthNumber.entries
+            .sortedWith(
+                compareByDescending<Map.Entry<Int, Int>> { it.value }
+                    .thenBy { it.key }
+            )
+            .take(topN)
+            .map { (monthNumber, _) ->
                 Month.of(monthNumber).getDisplayName(
                     TextStyle.FULL,
-                    Locale.getDefault())
-            } ?: "N/A"
+                    Locale.getDefault()
+                )
+            }
     }
 
     /**
@@ -108,28 +120,50 @@ class WrappedViewModel : ViewModel() {
             _uiState.update { it.copy(isLoading = true) }
 
             try {
-                val eventsResponseDeferred = async { apolloClient.query(EventsQuery(id)).execute() }
-                val pointsResponseDeferred = async { apolloClient.query(PointsQuery(id)).execute() }
-                val userResponseDeferred = async { apolloClient.query(GetUserQuery(id)).execute() }
+                val eventsResponseDeferred =
+                    async { apolloClient.query(EventsQuery(id)).execute() }
+                val pointsResponseDeferred =
+                    async { apolloClient.query(PointsQuery(id)).execute() }
+                val userResponseDeferred =
+                    async { apolloClient.query(GetUserQuery(id)).execute() }
 
                 val eventsResponse = eventsResponseDeferred.await()
                 val pointsResponse = pointsResponseDeferred.await()
                 val userResponse = userResponseDeferred.await()
 
-                val events = eventsResponse.data?.getUser?.events?.filterNotNull()?.map {
-                    it.copy(createdAt = formatDate(it.createdAt))
-                } ?: emptyList()
-                val topCategory = if (events.isNotEmpty()) calculateTopCategory(events) else "No events attended"
-                val topMonth = if (events.isNotEmpty()) calculateTopMonth(events) else "No events attended"
+                // 1) raw events straight from GraphQL
+                val rawEvents = eventsResponse.data
+                    ?.getUser
+                    ?.events
+                    ?.filterNotNull()
+                    ?: emptyList()
 
-                val (semesterName, points, percentile) = processPointsData(pointsResponse)
+                // 2) pretty-printed version for any UI that uses createdAt
+                val events = rawEvents.map {
+                    it.copy(createdAt = formatDate(it.createdAt))
+                }
+
+                val topCategory = if (rawEvents.isNotEmpty())
+                    calculateTopCategory(rawEvents)
+                else
+                    "No events attended"
+
+                val topMonths = if (rawEvents.isNotEmpty())
+                    calculateTopMonths(rawEvents, topN = 3)
+                else
+                    emptyList()
+
+                val (semesterName, points, percentile) =
+                    processPointsData(pointsResponse)
                 val memberSince = processUserJoinDate(userResponse)
 
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         topCategory = topCategory,
-                        topMonth = topMonth,
+                        topMonth = topMonths.getOrNull(0) ?: "No events attended",
+                        secondMonth = topMonths.getOrNull(1) ?: "",
+                        thirdMonth = topMonths.getOrNull(2) ?: "",
                         semester = semesterName,
                         points = points,
                         percentile = percentile,
@@ -139,9 +173,11 @@ class WrappedViewModel : ViewModel() {
                 }
 
             } catch (e: Exception) {
-                // Handle any network or processing errors
                 _uiState.update {
-                    it.copy(isLoading = false, error = "Failed to fetch wrapped data.")
+                    it.copy(
+                        isLoading = false,
+                        error = "Failed to fetch wrapped data."
+                    )
                 }
             }
         }

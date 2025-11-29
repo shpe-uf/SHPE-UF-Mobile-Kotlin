@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
@@ -55,14 +56,45 @@ fun WrappedScreen(
     // this is disjoint from page transition logic.
     val segments = remember {
         listOf(
-            WrappedPage("marquee_shpe", "SHPE Wrapped", 2500L),           // seg 0
+            WrappedPage("marquee_shpe", "SHPE Wrapped", 2500L), // seg 0
             WrappedPage("marquee_most_active", "Most Active Month", 2500L), // seg 1
-            WrappedPage("stats1", "Most Active Month: October", 3500L),  // seg 2
+            WrappedPage("marquee_settle", "Most Active Month (settle)", 2000L), //seg 2
+            WrappedPage("stats1", "Most Active Month: October", 6000L), // seg 3
+            WrappedPage("points_marquees", "Total SHPoints marquees", 3000L), // seg 4
+            WrappedPage("points_stats", "Total SHPoints stats", 6000L),  // seg 5
         )
+    }
+
+    val pageGroups = remember {
+        listOf(
+            0..2,
+            3..3,
+            4..5,
+
+        )
+    }
+
+    val segmentToPage = remember(pageGroups, segments.size) {
+        IntArray(segments.size) { segIndex ->
+            pageGroups.indexOfFirst { segIndex in it }.coerceAtLeast(0)
+        }
+    }
+
+    val pageSnapSegment = remember(pageGroups) {
+        pageGroups.map { range -> range.first } // change .first to .last if you want “end of lump”
     }
 
     val uiState by shpeufAppViewModel.uiState.collectAsState()
     val isDarkMode = uiState.isDarkMode
+
+    val wrappedViewModel: WrappedViewModel = viewModel()
+    val wrappedState by wrappedViewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.id) {
+        if (uiState.id.isNotBlank()) {
+            wrappedViewModel.getWrappedData(uiState.id)
+        }
+    }
 
     // ---- 1) Segment timings (same as before but for `segments`) ----
     val segmentTimings = remember(segments) {
@@ -79,9 +111,11 @@ fun WrappedScreen(
         segmentTimings.lastOrNull()?.endMs ?: 0L
     }
 
-    // page 0: marquee (both SHPE + Most Active)
-    // page 1: stats1
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
+    // One pager page per segment
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { pageGroups.size }
+    )
 
     // Global timeline
     var globalTimeMs by remember { mutableLongStateOf(0L) }
@@ -92,7 +126,6 @@ fun WrappedScreen(
     var isSettling by remember { mutableStateOf(false) }
     var autoPlayEnabled by remember { mutableStateOf(true) }
 
-    // ---- 2) Current segment + fraction (timeline-based) ----
     val currentSegmentIndex by remember {
         derivedStateOf {
             if (segmentTimings.isEmpty()) 0
@@ -113,14 +146,11 @@ fun WrappedScreen(
         }
     }
 
-    // Derived pager page from segment index
-    // seg 0 & 1 => page 0 (marquee), seg 2 => page 1 (stats)
     val currentPagerPageIndex by remember {
         derivedStateOf {
-            when (currentSegmentIndex) {
-                0, 1 -> 0
-                else -> 1
-            }
+            segmentToPage
+                .getOrNull(currentSegmentIndex)
+                ?: 0
         }
     }
 
@@ -154,9 +184,10 @@ fun WrappedScreen(
         }
     }
 
-    // ---- 5) User scroll → snap timeline to appropriate segment start ----
-    LaunchedEffect(pagerState, totalDuration) {
+    // ---- 5) User scroll snap timeline to appropriate segment start ----
+    LaunchedEffect(pagerState, totalDuration, segmentTimings) {
         var wasScrolling = false
+        var lastSettledPage = pagerState.currentPage
 
         snapshotFlow { pagerState.currentPage to pagerState.isScrollInProgress }
             .collect { (page, scrolling) ->
@@ -169,18 +200,19 @@ fun WrappedScreen(
                     if (wasScrolling) {
                         wasScrolling = false
 
-                        // Map pager page -> segment index whose start we want
-                        // page 0 => first marquee segment (index 0)
-                        // page 1 => stats segment (index 2)
-                        val targetSegmentIndex = when (page) {
-                            0 -> 0
-                            else -> 2
-                        }
+                        if (page != lastSettledPage) {
+                            val snapSeg = pageSnapSegment
+                                .getOrNull(page)
+                                ?.coerceIn(0, segmentTimings.lastIndex)
 
-                        segmentTimings.getOrNull(targetSegmentIndex)?.let { timing ->
-                            globalTimeMs = timing.startMs
-                            lastTickRealTime = System.currentTimeMillis()
-                            autoPlayEnabled = true
+                            if (snapSeg != null) {
+                                val timing = segmentTimings[snapSeg]
+                                globalTimeMs = timing.startMs   // jump to that segment’s start
+                                lastTickRealTime = System.currentTimeMillis()
+                                autoPlayEnabled = true
+                            }
+
+                            lastSettledPage = page
                         }
 
                         delay(250L)
@@ -190,10 +222,6 @@ fun WrappedScreen(
             }
     }
 
-    // 6) Values wired into animations
-    // seg 0: still SHPE Wrapped
-    // seg 1: sliding SHPE -> Most Active
-    // seg >=2: fully Most Active
     val centerTransitionProgress by remember {
         derivedStateOf {
             when (currentSegmentIndex) {
@@ -204,7 +232,7 @@ fun WrappedScreen(
         }
     }
 
-    val statsPageProgress by remember {
+    val settleProgress by remember {
         derivedStateOf {
             when {
                 currentSegmentIndex < 2 -> 0f
@@ -214,7 +242,37 @@ fun WrappedScreen(
         }
     }
 
-    val isMarqueePaused = !autoPlayEnabled || isHolding || isSettling
+    val mostActiveStatsProgress by remember {
+        derivedStateOf {
+            when {
+                currentSegmentIndex < 3 -> 0f
+                currentSegmentIndex == 3 -> currentSegmentFraction
+                else -> 1f
+            }
+        }
+    }
+
+    val pointsMarqueeProgress by remember {
+        derivedStateOf {
+            when {
+                currentSegmentIndex < 4 -> 0f
+                currentSegmentIndex == 4 -> currentSegmentFraction
+                else -> 1f
+            }
+        }
+    }
+
+    val pointsStatsProgress by remember {
+        derivedStateOf {
+            when {
+                currentSegmentIndex < 5 -> 0f
+                currentSegmentIndex == 5 -> currentSegmentFraction
+                else -> 1f
+            }
+        }
+    }
+
+    val isMarqueePaused = isHolding || isSettling
 
     // Progress bar still has 3 segments (for the 3 timeline segments above)
     val bgColor =
@@ -253,7 +311,7 @@ fun WrappedScreen(
                 // Top progress bar uses segment indices
                 WrappedProgressBar(
                     modifier = Modifier.fillMaxWidth(),
-                    pageCount = segments.size,              // 3 segments
+                    pageCount = segments.size,
                     currentPage = currentSegmentIndex,
                     currentFraction = currentSegmentFraction,
                     trackColor = trackColor,
@@ -281,7 +339,7 @@ fun WrappedScreen(
 
                 Spacer(Modifier.height(24.dp))
 
-                // ---- 7) Pager with only 2 visual pages ----
+                //7) Pager
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier
@@ -292,19 +350,54 @@ fun WrappedScreen(
                     when (index) {
                         0 -> {
                             MarqueeCombinedPage(
-                                isDarkMode = isDarkMode,
                                 isMarqueePaused = isMarqueePaused,
-                                progress = centerTransitionProgress
+                                progress = centerTransitionProgress,
+                                isDarkMode = isDarkMode,
+                                settleProgress = settleProgress,
+                            )
+                        }
+
+                        1 -> {
+                            MostActiveMonthStatsPage(
+                                progress = mostActiveStatsProgress,
+                                isDarkMode = isDarkMode,
+                                topMonth = wrappedState.topMonth,
+                                secondMonth = wrappedState.secondMonth,
+                                thirdMonth = wrappedState.thirdMonth
                             )
                         }
 
                         else -> {
-                            // stats1 page, driven by statsPageProgress
-                            SimpleWrappedPage(
-                                page = segments[2], // "stats1"
-                                progress = statsPageProgress,
-                                isDarkMode = isDarkMode
-                            )
+                            when (currentSegmentIndex) {
+                                4 -> {
+                                    PointsVerticalMarqueePage(
+                                        progress = pointsMarqueeProgress,
+                                        isDarkMode = isDarkMode,
+                                        pointsText = wrappedState.points,
+                                        isPaused = isMarqueePaused
+                                    )
+                                }
+
+                                5 -> {
+                                    PointsStatsPage(
+                                        progress = pointsStatsProgress,
+                                        isDarkMode = isDarkMode,
+                                        pointsText = wrappedState.points,
+                                        percentileText = wrappedState.percentile
+                                    )
+                                }
+
+                                // If we somehow land here with another segment index, just
+                                // default to the stats page so we don't show the wrong thing.
+                                else -> {
+                                    PointsStatsPage(
+                                        progress = pointsStatsProgress,
+                                        isDarkMode = isDarkMode,
+                                        pointsText = wrappedState.points,
+                                        percentileText = wrappedState.percentile
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -360,7 +453,8 @@ fun WrappedProgressBar(
 private fun MarqueeCombinedPage(
     isMarqueePaused: Boolean,
     progress: Float,      // treat this as centerTransitionProgress 0f..1f
-    isDarkMode: Boolean
+    isDarkMode: Boolean,
+    settleProgress: Float,
 ) {
     val (_, _, accent) = marqueeColors(isDarkMode)
     val baseFontSize = 28.sp
@@ -385,6 +479,7 @@ private fun MarqueeCombinedPage(
                     val target = maxW * 0.75f
                     val newScale = (target / layout.size.width).coerceAtMost(3f)
                     if (newScale != scale) scale = newScale
+                    baseTextWidthPx = layout.size.width.toFloat()
                 }
             }
         )
@@ -396,55 +491,246 @@ private fun MarqueeCombinedPage(
             scale = scale,
             fontSize = baseFontSize,
             isMarqueePaused = isMarqueePaused,
-            topSpawnProgress = 0f,        // you can later tie these to a phase
-            bottomSpawnProgress = 0f,
             centerTransitionProgress = progress,
-            centerBaseTextWidthPx = baseTextWidthPx
+            centerBaseTextWidthPx = baseTextWidthPx,
+            settleProgress = settleProgress
         )
     }
 }
 
-
 @Composable
-private fun SimpleWrappedPage(
-    page: WrappedPage,
+private fun MostActiveMonthStatsPage(
     progress: Float,
-    isDarkMode: Boolean
+    isDarkMode: Boolean,
+    topMonth: String,
+    secondMonth: String,
+    thirdMonth: String
 ) {
     val bg =
         if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
-    val textColor =
+    val primaryText =
         if (isDarkMode) Color.White else Color.Black
 
-    val animatedScale by animateFloatAsState(
-        targetValue = 0.95f + 0.05f * (1f - progress),
-        animationSpec = tween(durationMillis = 250, easing = LinearEasing),
-        label = "pageScale"
-    )
+    val mainEnterEnd = 0.25f
+    val mainEnter = (progress / mainEnterEnd).coerceIn(0f, 1f)
+    val mainOffset = (1f - mainEnter) * 200f
+    val mainAlpha = mainEnter
+
+    val bottomEnterStart = 0.20f
+    val bottomEnterEnd = 0.35f
+    val bottomEnter = ((progress - bottomEnterStart) / (bottomEnterEnd - bottomEnterStart)).coerceIn(0f, 1f)
+    val bottomOffset = (1f - bottomEnter) * 200f
+    val bottomAlpha = bottomEnter
+
+    val exitStart = 0.8f
+    val exitProgress = ((progress - exitStart) / (1f - exitStart)).coerceIn(0f, 1f)
+    val exitOffset = -200f * exitProgress
+    val exitAlphaFactor = 1f - exitProgress
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(bg)
-            .padding(24.dp)
+            .padding(horizontal = 24.dp, vertical = 32.dp)
     ) {
-        Box(
+        // Center block: "Your Most Active Month Was: [Month]"
+        Column(
             modifier = Modifier
                 .align(Alignment.Center)
-                .blur(Dp(0f))
+                .graphicsLayer {
+                    translationY = mainOffset + exitOffset
+                    alpha = mainAlpha * exitAlphaFactor
+                },
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = page.title,
-                color = textColor,
+                text = "Your Most Active\nMonth Was:",
+                color = primaryText,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = topMonth,
+                color = OrangeSHPE,
                 fontSize = 32.sp,
-                fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.ExtraBold
+            )
+        }
+
+        // Bottom block: "Followed closely by: ..."
+        if (secondMonth.isNotBlank() || thirdMonth.isNotBlank()) {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 32.dp)
                     .graphicsLayer {
-                        scaleX = animatedScale
-                        scaleY = animatedScale
-                    }
+                        translationY = bottomOffset + exitOffset
+                        alpha = bottomAlpha * exitAlphaFactor
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Followed closely by:",
+                    color = primaryText,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                if (secondMonth.isNotBlank()) {
+                    Text(
+                        text = secondMonth,
+                        color = primaryText,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                if (thirdMonth.isNotBlank()) {
+                    Text(
+                        text = thirdMonth,
+                        color = primaryText,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun PointsVerticalMarqueePage(
+    progress: Float,
+    isDarkMode: Boolean,
+    pointsText: Int,
+    isPaused: Boolean
+) {
+    val bg =
+        if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    val primaryText =
+        if (isDarkMode) Color.White else Color.Black
+
+    // After ~70% of the segment, stop spawning so the text can leave
+    val spawnMore = progress < 0.7f
+
+    val columnCount = if (pointsText.toString().length == 1) 5 else 4
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(bg)
+            .padding(horizontal = 16.dp, vertical = 32.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            repeat(columnCount) { index ->
+                val movingUp = index % 2 == 0
+                VerticalMarqueeColumn(
+                    text = pointsText.toString(),
+                    color = primaryText,
+                    fontSize = 32.sp,
+                    isMovingUp = movingUp,
+                    spawnMore = spawnMore,
+                    isPaused = isPaused,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun PointsStatsPage(
+    progress: Float,
+    isDarkMode: Boolean,
+    pointsText: Int,
+    percentileText: Int
+) {
+    val bg =
+        if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    val primaryText =
+        if (isDarkMode) Color.White else Color.Black
+
+    val mainEnterEnd = 0.25f
+    val mainEnter = (progress / mainEnterEnd).coerceIn(0f, 1f)
+    val mainOffset = (1f - mainEnter) * 200f
+    val mainAlpha = mainEnter
+
+    val bottomEnterStart = 0.20f
+    val bottomEnterEnd = 0.35f
+    val bottomEnter = ((progress - bottomEnterStart) / (bottomEnterEnd - bottomEnterStart))
+        .coerceIn(0f, 1f)
+    val bottomOffset = (1f - bottomEnter) * 200f
+    val bottomAlpha = bottomEnter
+
+    val exitStart = 0.8f
+    val exitProgress = ((progress - exitStart) / (1f - exitStart)).coerceIn(0f, 1f)
+    val exitOffset = -200f * exitProgress
+    val exitAlphaFactor = 1f - exitProgress
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(bg)
+            .padding(horizontal = 24.dp, vertical = 32.dp)
+    ) {
+        // Center block: "21 / Total SHPoints"
+        Column(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .graphicsLayer {
+                    translationY = mainOffset + exitOffset
+                    alpha = mainAlpha * exitAlphaFactor
+                },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = pointsText.toString(),
+                color = OrangeSHPE,
+                fontSize = 40.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "Total SHPoints",
+                color = primaryText,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
+        }
+
+        // Bottom block: "This puts you in the TOP 85%"
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 32.dp)
+                .graphicsLayer {
+                    translationY = bottomOffset + exitOffset
+                    alpha = bottomAlpha * exitAlphaFactor
+                },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "This puts you in the",
+                color = primaryText,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "TOP ${percentileText}%",
+                color = primaryText,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center
             )
         }
     }

@@ -7,22 +7,33 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,9 +46,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
+import kotlinx.coroutines.flow.collectLatest
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
-
+import kotlinx.coroutines.delay
 
 @Composable
 fun marqueeColors(isDarkMode: Boolean): Triple<Color, Color, Color> {
@@ -56,107 +73,93 @@ fun DiagonalMarqueeScaffold(
     topSpawnProgress: Float = 0f,
     bottomSpawnProgress: Float = 0f,
     centerTransitionProgress: Float,
-    centerBaseTextWidthPx: Float
+    centerBaseTextWidthPx: Float,
+    settleProgress: Float = 0f
 ) {
     val (bgColor, whiteText, shpeOrange) = marqueeColors(isDarkMode)
 
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxHeight()
             .background(bgColor)
     ) {
-        val infiniteTransition = rememberInfiniteTransition(label = "marquee")
-
-        // raw animated values
-        val leftShiftRaw by infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = -140f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(6000, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "leftShiftRaw"
-        )
-        val rightShiftRaw by infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 140f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(6500, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "rightShiftRaw"
-        )
-
-        // frozen values when paused
-        var leftShift by remember { mutableStateOf(0f) }
-        var rightShift by remember { mutableStateOf(0f) }
-
-        LaunchedEffect(leftShiftRaw, isMarqueePaused) {
-            if (!isMarqueePaused) leftShift = leftShiftRaw
-        }
-        LaunchedEffect(rightShiftRaw, isMarqueePaused) {
-            if (!isMarqueePaused) rightShift = rightShiftRaw
-        }
-
         val spawnTop = topSpawnProgress < 1f
         val spawnBottom = bottomSpawnProgress < 1f
 
         Box(
             modifier = Modifier
                 .align(Alignment.Center)
-                .graphicsLayer { rotationZ = -18f }
+                .requiredWidth(screenWidth * 1.3f)
+                .graphicsLayer { rotationZ = -18f
+                    clip = false}
         ) {
-            // vertical spacing between bands
-            val topFarOffset = (-110).dp
-            val topNearOffset = (-55).dp
-            val bottomNearOffset = 55.dp
-            val bottomFarOffset = 110.dp
+            val baseTopFar = (-110).dp
+            val baseTopNear = (-55).dp
+            val baseBottomNear = 55.dp
+            val baseBottomFar = 110.dp
+
+            // As settleProgress -> 1, rows spread farther toward the poles
+            val spread = 100.dp * (2 * settleProgress * settleProgress - (settleProgress * settleProgress * settleProgress))
+
+            val topFarOffset = baseTopFar - spread
+            val topNearOffset = baseTopNear - spread
+            val bottomNearOffset = baseBottomNear + spread
+            val bottomFarOffset = baseBottomFar + spread
+
+            val leftDir = -1f
+            val rightDir = 1f
 
             // 2 TOP MARQUEES
             MarqueeRow(
                 isDarkMode = isDarkMode,
-                text = "SHPE Wrapped SHPE Wrapped",
+                text = "SHPE Wrapped ",
                 color = whiteText,
                 verticalOffset = topFarOffset,
-                horizontalShift = leftShift,
+                horizontalShift = leftDir,
                 scale = scale,
                 fontSize = fontSize,
-                spawnMore = spawnTop
+                spawnMore = spawnTop,
+                isPaused = isMarqueePaused
             )
             MarqueeRow(
                 isDarkMode = isDarkMode,
-                text = "SHPE Wrapped SHPE Wrapped",
+                text = "SHPE Wrapped ",
                 color = whiteText,
                 verticalOffset = topNearOffset,
-                horizontalShift = rightShift,
+                horizontalShift = rightDir,
                 scale = scale,
                 fontSize = fontSize,
-                spawnMore = spawnTop
+                spawnMore = spawnTop,
+                isPaused = isMarqueePaused
             )
 
-            // 2 BOTTOM MARQUEES
+// 2 BOTTOM MARQUEES
             MarqueeRow(
                 isDarkMode = isDarkMode,
-                text = "SHPE Wrapped SHPE Wrapped",
+                text = "SHPE Wrapped ",
                 color = whiteText,
                 verticalOffset = bottomNearOffset,
-                horizontalShift = leftShift,
+                horizontalShift = leftDir,
                 scale = scale,
                 fontSize = fontSize,
-                spawnMore = spawnBottom
+                spawnMore = spawnBottom,
+                isPaused = isMarqueePaused
             )
             MarqueeRow(
                 isDarkMode = isDarkMode,
-                text = "SHPE Wrapped SHPE Wrapped",
+                text = "SHPE Wrapped ",
                 color = whiteText,
                 verticalOffset = bottomFarOffset,
-                horizontalShift = rightShift,
+                horizontalShift = rightDir,
                 scale = scale,
                 fontSize = fontSize,
-                spawnMore = spawnBottom
+                spawnMore = spawnBottom,
+                isPaused = isMarqueePaused
             )
 
-            // CENTER LINE: animated from "SHPE Wrapped" → "Most Active Month"
+            // CENTER LINE: animated from "SHPE Wrapped" "Most Active Month"
             AnimatedCenterFlankedTextRow(
                 isDarkMode = isDarkMode,
                 startText = "SHPE Wrapped",
@@ -169,6 +172,8 @@ fun DiagonalMarqueeScaffold(
             )
         }
 
+        val yearAlpha = 1f - settleProgress
+
         Text(
             text = "2025",
             color = whiteText.copy(alpha = 0.85f),
@@ -177,6 +182,7 @@ fun DiagonalMarqueeScaffold(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 24.dp)
+                .graphicsLayer { alpha = yearAlpha }
         )
     }
 }
@@ -191,35 +197,217 @@ fun MarqueeRow(
     scale: Float,
     fontSize: TextUnit,
     spawnMore: Boolean,
+    isPaused: Boolean
 ) {
-    val maxItems = 20
-    val minItems = 6
-    val itemCount = if (spawnMore) maxItems else minItems
+    val movingLeft = horizontalShift < 0f
 
-    Row(
+    val density = LocalDensity.current
+    val config = LocalConfiguration.current
+    val screenWidthDp = config.screenWidthDp.dp
+
+    val rowWidth = screenWidthDp * 1.5f
+
+    // Single phrase with trailing space so copies don't glue together
+    val phrase = remember(text) {
+        if (text.endsWith(" ")) text else "$text "
+    }
+
+    var phraseWidthPx by remember { mutableStateOf(0f) }
+    var phase by remember { mutableStateOf(0f) }
+
+    val currentIsPaused by rememberUpdatedState(isPaused)
+
+    Box(
         modifier = Modifier
             .offset(y = verticalOffset)
-            .graphicsLayer { translationX = horizontalShift },
-        horizontalArrangement = Arrangement.spacedBy(32.dp)
+            .width(rowWidth)
+            .clipToBounds()
     ) {
-        repeat(itemCount) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = text,
-                    color = color,
-                    fontSize = fontSize,
-                    fontWeight = FontWeight.ExtraBold,
-                    maxLines = 1,
-                    softWrap = false,
-                    modifier = Modifier.graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
+        // Measure width of ONE phrase at base scale
+        Text(
+            text = phrase,
+            color = color,
+            fontSize = fontSize,
+            fontWeight = FontWeight.ExtraBold,
+            maxLines = 1,
+            softWrap = false,
+            modifier = Modifier.graphicsLayer(alpha = 0f),
+            onTextLayout = { layout ->
+                if (layout.size.width > 0 && phraseWidthPx == 0f) {
+                    phraseWidthPx = layout.size.width.toFloat()
+                }
+            }
+        )
+
+        if (phraseWidthPx > 0f) {
+            val tileWidthPx = phraseWidthPx * scale
+
+            val rowWidthPx = with(density) { rowWidth.toPx() }
+            val copies = (rowWidthPx / tileWidthPx).toInt() + 1
+            val speedPxPerSec = with(density) { 90.dp.toPx() }
+
+            LaunchedEffect(movingLeft, spawnMore, tileWidthPx) {
+                var last = withFrameNanos { it }
+                while (true) {
+                    val now = withFrameNanos { it }
+                    var dt = (now - last) / 1_000_000_000f
+
+                    if (currentIsPaused || tileWidthPx <= 0f) {
+                        last = now
+                        continue
                     }
-                )
+
+                    if (dt > 0.05f) dt = 0.05f
+                    last = now
+
+                    val step = speedPxPerSec * dt
+
+                    if (spawnMore) {
+                        phase = (phase + step) % tileWidthPx
+                    } else {
+                        phase += step
+                    }
+                }
+            }
+
+            // Draw tiled phrases, each exactly tileWidthPx apart in visual space
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.Center)
+            ) {
+                for (i in -2 until copies) {
+                    val baseX = if (movingLeft) {
+                        -phase + i * tileWidthPx
+                    } else {
+                        phase + i * tileWidthPx
+                    }
+
+                    Text(
+                        text = phrase,
+                        color = color,
+                        fontSize = fontSize,
+                        fontWeight = FontWeight.ExtraBold,
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Visible,
+                        modifier = Modifier.graphicsLayer {
+                            translationX = baseX
+                            scaleX = scale
+                            scaleY = scale
+                        }
+                    )
+                }
             }
         }
     }
 }
+
+
+@Composable
+fun VerticalMarqueeColumn(
+    text: String,
+    color: Color,
+    fontSize: TextUnit,
+    isMovingUp: Boolean,
+    spawnMore: Boolean,
+    isPaused: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val density = LocalDensity.current
+    val config = LocalConfiguration.current
+    val screenHeightDp = config.screenHeightDp.dp
+
+    val phrase = remember(text) {
+        if (text.endsWith(" ")) text else "$text "
+    }
+
+    var phraseHeightPx by remember { mutableStateOf(0f) }
+    var phase by remember { mutableStateOf(0f) }
+
+    val currentIsPaused by rememberUpdatedState(isPaused)
+
+    Box(
+        modifier = modifier
+            .fillMaxHeight()
+            .clipToBounds()
+    ) {
+        // Invisible text to measure height
+        Text(
+            text = phrase,
+            color = color,
+            fontSize = fontSize,
+            fontWeight = FontWeight.ExtraBold,
+            maxLines = 1,
+            softWrap = false,
+            modifier = Modifier.graphicsLayer(alpha = 0f),
+            onTextLayout = { layout ->
+                if (layout.size.height > 0 && phraseHeightPx == 0f) {
+                    phraseHeightPx = layout.size.height.toFloat()
+                }
+            }
+        )
+
+        if (phraseHeightPx > 0f) {
+            val tileHeightPx = phraseHeightPx
+            val columnHeightPx = with(density) { screenHeightDp.toPx() }
+            val copies = (columnHeightPx / tileHeightPx).toInt() + 2
+            val speedPxPerSec = with(density) { 80.dp.toPx() }
+
+            LaunchedEffect(isMovingUp, spawnMore, tileHeightPx) {
+                var last = withFrameNanos { it }
+                while (true) {
+                    val now = withFrameNanos { it }
+                    var dt = (now - last) / 1_000_000_000f
+
+                    if (currentIsPaused || tileHeightPx <= 0f) {
+                        last = now
+                        continue
+                    }
+
+                    if (dt > 0.05f) dt = 0.05f
+                    last = now
+
+                    val step = speedPxPerSec * dt
+
+                    if (spawnMore) {
+                        phase = (phase + step) % tileHeightPx
+                    } else {
+                        phase += step
+                    }
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .align(Alignment.Center)
+            ) {
+                for (i in -2 until copies) {
+                    val baseY = if (isMovingUp) {
+                        -phase + i * tileHeightPx
+                    } else {
+                        phase + i * tileHeightPx
+                    }
+
+                    Text(
+                        text = phrase,
+                        color = color,
+                        fontSize = fontSize,
+                        fontWeight = FontWeight.ExtraBold,
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Visible,
+                        modifier = Modifier.graphicsLayer {
+                            translationY = baseY
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 private fun BoxScope.CenterFlankedTextRow(
@@ -238,7 +426,7 @@ private fun BoxScope.CenterFlankedTextRow(
     val screenWidthPx = with(density) { config.screenWidthDp.dp.toPx() }
     val scaledWidthPx = baseTextWidthPx * scale
 
-    val peekPx = screenWidthPx * 0.00126f
+    val peekPx = screenWidthPx * 0.0024f
 
     val leftCenterX = (-screenWidthPx / peekPx) - scaledWidthPx / 2f
 
