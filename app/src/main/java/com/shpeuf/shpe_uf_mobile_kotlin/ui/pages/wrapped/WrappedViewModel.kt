@@ -29,10 +29,10 @@ class WrappedViewModel : ViewModel() {
     /**
      * Calculates the category with the most events from a given list.
      */
-    private fun calculateTopCategory(events: List<EventsQuery.Event>): String {
-        return events.groupBy { it.category }
-            .mapValues { it.value.size }
-            .maxByOrNull { it.value }?.key ?: "N/A"
+    private fun calculateTopCategory(events: List<EventsQuery.Event>): Pair<String, Int> {
+        val countsByCategory = events.groupBy { it.category ?: "Unknown" }.mapValues { (_, list) -> list.size }
+        val topEntry = countsByCategory.maxByOrNull { it.value }
+        return if (topEntry != null) { topEntry.key to topEntry.value } else { "N/A" to 0 }
     }
 
     /**
@@ -143,10 +143,11 @@ class WrappedViewModel : ViewModel() {
                     it.copy(createdAt = formatDate(it.createdAt))
                 }
 
-                val topCategory = if (rawEvents.isNotEmpty())
+                val (topCategoryName, topCategoryCount) = if (rawEvents.isNotEmpty()) {
                     calculateTopCategory(rawEvents)
-                else
-                    "No events attended"
+                } else {
+                    "No events attended" to 0
+                }
 
                 val topMonths = if (rawEvents.isNotEmpty())
                     calculateTopMonths(rawEvents, topN = 3)
@@ -160,7 +161,8 @@ class WrappedViewModel : ViewModel() {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        topCategory = topCategory,
+                        topCategory = topCategoryName,
+                        topCategoryCount = topCategoryCount,
                         topMonth = topMonths.getOrNull(0) ?: "No events attended",
                         secondMonth = topMonths.getOrNull(1) ?: "",
                         thirdMonth = topMonths.getOrNull(2) ?: "",

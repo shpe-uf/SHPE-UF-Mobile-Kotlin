@@ -10,6 +10,7 @@ data class WrappedState(
     val semester: String = "loading ...",
     val points: Int = 0,
     val percentile: Int = 100,
+    val topCategoryCount: Int = 0,
     val error: String? = null,
 
     val steps: List<PageTiming> = emptyList(),

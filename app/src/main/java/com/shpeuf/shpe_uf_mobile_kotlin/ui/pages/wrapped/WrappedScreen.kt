@@ -43,6 +43,8 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped.DiagonalMarqueeScaffold
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped.MarqueeRow
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped.marqueeColors
+import kotlin.math.PI
+import kotlin.math.sin
 
 /**
  * Public entry point: call from NavHost with composable(NavRoute.WRAPPED) { WrappedScreen() }
@@ -61,7 +63,9 @@ fun WrappedScreen(
             WrappedPage("marquee_settle", "Most Active Month (settle)", 2000L), //seg 2
             WrappedPage("stats1", "Most Active Month: October", 6000L), // seg 3
             WrappedPage("points_marquees", "Total SHPoints marquees", 3000L), // seg 4
-            WrappedPage("points_stats", "Total SHPoints stats", 6000L),  // seg 5
+            WrappedPage("points_stats", "Total SHPoints stats", 6000L), // seg 5
+            WrappedPage("top_category_intro", "Top Category intro", 5500L), // seg 6
+            WrappedPage("top_category_stats", "Top Category stats", 6000L), // seg 7
         )
     }
 
@@ -70,6 +74,7 @@ fun WrappedScreen(
             0..2,
             3..3,
             4..5,
+            6..7,
 
         )
     }
@@ -272,6 +277,26 @@ fun WrappedScreen(
         }
     }
 
+    val topCategoryIntroProgress by remember {
+        derivedStateOf {
+            when {
+                currentSegmentIndex < 6 -> 0f
+                currentSegmentIndex == 6 -> currentSegmentFraction
+                else -> 1f
+            }
+        }
+    }
+
+    val topCategoryStatsProgress by remember {
+        derivedStateOf {
+            when {
+                currentSegmentIndex < 7 -> 0f
+                currentSegmentIndex == 7 -> currentSegmentFraction
+                else -> 1f
+            }
+        }
+    }
+
     val isMarqueePaused = isHolding || isSettling
 
     // Progress bar still has 3 segments (for the 3 timeline segments above)
@@ -367,7 +392,7 @@ fun WrappedScreen(
                             )
                         }
 
-                        else -> {
+                        2 -> {
                             when (currentSegmentIndex) {
                                 4 -> {
                                     PointsVerticalMarqueePage(
@@ -387,14 +412,44 @@ fun WrappedScreen(
                                     )
                                 }
 
-                                // If we somehow land here with another segment index, just
-                                // default to the stats page so we don't show the wrong thing.
+                                //Edge case shi
                                 else -> {
                                     PointsStatsPage(
                                         progress = pointsStatsProgress,
                                         isDarkMode = isDarkMode,
                                         pointsText = wrappedState.points,
                                         percentileText = wrappedState.percentile
+                                    )
+                                }
+                            }
+                        }
+
+                        3 -> {
+                            when (currentSegmentIndex) {
+                                6 -> {
+                                    TopCategoryIntroPage(
+                                        progress = topCategoryIntroProgress,
+                                        isDarkMode = isDarkMode
+                                    )
+                                }
+
+                                7 -> {
+                                    TopCategoryStatsPage(
+                                        progress = topCategoryStatsProgress,
+                                        isDarkMode = isDarkMode,
+                                        topCategory = wrappedState.topCategory,
+                                        countLabel = wrappedState.topCategoryCount.toString(),
+                                        eventTypeLabel = wrappedState.topCategory
+                                    )
+                                }
+
+                                else -> {
+                                    TopCategoryStatsPage(
+                                        progress = topCategoryStatsProgress,
+                                        isDarkMode = isDarkMode,
+                                        topCategory = wrappedState.topCategory,
+                                        countLabel = wrappedState.topCategoryCount.toString(),
+                                        eventTypeLabel = wrappedState.topCategory
                                     )
                                 }
                             }
@@ -731,6 +786,325 @@ private fun PointsStatsPage(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+private fun TopCategoryIntroPage(
+    progress: Float,
+    isDarkMode: Boolean
+) {
+    val bg =
+        if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    val primaryText =
+        if (isDarkMode) Color.White else Color.Black
+
+    val message = "Your Top Category\nof the Semester is..."
+
+    val lines = remember(message) { message.split("\n") }
+
+    // Global appear / disappear windows
+    val appearEnd = 0.55f
+    val disappearStart = 0.75f
+
+    val appearPhase = (progress / appearEnd).coerceIn(0f, 1f)
+    val disappearPhase = ((progress - disappearStart) / (1f - disappearStart)).coerceIn(0f, 1f)
+
+    // For indexing letters globally (to stagger pop in/out)
+    val totalChars = remember(lines) { lines.sumOf { it.length } }
+
+    // Bobbing animation (shared)
+    val density = LocalDensity.current
+    val maxBobPx = with(density) { 6.dp.toPx() }
+    val infiniteTransition = rememberInfiniteTransition(label = "topCategoryBob")
+    val bobPhase by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = (2f * PI).toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "bobPhase"
+    )
+
+    // Alternating colors for letters (ignoring spaces)
+    val orange = OrangeSHPE
+    val lightBlue = Color(0xFF93E1FF)
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(bg)
+            .padding(horizontal = 24.dp, vertical = 32.dp)
+    ) {
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            var globalIndex = 0
+            var colorIndex = 0
+
+            lines.forEachIndexed { lineIndex, line ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    line.forEach { ch ->
+                        val myIndex = globalIndex
+                        globalIndex++
+
+                        val isSpace = ch == ' '
+
+                        val baseFrac = if (totalChars <= 1) 0f
+                        else myIndex.toFloat() / (totalChars - 1).toFloat()
+
+                        // Appear: letters pop in forward order
+                        val appearLocal = ((appearPhase - baseFrac) / 0.18f).coerceIn(0f, 1f)
+
+                        // Disappear: letters pop out forward order near the end
+                        val disappearLocal =
+                            ((disappearPhase - baseFrac) / 0.18f).coerceIn(0f, 1f)
+
+                        // Overall alpha & scale
+                        var alpha = appearLocal
+                        var scale = 0.7f + 0.3f * appearLocal
+
+                        if (disappearLocal > 0f) {
+                            alpha *= (1f - disappearLocal)
+                            scale *= (1f + 0.25f * disappearLocal)
+                        }
+
+                        if (alpha <= 0.01f) {
+                            alpha = 0f
+                        }
+
+                        // Alternate orange / light blue on non-space letters
+                        val color = if (isSpace) {
+                            primaryText.copy(alpha = alpha)
+                        } else {
+                            val c = if (colorIndex % 2 == 0) orange else lightBlue
+                            colorIndex++
+                            c.copy(alpha = alpha)
+                        }
+
+                        val bobOffsetPx =
+                            if (alpha > 0f && !isSpace) {
+                                sin(bobPhase + myIndex * 0.4f) * maxBobPx
+                            } else 0f
+
+                        Text(
+                            text = ch.toString(),
+                            color = color,
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.graphicsLayer {
+                                this.alpha = alpha
+                                scaleX = scale
+                                scaleY = scale
+                                translationY = bobOffsetPx
+                            }
+                        )
+                    }
+                }
+
+                if (lineIndex != lines.lastIndex) {
+                    Spacer(Modifier.height(8.dp))
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun TopCategoryStatsPage(
+    progress: Float,
+    isDarkMode: Boolean,
+    topCategory: String,
+    countLabel: String,
+    eventTypeLabel: String
+) {
+    val bg =
+        if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    val primaryText =
+        if (isDarkMode) Color.White else Color.Black
+
+    val mainEnterEnd = 0.25f
+    val mainEnter = (progress / mainEnterEnd).coerceIn(0f, 1f)
+    val mainOffset = (1f - mainEnter) * 200f
+    val mainAlpha = mainEnter
+
+    val bottomEnterStart = 0.20f
+    val bottomEnterEnd = 0.35f
+    val bottomEnter =
+        ((progress - bottomEnterStart) / (bottomEnterEnd - bottomEnterStart))
+            .coerceIn(0f, 1f)
+    val bottomOffset = (1f - bottomEnter) * 200f
+    val bottomAlpha = bottomEnter
+
+    val exitStart = 0.8f
+    val exitProgress =
+        ((progress - exitStart) / (1f - exitStart)).coerceIn(0f, 1f)
+    val exitOffset = -200f * exitProgress
+    val exitAlphaFactor = 1f - exitProgress
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(bg)
+            .padding(horizontal = 24.dp, vertical = 32.dp)
+    ) {
+        // Center block: "Top Category\n[Top event type]"
+        Column(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .graphicsLayer {
+                    translationY = mainOffset + exitOffset
+                    alpha = mainAlpha * exitAlphaFactor
+                },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Top Category",
+                color = primaryText,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = topCategory,
+                color = OrangeSHPE,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center
+            )
+        }
+
+        // Bottom block: "You attended X\n[Event Type] events"
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 32.dp)
+                .graphicsLayer {
+                    translationY = bottomOffset + exitOffset
+                    alpha = bottomAlpha * exitAlphaFactor
+                },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "You attended $countLabel",
+                color = primaryText,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "$eventTypeLabel events",
+                color = primaryText,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+
+@Composable
+fun YearsRadarMarqueePage(
+    progress: Float,
+    isDarkMode: Boolean,
+    years: Int,
+    isPaused: Boolean
+) {
+    val (bgColor, whiteText, shpeOrange) = marqueeColors(isDarkMode)
+
+    // Text used in the curved marquee rings
+    val phrase = remember(years) { "${years.coerceAtLeast(1)} YEARS " }
+
+    // When progress < stopThreshold, rings keep looping and respawning;
+    // after that, they stop spawning and text drains away.
+    val stopSpawnThreshold = 0.8f
+    val spawnMore = progress < stopSpawnThreshold
+
+    val appearEnd = 0.25f
+    val appearPhase = (progress / appearEnd).coerceIn(0f, 1f)
+
+    val exitStart = 0.8f
+    val exitProgress = ((progress - exitStart) / (1f - exitStart)).coerceIn(0f, 1f)
+
+    val rotationDeg = (1f - appearPhase) * 50f  // spin in
+    val alpha = 1f - exitProgress
+    val slideUp = -200f * exitProgress
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(bgColor)
+            .padding(horizontal = 24.dp, vertical = 24.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    rotationZ = rotationDeg
+                    this.alpha = alpha
+                    translationY = slideUp
+                }
+        ) {
+            // 3–4 concentric rings, all using the same base angular speed.
+            // Outer rings move faster because v = ω * r.
+            val baseAngularSpeedRadPerSec = 0.7f
+
+            CircularMarqueeRing(
+                text = phrase,
+                color = shpeOrange,
+                radiusFraction = 0.23f,
+                sweepDegrees = 220f,
+                clockwise = true,
+                spawnMore = spawnMore,
+                isPaused = isPaused,
+                baseAngularSpeedRadPerSec = baseAngularSpeedRadPerSec,
+                fontSize = 24.sp
+            )
+
+            CircularMarqueeRing(
+                text = phrase,
+                color = whiteText,
+                radiusFraction = 0.32f,
+                sweepDegrees = 220f,
+                clockwise = false,
+                spawnMore = spawnMore,
+                isPaused = isPaused,
+                baseAngularSpeedRadPerSec = baseAngularSpeedRadPerSec,
+                fontSize = 24.sp
+            )
+
+            CircularMarqueeRing(
+                text = phrase,
+                color = shpeOrange,
+                radiusFraction = 0.41f,
+                sweepDegrees = 220f,
+                clockwise = true,
+                spawnMore = spawnMore,
+                isPaused = isPaused,
+                baseAngularSpeedRadPerSec = baseAngularSpeedRadPerSec,
+                fontSize = 24.sp
+            )
+
+            CircularMarqueeRing(
+                text = phrase,
+                color = whiteText,
+                radiusFraction = 0.50f,
+                sweepDegrees = 220f,
+                clockwise = false,
+                spawnMore = spawnMore,
+                isPaused = isPaused,
+                baseAngularSpeedRadPerSec = baseAngularSpeedRadPerSec,
+                fontSize = 24.sp
             )
         }
     }

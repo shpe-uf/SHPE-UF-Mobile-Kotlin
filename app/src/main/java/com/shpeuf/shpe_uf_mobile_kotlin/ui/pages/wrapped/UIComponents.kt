@@ -6,6 +6,11 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.BoxWithConstraints
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.min
+import kotlin.math.sin
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.horizontalScroll
@@ -51,6 +56,8 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.min
 import kotlinx.coroutines.flow.collectLatest
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
@@ -580,4 +587,156 @@ private fun BoxScope.AnimatedCenterFlankedTextRow(
         )
     }
 }
+
+
+@Composable
+fun CircularMarqueeRing(
+    text: String,
+    color: Color,
+    radiusFraction: Float,          // 0–0.5 of the min dimension
+    sweepDegrees: Float,
+    clockwise: Boolean,
+    spawnMore: Boolean,
+    isPaused: Boolean,
+    baseAngularSpeedRadPerSec: Float,
+    fontSize: TextUnit
+) {
+    val phrase = remember(text) {
+        if (text.endsWith(" ")) text else "$text "
+    }
+
+    var phraseWidthPx by remember { mutableStateOf(0f) }
+    var phraseHeightPx by remember { mutableStateOf(0f) }
+    var phase by remember { mutableStateOf(0f) }
+
+    val density = LocalDensity.current
+    val currentIsPaused by rememberUpdatedState(isPaused)
+
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        val minDimPx = with(density) { min(maxWidth, maxHeight).toPx() }
+        val radiusPx = minDimPx * radiusFraction
+
+        if (radiusPx <= 0f) return@BoxWithConstraints
+
+        val centerX = constraints.maxWidth / 2f
+        val centerY = constraints.maxHeight / 2f
+
+        // Invisible text to measure one tile
+        Text(
+            text = phrase,
+            color = color,
+            fontSize = fontSize,
+            fontWeight = FontWeight.ExtraBold,
+            maxLines = 1,
+            softWrap = false,
+            modifier = Modifier.graphicsLayer(alpha = 0f),
+            onTextLayout = { layout ->
+                if (layout.size.width > 0 && phraseWidthPx == 0f) {
+                    phraseWidthPx = layout.size.width.toFloat()
+                    phraseHeightPx = layout.size.height.toFloat()
+                }
+            }
+        )
+
+        if (phraseWidthPx <= 0f) return@BoxWithConstraints
+
+        val tileArcLengthPx = phraseWidthPx
+        val sweepRad = sweepDegrees * (PI.toFloat() / 180f)
+        val arcLengthPx = radiusPx * sweepRad
+
+        val copies = (arcLengthPx / tileArcLengthPx).toInt() + 3
+
+        // *** KEY PART: linear speed ∝ radius ***
+        val speedPxPerSec = baseAngularSpeedRadPerSec * radiusPx
+
+        LaunchedEffect(clockwise, spawnMore, tileArcLengthPx, radiusPx) {
+            var last = withFrameNanos { it }
+            while (true) {
+                val now = withFrameNanos { it }
+                var dt = (now - last) / 1_000_000_000f
+
+                if (currentIsPaused || tileArcLengthPx <= 0f) {
+                    last = now
+                    continue
+                }
+
+                if (dt > 0.05f) dt = 0.05f
+                last = now
+
+                val step = speedPxPerSec * dt
+
+                phase = if (spawnMore) {
+                    (phase + step) % tileArcLengthPx
+                } else {
+                    phase + step
+                }
+            }
+        }
+
+        // Draw tiled phrases along the arc
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            for (i in -2 until copies) {
+                val baseArcOffsetPx = if (clockwise) {
+                    -phase + i * tileArcLengthPx
+                } else {
+                    phase + i * tileArcLengthPx
+                }
+
+                // When we’ve stopped spawning, let phrases drift off the arc
+                if (!spawnMore &&
+                    (baseArcOffsetPx < -tileArcLengthPx ||
+                            baseArcOffsetPx > arcLengthPx + tileArcLengthPx)
+                ) {
+                    continue
+                }
+
+                // Normalized position [0,1] along the sweep
+                val t = (baseArcOffsetPx / arcLengthPx)
+                    .coerceIn(0f - 0.2f, 1f + 0.2f)
+
+                val angleOffset = t * sweepRad
+                val startAngleRad = (180f + (180f - sweepDegrees) / 2f) *
+                        (PI.toFloat() / 180f)  // arc roughly hugging left side
+
+                val angle = if (clockwise) {
+                    startAngleRad + angleOffset
+                } else {
+                    startAngleRad - angleOffset
+                }
+
+                val x = centerX + radiusPx * cos(angle)
+                val y = centerY + radiusPx * sin(angle)
+
+                val rotationDeg = angle * 180f / PI.toFloat() + if (clockwise) 90f else -90f
+
+                Box(
+                    modifier = Modifier
+                        .offset {
+                            IntOffset(
+                                (x - phraseWidthPx / 2f).toInt(),
+                                (y - phraseHeightPx / 2f).toInt()
+                            )
+                        }
+                        .graphicsLayer {
+                            rotationZ = rotationDeg
+                        }
+                ) {
+                    Text(
+                        text = phrase,
+                        color = color,
+                        fontSize = fontSize,
+                        fontWeight = FontWeight.ExtraBold,
+                        maxLines = 1,
+                        softWrap = false
+                    )
+                }
+            }
+        }
+    }
+}
+
 
