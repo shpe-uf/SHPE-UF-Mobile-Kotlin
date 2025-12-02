@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -61,7 +62,7 @@ fun WrappedScreen(modifier: Modifier = Modifier,
             WrappedPage("marquee_most_active", "Most Active Month", 2500L), // seg 1
             WrappedPage("marquee_settle", "Most Active Month (settle)", 2000L), //seg 2
             WrappedPage("stats1", "Most Active Month: October", 6000L), // seg 3
-            WrappedPage("points_marquees", "Total SHPoints marquees", 3000L), // seg 4
+            WrappedPage("points_marquees", "Total SHPoints marquees", 6000L), // seg 4
             WrappedPage("points_stats", "Total SHPoints stats", 6000L), // seg 5
             WrappedPage("top_category_intro", "Top Category intro", 5500L), // seg 6
             WrappedPage("top_category_stats", "Top Category stats", 6000L), // seg 7
@@ -599,10 +600,6 @@ fun WrappedProgressBar(
 
 /* ------------------------------ Page Content ------------------------------ */
 
-/**
- * PAGE 1:
- * Center line just says "SHPE Wrapped" in orange, statically.
- */
 @Composable
 private fun MarqueeCombinedPage(
     isMarqueePaused: Boolean,
@@ -765,34 +762,64 @@ private fun PointsVerticalMarqueePage(
         if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
     val primaryText =
         if (isDarkMode) Color.White else Color.Black
+    val orange = OrangeSHPE
+    val lightBlue = if (isDarkMode) Color(0xFF93E1FF) else Color(0xFF0B70BA)
 
-    // After ~70% of the segment, stop spawning so the text can leave
-    val spawnMore = progress < 0.7f
+    val digits = remember(pointsText) { pointsText.toString().length.coerceAtLeast(1) }
 
-    val columnCount = if (pointsText.toString().length == 1) 5 else 4
+    // Tighter columns + larger text
+    val (columnCount, fontSize) = remember(digits) {
+        when (digits) {
+            1 -> 7 to 64.sp   // 1-digit → 7 columns, bigger type
+            2 -> 4 to 56.sp   // 2-digit → 4 columns, bigger type
+            3 -> 3 to 48.sp   // 3-digit → 3 columns
+            else -> 3 to 44.sp
+        }
+    }
 
-    Box(
+    // Single linear 0–1 progress → constant velocity from off-screen to off-screen
+    val t = progress.coerceIn(0f, 1f)
+
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(bg)
-            .padding(horizontal = 16.dp, vertical = 32.dp)
+            .padding(horizontal = 4.dp, vertical = 24.dp)
     ) {
+        // A bit larger than height so at t=0 and t=1 nothing is visible
+        val distancePx = with(LocalDensity.current) { (maxHeight * 1.4f).toPx() }
+
         Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 0.dp)
         ) {
             repeat(columnCount) { index ->
-                val movingUp = index % 2 == 0
+                val isOdd = ((index + 1) % 2 == 1)
+                val accent = if (isOdd) orange else lightBlue
+
+                // Up columns: +D → -D, Down columns: -D → +D, all linear in t
+                val offsetY = if (isOdd) {
+                    distancePx * (1f - 2f * t)        // +D at 0, 0 at .5, -D at 1
+                } else {
+                    distancePx * (2f * t - 1f)        // -D at 0, 0 at .5, +D at 1
+                }
+
                 VerticalMarqueeColumn(
                     text = pointsText.toString(),
-                    color = primaryText,
-                    fontSize = 32.sp,
-                    isMovingUp = movingUp,
-                    spawnMore = spawnMore,
+                    baseTextColor = primaryText,
+                    accentColor = accent,
+                    fontSize = fontSize,
+                    isMovingUp = isOdd,
+                    spawnMore = true,           // kept for API compatibility
                     isPaused = isPaused,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
+                        .graphicsLayer {
+                            translationY = offsetY
+                        }
+                        .clipToBounds()
                 )
             }
         }

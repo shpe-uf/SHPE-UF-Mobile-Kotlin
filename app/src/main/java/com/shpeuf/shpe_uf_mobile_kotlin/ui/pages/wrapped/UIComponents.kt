@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -314,102 +315,66 @@ fun MarqueeRow(
 @Composable
 fun VerticalMarqueeColumn(
     text: String,
-    color: Color,
+    baseTextColor: Color,
+    accentColor: Color,
     fontSize: TextUnit,
-    isMovingUp: Boolean,
-    spawnMore: Boolean,
-    isPaused: Boolean,
+    isMovingUp: Boolean,   // unused, kept for API compatibility
+    spawnMore: Boolean,    // unused, kept for API compatibility
+    isPaused: Boolean,     // unused, kept for API compatibility
     modifier: Modifier = Modifier
 ) {
+    val phrase = remember(text) { text }
     val density = LocalDensity.current
-    val config = LocalConfiguration.current
-    val screenHeightDp = config.screenHeightDp.dp
-
-    val phrase = remember(text) {
-        if (text.endsWith(" ")) text else "$text "
-    }
 
     var phraseHeightPx by remember { mutableStateOf(0f) }
-    var phase by remember { mutableStateOf(0f) }
 
-    val currentIsPaused by rememberUpdatedState(isPaused)
-
-    Box(
+    BoxWithConstraints(
+        // ⚠️ remove inner clipToBounds so we don't double-clip the text
         modifier = modifier
-            .fillMaxHeight()
-            .clipToBounds()
     ) {
-        // Invisible text to measure height
+        val columnHeightPx = with(density) { maxHeight.toPx() }
+
+        // Measure one tile
         Text(
             text = phrase,
-            color = color,
+            color = Color.Transparent,
             fontSize = fontSize,
             fontWeight = FontWeight.ExtraBold,
             maxLines = 1,
             softWrap = false,
-            modifier = Modifier.graphicsLayer(alpha = 0f),
-            onTextLayout = { layout ->
-                if (layout.size.height > 0 && phraseHeightPx == 0f) {
-                    phraseHeightPx = layout.size.height.toFloat()
-                }
+            modifier = Modifier.onGloballyPositioned {
+                phraseHeightPx = it.size.height.toFloat()
             }
         )
 
-        if (phraseHeightPx > 0f) {
-            val tileHeightPx = phraseHeightPx
-            val columnHeightPx = with(density) { screenHeightDp.toPx() }
-            val copies = (columnHeightPx / tileHeightPx).toInt() + 2
-            val speedPxPerSec = with(density) { 80.dp.toPx() }
+        if (phraseHeightPx <= 0f || columnHeightPx <= 0f) return@BoxWithConstraints
 
-            LaunchedEffect(isMovingUp, spawnMore, tileHeightPx) {
-                var last = withFrameNanos { it }
-                while (true) {
-                    val now = withFrameNanos { it }
-                    var dt = (now - last) / 1_000_000_000f
+        // Extra copies so even at the extremes we never see gaps on-screen
+        val copies = (columnHeightPx / phraseHeightPx).toInt() + 10
 
-                    if (currentIsPaused || tileHeightPx <= 0f) {
-                        last = now
-                        continue
+        // Phase shift so the tiles sit a bit *inside* the top/bottom,
+        // instead of one tile’s baseline being exactly on the clipping edge.
+        val phaseOffsetPx = -phraseHeightPx * 0.5f
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            for (i in -5 until copies + 5) {
+                val baseY = i * phraseHeightPx + phaseOffsetPx
+                val tileColor = if (i % 2 == 0) accentColor else baseTextColor
+
+                Text(
+                    text = phrase,
+                    color = tileColor,
+                    fontSize = fontSize,
+                    fontWeight = FontWeight.ExtraBold,
+                    maxLines = 1,
+                    softWrap = false,
+                    modifier = Modifier.graphicsLayer {
+                        translationY = baseY
                     }
-
-                    if (dt > 0.05f) dt = 0.05f
-                    last = now
-
-                    val step = speedPxPerSec * dt
-
-                    if (spawnMore) {
-                        phase = (phase + step) % tileHeightPx
-                    } else {
-                        phase += step
-                    }
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .align(Alignment.Center)
-            ) {
-                for (i in -2 until copies) {
-                    val baseY = if (isMovingUp) {
-                        -phase + i * tileHeightPx
-                    } else {
-                        phase + i * tileHeightPx
-                    }
-
-                    Text(
-                        text = phrase,
-                        color = color,
-                        fontSize = fontSize,
-                        fontWeight = FontWeight.ExtraBold,
-                        maxLines = 1,
-                        softWrap = false,
-                        overflow = TextOverflow.Visible,
-                        modifier = Modifier.graphicsLayer {
-                            translationY = baseY
-                        }
-                    )
-                }
+                )
             }
         }
     }
