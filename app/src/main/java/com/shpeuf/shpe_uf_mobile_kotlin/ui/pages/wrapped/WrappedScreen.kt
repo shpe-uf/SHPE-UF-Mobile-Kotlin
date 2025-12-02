@@ -542,28 +542,12 @@ fun WrappedScreen(modifier: Modifier = Modifier,
                         }
 
                         5 -> {
-                            when (currentSegmentIndex) {
-                                10 -> {
-                                    OverallIntroPage(
-                                        progress = overallIntroProgress,
-                                        isDarkMode = isDarkMode
-                                    )
-                                }
-                                11 -> {
-                                    OverallPersonaPage(
-                                        progress = overallPersonaProgress,
-                                        isDarkMode = isDarkMode,
-                                        topEventType = wrappedState.topCategory   // your most frequent type
-                                    )
-                                }
-                                else -> {
-                                    OverallPersonaPage(
-                                        progress = overallPersonaProgress,
-                                        isDarkMode = isDarkMode,
-                                        topEventType = wrappedState.topCategory
-                                    )
-                                }
-                            }
+                            OverallCombinedPage(
+                                introProgress = overallIntroProgress,
+                                personaProgress = overallPersonaProgress,
+                                isDarkMode = isDarkMode,
+                                topEventType = wrappedState.topCategory
+                            )
                         }
                     }
                 }
@@ -1360,34 +1344,52 @@ private fun YearsAsShpeitoStatsPage(
 
 
 @Composable
-private fun OverallIntroPage(
-    progress: Float,
+private fun OverallCombinedPage(
+    introProgress: Float,
+    personaProgress: Float,
     isDarkMode: Boolean
+    ,
+    topEventType: String
 ) {
-    val (bgColor, whiteText, _) = marqueeColors(isDarkMode)
+    val (bgColor, whiteText, accent) = marqueeColors(isDarkMode)
     val primaryText = whiteText
 
-    val appearEnd = 0.45f
-    val disappearStart = 0.7f
-
-    val appearPhase = (progress / appearEnd).coerceIn(0f, 1f)
-    val disappearPhase = ((progress - disappearStart) / (1f - disappearStart)).coerceIn(0f, 1f)
-
     val density = LocalDensity.current
-    val arcHeightPx = with(density) { 18.dp.toPx() }
+    val arcHeightPx = with(density) { 12.dp.toPx() }      // less curvature than before
     val youAreDownPx = with(density) { 40.dp.toPx() }
     val youAreUpPx = with(density) { 24.dp.toPx() }
 
     val letters = remember { "Overall..." }.toList()
     val totalLetters = letters.size.coerceAtLeast(1)
 
-    // "You are a..." enter + shift up
+    val introT = introProgress.coerceIn(0f, 1f)
+    val personaT = personaProgress.coerceIn(0f, 1f)
+
+    // “Overall…” timing: pop in, then fade out
+    val appearEnd = 0.45f
+    val disappearStart = 0.7f
+    val appearPhase = (introT / appearEnd).coerceIn(0f, 1f)
+    val disappearPhase =
+        ((introT - disappearStart) / (1f - disappearStart)).coerceIn(0f, 1f)
+
+    // "You are a..." – appears during intro, never fades out, later shifts up
     val youAppearStart = 0.15f
     val youAppearEnd = 0.5f
-    val youAppear = ((progress - youAppearStart) / (youAppearEnd - youAppearStart)).coerceIn(0f, 1f)
+    val youAppearPhase =
+        ((introT - youAppearStart) / (youAppearEnd - youAppearStart)).coerceIn(0f, 1f)
 
-    val youShiftStart = 0.8f
-    val youShift = ((progress - youShiftStart) / (1f - youShiftStart)).coerceIn(0f, 1f)
+    val youAlpha = youAppearPhase
+    val youTranslationY =
+        (1f - youAppearPhase) * youAreDownPx - personaT * youAreUpPx
+
+    // Persona label – fades in from below during persona segment
+    val personaEnterEnd = 0.5f
+    val personaEnter = (personaT / personaEnterEnd).coerceIn(0f, 1f)
+    val personaAlpha = personaEnter
+    val personaTranslationY = (1f - personaEnter) * youAreDownPx
+
+    val lightBlue = if (isDarkMode) Color(0xFF93E1FF) else Color(0xFF0B70BA)
+    val personaLabel = remember(topEventType) { eventTypeToPersona(topEventType) }
 
     Box(
         modifier = Modifier
@@ -1395,27 +1397,21 @@ private fun OverallIntroPage(
             .background(bgColor)
             .padding(horizontal = 24.dp, vertical = 32.dp)
     ) {
-        // Optional center dark stripe (like your screenshot)
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(36.dp)
-                .align(Alignment.Center)
-                .background(Color(0xFF2B2B2B))
-        )
+        // NOTE: no center stripe here → weird vertical bar removed
 
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Rainbow "Overall..."
+            // “Overall…” rainbow-ish arc (now light blue, bigger, less curved)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
                 letters.forEachIndexed { index, ch ->
                     val baseFrac =
-                        if (totalLetters == 1) 0f else index.toFloat() / (totalLetters - 1).toFloat()
+                        if (totalLetters == 1) 0f
+                        else index.toFloat() / (totalLetters - 1).toFloat()
 
                     val letterAppear =
                         ((appearPhase - baseFrac) / 0.22f).coerceIn(0f, 1f)
@@ -1425,14 +1421,14 @@ private fun OverallIntroPage(
                     var alpha = letterAppear * (1f - letterDisappear)
                     if (alpha < 0.01f) alpha = 0f
 
-                    // Simple rainbow arc: center letters highest
                     val centered = baseFrac - 0.5f
-                    val arcOffset = -kotlin.math.cos(centered * PI).toFloat() * arcHeightPx
+                    val arcOffset =
+                        -kotlin.math.cos(centered * PI).toFloat() * arcHeightPx
 
                     Text(
                         text = ch.toString(),
-                        color = primaryText.copy(alpha = alpha),
-                        fontSize = 26.sp,
+                        color = lightBlue.copy(alpha = alpha),
+                        fontSize = 30.sp,                     // bigger font size
                         fontWeight = FontWeight.ExtraBold,
                         modifier = Modifier.graphicsLayer {
                             this.alpha = alpha
@@ -1444,11 +1440,7 @@ private fun OverallIntroPage(
 
             Spacer(Modifier.height(16.dp))
 
-            // "You are a..." – fades in from bottom, then drifts slightly up
-            val youAlpha = youAppear
-            val youTranslationY =
-                (1f - youAppear) * youAreDownPx - youShift * youAreUpPx
-
+            // "You are a..." – appears from below, then drifts up during persona segment
             Text(
                 text = "You are a...",
                 color = primaryText.copy(alpha = youAlpha),
@@ -1458,6 +1450,21 @@ private fun OverallIntroPage(
                 modifier = Modifier.graphicsLayer {
                     alpha = youAlpha
                     translationY = youTranslationY
+                }
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            // Persona label (e.g., "Cabinet Enthusiast!") – fades in from below
+            Text(
+                text = personaLabel,
+                color = accent.copy(alpha = personaAlpha),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.graphicsLayer {
+                    alpha = personaAlpha
+                    translationY = personaTranslationY
                 }
             )
         }
@@ -1478,76 +1485,5 @@ private fun eventTypeToPersona(topType: String): String {
         "Volunteering" -> "Kind and Loving Person!"
         "Miscellaneous" -> "Unique and Unrepeatable!"
         else -> "Unique and Unrepeatable!"
-    }
-}
-
-
-@Composable
-private fun OverallPersonaPage(
-    progress: Float,
-    isDarkMode: Boolean,
-    topEventType: String
-) {
-    val (bgColor, whiteText, accent) = marqueeColors(isDarkMode)
-    val primaryText = whiteText
-
-    val personaLabel = remember(topEventType) {
-        eventTypeToPersona(topEventType)
-    }
-
-    val config = LocalConfiguration.current
-    val screenWidthDp = config.screenWidthDp.dp
-    val horizontalMargin = screenWidthDp / 8f
-
-    // Simple enter animation
-    val mainEnterEnd = 0.35f
-    val mainEnter = (progress / mainEnterEnd).coerceIn(0f, 1f)
-    val offsetY = (1f - mainEnter) * 160f
-    val alpha = mainEnter
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(bgColor)
-            .padding(vertical = 32.dp)
-    ) {
-        // Center stripe to match intro page
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(36.dp)
-                .align(Alignment.Center)
-                .background(Color(0xFF2B2B2B))
-        )
-
-        Column(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .fillMaxWidth()
-                .padding(horizontal = horizontalMargin)
-                .graphicsLayer {
-                    translationY = offsetY
-                    this.alpha = alpha
-                },
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "You are a...",
-                color = primaryText,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = personaLabel,
-                color = accent,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
     }
 }
