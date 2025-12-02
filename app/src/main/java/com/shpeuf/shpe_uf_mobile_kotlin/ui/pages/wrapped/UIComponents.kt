@@ -84,7 +84,8 @@ fun DiagonalMarqueeScaffold(
     centerBaseTextWidthPx: Float,
     settleProgress: Float = 0f
 ) {
-    val (bgColor, whiteText, shpeOrange) = marqueeColors(isDarkMode)
+    val bgColor = if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    val textColor = if (isDarkMode) ThemeColors.Night.text else ThemeColors.Day.text
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
@@ -121,9 +122,8 @@ fun DiagonalMarqueeScaffold(
 
             // 2 TOP MARQUEES
             MarqueeRow(
-                isDarkMode = isDarkMode,
                 text = "SHPE Wrapped ",
-                color = whiteText,
+                color = textColor,
                 verticalOffset = topFarOffset,
                 horizontalShift = leftDir,
                 scale = scale,
@@ -132,9 +132,8 @@ fun DiagonalMarqueeScaffold(
                 isPaused = isMarqueePaused
             )
             MarqueeRow(
-                isDarkMode = isDarkMode,
                 text = "SHPE Wrapped ",
-                color = whiteText,
+                color = textColor,
                 verticalOffset = topNearOffset,
                 horizontalShift = rightDir,
                 scale = scale,
@@ -145,9 +144,8 @@ fun DiagonalMarqueeScaffold(
 
 // 2 BOTTOM MARQUEES
             MarqueeRow(
-                isDarkMode = isDarkMode,
                 text = "SHPE Wrapped ",
-                color = whiteText,
+                color = textColor,
                 verticalOffset = bottomNearOffset,
                 horizontalShift = leftDir,
                 scale = scale,
@@ -156,9 +154,8 @@ fun DiagonalMarqueeScaffold(
                 isPaused = isMarqueePaused
             )
             MarqueeRow(
-                isDarkMode = isDarkMode,
                 text = "SHPE Wrapped ",
-                color = whiteText,
+                color = textColor,
                 verticalOffset = bottomFarOffset,
                 horizontalShift = rightDir,
                 scale = scale,
@@ -184,7 +181,7 @@ fun DiagonalMarqueeScaffold(
 
         Text(
             text = "2025",
-            color = whiteText.copy(alpha = 0.85f),
+            color = textColor.copy(alpha = 0.85f),
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier
@@ -197,7 +194,6 @@ fun DiagonalMarqueeScaffold(
 
 @Composable
 fun MarqueeRow(
-    isDarkMode: Boolean,
     text: String,
     color: Color,
     verticalOffset: Dp,
@@ -502,7 +498,7 @@ private fun BoxScope.AnimatedCenterFlankedTextRow(
     baseTextWidthPx: Float,
     transitionProgress: Float
 ) {
-    val (_, whiteText, shpeOrange) = marqueeColors(isDarkMode)
+    val textColor = if (isDarkMode) ThemeColors.Night.text else ThemeColors.Day.text
     val density = LocalDensity.current
     val config = LocalConfiguration.current
     val screenWidthPx = with(density) { config.screenWidthDp.dp.toPx() }
@@ -530,8 +526,8 @@ private fun BoxScope.AnimatedCenterFlankedTextRow(
     CenterFlankedTextRow(
         mainText = startText,
         flankText = flankText,
-        mainColor = shpeOrange,
-        flankColor = whiteText,
+        mainColor = OrangeSHPE,
+        flankColor = textColor,
         fontSize = fontSize,
         scale = scale,
         baseTextWidthPx = baseTextWidthPx,
@@ -545,7 +541,7 @@ private fun BoxScope.AnimatedCenterFlankedTextRow(
 
         CenterSoloTextRow(
             text = endText,
-            color = shpeOrange,
+            color = OrangeSHPE,
             fontSize = fontSize,
             scale = scale,
             centerSlideOffsetPx = newOffset

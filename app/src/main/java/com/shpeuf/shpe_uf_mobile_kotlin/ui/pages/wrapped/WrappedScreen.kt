@@ -57,6 +57,7 @@ import android.graphics.Paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.SocialColor
 
 
 /**
@@ -598,7 +599,7 @@ fun WrappedProgressBar(
 @Composable
 private fun MarqueeCombinedPage(
     isMarqueePaused: Boolean,
-    progress: Float,      // treat this as centerTransitionProgress 0f..1f
+    progress: Float,
     isDarkMode: Boolean,
     settleProgress: Float,
 ) {
@@ -917,10 +918,8 @@ private fun TopCategoryIntroPage(
     progress: Float,
     isDarkMode: Boolean
 ) {
-    val bg =
-        if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
-    val primaryText =
-        if (isDarkMode) Color.White else Color.Black
+    val bg = if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    val primaryText = if (isDarkMode) ThemeColors.Night.text else ThemeColors.Day.text
 
     val message = "Your Top Category\nof the Semester is..."
 
@@ -953,7 +952,7 @@ private fun TopCategoryIntroPage(
     )
 
     val orange = OrangeSHPE
-    val lightBlue = Color(0xFF93E1FF)
+    val lightBlue = if (isDarkMode) ThemeColors.Night.registerText else ThemeColors.Day.registerText
 
     Box(
         modifier = Modifier
@@ -1060,10 +1059,8 @@ private fun TopCategoryStatsPage(
     countLabel: String,
     eventTypeLabel: String
 ) {
-    val bg =
-        if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
-    val primaryText =
-        if (isDarkMode) Color.White else Color.Black
+    val bg = if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    val primaryText = if (isDarkMode) ThemeColors.Night.text else ThemeColors.Day.text
 
     val mainEnterEnd = 0.25f
     val mainEnter = (progress / mainEnterEnd).coerceIn(0f, 1f)
@@ -1154,7 +1151,8 @@ fun YearsRadarMarqueePage(
     years: Int,
     isPaused: Boolean
 ) {
-    val (bgColor, whiteText, shpeOrange) = marqueeColors(isDarkMode)
+    val bgColor = if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    val textColor = if (isDarkMode) ThemeColors.Night.text else ThemeColors.Day.text
     val clampedYears = years.coerceAtLeast(1)
     val phrase = "$clampedYears YEARS"
 
@@ -1173,8 +1171,8 @@ fun YearsRadarMarqueePage(
                 typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             }
 
-            val orangePaint = makePaint(shpeOrange)
-            val whitePaint = makePaint(whiteText)
+            val orangePaint = makePaint(OrangeSHPE)
+            val textPaint = makePaint(textColor)
             val phraseWidth = orangePaint.measureText(phrase)
             val spacingFactor = 1.3f
             val phraseSpacing = phraseWidth * spacingFactor
@@ -1225,7 +1223,7 @@ fun YearsRadarMarqueePage(
                     val d = base + scroll
                     if (d in 0f..pathLength) {
                         val paint =
-                            if ((layer + indexOnLayer) % 2 == 0) orangePaint else whitePaint
+                            if ((layer + indexOnLayer) % 2 == 0) orangePaint else textPaint
                         nativeCanvas.drawTextOnPath(phrase, path, d, 0f, paint)
                     }
                     base += phraseSpacing
@@ -1243,10 +1241,8 @@ private fun YearsAsShpeitoStatsPage(
     isDarkMode: Boolean,
     yearsInShpe: Int
 ) {
-    val bg =
-        if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
-    val primaryText =
-        if (isDarkMode) Color.White else Color.Black
+    val bg = if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    val primaryText = if (isDarkMode) ThemeColors.Night.text else ThemeColors.Day.text
 
     val yearsLabel = when {
         yearsInShpe <= 0 -> "1 Year!"
@@ -1347,19 +1343,18 @@ private fun YearsAsShpeitoStatsPage(
 private fun OverallCombinedPage(
     introProgress: Float,
     personaProgress: Float,
-    isDarkMode: Boolean
-    ,
+    isDarkMode: Boolean,
     topEventType: String
 ) {
-    val (bgColor, whiteText, accent) = marqueeColors(isDarkMode)
-    val primaryText = whiteText
+    val bgColor = if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    val primaryText = if (isDarkMode) ThemeColors.Night.text else ThemeColors.Day.text
 
     val density = LocalDensity.current
     val arcHeightPx = with(density) { 12.dp.toPx() }      // less curvature than before
     val youAreDownPx = with(density) { 40.dp.toPx() }
     val youAreUpPx = with(density) { 24.dp.toPx() }
 
-    val letters = remember { "Overall..." }.toList()
+    val letters = remember { "Overall... " }.toList()
     val totalLetters = letters.size.coerceAtLeast(1)
 
     val introT = introProgress.coerceIn(0f, 1f)
@@ -1388,7 +1383,7 @@ private fun OverallCombinedPage(
     val personaAlpha = personaEnter
     val personaTranslationY = (1f - personaEnter) * youAreDownPx
 
-    val lightBlue = if (isDarkMode) Color(0xFF93E1FF) else Color(0xFF0B70BA)
+    val lightBlue = if (isDarkMode) ThemeColors.Night.registerText else ThemeColors.Day.registerText
     val personaLabel = remember(topEventType) { eventTypeToPersona(topEventType) }
 
     Box(
@@ -1458,8 +1453,8 @@ private fun OverallCombinedPage(
             // Persona label (e.g., "Cabinet Enthusiast!") – fades in from below
             Text(
                 text = personaLabel,
-                color = accent.copy(alpha = personaAlpha),
-                fontSize = 24.sp,
+                color = OrangeSHPE.copy(alpha = personaAlpha),
+                fontSize = 32.sp,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.graphicsLayer {
