@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -66,6 +67,8 @@ fun WrappedScreen(modifier: Modifier = Modifier,
             WrappedPage("top_category_stats", "Top Category stats", 6000L), // seg 7
             WrappedPage("years_radar", "Years radar animation", 5000L), // seg 8
             WrappedPage("years_stats", "Years stat page", 6000L), // seg 9
+            WrappedPage("overall_intro", "Overall persona intro", 5000L), // seg 10
+            WrappedPage("overall_persona", "Overall persona result", 6000L), // seg 11
         )
     }
 
@@ -76,6 +79,7 @@ fun WrappedScreen(modifier: Modifier = Modifier,
             4..5,
             6..7, //bluh
             8..9,
+            10..11,
         )
     }
 
@@ -317,6 +321,26 @@ fun WrappedScreen(modifier: Modifier = Modifier,
         }
     }
 
+    val overallIntroProgress by remember {
+        derivedStateOf {
+            when {
+                currentSegmentIndex < 10 -> 0f
+                currentSegmentIndex == 10 -> currentSegmentFraction
+                else -> 1f
+            }
+        }
+    }
+
+    val overallPersonaProgress by remember {
+        derivedStateOf {
+            when {
+                currentSegmentIndex < 11 -> 0f
+                currentSegmentIndex == 11 -> currentSegmentFraction
+                else -> 1f
+            }
+        }
+    }
+
 
     val isMarqueePaused = isHolding || isSettling
 
@@ -500,6 +524,31 @@ fun WrappedScreen(modifier: Modifier = Modifier,
                                         progress = yearsStatsProgress,
                                         isDarkMode = isDarkMode,
                                         yearsInShpe = wrappedState.yearsInShpe
+                                    )
+                                }
+                            }
+                        }
+
+                        5 -> {
+                            when (currentSegmentIndex) {
+                                10 -> {
+                                    OverallIntroPage(
+                                        progress = overallIntroProgress,
+                                        isDarkMode = isDarkMode
+                                    )
+                                }
+                                11 -> {
+                                    OverallPersonaPage(
+                                        progress = overallPersonaProgress,
+                                        isDarkMode = isDarkMode,
+                                        topEventType = wrappedState.topCategory   // your most frequent type
+                                    )
+                                }
+                                else -> {
+                                    OverallPersonaPage(
+                                        progress = overallPersonaProgress,
+                                        isDarkMode = isDarkMode,
+                                        topEventType = wrappedState.topCategory
                                     )
                                 }
                             }
@@ -1271,6 +1320,200 @@ private fun YearsAsShpeitoStatsPage(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun OverallIntroPage(
+    progress: Float,
+    isDarkMode: Boolean
+) {
+    val (bgColor, whiteText, _) = marqueeColors(isDarkMode)
+    val primaryText = whiteText
+
+    val appearEnd = 0.45f
+    val disappearStart = 0.7f
+
+    val appearPhase = (progress / appearEnd).coerceIn(0f, 1f)
+    val disappearPhase = ((progress - disappearStart) / (1f - disappearStart)).coerceIn(0f, 1f)
+
+    val density = LocalDensity.current
+    val arcHeightPx = with(density) { 18.dp.toPx() }
+    val youAreDownPx = with(density) { 40.dp.toPx() }
+    val youAreUpPx = with(density) { 24.dp.toPx() }
+
+    val letters = remember { "Overall..." }.toList()
+    val totalLetters = letters.size.coerceAtLeast(1)
+
+    // "You are a..." enter + shift up
+    val youAppearStart = 0.15f
+    val youAppearEnd = 0.5f
+    val youAppear = ((progress - youAppearStart) / (youAppearEnd - youAppearStart)).coerceIn(0f, 1f)
+
+    val youShiftStart = 0.8f
+    val youShift = ((progress - youShiftStart) / (1f - youShiftStart)).coerceIn(0f, 1f)
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(bgColor)
+            .padding(horizontal = 24.dp, vertical = 32.dp)
+    ) {
+        // Optional center dark stripe (like your screenshot)
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(36.dp)
+                .align(Alignment.Center)
+                .background(Color(0xFF2B2B2B))
+        )
+
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Rainbow "Overall..."
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                letters.forEachIndexed { index, ch ->
+                    val baseFrac =
+                        if (totalLetters == 1) 0f else index.toFloat() / (totalLetters - 1).toFloat()
+
+                    val letterAppear =
+                        ((appearPhase - baseFrac) / 0.22f).coerceIn(0f, 1f)
+                    val letterDisappear =
+                        ((disappearPhase - baseFrac) / 0.22f).coerceIn(0f, 1f)
+
+                    var alpha = letterAppear * (1f - letterDisappear)
+                    if (alpha < 0.01f) alpha = 0f
+
+                    // Simple rainbow arc: center letters highest
+                    val centered = baseFrac - 0.5f
+                    val arcOffset = -kotlin.math.cos(centered * PI).toFloat() * arcHeightPx
+
+                    Text(
+                        text = ch.toString(),
+                        color = primaryText.copy(alpha = alpha),
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        modifier = Modifier.graphicsLayer {
+                            this.alpha = alpha
+                            translationY = arcOffset
+                        }
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // "You are a..." – fades in from bottom, then drifts slightly up
+            val youAlpha = youAppear
+            val youTranslationY =
+                (1f - youAppear) * youAreDownPx - youShift * youAreUpPx
+
+            Text(
+                text = "You are a...",
+                color = primaryText.copy(alpha = youAlpha),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.graphicsLayer {
+                    alpha = youAlpha
+                    translationY = youTranslationY
+                }
+            )
+        }
+    }
+}
+
+
+private fun eventTypeToPersona(topType: String): String {
+    return when (topType) {
+        "General Body Meeting" -> "GBM Pleb!"
+        "Cabinet Meeting" -> "Cabinet Enthusiast!"
+        "Workshop" -> "Avid Learner!"
+        "Form/Survey" -> "Data Collector!"
+        "Social" -> "Party Animal!"
+        "Corporate Event" -> "Quarterzip Fiend!"
+        "Fundraising" -> "Funds Acquirer!"
+        "Tabling" -> "Door to Door Salesperson!"
+        "Volunteering" -> "Kind and Loving Person!"
+        "Miscellaneous" -> "Unique and Unrepeatable!"
+        else -> "Unique and Unrepeatable!"
+    }
+}
+
+
+@Composable
+private fun OverallPersonaPage(
+    progress: Float,
+    isDarkMode: Boolean,
+    topEventType: String
+) {
+    val (bgColor, whiteText, accent) = marqueeColors(isDarkMode)
+    val primaryText = whiteText
+
+    val personaLabel = remember(topEventType) {
+        eventTypeToPersona(topEventType)
+    }
+
+    val config = LocalConfiguration.current
+    val screenWidthDp = config.screenWidthDp.dp
+    val horizontalMargin = screenWidthDp / 8f
+
+    // Simple enter animation
+    val mainEnterEnd = 0.35f
+    val mainEnter = (progress / mainEnterEnd).coerceIn(0f, 1f)
+    val offsetY = (1f - mainEnter) * 160f
+    val alpha = mainEnter
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(bgColor)
+            .padding(vertical = 32.dp)
+    ) {
+        // Center stripe to match intro page
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(36.dp)
+                .align(Alignment.Center)
+                .background(Color(0xFF2B2B2B))
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .fillMaxWidth()
+                .padding(horizontal = horizontalMargin)
+                .graphicsLayer {
+                    translationY = offsetY
+                    this.alpha = alpha
+                },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "You are a...",
+                color = primaryText,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = personaLabel,
+                color = accent,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
