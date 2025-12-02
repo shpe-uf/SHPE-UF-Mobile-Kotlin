@@ -1,6 +1,5 @@
-package com.example.shpe_uf_mobile_kotlin.ui.pages.events
+package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.events
 
-import android.util.Log
 import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
@@ -18,7 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -29,8 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import android.text.Html
-import com.example.shpe_uf_mobile_kotlin.R
-import com.example.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
+import com.shpeuf.shpe_uf_mobile_kotlin.R
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import android.content.res.Configuration
 
 @Composable
