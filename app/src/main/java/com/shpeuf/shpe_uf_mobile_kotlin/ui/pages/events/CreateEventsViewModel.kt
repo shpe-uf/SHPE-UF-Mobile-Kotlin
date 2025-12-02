@@ -1,11 +1,11 @@
-package com.example.shpe_uf_mobile_kotlin.ui.pages.events
+package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.events
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.shpe_uf_mobile_kotlin.CreateEventMutation
-import com.example.shpe_uf_mobile_kotlin.apolloClient
-import com.example.shpe_uf_mobile_kotlin.type.CreateEventInput
+import com.shpeuf.shpe_uf_mobile_kotlin.CreateEventMutation
+import com.shpeuf.shpe_uf_mobile_kotlin.apolloClient
+import com.shpeuf.shpe_uf_mobile_kotlin.type.CreateEventInput
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -61,7 +61,8 @@ class CreateEventViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e("CreateEventViewModel", "Exception: ${e.message}", e)
-                _createEventState.value = CreateEventState.Error(e.message ?: "Failed to create event")
+                _createEventState.value =
+                    CreateEventState.Error(e.message ?: "Failed to create event")
             }
         }
     }

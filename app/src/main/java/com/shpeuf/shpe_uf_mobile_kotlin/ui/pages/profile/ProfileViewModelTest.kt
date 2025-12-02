@@ -1,5 +1,5 @@
 // kotlin
-package com.example.shpe_uf_mobile_kotlin.ui.pages.profile
+package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile
 
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

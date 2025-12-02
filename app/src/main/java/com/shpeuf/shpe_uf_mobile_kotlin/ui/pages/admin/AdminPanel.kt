@@ -1,4 +1,4 @@
-package com.example.shpe_uf_mobile_kotlin.ui.pages.admin
+package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.shpe_uf_mobile_kotlin.R
+import com.shpeuf.shpe_uf_mobile_kotlin.R
 
 
 @OptIn(ExperimentalMaterial3Api::class)
