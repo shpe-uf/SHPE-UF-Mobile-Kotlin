@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
@@ -47,6 +49,15 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped.MarqueeRow
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped.marqueeColors
 import kotlin.math.PI
 import kotlin.math.sin
+import android.graphics.Path
+import android.graphics.PathMeasure
+import android.graphics.RectF
+import android.graphics.Typeface
+import android.graphics.Paint
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+
 
 /**
  * Public entry point: call from NavHost with composable(NavRoute.WRAPPED) { WrappedScreen() }
@@ -66,7 +77,7 @@ fun WrappedScreen(modifier: Modifier = Modifier,
             WrappedPage("points_stats", "Total SHPoints stats", 6000L), // seg 5
             WrappedPage("top_category_intro", "Top Category intro", 5500L), // seg 6
             WrappedPage("top_category_stats", "Top Category stats", 6000L), // seg 7
-            WrappedPage("years_radar", "Years radar animation", 5000L), // seg 8
+            WrappedPage("years_radar", "Years radar animation", 8000L), // seg 8
             WrappedPage("years_stats", "Years stat page", 6000L), // seg 9
             WrappedPage("overall_intro", "Overall persona intro", 5000L), // seg 10
             WrappedPage("overall_persona", "Overall persona result", 6000L), // seg 11
@@ -767,17 +778,15 @@ private fun PointsVerticalMarqueePage(
 
     val digits = remember(pointsText) { pointsText.toString().length.coerceAtLeast(1) }
 
-    // Tighter columns + larger text
     val (columnCount, fontSize) = remember(digits) {
         when (digits) {
-            1 -> 7 to 64.sp   // 1-digit → 7 columns, bigger type
-            2 -> 4 to 56.sp   // 2-digit → 4 columns, bigger type
-            3 -> 3 to 48.sp   // 3-digit → 3 columns
+            1 -> 7 to 64.sp
+            2 -> 4 to 56.sp
+            3 -> 3 to 48.sp
             else -> 3 to 44.sp
         }
     }
 
-    // Single linear 0–1 progress → constant velocity from off-screen to off-screen
     val t = progress.coerceIn(0f, 1f)
 
     BoxWithConstraints(
@@ -937,8 +946,10 @@ private fun TopCategoryIntroPage(
     val appearEnd = 0.55f
     val disappearStart = 0.75f
 
+    // Phases
     val appearPhase = (progress / appearEnd).coerceIn(0f, 1f)
-    val disappearPhase = ((progress - disappearStart) / (1f - disappearStart)).coerceIn(0f, 1f)
+    val disappearPhase =
+        ((progress - disappearStart) / (1f - disappearStart)).coerceIn(0f, 1f)
 
     // For indexing letters globally (to stagger pop in/out)
     val totalChars = remember(lines) { lines.sumOf { it.length } }
@@ -957,7 +968,6 @@ private fun TopCategoryIntroPage(
         label = "bobPhase"
     )
 
-    // Alternating colors for letters (ignoring spaces)
     val orange = OrangeSHPE
     val lightBlue = Color(0xFF93E1FF)
 
@@ -988,20 +998,32 @@ private fun TopCategoryIntroPage(
                         val baseFrac = if (totalChars <= 1) 0f
                         else myIndex.toFloat() / (totalChars - 1).toFloat()
 
-                        // Appear: letters pop in forward order
-                        val appearLocal = ((appearPhase - baseFrac) / 0.18f).coerceIn(0f, 1f)
+                        val letterSpan = 0.18f
 
-                        // Disappear: letters pop out forward order near the end
-                        val disappearLocal =
-                            ((disappearPhase - baseFrac) / 0.18f).coerceIn(0f, 1f)
+                        // ---- PHASED ALPHA / SCALE ----
+                        var alpha: Float
+                        var scale: Float
 
-                        // Overall alpha & scale
-                        var alpha = appearLocal
-                        var scale = 0.7f + 0.3f * appearLocal
+                        if (progress < appearEnd) {
+                            // Appear phase: staggered pop-in
+                            val appearLocal =
+                                ((appearPhase - baseFrac) / letterSpan).coerceIn(0f, 1f)
+                            alpha = appearLocal
+                            scale = 0.7f + 0.3f * appearLocal
+                        } else {
+                            // Middle plateau: everything fully solid
+                            alpha = 1f
+                            scale = 1f
+                        }
 
-                        if (disappearLocal > 0f) {
-                            alpha *= (1f - disappearLocal)
-                            scale *= (1f + 0.25f * disappearLocal)
+                        if (progress >= disappearStart) {
+                            // Disappear phase: staggered pop-out
+                            val disappearLocal =
+                                ((disappearPhase - baseFrac) / letterSpan).coerceIn(0f, 1f)
+                            if (disappearLocal > 0f) {
+                                alpha *= (1f - disappearLocal)
+                                scale *= (1f + 0.25f * disappearLocal)
+                            }
                         }
 
                         if (alpha <= 0.01f) {
@@ -1009,12 +1031,12 @@ private fun TopCategoryIntroPage(
                         }
 
                         // Alternate orange / light blue on non-space letters
-                        val color = if (isSpace) {
-                            primaryText.copy(alpha = alpha)
+                        val baseColor = if (isSpace) {
+                            primaryText
                         } else {
                             val c = if (colorIndex % 2 == 0) orange else lightBlue
                             colorIndex++
-                            c.copy(alpha = alpha)
+                            c
                         }
 
                         val bobOffsetPx =
@@ -1024,7 +1046,7 @@ private fun TopCategoryIntroPage(
 
                         Text(
                             text = ch.toString(),
-                            color = color,
+                            color = baseColor, // keep color fully opaque; alpha is in layer
                             fontSize = 26.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.graphicsLayer {
@@ -1149,102 +1171,86 @@ fun YearsRadarMarqueePage(
     isPaused: Boolean
 ) {
     val (bgColor, whiteText, shpeOrange) = marqueeColors(isDarkMode)
-
     val clampedYears = years.coerceAtLeast(1)
-    val phrase = "$clampedYears YEARS IN SHPE"
-
-    // How "exited" this page is (for slide/alpha)
-    val exitProgress = ((progress - 0.8f) / 0.2f).coerceIn(0f, 1f)
-    val containerRotation = 6f * exitProgress
-    val containerAlpha = 1f - exitProgress
-    val containerSlideUp = -120f * exitProgress
-
-    // Simple infinite rotation for the ring
-    val infiniteTransition = rememberInfiniteTransition(label = "years_ring")
-    val rawRotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 16000,
-                easing = LinearEasing
-            ),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "years_ring_rotation"
-    )
-    val ringRotation = if (isPaused) 0f else rawRotation
+    val phrase = "$clampedYears YEARS"
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(bgColor)
-            .padding(24.dp)
+            .padding(horizontal = 16.dp, vertical = 24.dp)
     ) {
-        // Rotating ring of text
-        Box(
-            modifier = Modifier
-                .size(260.dp)
-                .align(Alignment.Center)
-                .graphicsLayer {
-                    rotationZ = ringRotation + containerRotation
-                    alpha = containerAlpha
-                    translationY = containerSlideUp
-                }
-        ) {
-            val segments = 12
-            repeat(segments) { index ->
-                val segmentAngle = 360f / segments * index
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val textSizePx = 24.sp.toPx()
+            fun makePaint(color: Color) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                this.color = color.toArgb()
+                textSize = textSizePx
+                textAlign = Paint.Align.CENTER
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer {
-                            rotationZ = segmentAngle
-                        }
-                ) {
-                    Text(
-                        text = phrase,
-                        color = if (index % 2 == 0) shpeOrange else whiteText,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        maxLines = 1,
-                        softWrap = false,
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = 6.dp)
-                    )
+            val orangePaint = makePaint(shpeOrange)
+            val whitePaint = makePaint(whiteText)
+            val phraseWidth = orangePaint.measureText(phrase)
+            val spacingFactor = 1.3f
+            val phraseSpacing = phraseWidth * spacingFactor
+
+            val layerCount = 9
+            val centerX = size.width / 2f
+            val centerY = size.height * 1.5f
+            val minRadius = size.height * 0.6f
+            val maxRadius = size.height * 1.4f
+            val radiusStep =
+                if (layerCount > 1) (maxRadius - minRadius) / (layerCount - 1) else 0f
+
+            // --- rotate the slice left so its leading edge begins at screen edge ---
+            val baseAngle = 230f           // instead of 270°
+            val halfSweep = 80f            // wider arc to span full width
+            val startAngle = baseAngle - halfSweep
+            val sweepAngle = halfSweep * 2f
+
+            val nativeCanvas = drawContext.canvas.nativeCanvas
+            val path = Path()
+            val rect = RectF()
+            val pathMeasure = PathMeasure()
+            val clampedProgress = progress.coerceIn(0f, 1f)
+
+            for (layer in 0 until layerCount) {
+                val radius = minRadius + layer * radiusStep
+                rect.set(
+                    centerX - radius,
+                    centerY - radius,
+                    centerX + radius,
+                    centerY + radius
+                )
+                path.reset()
+                path.addArc(rect, startAngle, sweepAngle)
+                pathMeasure.setPath(path, false)
+                val pathLength = pathMeasure.length
+
+                val margin = phraseSpacing * 1f
+                val baseStart = -margin
+                val baseEnd = pathLength + margin
+                val scrollStart = -(pathLength + margin + phraseSpacing)
+                val scrollEnd = pathLength + margin + phraseSpacing
+                val scroll = scrollStart + (scrollEnd - scrollStart) * clampedProgress
+
+                var base = baseStart
+                var indexOnLayer = 0
+                while (base < baseEnd) {
+                    val d = base + scroll
+                    if (d in 0f..pathLength) {
+                        val paint =
+                            if ((layer + indexOnLayer) % 2 == 0) orangePaint else whitePaint
+                        nativeCanvas.drawTextOnPath(phrase, path, d, 0f, paint)
+                    }
+                    base += phraseSpacing
+                    indexOnLayer++
                 }
             }
         }
-
-        // Center numeric label
-        Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .graphicsLayer {
-                    alpha = containerAlpha
-                    translationY = containerSlideUp
-                },
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = clampedYears.toString(),
-                color = whiteText,
-                fontSize = 50.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = "YEARS IN SHPE",
-                color = whiteText,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
     }
 }
-
 
 
 @Composable
