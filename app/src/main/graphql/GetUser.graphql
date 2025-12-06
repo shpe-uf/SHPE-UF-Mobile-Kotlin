@@ -14,5 +14,6 @@ query GetUser($userId: ID!) {
         internships
         socialMedia
         photo
+        permission
     }
 }
