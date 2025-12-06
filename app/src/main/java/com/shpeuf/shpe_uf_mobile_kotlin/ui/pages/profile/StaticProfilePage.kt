@@ -133,7 +133,8 @@ fun StaticProfileScreen(
             textColor = textColor,
             containerColor = containerColor,
             editable = uiState.editable,
-            profileViewModel = profileViewModel
+            profileViewModel = profileViewModel,
+            navController = navController
         )
 
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp.value
@@ -149,10 +150,15 @@ fun StaticProfileScreen(
 
             LazyColumn(
                 modifier = Modifier
-                    .padding(top = 300.dp)
+                    .padding(top = if (profileViewModel.isUserAdmin()) 350.dp else 300.dp)
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+//                item {
+//                    if (!uiState.editable[0] && uiState.editable[1] && profileViewModel.isUserAdmin()) {
+//                        Spacer(modifier = Modifier.height(20.dp))
+//                    }
+//                }
 
                 item {
                     Text(
@@ -860,7 +866,8 @@ fun StaticProfilePageBackground(
     textColor: Color,
     containerColor: Color,
     editable: List<Boolean>,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
+    navController: NavHostController
 ) {
     val uiState by profileViewModel.uiState.collectAsState() // getting ui state
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp // getting screen height
@@ -977,13 +984,26 @@ fun StaticProfilePageBackground(
                         )
                     }
                 } else if (!editable[0] && editable[1]) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 40.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
                         EditProfileButton(
                             onClick = { profileViewModel.editProfile() }, profileViewModel
                         )
+
+                        if (profileViewModel.isUserAdmin()){
+                            AdminPanelButton(
+                                onClick = {
+                                    navController.navigate(NavRoute.ADMIN)
+                                }
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(50.dp))
                     }
 
                 }
@@ -1446,6 +1466,45 @@ private fun EditProfileButton(
                     modifier = Modifier.size(20.dp)
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun AdminPanelButton(
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Button(
+            modifier = Modifier
+                .wrapContentSize(Alignment.Center)
+                .align(Alignment.Center),
+            onClick = onClick,
+            shape = RoundedCornerShape(20.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFD25917),
+                contentColor = Color.White
+            ),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Admin Panel",
+                    fontSize = 19.sp,
+                    color = Color.White,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+
+                Spacer(modifier = Modifier.width(11.dp))
+
+                Icon(
+                    painter = painterResource(id = R.drawable.admin),
+                    contentDescription = "AdminPanelIcon",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
         }
     }
 }
