@@ -173,9 +173,43 @@ fun NavHostContainer(
     profileViewModel: ProfileViewModel,
     notificationSummary: String
 ) {
+
+
     val homeViewModel: HomeViewModel =
         viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
 
+    // ===================== DEV ONLY (CHANGE #1) =====================
+// Turn this ON while developing Admin UI without needing login.
+// Turn it OFF (false) before pushing / PR.
+    val devSkipAuthRedirect = true
+// ===============================================================
+
+    LaunchedEffect(userState.isLoggedIn) {
+
+        // ===================== DEV ONLY (CHANGE #2) =====================
+        // If this is true, we do NOT auto-navigate to OPENING/HOME.
+        // That prevents the app from constantly forcing you back to OPENING.
+        if (devSkipAuthRedirect) return@LaunchedEffect
+        // ===============================================================
+
+        val isLoggedIn = userState.isLoggedIn
+        Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
+        Log.d("Logged In True", "isLoggedIn: ${isLoggedIn==true}")
+
+        if (isLoggedIn) {
+            navHostController.navigate(NavRoute.HOME) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        } else {
+            Log.d("Current Screen", "Current Screen: ${navHostController.currentDestination?.route}")
+            navHostController.navigate(NavRoute.OPENING) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+
+    /* make sure to uncomment this instead of the dev only changes
     LaunchedEffect(userState.isLoggedIn) {
         val isLoggedIn = userState.isLoggedIn
         Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
@@ -193,6 +227,8 @@ fun NavHostContainer(
             }
         }
     }
+    */
+
 
     LaunchedEffect(notificationSummary, userState.isLoggedIn) {
         val event = homeViewModel.getEventBySummary(notificationSummary)
@@ -215,7 +251,7 @@ fun NavHostContainer(
 
     NavHost(
         navController = navHostController,
-        startDestination = NavRoute.OPENING,
+        startDestination = NavRoute.ADMIN, //TEMORARY CHANGE RETURN TO OPENING later __________________________________________________________________________________
     ) {
         composable(NavRoute.OPENING){
             OpeningPage(navHostController, mainViewModel)
@@ -246,7 +282,7 @@ fun NavHostContainer(
             val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
 
             AdminPanelScreen(
-                isUserAdmin = profileViewModel.isUserAdmin(),
+                isUserAdmin = true, //profileViewModel.isUserAdmin(), DEV CHANGE AS WELL MAKE SURE TO FIX _______________________________________________________________________________
                 isDarkMode = isDarkMode,
                 onBack = {
                     navHostController.popBackStack()
