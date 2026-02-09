@@ -720,6 +720,10 @@ type Query {
   getPartners: [Partner]
 
   getYearStat: [StatData]
+
+  lastMontOfYear: Boolean!
+
+  getMostActiveMonth(userId: ID!): String
 }
 
 type Mutation {
