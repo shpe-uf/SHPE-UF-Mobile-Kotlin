@@ -15,5 +15,6 @@ query GetUser($userId: ID!) {
         socialMedia
         photo
         createdAt
+        permission
     }
 }

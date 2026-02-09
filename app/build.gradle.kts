@@ -17,7 +17,7 @@ android {
         applicationId = "com.shpeuf.shpe_uf_mobile_kotlin"
         minSdk = 30
         targetSdk = 35
-        versionCode = 7
+        versionCode = 9
         versionName = "1.1"
 
         val localPropertiesFile = rootProject.file("local.properties")
@@ -74,13 +74,14 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("androidx.datastore:datastore-preferences-core-jvm:1.1.1")
     implementation("androidx.compose.foundation:foundation-android:1.6.8")
+    implementation("junit:junit:4.12")
     val nav_version = "2.8.0"
     implementation("androidx.navigation:navigation-compose:$nav_version")
     ksp( "androidx.room:room-compiler:2.5.0")
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
 
-    val camerax_version = "1.3.0"
+    val camerax_version = "1.4.0"
     implementation("androidx.camera:camera-camera2:$camerax_version")
     implementation("androidx.camera:camera-core:$camerax_version")
     implementation("androidx.camera:camera-lifecycle:$camerax_version")
@@ -91,8 +92,8 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.2.2")
 
     // ML Kit Barcode Scanning
-    implementation("com.google.mlkit:barcode-scanning:17.2.0")
-    implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.0.2")
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+    implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1")
 
 
 
