@@ -58,6 +58,7 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.sponsors.SponsorsPage
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.AdminRankingScreen
 
 
 data class BottomNavigationItem(
@@ -289,9 +290,25 @@ fun NavHostContainer(
                 },
                 onNavigateToEvents = {
                     navHostController.navigate(NavRoute.CREATE_EVENTS)
+                },
+                onNavigateToRanking = {                      // <-- ADD THIS
+                    navHostController.navigate(NavRoute.ADMIN_RANKING)
                 }
             )
         }
+
+        //CHANGE MADE HERE BELOW
+
+        composable(NavRoute.ADMIN_RANKING) {
+            val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
+
+            AdminRankingScreen(
+                isDarkMode = isDarkMode,
+                onBack = { navHostController.popBackStack() }
+            )
+        }
+        // THIS IS ME
+
 
         composable(NavRoute.CREATE_EVENTS) {
             val createEventViewModel = CreateEventViewModel()
