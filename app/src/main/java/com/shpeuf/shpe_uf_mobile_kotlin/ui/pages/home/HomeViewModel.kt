@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.shpeuf.shpe_uf_mobile_kotlin.BuildConfig
+import com.shpeuf.shpe_uf_mobile_kotlin.GetWrappedAvailableQuery
+import com.shpeuf.shpe_uf_mobile_kotlin.apolloClient
 import com.shpeuf.shpe_uf_mobile_kotlin.repository.EventRepository
 import com.shpeuf.shpe_uf_mobile_kotlin.repository.NotificationRepository
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.GBMColor
@@ -501,8 +503,19 @@ class HomeViewModel(
     }
 
     private suspend fun isWrappedAvailable(): Boolean {
-        // for when the isWrapped query is implemented
-        return true
+        return try {
+            val response = apolloClient.query(GetWrappedAvailableQuery()).execute()
+
+            if (response.hasErrors()) {
+                Log.e("HomeViewModel", "GetWrappedAvailable errors: ${response.errors}")
+                false
+            } else {
+                response.data?.lastMontOfYear ?: false
+            }
+        } catch (e: Exception) {
+            Log.e("HomeViewModel", "Error fetching wrapped availability", e)
+            false
+        }
     }
 
     fun onWrappedMaybeLater() {
