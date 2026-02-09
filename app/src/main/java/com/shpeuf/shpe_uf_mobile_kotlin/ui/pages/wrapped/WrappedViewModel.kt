@@ -1,0 +1,206 @@
+package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.apollographql.apollo3.api.ApolloResponse
+import com.shpeuf.shpe_uf_mobile_kotlin.EventsQuery
+import com.shpeuf.shpe_uf_mobile_kotlin.GetUserQuery // Import the GetUserQuery
+import com.shpeuf.shpe_uf_mobile_kotlin.PointsQuery // Import the PointsQuery
+import com.shpeuf.shpe_uf_mobile_kotlin.apolloClient
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.points.formatDate
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.Month
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.time.temporal.ChronoUnit
+import java.util.Locale
+import kotlin.math.max
+
+class WrappedViewModel : ViewModel() {
+    private val _uiState = MutableStateFlow(WrappedState())
+    val uiState = _uiState.asStateFlow()
+
+    /**
+     * Calculates the category with the most events from a given list.
+     */
+    private fun calculateTopCategory(events: List<EventsQuery.Event>): Pair<String, Int> {
+        val countsByCategory = events.groupBy { it.category ?: "Unknown" }.mapValues { (_, list) -> list.size }
+        val topEntry = countsByCategory.maxByOrNull { it.value }
+        return if (topEntry != null) { topEntry.key to topEntry.value } else { "N/A" to 0 }
+    }
+
+    /**
+     * Calculates the month with the most events from a given list.
+     * Assumes `createdAt` is a String in "YYYY-MM-DD" format.
+     */
+    private fun calculateTopMonths(
+        events: List<EventsQuery.Event>,
+        topN: Int = 3
+    ): List<String> {
+        val countsByMonthNumber = events.mapNotNull { event ->
+            val createdAt = event.createdAt
+            if (createdAt.length >= 7) {
+                createdAt.substring(5, 7).toIntOrNull()
+            } else {
+                null
+            }
+        }.groupingBy { it }
+            .eachCount()
+
+        return countsByMonthNumber.entries
+            .sortedWith(
+                compareByDescending<Map.Entry<Int, Int>> { it.value }
+                    .thenBy { it.key }
+            )
+            .take(topN)
+            .map { (monthNumber, _) ->
+                Month.of(monthNumber).getDisplayName(
+                    TextStyle.FULL,
+                    Locale.getDefault()
+                )
+            }
+    }
+
+    private fun calculateYearsInShpe(response: ApolloResponse<GetUserQuery.Data>): Int {
+        val createdAt = response.data?.getUser?.createdAt ?: return 0
+
+        return try {
+            val zonedDateTime = ZonedDateTime.parse(createdAt.toString())
+            val joinDate = zonedDateTime.toLocalDate()
+            // Use the same zone as the stored timestamp for consistency
+            val today = LocalDate.now(zonedDateTime.zone)
+
+            val years = ChronoUnit.YEARS.between(joinDate, today).toInt()
+            if (years < 0) 0 else years
+        } catch (e: Exception) {
+            0
+        }
+    }
+
+    /**
+     * Determines the current semester name based on the current date.
+     */
+    private fun getCurrentSemesterName(): String {
+        return when (LocalDate.now().month) {
+            in Month.JANUARY..Month.APRIL -> "Spring"
+            in Month.MAY..Month.JULY -> "Summer"
+            else -> "Fall"
+        }
+    }
+
+    /**
+     * Processes the response from PointsQuery to extract the current semester's data.
+     */
+    private fun processPointsData(response: ApolloResponse<PointsQuery.Data>): Triple<String, Int, Int> {
+        val userData = response.data?.getUser
+        val semesterName = getCurrentSemesterName()
+        val points = userData?.points ?: 0
+        val percentile = when (semesterName) {
+            "Fall" -> userData?.fallPercentile
+            "Spring" -> userData?.springPercentile
+            "Summer" -> userData?.summerPercentile
+            else -> 0
+        } ?: 0
+        return Triple(semesterName, points, percentile)
+    }
+
+    /**
+     * Processes the response from GetUserQuery to extract and format the join date.
+     */
+    private fun processUserJoinDate(response: ApolloResponse<GetUserQuery.Data>): String {
+        val createdAt = response.data?.getUser?.createdAt
+        if (createdAt == null) return "N/A"
+
+        return try {
+            val zonedDateTime = ZonedDateTime.parse(createdAt.toString())
+            val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
+            zonedDateTime.format(formatter)
+        } catch (e: Exception) {
+            "Invalid date"
+        }
+    }
+
+    /**
+     * Fetches all data for the Wrapped screen (events, points, user info) concurrently
+     * and updates the UI state with all calculated metrics.
+     */
+
+    fun getWrappedData(id: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+
+            try {
+                val eventsResponseDeferred =
+                    async { apolloClient.query(EventsQuery(id)).execute() }
+                val pointsResponseDeferred =
+                    async { apolloClient.query(PointsQuery(id)).execute() }
+                val userResponseDeferred =
+                    async { apolloClient.query(GetUserQuery(id)).execute() }
+
+                val eventsResponse = eventsResponseDeferred.await()
+                val pointsResponse = pointsResponseDeferred.await()
+                val userResponse = userResponseDeferred.await()
+
+                // 1) raw events straight from GraphQL
+                val rawEvents = eventsResponse.data
+                    ?.getUser
+                    ?.events
+                    ?.filterNotNull()
+                    ?: emptyList()
+
+                // 2) pretty-printed version for any UI that uses createdAt
+                val events = rawEvents.map {
+                    it.copy(createdAt = formatDate(it.createdAt))
+                }
+
+                val (topCategoryName, topCategoryCount) = if (rawEvents.isNotEmpty()) {
+                    calculateTopCategory(rawEvents)
+                } else {
+                    "No events attended" to 0
+                }
+
+                val topMonths = if (rawEvents.isNotEmpty())
+                    calculateTopMonths(rawEvents, topN = 3)
+                else
+                    emptyList()
+
+                val (semesterName, points, percentile) =
+                    processPointsData(pointsResponse)
+                val memberSince = processUserJoinDate(userResponse)
+                val yearsInShpe = calculateYearsInShpe(userResponse)
+
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        topCategory = topCategoryName,
+                        topCategoryCount = topCategoryCount,
+                        topMonth = topMonths.getOrNull(0) ?: "No events attended",
+                        secondMonth = topMonths.getOrNull(1) ?: "",
+                        thirdMonth = topMonths.getOrNull(2) ?: "",
+                        semester = semesterName,
+                        points = points,
+                        percentile = percentile,
+                        memberSince = memberSince,
+                        yearsInShpe = yearsInShpe,
+                        error = null
+                    )
+                }
+
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Failed to fetch wrapped data."
+                    )
+                }
+            }
+        }
+    }
+}

@@ -20,6 +20,7 @@ data class HomeScreenState(
 
     val isNotificationWindowVisible: Boolean = false,
     val isSocialWindowVisible: Boolean = false,
+    val isWrappedPromptVisible: Boolean = false,
     val notificationSettings: NotificationSelection = NotificationSelection(),
     val allNotificationCurrentColor: Color = Color(0xFF933815),
     // -------------------
