@@ -76,7 +76,8 @@ class SignInViewModel : ViewModel() {
                 password
             ) // This call will suspend the coroutine until the login operation is complete.
 
-
+            // If login is unsuccessful, do nothing, else change it to logged in.
+            //if (loginSuccess) updateErrorMessage("Logged in.") else updateErrorMessage("Could not login.")
             if(id != null){
                 shpeUFAppViewModel.saveUserId(id)
                 shpeUFAppViewModel.saveUsername(username)

@@ -243,6 +243,13 @@ class ProfileViewModel : ViewModel() {
         return false
     }
 
+    /** Helper function which returns true if the loaded user has admin permissions */
+    fun isUserAdmin(): Boolean {
+        val perm = _uiState.value.permission ?: return false
+        // check exactly or contains depending on your server format
+        return perm == "member-admin-super" || perm.contains("admin", ignoreCase = true)
+    }
+
     // Function to update the user profile with values from the database given the user's ID.
     // Just call getUserInfo("64ea79b9f2051e00149c75b7") once, and it should populate the fields.
     private fun getUserInfo(id: String) {
@@ -267,8 +274,17 @@ class ProfileViewModel : ViewModel() {
                 onInternshipsChanged(userInfo.internships)
                 onSocialMediaChanged(userInfo.socialMedia)
                 onPhotoChanged(userInfo.photo)
+
+                // store permission in state so we can add admin panel button if the user is an admin
+                _uiState.value = _uiState.value.copy(permission = userInfo.permission)
+                Log.d("ProfileViewModel", "permission=${userInfo.permission} isUserAdmin=${isUserAdmin()}")
             }
         }
+    }
+
+    // Test helper to set permission directly in tests
+    fun setPermissionForTesting(permission: String?) {
+        _uiState.value = _uiState.value.copy(permission = permission)
     }
 
     private suspend fun getUserInfoCoroutine(id: String): GetUserQuery.GetUser? { // Returns getUser object.

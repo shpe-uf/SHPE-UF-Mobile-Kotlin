@@ -26,6 +26,7 @@ data class ProfileUiState(
     val isMajorExpanded: Boolean = false,
     val isYearExpanded: Boolean = false,
     val isGraduationExpanded: Boolean = false,
+    val permission: String? = null,
 
     // Error messages
     val errorMessages: Map<String, String?> = emptyMap()
