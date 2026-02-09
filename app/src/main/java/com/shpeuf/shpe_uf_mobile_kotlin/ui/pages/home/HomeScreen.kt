@@ -102,6 +102,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.IntOffset
@@ -1414,6 +1415,86 @@ fun SocialPreview() {
     )
 }
 
+/* This is the thingy that appears when it is wrapped accessible is true and the popup
+* has not been shown yet in this session */
+@Composable
+fun SlidingWrappedPrompt(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel,
+    isDarkMode: Boolean
+) {
+    val homeState by viewModel.homeState.collectAsState()
+    val visible = homeState.isWrappedPromptVisible
+
+    if (!visible) return
+
+    // Optional: intercept back press to hide the prompt
+    BackHandler(enabled = true) { viewModel.onWrappedMaybeLater() }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.35f)), // scrim
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFF7A2F)),
+            modifier = Modifier
+                .padding(20.dp)
+                .fillMaxWidth(0.9f)
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Your SHPE\nWrapped is\nhere.",
+                    style = TextStyle(
+                        fontFamily = Viga,
+                        fontWeight = FontWeight.W400,
+                        fontSize = 32.sp,
+                        color = Color.White,
+                        lineHeight = 36.sp,
+                        textAlign = TextAlign.Center
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp)
+                )
+
+                Button(
+                    onClick = { viewModel.onWrappedLetsGo() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF0B70BA),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                ) {
+                    Text("LET’S GO!", style = TextStyle(fontSize = 18.sp, fontFamily = Universltstd))
+                }
+
+                Text(
+                    text = "Maybe later",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontFamily = Universltstd,
+                        fontWeight = FontWeight.W400,
+                        color = Color.White.copy(alpha = 0.85f),
+                        textAlign = TextAlign.Center
+                    ),
+                    modifier = Modifier
+                        .padding(top = 12.dp)
+                        .clickable { viewModel.onWrappedMaybeLater() }
+                )
+            }
+        }
+    }
+}
+
 /**
  * @description This allows for easier formatting of text used in the notification settings content
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
@@ -2148,8 +2229,19 @@ fun getOrdinalIndicator(dayOfMonth: Int): String {
 @Composable
 fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel, navController: NavHostController) {
     val userState by shpeufAppViewModel.uiState.collectAsState()
+    val homeState by viewModel.homeState.collectAsState()
     val isDarkMode = userState.isDarkMode
     val isGuest = userState.isGuest
+
+    LaunchedEffect(Unit) { viewModel.maybeCheckWrappedPrompt() }
+
+    LaunchedEffect(Unit) {
+        viewModel.navEvents.collect { event ->
+            when (event) {
+                HomeViewModel.NavEvent.ToWrapped -> navController.navigate(NavRoute.WRAPPED)
+            }
+        }
+    }
 
     Surface (
         modifier = Modifier
@@ -2157,13 +2249,18 @@ fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel,
             .fillMaxHeight(),
         color = if(isDarkMode) Color.Black else Color.White
     ) {
-        Box {
-            EventCardFeed(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
-            TopHeader(modifier = Modifier, viewModel = viewModel, navController = navController, isGuest = isGuest)
-        }
+        Box { // the new box is so that the background can be blurred when showing the wrapped popup
+            Box(modifier = Modifier.then(
+                if (homeState.isWrappedPromptVisible) Modifier.blur(10.dp) else Modifier)
+            ){
+                EventCardFeed(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
+                TopHeader(modifier = Modifier, viewModel = viewModel, navController = navController, isGuest = isGuest)
+            }
 
-        SlidingEventWindow(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
-        SlidingNotificationWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
-        SlidingSocialWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
+            SlidingEventWindow(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
+            SlidingNotificationWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
+            SlidingSocialWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
+            SlidingWrappedPrompt(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
+        }
     }
 }
