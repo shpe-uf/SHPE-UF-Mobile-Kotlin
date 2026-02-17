@@ -3,18 +3,14 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
-import android.net.Uri
 import android.util.Log
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
@@ -32,13 +28,12 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.VolunteeringColor
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.WorkshopColor
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.allNotificationsOff
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.allNotificationsOn
+import com.shpeuf.shpe_uf_mobile_kotlin.data.models.MapsDirections.DirectionsRepository
 import com.shpeuf.shpe_uf_mobile_kotlin.util.NotificationsUtil
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.PolyUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -66,34 +61,13 @@ enum class AppScreenMode {
     HOME_FEED, EVENT_DETAILS, FULL_SCREEN_MAP_DIRECTIONS
 }
 
-enum class TravelMode { DRIVING, WALKING }
-
-data class RouteDetails(
-    val polylineOptions: CustomPolylineOptions,
-    val durationText: String?,
-    val distanceText: String?
-)
-
-data class CustomPolylineOptions(
-    val points: List<LatLng> = emptyList(),
-    var colorKt: Color = Color.Blue,
-    var width: Float = 10f,
-    var isGeodesic: Boolean = true
-) {
-    fun toGooglePolylineOptions(): com.google.android.gms.maps.model.PolylineOptions {
-        return com.google.android.gms.maps.model.PolylineOptions()
-            .addAll(points)
-            .color(this.colorKt.toArgb())
-            .width(this.width)
-            .geodesic(this.isGeodesic)
-    }
-}
+enum class TravelMode(val value: String) { DRIVING("driving"), WALKING("walking") }
 
 class HomeViewModel(
     application: Application,
     private val notificationRepo: NotificationRepository,
     private val eventRepo: EventRepository,
-    private val directionsApiKey: String
+    private val directionsRepository: DirectionsRepository,
 ) : AndroidViewModel(application) {
 
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(application)
@@ -101,6 +75,7 @@ class HomeViewModel(
     // API Keys
     private val calendarId = BuildConfig.CALENDAR_ID
     private val apiKey = BuildConfig.CALENDAR_API_KEY
+    private val directionsApiKey = BuildConfig.GOOGLEMAPS_API_KEY
 
     // HomeViewModel State
     private val _homeUIState = MutableStateFlow(HomeScreenState())
@@ -599,36 +574,6 @@ class HomeViewModel(
     var isEventMapVisible by mutableStateOf(false)
         private set
 
-    fun toggleEventMapVisibility() {
-        isEventMapVisible = !isEventMapVisible
-    }
-
-    fun fetchEventLocation(context: Context, address: String?) {
-        if (address.isNullOrBlank()) {
-            _homeUIState.update { it.copy(mapError = "Address not available", selectedEventLocation = null) }
-            return
-        }
-
-        _homeUIState.update { it.copy(isMapLoading = true, mapError = null) }
-
-        viewModelScope.launch {
-            val latLng = try {
-                getLatLngFromAddress(context, address)
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error fetching event location", e)
-                null
-            }
-
-            _homeUIState.update {
-                it.copy(
-                    selectedEventLocation = latLng,
-                    isMapLoading = false,
-                    mapError = if (latLng == null) "Could not find location" else null
-                )
-            }
-        }
-    }
-
     fun onEventAddressClicked(event: Event) {
         _homeUIState.update { it.copy(
             selectedEvent = event,
@@ -636,8 +581,6 @@ class HomeViewModel(
             isMapDataLoading = true,
             mapDestinationLatLng = null,
             mapUserLocationLatLng = null,
-            mapDrivingRoute = null,
-            mapWalkingRoute = null,
             mapErrorMessage = null
         ) }
         loadDataForMapDirections(event)
@@ -645,7 +588,8 @@ class HomeViewModel(
 
     private fun loadDataForMapDirections(event: Event) {
         viewModelScope.launch {
-            val destination = event.location?.let { getLatLngFromAddress(getApplication(), it) }
+            val appContext = getApplication<Application>().applicationContext;
+            val destination = event.location?.let { getLatLngFromAddress(appContext, it) }
             if (destination == null) {
                 _homeUIState.update { it.copy(isMapDataLoading = false, mapErrorMessage = "Could not find event location.") }
                 return@launch
@@ -655,9 +599,11 @@ class HomeViewModel(
             val userLocation = getCurrentUserLocation()
             _homeUIState.update { it.copy(mapUserLocationLatLng = userLocation) }
             if (userLocation != null) {
-                fetchMapRoutes(userLocation, destination)
+                fetchDirections(userLocation, destination, _homeUIState.value.mapSelectedTravelMode)
+                _homeUIState.update { it.copy(isMapDataLoading = false) }
             } else {
                 _homeUIState.update { it.copy(isMapDataLoading = false, mapErrorMessage = "Could not get your current location to show routes.") }
+                return@launch
             }
         }
     }
@@ -680,102 +626,64 @@ class HomeViewModel(
             null
         }
     }
-
     private suspend fun getLatLngFromAddress(context: Context, addressString: String): LatLng? {
         return withContext(Dispatchers.IO) {
             try {
                 val geocoder = Geocoder(context)
+
+                @Suppress("DEPRECATION")
                 val addresses = geocoder.getFromLocationName(addressString, 1)
                 if (addresses != null && addresses.isNotEmpty()) {
                     LatLng(addresses[0].latitude, addresses[0].longitude)
-                } else null
+                } else {
+                    null
+                }
             } catch (e: IOException) { null }
         }
     }
 
-    private fun fetchMapRoutes(origin: LatLng, destination: LatLng) {
-        _homeUIState.update { it.copy(isMapDataLoading = true) }
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val drivingJson = makeDirectionsApiRequest(origin, destination, "driving")
-                val drivingRoute = parseDirectionsResponse(drivingJson, Color.Cyan, 12f)
-                val walkingJson = makeDirectionsApiRequest(origin, destination, "walking")
-                val walkingRoute = parseDirectionsResponse(walkingJson, Color.Green, 10f)
 
-                _homeUIState.update {
-                    it.copy(
-                        mapDrivingRoute = drivingRoute,
-                        mapWalkingRoute = walkingRoute,
-                        isMapDataLoading = false,
-                        mapErrorMessage = null
-                    )
-                }
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error fetching directions: ${e.message}", e)
-                _homeUIState.update {
-                    it.copy(isMapDataLoading = false, mapErrorMessage = "Error fetching directions.")
-                }
+    fun fetchDirections(origin: LatLng, destination: LatLng, mode: TravelMode) {
+        viewModelScope.launch {
+
+            val result = directionsRepository.getDirections(origin, destination, mode)
+
+            result.onSuccess { route ->
+                _homeUIState.update { it.copy(
+                    routes = route,
+                ) }
+            }.onFailure { exception ->
             }
-        }
-    }
 
-    private suspend fun makeDirectionsApiRequest(origin: LatLng, destination: LatLng, mode: String): String {
-        delay(1000) // Simulated
-        if (mode == "driving") {
-            return "{ \"routes\": [ { \"overview_polyline\": { \"points\": \"g`fcFjw`iUoBh@\" }, \"legs\": [ { \"duration\": { \"text\": \"20 mins\", \"value\": 1200 }, \"distance\": { \"text\": \"10 km\", \"value\": 10000 } } ] } ] }"
-        } else {
-            return "{ \"routes\": [ { \"overview_polyline\": { \"points\": \"evtcFdp`iU??\" }, \"legs\": [ { \"duration\": { \"text\": \"1 hr\", \"value\": 3600 }, \"distance\": { \"text\": \"5 km\", \"value\": 5000 } } ] } ] }"
         }
-    }
-
-    private fun parseDirectionsResponse(json: String, color: Color, width: Float): RouteDetails? {
-        val decodedPath = if (json.contains("g`fcFjw`iUoBh@")) PolyUtil.decode("g`fcFjw`iUoBh@")
-        else PolyUtil.decode("evtcFdp`iU??")
-        val durationText = if (json.contains("driving")) "20 mins" else "1 hr"
-        val distanceText = if (json.contains("driving")) "10 km" else "5 km"
-        return RouteDetails(
-            polylineOptions = CustomPolylineOptions(points = decodedPath, colorKt = color, width = width),
-            durationText = durationText,
-            distanceText = distanceText
-        )
     }
 
 
     fun onMapTravelModeSelected(mode: TravelMode) {
-        _homeUIState.update { it.copy(mapSelectedTravelMode = mode) }
+        if (_homeUIState.value.mapUserLocationLatLng != null && _homeUIState.value.mapDestinationLatLng != null) {
+            _homeUIState.update { it.copy(mapSelectedTravelMode = mode) }
+            fetchDirections(_homeUIState.value.mapUserLocationLatLng!!, _homeUIState.value.mapDestinationLatLng!!, _homeUIState.value.mapSelectedTravelMode)
+        }
     }
 
-    fun onOpenInGoogleMapsClicked(context: Context) {
-        val state = _homeUIState.value
-        val eventAddress = state.selectedEvent?.location
-        val destination = state.mapDestinationLatLng
-        val origin = state.mapUserLocationLatLng
+    fun toggleRouteVisibility() {
+        _homeUIState.update { it.copy(isRouteShown = true) }
+    }
 
-        val intentUri = if (destination != null && origin != null) {
-            Uri.parse("https://www.google.com/maps/dir/?api=1&origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}")
-        } else if (destination != null) {
-            Uri.parse("geo:${destination.latitude},${destination.longitude}?q=${Uri.encode(eventAddress ?: "")}")
-        } else if (eventAddress != null) {
-            Uri.parse("geo:0,0?q=${Uri.encode(eventAddress)}")
-        } else { null }
 
-        intentUri?.let {
-            val mapIntent = Intent(Intent.ACTION_VIEW, it)
-            mapIntent.setPackage("com.google.android.apps.maps")
-            if (mapIntent.resolveActivity(context.packageManager) != null) {
-                context.startActivity(mapIntent)
-            } else {
-                _homeUIState.update { it.copy(mapErrorMessage = "Google Maps app not found.") }
-            }
-        } ?: _homeUIState.update { it.copy(mapErrorMessage = "Location data unavailable.") }
+    fun toggleEventMapVisibility() {
+        _homeUIState.update { it.copy(
+            isRouteShown = false,
+        ) }
+        isEventMapVisible = !isEventMapVisible
     }
 
     fun closeFullScreenMap() {
         _homeUIState.update { it.copy(
-            appScreenMode = AppScreenMode.HOME_FEED,
             mapErrorMessage = null,
             isMapDataLoading = false
         ) }
+        isEventMapVisible = false
     }
 
 }
@@ -790,7 +698,7 @@ class HomeViewModelFactory(
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             // Pass application FIRST, then other arguments
-            return HomeViewModel(application, notificationRepo, eventRepo, directionsApiKey) as T
+            return HomeViewModel(application, notificationRepo, eventRepo, DirectionsRepository(directionsApiKey)) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

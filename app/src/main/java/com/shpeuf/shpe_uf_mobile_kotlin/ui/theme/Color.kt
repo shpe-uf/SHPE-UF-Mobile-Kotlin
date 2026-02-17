@@ -39,6 +39,9 @@ val WhiteSHPE = Color(0xFFEDEDED)
 val dark_bg = Color(0xFF011F35)
 val light_bg = Color(0xFFEDEDED)
 
+// Route Colors
+val navy_bg = Color(0xFF0E2030)
+
 sealed class ThemeColors(
     val background: Color,
     val text: Color,
