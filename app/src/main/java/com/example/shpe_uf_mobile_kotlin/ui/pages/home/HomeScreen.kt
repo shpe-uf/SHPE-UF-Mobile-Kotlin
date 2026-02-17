@@ -1,8 +1,10 @@
 package com.example.shpe_uf_mobile_kotlin.ui.pages.home
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.activity.compose.BackHandler
@@ -65,7 +67,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -116,11 +117,38 @@ import androidx.compose.material3.CircularProgressIndicator
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import android.content.Intent
-import android.location.Geocoder
+import android.content.pm.PackageManager
 import android.net.Uri
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material.icons.filled.DesktopAccessDisabled
+import androidx.compose.material.icons.filled.Directions
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.example.shpe_uf_mobile_kotlin.ui.theme.navy_bg
+import com.example.shpe_uf_mobile_kotlin.data.models.MapsDirections.DirectionsRepository
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.MapStyleOptions
 import kotlin.collections.isNotEmpty
 
 // Sample Card Items that are used for previews
@@ -348,7 +376,7 @@ fun TopHeaderPreview() {
             application = Application(), // dummy instance for Preview only!
             notificationRepo = NotificationRepository(context = LocalContext.current),
             eventRepo = EventRepository(context = LocalContext.current),
-            directionsApiKey = "DUMMY_API_KEY" // fake key for Preview
+            directionsRepository = DirectionsRepository("gqowgqwj"),
         ),
         isGuest = true,
         navController = rememberNavController()
@@ -368,6 +396,7 @@ fun TopHeaderPreview() {
  * @param viewModel gets state if window open and the event it would display
  * @param isDarkMode updates color of background
  **/
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun SlidingEventWindow(
     modifier: Modifier = Modifier,
@@ -376,14 +405,16 @@ fun SlidingEventWindow(
 ) {
     val homeState by viewModel.homeState.collectAsState()
     val isVisible = homeState.isEventDetailsVisible
+    val isEventMapVisible = viewModel.isEventMapVisible
     val event = homeState.selectedEvent
+
+    CheckLocationPermission();
 
     if (isVisible) {
         BackHandler {
             viewModel.hideEventDetails()
         }
     }
-
     SlidingWindow(
         modifier = modifier,
         viewModel = viewModel,
@@ -398,6 +429,55 @@ fun SlidingEventWindow(
         },
         toggleOff = { viewModel.hideEventDetails() }
     )
+
+    var animationFinished by remember { mutableStateOf(false) }
+    var hasMapBeenOpened by remember { mutableStateOf(false) }
+    if (isEventMapVisible) hasMapBeenOpened = true
+
+    LaunchedEffect(isEventMapVisible) {
+        when {
+            !isEventMapVisible -> animationFinished = false
+            hasMapBeenOpened -> animationFinished = true
+        }
+    }
+
+    val offsetX by animateFloatAsState(
+        targetValue = if (isEventMapVisible) 0f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        finishedListener = { animationFinished = true },
+        label = "mapSlide"
+    )
+
+    if (hasMapBeenOpened) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    translationX = offsetX * size.width
+                }
+        ) {
+            if (animationFinished) {
+                EventLocationMap(
+                    homeState = homeState,
+                    viewModel = viewModel,
+                    isDarkMode = isDarkMode,
+                    context = LocalContext.current
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(if (isDarkMode) navy_bg else White),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+        }
+    }
 }
 
 
@@ -580,6 +660,7 @@ fun EventDetails(
                                     color = Color(0xFF1E88E5), // hyperlink style
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.clickable {
+                                        viewModel.onEventAddressClicked(event)
                                         viewModel.toggleEventMapVisibility()
                                     }
                                 )
@@ -588,12 +669,6 @@ fun EventDetails(
                             Spacer(modifier = Modifier.height(8.dp))
 
                             // Show map only when user clicked location
-                            if (viewModel.isEventMapVisible) {
-                                EventLocationMap(
-                                    homeState = homeState,
-                                    context = LocalContext.current
-                                )
-                            }
                         } else {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Image(
@@ -1773,39 +1848,45 @@ fun getOrdinalIndicator(dayOfMonth: Int): String {
     }
 }
 
-
-suspend fun getLatLngFromAddress(context: Context, addressString: String): LatLng? {
-    return try {
-        val geocoder = Geocoder(context, Locale.getDefault())
-        withContext(Dispatchers.IO) {
-            val addresses = geocoder.getFromLocationName(addressString, 1)
-            if (!addresses.isNullOrEmpty()) {
-                LatLng(addresses[0].latitude, addresses[0].longitude)
-            } else null
+@Composable
+private fun CheckLocationPermission(context: Context = LocalContext.current): Boolean {
+    when {
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED -> {
+            // Permission already granted
+            return true
         }
-    } catch (e: Exception) {
-        Log.e("Geocoding", "Failed for $addressString", e)
-        null
+        else -> {
+            // Request permission
+            RequestLocationPermission()
+            return false
+        }
     }
 }
 
 @Composable
+private fun RequestLocationPermission(context: Context = LocalContext.current) {
+    ActivityCompat.requestPermissions(
+        context as Activity,
+        arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ),
+        0
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun EventLocationMap(
     homeState: HomeScreenState,
+    viewModel: HomeViewModel,
+    isDarkMode: Boolean,
     context: Context = LocalContext.current
 ) {
     when {
-        homeState.isMapLoading -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-
         homeState.mapError != null -> {
             Box(
                 modifier = Modifier
@@ -1817,72 +1898,321 @@ fun EventLocationMap(
             }
         }
 
-        homeState.selectedEventLocation != null -> {
-            val validLatLng = homeState.selectedEventLocation
+        homeState.mapDestinationLatLng != null -> {
+            val isPermissionGranted = CheckLocationPermission()
+            val validLatLng = homeState.mapDestinationLatLng
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Google Map
-                val cameraPositionState = rememberCameraPositionState {
-                    position = CameraPosition.fromLatLngZoom(validLatLng, 15f)
-                }
+            // Google Map
+            var mapLoaded by remember { mutableStateOf(false) }
+            val cameraPositionState = rememberCameraPositionState {
+                position = CameraPosition.fromLatLngZoom(validLatLng, 15f)
+            }
 
-                GoogleMap(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp),
-                    cameraPositionState = cameraPositionState,
-                    uiSettings = MapUiSettings(
-                        zoomControlsEnabled = true,
-                        mapToolbarEnabled = false
+            LaunchedEffect(homeState) {
+                if (homeState.isRouteShown && isPermissionGranted) {
+                    val bounds = calculateBounds(homeState.routes[0].polylineOptions.points)
+                    cameraPositionState.animate(
+                        update = CameraUpdateFactory.newLatLngBounds(bounds, 100),
+                        durationMs = 1000
                     )
-                ) {
-                    Marker(
-                        state = MarkerState(position = validLatLng),
-                        title = homeState.selectedEvent?.summary ?: "Event Location",
-                        snippet = homeState.selectedEvent?.location
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Open in Google Maps button
-                Button(
-                    onClick = {
-                        val address = homeState.selectedEvent?.location ?: ""
-                        val mapUri = Uri.parse(
-                            "geo:${validLatLng.latitude},${validLatLng.longitude}?q=${Uri.encode(address)}"
-                        )
-                        val intent = Intent(Intent.ACTION_VIEW, mapUri).apply {
-                            setPackage("com.google.android.apps.maps")
-                        }
-                        if (intent.resolveActivity(context.packageManager) != null) {
-                            context.startActivity(intent)
-                        } else {
-                            // fallback to browser
-                            val webUri = Uri.parse("https://maps.google.com/maps?q=${Uri.encode(address)}")
-                            context.startActivity(Intent(Intent.ACTION_VIEW, webUri))
-                        }
-                    }
-                ) {
-                    Text("Open in Google Maps")
                 }
             }
-        }
 
-        else -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Location information is unavailable.")
+            val sheetState = rememberBottomSheetScaffoldState(
+                bottomSheetState = SheetState(
+                    skipPartiallyExpanded = false,
+                    skipHiddenState = true,
+                    initialValue = if (homeState.isRouteShown) SheetValue.PartiallyExpanded else SheetValue.Expanded,
+                    confirmValueChange = { sheetValue -> sheetValue != SheetValue.Hidden },
+                )
+            )
+
+            BottomSheetScaffold(
+                scaffoldState = sheetState,
+                sheetContent = {
+                    RouteInfoCard(
+                        viewModel, homeState, isDarkMode, modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                },
+                sheetPeekHeight = 160.dp,
+                sheetContainerColor = if (isDarkMode) navy_bg else White,
+                sheetSwipeEnabled = true,
+                topBar = { RouteTopBar(viewModel, isDarkMode = isDarkMode) },
+                sheetDragHandle = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .width(48.dp)
+                                .height(4.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(if (isDarkMode) Color.White else Color.Black)
+                        )
+                    }
+                }
+            ) { innerPadding ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = innerPadding.calculateTopPadding())
+                ) {
+
+                    GoogleMap(
+                        modifier = Modifier.fillMaxWidth().height(575.dp),
+                        cameraPositionState = cameraPositionState,
+                        uiSettings = MapUiSettings(myLocationButtonEnabled = false,
+                            zoomControlsEnabled = false,
+                            mapToolbarEnabled = false,
+                            compassEnabled = false),
+                        onMapLoaded = { mapLoaded = true },
+                        properties = MapProperties(
+                            isMyLocationEnabled = isPermissionGranted,
+                            isBuildingEnabled = true,
+                            mapStyleOptions = if (isDarkMode) MapStyleOptions.loadRawResourceStyle(
+                                context,
+                                R.raw.map_dark_style
+                            ) else null
+                        )
+                    ) {
+                        if (homeState.isRouteShown && isPermissionGranted) {
+                            val routes = homeState.routes
+                            routes.forEachIndexed { index, route ->
+                                Polyline(
+                                    points = route.polylineOptions.points,
+                                    color = if (index == 0) {
+                                        Color(0xFF2196F3) // Blue for primary route
+                                    } else {
+                                        Color(0xFF9E9E9E) // Gray for alternatives
+                                    },
+                                    width = if (index == 0) 12f else 8f
+                                )
+                            }
+                        }
+                        Marker(
+                            state = MarkerState(position = validLatLng),
+                            title = homeState.selectedEvent?.summary ?: "Event Location",
+                        )
+                    }
+                    if (!mapLoaded) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.align(Alignment.Center).offset(y = (-150).dp)
+                            )
+                    }
+                }
             }
         }
     }
+}
+
+fun calculateBounds(points: List<LatLng>): LatLngBounds {
+    val builder = LatLngBounds.Builder()
+    points.forEach { point ->
+        builder.include(point)
+    }
+    return builder.build()
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RouteTopBar(viewModel: HomeViewModel, isDarkMode: Boolean) {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = "Route Preview",
+                color = if (isDarkMode) White else Color.Black,
+                fontSize = 22.sp,
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = { viewModel.toggleEventMapVisibility() },
+            ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBackIosNew,
+                        contentDescription = "Back",
+                        tint = if (isDarkMode) White else Color.Black
+                    )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = if (isDarkMode) navy_bg else White,
+        ),
+        windowInsets = WindowInsets(0,0,0,0),
+    )
+}
+
+@Composable
+fun RouteInfoCard(viewModel: HomeViewModel, homeState: HomeScreenState, isDarkMode: Boolean, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDarkMode) navy_bg else White,
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = homeState.selectedEvent?.summary ?: "Event Name",
+                fontSize = 20.sp,
+                color = if (isDarkMode) White else Color.Black,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = homeState.selectedEvent?.location ?: "N/A",
+                color = Color(0xFF777777),
+                fontSize = 12.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            val duration = homeState.routes.firstOrNull()?.durationValue
+            val durationText = duration?.let { parseDuration(it, homeState.mapSelectedTravelMode) } ?: "Loading..."
+
+            Row(horizontalArrangement = Arrangement.spacedBy(1.dp),verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.DirectionsCar,
+                    contentDescription = null,
+                    tint = if (homeState.mapSelectedTravelMode == TravelMode.DRIVING) Color(0xFF3399FF) else Color.LightGray,
+                    modifier = Modifier.clickable { viewModel.onMapTravelModeSelected(TravelMode.DRIVING) }
+                )
+
+                Icon(
+                    imageVector = Icons.Default.DirectionsWalk,
+                    contentDescription = null,
+                    tint = if (homeState.mapSelectedTravelMode == TravelMode.WALKING) Color(0xFF3399FF) else Color.LightGray,
+                    modifier = Modifier.clickable { viewModel.onMapTravelModeSelected(TravelMode.WALKING) }
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = durationText,
+                    modifier = Modifier.weight(1f),
+                    color = Color(0xFF777777),
+                    fontSize = 12.sp
+                )
+            }
+            Spacer(modifier = Modifier.height(44.dp))
+            Box() {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DesktopAccessDisabled,
+                        contentDescription = null,
+                        modifier = Modifier.size(50.dp),
+                        tint = Color.LightGray
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "No preview available",
+                        fontSize = 24.sp,
+                        color = Color.LightGray
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Row(horizontalArrangement = Arrangement.Center) {
+                        Button(
+                            onClick = { viewModel.toggleRouteVisibility() },
+                            enabled = homeState.mapUserLocationLatLng != null,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isDarkMode) Color(0xFF163550) else Color(
+                                    0xFFF9F9FA
+                                ),
+                                contentColor = Color(0xFF3399FF),
+                            ),
+                            shape = RoundedCornerShape(25),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Navigation,
+                                contentDescription = "Show Route",
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Show Route",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Light
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(
+                            onClick = { openInMaps(context = context, address = homeState.selectedEvent?.location ?: "", validLatLng = homeState.mapDestinationLatLng!!) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isDarkMode) Color(0xFF163550) else Color(
+                                    0xFFF9F9FA
+                                ),
+                                contentColor = Color(0xFF3399FF),
+                            ),
+                            shape = RoundedCornerShape(25),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Directions,
+                                contentDescription = "Open in maps",
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Open in maps",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Light
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun openInMaps(context: Context, address: String, validLatLng: LatLng) {
+    val mapUri = Uri.parse(
+        "geo:${validLatLng.latitude},${validLatLng.longitude}?q=${Uri.encode(address)}"
+    )
+    val intent = Intent(Intent.ACTION_VIEW, mapUri).apply {
+        setPackage("com.google.android.apps.maps")
+    }
+    if (intent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(intent)
+    } else {
+        // fallback to browser
+        val webUri = Uri.parse("https://maps.google.com/maps?q=${Uri.encode(address)}")
+        context.startActivity(Intent(Intent.ACTION_VIEW, webUri))
+    }
+}
+fun parseDuration(duration: Int, mode: TravelMode): String {
+    var hour = 0
+    var minute = 0
+    if (duration > 0) {
+        hour = duration / 3600
+        minute = duration / 60 - hour * 60
+    }
+
+    var durationString = "";
+    if (mode == TravelMode.WALKING) {
+        durationString += "Walking time: "
+    } else {
+        durationString += "Driving time: "
+    }
+    if (hour > 0) {
+        durationString += "${hour}h ${minute}m"
+    } else {
+        durationString += "${minute}m"
+    }
+    return durationString
 }
 
 fun previewHomeViewModel(): HomeViewModel {
@@ -1890,11 +2220,9 @@ fun previewHomeViewModel(): HomeViewModel {
         application = Application(), // This is safe for previews
         notificationRepo = NotificationRepository(null), // Pass null, or use a mock/fake
         eventRepo = EventRepository(null),
-        directionsApiKey = "PREVIEW_KEY"
+        directionsRepository = DirectionsRepository("fake"),
     )
 }
-
-
 
 /**
  * @description HomeScreen displays the event calendar and allows users to change notifications settings
