@@ -67,6 +67,19 @@ android {
             excludes += "/META-INF/DEPENDENCIES"
         }
     }
+
+    //unit testing stuff
+    testOptions {
+        managedDevices {
+            devices {
+                maybeCreate<com.android.build.api.dsl.ManagedVirtualDevice>("pixel2Api30").apply {
+                    device = "Pixel 2"
+                    apiLevel = 30
+                    systemImageSource = "aosp"
+                }
+            }
+        }
+    }
 }
 
 dependencies {
@@ -168,3 +181,17 @@ apollo {
         packageName.set("com.shpeuf.shpe_uf_mobile_kotlin")
     }
 }
+
+tasks.register("runEverything") {
+    group = "verification"
+    description = "Runs lint + unit tests + instrumented UI tests"
+
+    dependsOn(
+        "lintDebug",
+        "testDebugUnitTest",
+        // pick ONE of these:
+        // "connectedDebugAndroidTest"
+        "pixel2Api30DebugAndroidTest"
+    )
+}
+//run with ./gradlew runEverything
