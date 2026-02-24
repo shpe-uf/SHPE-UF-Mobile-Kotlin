@@ -43,6 +43,8 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.ProfilePagePreview
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePreview
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.AdminPanelScreen
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.AdminRankingScreen
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.AdminRankingViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.events.CreateEventsScreen
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.events.CreateEventViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
@@ -279,6 +281,7 @@ fun NavHostContainer(
         {
             ProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
         }
+
         composable(NavRoute.ADMIN) {
             val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
 
@@ -301,10 +304,12 @@ fun NavHostContainer(
 
         composable(NavRoute.ADMIN_RANKING) {
             val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
+            val vm: AdminRankingViewModel = viewModel()
 
             AdminRankingScreen(
                 isDarkMode = isDarkMode,
-                onBack = { navHostController.popBackStack() }
+                onBack = { navHostController.popBackStack() },
+                viewModel = vm
             )
         }
         // THIS IS ME
