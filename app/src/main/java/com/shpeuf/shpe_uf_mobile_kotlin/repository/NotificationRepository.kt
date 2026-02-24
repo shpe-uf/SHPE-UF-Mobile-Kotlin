@@ -10,12 +10,12 @@ class NotificationRepository(private val context: Context) {
      fun loadNotificationSettings(): NotificationSelection {
          val sharedPreferences = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE)
          return NotificationSelection(
-             gbmNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.GBM.name, false),
-             socialNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.Social.name, false),
-             workshopNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.Workshop.name, false),
-             infoSessionNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.InfoSession.name, false),
-             volunteeringNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.Volunteering.name, false),
-             allNotificationSelection = sharedPreferences.getBoolean("AllNotifications", false)
+             gbmNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.GBM.name, true),
+             socialNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.Social.name, true),
+             workshopNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.Workshop.name, true),
+             infoSessionNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.InfoSession.name, true),
+             volunteeringNotification = sharedPreferences.getBoolean(HomeViewModel.EventType.Volunteering.name, true),
+             allNotificationSelection = sharedPreferences.getBoolean("AllNotifications", true)
             )
      }
 }
