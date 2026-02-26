@@ -1,14 +1,16 @@
 package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.stats
-data class Stat(
-    val majors: MutableMap<String, Pair<Int, Float>> = mutableMapOf(),
-    val years: MutableMap<String, Pair<Int, Float>> = mutableMapOf(),
-    val countries: MutableMap<String, Pair<Int, Float>> = mutableMapOf(),
-    val genders: MutableMap<String, Pair<Int, Float>> = mutableMapOf(),
-    val ethnicities: MutableMap<String, Pair<Int, Float>> = mutableMapOf()
+data class StatEntry(
+    val label: String,
+    val count: Int,
+    val percentage: Float
 )
-//start
-//data class
-//viewmodel
-//defined functions outside drawables
-//queries
+
+data class StatsViewState(
+    val majors: List<StatEntry> = emptyList(),
+    val years: List<StatEntry> = emptyList(),
+    val countries: List<StatEntry> = emptyList(),
+    // ... other categories
+    val isLoading: Boolean = false
+)
+
 
