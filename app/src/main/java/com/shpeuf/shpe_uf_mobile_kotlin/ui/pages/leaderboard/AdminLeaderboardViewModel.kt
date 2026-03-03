@@ -1,4 +1,4 @@
-package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin
+package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.leaderboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,17 +21,17 @@ data class LeaderboardRow(
     val points: Int
 )
 
-data class AdminRankingUiState(
+data class AdminLeaderboardUiState(
     val selectedSemester: Semester = Semester.FALL,
     val isLoading: Boolean = false,
     val error: String? = null,
     val rows: List<LeaderboardRow> = emptyList()
 )
 
-class AdminRankingViewModel : ViewModel() {
+class AdminLeaderboardViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow(AdminRankingUiState())
-    val uiState: StateFlow<AdminRankingUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(AdminLeaderboardUiState())
+    val uiState: StateFlow<AdminLeaderboardUiState> = _uiState.asStateFlow()
 
     fun selectSemester(semester: Semester) {
         _uiState.update { it.copy(selectedSemester = semester) }

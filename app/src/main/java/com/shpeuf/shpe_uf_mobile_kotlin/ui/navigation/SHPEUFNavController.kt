@@ -43,8 +43,8 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.ProfilePagePreview
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePreview
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.AdminPanelScreen
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.AdminRankingScreen
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.AdminRankingViewModel
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.leaderboard.AdminLeaderboard
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.leaderboard.AdminLeaderboardViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.events.CreateEventsScreen
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.events.CreateEventViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
@@ -60,8 +60,6 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.sponsors.SponsorsPage
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
-import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.AdminRankingScreen
-
 
 data class BottomNavigationItem(
     val title: String,
@@ -176,43 +174,9 @@ fun NavHostContainer(
     profileViewModel: ProfileViewModel,
     notificationSummary: String
 ) {
-
-
     val homeViewModel: HomeViewModel =
         viewModel(factory = homeViewModelFactory, key = "HomeViewModel")
 
-    // ===================== DEV ONLY (CHANGE #1) =====================
-// Turn this ON while developing Admin UI without needing login.
-// Turn it OFF (false) before pushing / PR.
-    val devSkipAuthRedirect = true
-// ===============================================================
-
-    LaunchedEffect(userState.isLoggedIn) {
-
-        // ===================== DEV ONLY (CHANGE #2) =====================
-        // If this is true, we do NOT auto-navigate to OPENING/HOME.
-        // That prevents the app from constantly forcing you back to OPENING.
-        if (devSkipAuthRedirect) return@LaunchedEffect
-        // ===============================================================
-
-        val isLoggedIn = userState.isLoggedIn
-        Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
-        Log.d("Logged In True", "isLoggedIn: ${isLoggedIn==true}")
-
-        if (isLoggedIn) {
-            navHostController.navigate(NavRoute.HOME) {
-                popUpTo(0) { inclusive = true }
-                launchSingleTop = true
-            }
-        } else {
-            Log.d("Current Screen", "Current Screen: ${navHostController.currentDestination?.route}")
-            navHostController.navigate(NavRoute.OPENING) {
-                popUpTo(0) { inclusive = true }
-            }
-        }
-    }
-
-    /* make sure to uncomment this instead of the dev only changes
     LaunchedEffect(userState.isLoggedIn) {
         val isLoggedIn = userState.isLoggedIn
         Log.d("NavHostContainer", "isLoggedIn: $isLoggedIn")
@@ -230,8 +194,6 @@ fun NavHostContainer(
             }
         }
     }
-    */
-
 
     LaunchedEffect(notificationSummary, userState.isLoggedIn) {
         val event = homeViewModel.getEventBySummary(notificationSummary)
@@ -254,7 +216,7 @@ fun NavHostContainer(
 
     NavHost(
         navController = navHostController,
-        startDestination = NavRoute.ADMIN, //TEMORARY CHANGE RETURN TO OPENING later __________________________________________________________________________________
+        startDestination = NavRoute.OPENING,
     ) {
         composable(NavRoute.OPENING){
             OpeningPage(navHostController, mainViewModel)
@@ -286,7 +248,7 @@ fun NavHostContainer(
             val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
 
             AdminPanelScreen(
-                isUserAdmin = true, //profileViewModel.isUserAdmin(), DEV CHANGE AS WELL MAKE SURE TO FIX _______________________________________________________________________________
+                isUserAdmin = profileViewModel.isUserAdmin(),
                 isDarkMode = isDarkMode,
                 onBack = {
                     navHostController.popBackStack()
@@ -294,26 +256,22 @@ fun NavHostContainer(
                 onNavigateToEvents = {
                     navHostController.navigate(NavRoute.CREATE_EVENTS)
                 },
-                onNavigateToRanking = {                      // <-- ADD THIS
-                    navHostController.navigate(NavRoute.ADMIN_RANKING)
+                onNavigateToLeaderboard = {
+                    navHostController.navigate(NavRoute.ADMIN_LEADERBOARD)
                 }
             )
         }
 
-        //CHANGE MADE HERE BELOW
-
-        composable(NavRoute.ADMIN_RANKING) {
+        composable(NavRoute.ADMIN_LEADERBOARD) {
             val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
-            val vm: AdminRankingViewModel = viewModel()
+            val vm: AdminLeaderboardViewModel = viewModel()
 
-            AdminRankingScreen(
+            AdminLeaderboard(
                 isDarkMode = isDarkMode,
                 onBack = { navHostController.popBackStack() },
                 viewModel = vm
             )
         }
-        // THIS IS ME
-
 
         composable(NavRoute.CREATE_EVENTS) {
             val createEventViewModel = CreateEventViewModel()
