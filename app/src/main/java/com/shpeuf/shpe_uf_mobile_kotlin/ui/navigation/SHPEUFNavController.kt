@@ -43,6 +43,8 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.ProfilePagePreview
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePreview
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.AdminPanelScreen
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.leaderboard.AdminLeaderboard
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.leaderboard.AdminLeaderboardViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.events.CreateEventsScreen
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.events.CreateEventViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
@@ -60,7 +62,6 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped.WrappedViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
-
 
 data class BottomNavigationItem(
     val title: String,
@@ -244,6 +245,7 @@ fun NavHostContainer(
         {
             ProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
         }
+
         composable(NavRoute.ADMIN) {
             val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
 
@@ -255,7 +257,21 @@ fun NavHostContainer(
                 },
                 onNavigateToEvents = {
                     navHostController.navigate(NavRoute.CREATE_EVENTS)
+                },
+                onNavigateToLeaderboard = {
+                    navHostController.navigate(NavRoute.ADMIN_LEADERBOARD)
                 }
+            )
+        }
+
+        composable(NavRoute.ADMIN_LEADERBOARD) {
+            val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
+            val vm: AdminLeaderboardViewModel = viewModel()
+
+            AdminLeaderboard(
+                isDarkMode = isDarkMode,
+                onBack = { navHostController.popBackStack() },
+                viewModel = vm
             )
         }
 

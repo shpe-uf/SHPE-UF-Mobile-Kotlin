@@ -1,0 +1,8 @@
+query GetUsersSummerPoints {
+  getUsers {
+    firstName
+    lastName
+    email
+    summerPoints
+  }
+}
