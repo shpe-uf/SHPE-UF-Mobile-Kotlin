@@ -6,8 +6,8 @@ _please explain what your PR does here. screenshots are especially helpful._
 
 _Reference your Asana task here as shown below_
 
-[Asana link](https://app.asana.com/0/1205340802626919/1205340802626922/f)
+[ClickUp](https://app.clickup.com/90132308867/v/b/4-901310242206-2)
 
 ### Extra
 
-_please add me (@Mtjay) as a reviewer. thank you_
+_please add me (@adrianp-7) as a reviewer. thank you_
