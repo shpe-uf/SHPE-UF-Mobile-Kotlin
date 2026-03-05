@@ -284,8 +284,7 @@ fun NavHostContainer(
             SponsorsPage(navController = navHostController, mainViewModel = mainViewModel)
         }
         composable(NavRoute.GUEST_PLACEHOLDER) {
-            GuestPlaceholderPage(navController = navHostController, shpeufAppViewModel = mainViewModel
-            )
+            GuestPlaceholderPage(navController = navHostController, shpeufAppViewModel = mainViewModel)
         }
         composable(NavRoute.WRAPPED) {
             WrappedScreen(onExit = { navHostController.popBackStack() }, shpeufAppViewModel = mainViewModel)
