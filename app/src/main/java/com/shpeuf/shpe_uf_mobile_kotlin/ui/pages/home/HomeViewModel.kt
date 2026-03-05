@@ -1,12 +1,24 @@
 package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.home
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
+import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.shpeuf.shpe_uf_mobile_kotlin.BuildConfig
+import com.shpeuf.shpe_uf_mobile_kotlin.GetWrappedAvailableQuery
+import com.shpeuf.shpe_uf_mobile_kotlin.apolloClient
 import com.shpeuf.shpe_uf_mobile_kotlin.repository.EventRepository
 import com.shpeuf.shpe_uf_mobile_kotlin.repository.NotificationRepository
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.GBMColor
@@ -16,13 +28,19 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.VolunteeringColor
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.WorkshopColor
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.allNotificationsOff
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.allNotificationsOn
+import com.shpeuf.shpe_uf_mobile_kotlin.data.models.MapsDirections.DirectionsRepository
 import com.shpeuf.shpe_uf_mobile_kotlin.util.NotificationsUtil
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import retrofit2.Response
@@ -31,19 +49,33 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.io.IOException
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+
+enum class AppScreenMode {
+    HOME_FEED, EVENT_DETAILS, FULL_SCREEN_MAP_DIRECTIONS
+}
+
+enum class TravelMode(val value: String) { DRIVING("driving"), WALKING("walking") }
+
 class HomeViewModel(
+    application: Application,
     private val notificationRepo: NotificationRepository,
-    private val eventRepo: EventRepository
-) : ViewModel() {
+    private val eventRepo: EventRepository,
+    private val directionsRepository: DirectionsRepository,
+) : AndroidViewModel(application) {
+
+    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(application)
+
     // API Keys
     private val calendarId = BuildConfig.CALENDAR_ID
     private val apiKey = BuildConfig.CALENDAR_API_KEY
+    private val directionsApiKey = BuildConfig.GOOGLEMAPS_API_KEY
 
     // HomeViewModel State
     private val _homeUIState = MutableStateFlow(HomeScreenState())
@@ -72,9 +104,12 @@ class HomeViewModel(
 
     // UI - Window Visibility
     fun selectEvent(event: Event?) {
-        _homeUIState.value = _homeUIState.value.copy(selectedEvent = event)
-        _homeUIState.value = _homeUIState.value.copy(isEventDetailsVisible = true)
+        _homeUIState.value = _homeUIState.value.copy(
+            selectedEvent = event,
+            isEventDetailsVisible = true
+        )
     }
+
 
     fun hideEventDetails() {
         _homeUIState.value = _homeUIState.value.copy(isEventDetailsVisible = false)
@@ -478,6 +513,50 @@ class HomeViewModel(
         val timeZone: String?
     )
 
+    //SHPE wrapped button stuff
+    private var hasShownWrappedPromptThisSession = false
+
+    sealed class NavEvent { object ToWrapped : NavEvent() }
+
+    private val _navEvents = MutableSharedFlow<NavEvent>(extraBufferCapacity = 1)
+    val navEvents: SharedFlow<NavEvent> = _navEvents
+
+    fun maybeCheckWrappedPrompt() {
+        if (hasShownWrappedPromptThisSession) return
+        viewModelScope.launch {
+            val show = isWrappedAvailable()
+            if (show) {
+                hasShownWrappedPromptThisSession = true
+                _homeUIState.update { it.copy(isWrappedPromptVisible = true) }
+            }
+        }
+    }
+
+    private suspend fun isWrappedAvailable(): Boolean {
+        return try {
+            val response = apolloClient.query(GetWrappedAvailableQuery()).execute()
+
+            if (response.hasErrors()) {
+                Log.e("HomeViewModel", "GetWrappedAvailable errors: ${response.errors}")
+                false
+            } else {
+                response.data?.lastMontOfYear ?: false
+            }
+        } catch (e: Exception) {
+            Log.e("HomeViewModel", "Error fetching wrapped availability", e)
+            false
+        }
+    }
+
+    fun onWrappedMaybeLater() {
+        _homeUIState.update { it.copy(isWrappedPromptVisible = false) }
+    }
+
+    fun onWrappedLetsGo() {
+        _homeUIState.update { it.copy(isWrappedPromptVisible = false) }
+        _navEvents.tryEmit(NavEvent.ToWrapped)
+    }
+
     // Google API Things
     interface GoogleCalendarService {
         @GET("calendars/{calendarId}/events")
@@ -491,17 +570,138 @@ class HomeViewModel(
     data class CalendarEventsResponse(
         val items: List<Event>
     )
+
+    var isEventMapVisible by mutableStateOf(false)
+        private set
+
+    fun onEventAddressClicked(event: Event) {
+        _homeUIState.update { it.copy(
+            selectedEvent = event,
+            appScreenMode = AppScreenMode.FULL_SCREEN_MAP_DIRECTIONS,
+            isMapDataLoading = true,
+            mapDestinationLatLng = null,
+            mapUserLocationLatLng = null,
+            mapErrorMessage = null
+        ) }
+        loadDataForMapDirections(event)
+    }
+
+    private fun loadDataForMapDirections(event: Event) {
+        viewModelScope.launch {
+            val appContext = getApplication<Application>().applicationContext;
+            val destination = event.location?.let { getLatLngFromAddress(appContext, it) }
+            if (destination == null) {
+                _homeUIState.update { it.copy(isMapDataLoading = false, mapErrorMessage = "Could not find event location.") }
+                return@launch
+            }
+            _homeUIState.update { it.copy(mapDestinationLatLng = destination) }
+
+            val userLocation = getCurrentUserLocation()
+            _homeUIState.update { it.copy(mapUserLocationLatLng = userLocation) }
+            if (userLocation != null) {
+                fetchDirections(userLocation, destination, _homeUIState.value.mapSelectedTravelMode)
+                _homeUIState.update { it.copy(isMapDataLoading = false) }
+            } else {
+                _homeUIState.update { it.copy(isMapDataLoading = false, mapErrorMessage = "Could not get your current location to show routes.") }
+                return@launch
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private suspend fun getCurrentUserLocation(): LatLng? {
+        // Permission check required before calling this function.
+        if (ActivityCompat.checkSelfPermission(getApplication(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(getApplication(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.w("HomeViewModel", "Location permission not granted when trying to fetch location.")
+            _homeUIState.update { it.copy(mapErrorMessage = "Location permission needed to show current location and routes.") }
+            return null
+        }
+        return try {
+            val location = fusedLocationClient.lastLocation.await()
+            location?.let { LatLng(it.latitude, it.longitude) }
+        } catch (e: Exception) {
+            Log.e("HomeViewModel", "Error getting current location", e)
+            _homeUIState.update { it.copy(mapErrorMessage = "Failed to get current location.") }
+            null
+        }
+    }
+    private suspend fun getLatLngFromAddress(context: Context, addressString: String): LatLng? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val geocoder = Geocoder(context)
+
+                @Suppress("DEPRECATION")
+                val addresses = geocoder.getFromLocationName(addressString, 1)
+                if (addresses != null && addresses.isNotEmpty()) {
+                    LatLng(addresses[0].latitude, addresses[0].longitude)
+                } else {
+                    null
+                }
+            } catch (e: IOException) { null }
+        }
+    }
+
+
+    fun fetchDirections(origin: LatLng, destination: LatLng, mode: TravelMode) {
+        viewModelScope.launch {
+
+            val result = directionsRepository.getDirections(origin, destination, mode)
+
+            result.onSuccess { route ->
+                _homeUIState.update { it.copy(
+                    routes = route,
+                ) }
+            }.onFailure { exception ->
+            }
+
+        }
+    }
+
+
+    fun onMapTravelModeSelected(mode: TravelMode) {
+        if (_homeUIState.value.mapUserLocationLatLng != null && _homeUIState.value.mapDestinationLatLng != null) {
+            _homeUIState.update { it.copy(mapSelectedTravelMode = mode) }
+            fetchDirections(_homeUIState.value.mapUserLocationLatLng!!, _homeUIState.value.mapDestinationLatLng!!, _homeUIState.value.mapSelectedTravelMode)
+        }
+    }
+
+    fun toggleRouteVisibility() {
+        _homeUIState.update { it.copy(isRouteShown = true) }
+    }
+
+
+    fun toggleEventMapVisibility() {
+        _homeUIState.update { it.copy(
+            isRouteShown = false,
+        ) }
+        isEventMapVisible = !isEventMapVisible
+    }
+
+    fun closeFullScreenMap() {
+        _homeUIState.update { it.copy(
+            mapErrorMessage = null,
+            isMapDataLoading = false
+        ) }
+        isEventMapVisible = false
+    }
+
 }
 
 class HomeViewModelFactory(
+    private val application: Application,
     private val notificationRepo: NotificationRepository,
-    private val eventRepo: EventRepository) : ViewModelProvider.Factory {
+    private val eventRepo: EventRepository,
+    private val directionsApiKey: String
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return HomeViewModel(notificationRepo, eventRepo) as T
+            // Pass application FIRST, then other arguments
+            return HomeViewModel(application, notificationRepo, eventRepo, DirectionsRepository(directionsApiKey)) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+
 
