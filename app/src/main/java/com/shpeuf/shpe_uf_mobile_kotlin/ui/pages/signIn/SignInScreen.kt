@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -245,7 +246,8 @@ fun SignInButton(onClick: () -> Unit) {
     Button(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 65.dp, vertical = 16.dp),
+            .padding(horizontal = 65.dp, vertical = 16.dp)
+            .testTag("Sign in button"),
         shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFFD25917),
