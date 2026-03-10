@@ -13,7 +13,10 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="guestScreen_rendersRoot_byTag_ifProvided()">
+      <SelectionState runConfigName="GuestPlaceholderPageUiTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="StaticProfilePageUiTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="loginPage_rendersRoot_byTag_ifProvided()">
