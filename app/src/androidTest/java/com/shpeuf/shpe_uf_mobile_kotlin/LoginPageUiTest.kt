@@ -67,10 +67,10 @@ class LoginPageUiTest {
         }
 
         // type credentials
-        composeRule.onNode(hasText("Username or Email") and hasSetTextAction())
+        composeRule.onAllNodes(hasSetTextAction())[0]
             .performTextInput("googletest@ufl.edu")
 
-        composeRule.onNode(hasText("Password") and hasSetTextAction())
+        composeRule.onAllNodes(hasSetTextAction())[1]
             .performTextInput("GoogleTestAccount123!")
 
         // click sign in
