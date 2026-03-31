@@ -111,12 +111,12 @@ fun AdminPanelScreen(
                 )
 
                 AdminCard(
-                    title = "Members",
+                    title = "Leaderboard",
                     iconRes = R.drawable.profile,
                     backgroundColor = cardLightBlue,
                     iconTint = iconTint,
                     modifier = Modifier.weight(1f),
-                    onClick = { /* Handle Members click */ }
+                    onClick =  onNavigateToLeaderboard
                 )
             }
 
@@ -159,7 +159,7 @@ fun AdminPanelScreen(
                     backgroundColor = cardLightBlue,
                     iconTint = iconTint,
                     modifier = Modifier.weight(1f),
-                    onClick = onNavigateToLeaderboard
+                    onClick = { }
                 )
 
                 AdminCard(
