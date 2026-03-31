@@ -74,6 +74,8 @@ import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 //TODO: add bottom bar functionality
 
@@ -94,72 +96,109 @@ fun StaticProfileScreen(
     navController: NavHostController,
     mainViewModel: SHPEUFAppViewModel
 ) {
-    SHPEUFMobileKotlinTheme {
-        val uiState by profileViewModel.uiState.collectAsState()
-        val mainState by mainViewModel.uiState.collectAsState()
+    val uiState by profileViewModel.uiState.collectAsState()
+    val mainState by mainViewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
-        val isDarkMode = mainState.isDarkMode
-
-        val textColor = if (isDarkMode) {
-            Color.White
-
-        } else {
-            Color.Black
-        }
-
-        val containerColor = if (!isDarkMode) {
-            Color(0xFFD25917)
-        } else {
-            Color(0xFF001627)
-        }
-
-//        var refreshing by remember { mutableStateOf(false) }
-//
-//        val pullToRefreshState = rememberPullRefreshState(
-//            refreshing = refreshing,
-//            onRefresh = {
-//                refreshing = true
-//                profileViewModel.loadProfile(mainState.id)
-//                // Simulate fetch delay, replace with actual ViewModel observer if necessary
-//                refreshing = false
-//            }
-//        )
-
+    // This ensures loadProfile only runs ONCE when the screen opens or the ID changes rather than running on every single keystroke
+    LaunchedEffect(mainState.id) {
         profileViewModel.loadProfile(mainState.id)
+    }
+
+    // Pass ONLY state and action callbacks to the UI
+    StaticProfileContent(
+        uiState = uiState,
+        isDarkMode = mainState.isDarkMode,
+        isAdmin = profileViewModel.isUserAdmin(),
+        onFullNameChanged = profileViewModel::onFullNameChanged,
+        onUserNameChanged = profileViewModel::onUserNameChanged,
+        onEmailChanged = profileViewModel::onEmailChanged,
+        onGenderChanged = profileViewModel::onGenderChanged,
+        onEthnicityChanged = profileViewModel::onEthnicityChanged,
+        onCountryChanged = profileViewModel::onCountryChanged,
+        onMajorChanged = profileViewModel::onMajorChanged,
+        onYearChanged = profileViewModel::onYearChanged,
+        onGradYearChanged = profileViewModel::onGradYearChanged,
+        onAddClass = profileViewModel::addClass,
+        onRemoveClass = profileViewModel::removeClass,
+        onAddInternship = profileViewModel::addInternship,
+        onRemoveInternship = profileViewModel::removeInternship,
+        onAddLink = profileViewModel::addLinks,
+        onRemoveLink = profileViewModel::removeLink,
+        onDropdownToggle = profileViewModel::toggleDropdownMenu,
+        onSaveClick = { profileViewModel.saveProfileChanges() },
+        onCancelClick = { profileViewModel.cancelProfileChanges() },
+        onEditClick = { profileViewModel.editProfile() },
+        onImageSelected = { uri -> profileViewModel.handleSelectedImage(context, uri) },
+        onAdminPanelClick = { navController.navigate(NavRoute.ADMIN) },
+        onThemeToggle = { isDark -> mainViewModel.saveDarkMode(isDark) },
+        onLogoutClick = {
+            mainViewModel.logoutUser()
+            navController.navigate(NavRoute.LOGIN)
+        },
+        onDeleteAccountConfirm = {
+            val deleteUnsuccessful = profileViewModel.deleteProfile(mainViewModel)
+            if (!deleteUnsuccessful) {
+                navController.navigate(NavRoute.OPENING)
+            }
+        }
+    )
+}
+
+@Composable
+fun StaticProfileContent(
+    uiState: ProfileUiState,
+    isDarkMode: Boolean,
+    isAdmin: Boolean,
+    onFullNameChanged: (String) -> Unit,
+    onUserNameChanged: (String) -> Unit,
+    onEmailChanged: (String) -> Unit,
+    onGenderChanged: (String) -> Unit,
+    onEthnicityChanged: (String) -> Unit,
+    onCountryChanged: (String) -> Unit,
+    onMajorChanged: (String) -> Unit,
+    onYearChanged: (String) -> Unit,
+    onGradYearChanged: (String) -> Unit,
+    onAddClass: (String) -> Unit,
+    onRemoveClass: (String) -> Unit,
+    onAddInternship: (String) -> Unit,
+    onRemoveInternship: (String) -> Unit,
+    onAddLink: (String) -> Unit,
+    onRemoveLink: (String) -> Unit,
+    onDropdownToggle: (Int) -> Unit,
+    onSaveClick: () -> Unit,
+    onCancelClick: () -> Unit,
+    onEditClick: () -> Unit,
+    onImageSelected: (Uri) -> Unit,
+    onAdminPanelClick: () -> Unit,
+    onThemeToggle: (Boolean) -> Unit,
+    onLogoutClick: () -> Unit,
+    onDeleteAccountConfirm: () -> Unit
+) {
+    SHPEUFMobileKotlinTheme {
+        val textColor = if (isDarkMode) Color.White else Color.Black
+        val containerColor = if (!isDarkMode) Color(0xFFD25917) else Color(0xFF001627)
 
         StaticProfilePageBackground(
             isDarkMode = isDarkMode,
-            name = uiState.fullName,
+            uiState = uiState,
             textColor = textColor,
             containerColor = containerColor,
-            editable = uiState.editable,
-            profileViewModel = profileViewModel,
-            navController = navController
+            isAdmin = isAdmin,
+            onSaveClick = onSaveClick,
+            onCancelClick = onCancelClick,
+            onEditClick = onEditClick,
+            onAdminPanelClick = onAdminPanelClick,
+            onImageSelected = onImageSelected
         )
 
-        val screenHeight = LocalConfiguration.current.screenHeightDp.dp.value
-
-        Box(
-//            modifier = Modifier.pullRefresh(pullToRefreshState)
-        ) {
-//            PullRefreshIndicator(
-//                refreshing = refreshing,
-//                state = pullToRefreshState,
-//                modifier = Modifier.align(Alignment.TopCenter)
-//            )
-
+        Box {
             LazyColumn(
                 modifier = Modifier
-                    .padding(top = if (profileViewModel.isUserAdmin()) 350.dp else 300.dp)
+                    .padding(top = if (isAdmin) 350.dp else 300.dp)
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-//                item {
-//                    if (!uiState.editable[0] && uiState.editable[1] && profileViewModel.isUserAdmin()) {
-//                        Spacer(modifier = Modifier.height(20.dp))
-//                    }
-//                }
-
                 item {
                     Text(
                         text = "ACCOUNT INFO",
@@ -170,131 +209,95 @@ fun StaticProfileScreen(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
-
                 }
 
-                item {
-                    Spacer(modifier = Modifier.height(27.dp))
-                }
+                item { Spacer(modifier = Modifier.height(27.dp)) }
 
                 // Name
                 item {
-
                     ProfileItem(
                         value = uiState.fullName,
-                        onValueChange = profileViewModel::onFullNameChanged,
+                        onValueChange = onFullNameChanged,
                         textColor = textColor,
                         icon = R.drawable.profile_circle_orange,
                         isDarkMode = isDarkMode,
                         title = "NAME",
                         editable = uiState.editable,
-                        onExpandedChange = { profileViewModel.toggleDropdownMenu(6) },
+                        onExpandedChange = { onDropdownToggle(6) },
                         errorMessage = uiState.errorMessages["fullName"]
                     )
-                    HorizontalDivider(
-                        color = Color.LightGray,
-                        thickness = 1.dp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
                 }
 
                 // Username
                 item {
-                    ProfileItem(value = uiState.userName,
-                        onValueChange = profileViewModel::onUserNameChanged,
+                    ProfileItem(
+                        value = uiState.userName,
+                        onValueChange = onUserNameChanged,
                         textColor = textColor,
                         isDarkMode = isDarkMode,
                         icon = R.drawable.profile_circle_orange,
                         title = "USERNAME",
                         editable = listOf(false, true),
-                        onExpandedChange = { profileViewModel.toggleDropdownMenu(6) }
+                        onExpandedChange = { onDropdownToggle(6) }
                     )
-                    HorizontalDivider(
-                        color = Color.LightGray,
-                        thickness = 1.dp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
+                    HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
                 }
 
                 // Email
                 item {
                     ProfileItem(
                         value = uiState.email,
-                        onValueChange = profileViewModel::onEmailChanged,
+                        onValueChange = onEmailChanged,
                         isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_email,
                         title = "EMAIL",
                         editable = listOf(false, true),
-                        onExpandedChange = { profileViewModel.toggleDropdownMenu(6) },
+                        onExpandedChange = { onDropdownToggle(6) },
                     )
-                    HorizontalDivider(
-                        color = Color.LightGray,
-                        thickness = 1.dp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
+                    HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
                 }
 
                 // Gender
                 item {
                     ProfileItem(
                         value = uiState.gender,
-                        onValueChange = profileViewModel::onGenderChanged,
+                        onValueChange = onGenderChanged,
                         isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_gender_equality,
                         title = "GENDER",
                         editable = uiState.editable,
                         newValue = listOf("Male", "Female", "Non-Binary", "Other"),
-                        onExpandedChange = { profileViewModel.toggleDropdownMenu(0) },
+                        onExpandedChange = { onDropdownToggle(0) },
                         dropdown = true
                     )
-                    HorizontalDivider(
-                        color = Color.LightGray,
-                        thickness = 1.dp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
+                    HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
                 }
 
                 // Ethnicity
                 item {
                     ProfileItem(
                         value = uiState.ethnicity,
-                        onValueChange = profileViewModel::onEthnicityChanged,
+                        onValueChange = onEthnicityChanged,
                         isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_globe,
                         title = "ETHNICITY",
                         editable = uiState.editable,
-                        newValue = listOf(
-                            "American Indian or Alaska Native",
-                            "Asian",
-                            "Black or African American",
-                            "Hispanic/Latino",
-                            "Native Hawaiian or Other Pacific Islander",
-                            "White",
-                            "Two or more ethnicities",
-                            "Prefer not to answer"
-                        ),
-                        onExpandedChange = { profileViewModel.toggleDropdownMenu(1) },
+                        newValue = listOf("American Indian or Alaska Native", "Asian", "Black or African American", "Hispanic/Latino", "Native Hawaiian or Other Pacific Islander", "White", "Two or more ethnicities", "Prefer not to answer"),
+                        onExpandedChange = { onDropdownToggle(1) },
                         dropdown = true
                     )
-                    HorizontalDivider(
-                        color = Color.LightGray,
-                        thickness = 1.dp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
+                    HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
                 }
 
                 // Country
                 item {
                     ProfileItem(
                         value = uiState.country,
-                        onValueChange = profileViewModel::onCountryChanged,
+                        onValueChange = onCountryChanged,
                         isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_globe,
@@ -559,36 +562,28 @@ fun StaticProfileScreen(
                             "Zimbabwe",
                             "Åland Islands"
                         ),
-                        onExpandedChange = { profileViewModel.toggleDropdownMenu(2) },
+                        onExpandedChange = { onDropdownToggle(2) },
                         dropdown = true
                     )
                 }
 
-                item {
-                    Spacer(modifier = Modifier.height(27.dp))
-                }
+                item { Spacer(modifier = Modifier.height(27.dp)) }
 
                 item {
                     Text(
                         text = "EDUCATION INFO",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 36.dp),
-                        color = textColor,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                        modifier = Modifier.fillMaxWidth().padding(start = 36.dp),
+                        color = textColor, fontSize = 20.sp, fontWeight = FontWeight.Bold
                     )
                 }
 
-                item {
-                    Spacer(modifier = Modifier.height(27.dp))
-                }
+                item { Spacer(modifier = Modifier.height(27.dp)) }
 
                 // Major
                 item {
                     ProfileItem(
                         value = uiState.major,
-                        onValueChange = profileViewModel::onMajorChanged,
+                        onValueChange = onMajorChanged,
                         isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_cap,
@@ -613,67 +608,44 @@ fun StaticProfileScreen(
                             "Nuclear Engineering",
                             "Other"
                         ),
-                        onExpandedChange = { profileViewModel.toggleDropdownMenu(3) },
+                        onExpandedChange = { onDropdownToggle(3) },
                         dropdown = true
                     )
-                    HorizontalDivider(
-                        color = Color.LightGray,
-                        thickness = 1.dp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
+                    HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
                 }
 
                 // Current Year
                 item {
                     ProfileItem(
                         value = uiState.year,
-                        onValueChange = profileViewModel::onYearChanged,
+                        onValueChange = onYearChanged,
                         isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_year,
                         title = "YEAR",
                         editable = uiState.editable,
-                        newValue = listOf(
-                            "1st Year",
-                            "2nd Year",
-                            "3rd Year",
-                            "4th Year",
-                            "5th Year or Higher",
-                            "Graduate",
-                            "Ph.D."
-                        ),
-                        onExpandedChange = { profileViewModel.toggleDropdownMenu(4) },
+                        newValue = listOf("1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year or Higher", "Graduate", "Ph.D."),
+                        onExpandedChange = { onDropdownToggle(4) },
                         dropdown = true
                     )
-                    HorizontalDivider(
-                        color = Color.LightGray,
-                        thickness = 1.dp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
+                    HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
                 }
 
                 // Graduation Year
                 item {
                     ProfileItem(
                         value = uiState.gradYear,
-                        onValueChange = profileViewModel::onGradYearChanged,
+                        onValueChange = onGradYearChanged,
                         isDarkMode = isDarkMode,
                         textColor = textColor,
                         icon = R.drawable.profile_cap,
                         title = "GRADUATION YEAR",
                         editable = uiState.editable,
                         newValue = listOf("2025", "2026", "2027", "2028"),
-                        onExpandedChange = { profileViewModel.toggleDropdownMenu(5) },
+                        onExpandedChange = { onDropdownToggle(5) },
                         dropdown = true
                     )
-                    HorizontalDivider(
-                        color = Color.LightGray,
-                        thickness = 1.dp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
+                    HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
                 }
 
                 // Classes
@@ -685,24 +657,19 @@ fun StaticProfileScreen(
                         title = "CLASSES",
                         editable = uiState.editable,
                         isDarkMode = isDarkMode,
-                        onAddValue = profileViewModel::addClass,
-                        onRemoveValue = profileViewModel::removeClass,
+                        onAddValue = onAddClass,
+                        onRemoveValue = onRemoveClass,
                         errorMessage = uiState.errorMessages["classes"]
                     )
-                    HorizontalDivider(
-                        color = Color.LightGray,
-                        thickness = 1.dp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
+                    HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
                 }
 
                 // Internships
                 item {
                     ProfileLists(
                         value = uiState.internships ?: listOf(),
-                        onAddValue = profileViewModel::addInternship,
-                        onRemoveValue = profileViewModel::removeInternship,
+                        onAddValue = onAddInternship,
+                        onRemoveValue = onRemoveInternship,
                         textColor = textColor,
                         icon = R.drawable.office,
                         title = "INTERNSHIPS",
@@ -710,20 +677,15 @@ fun StaticProfileScreen(
                         isDarkMode = isDarkMode,
                         errorMessage = uiState.errorMessages["internships"]
                     )
-                    HorizontalDivider(
-                        color = Color.LightGray,
-                        thickness = 1.dp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
+                    HorizontalDivider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.fillMaxWidth())
                 }
 
                 // Links
                 item {
                     ProfileLists(
                         value = uiState.socialMedia ?: listOf(),
-                        onAddValue = profileViewModel::addLinks,
-                        onRemoveValue = profileViewModel::removeLink,
+                        onAddValue = onAddLink,
+                        onRemoveValue = onRemoveLink,
                         textColor = textColor,
                         isDarkMode = isDarkMode,
                         icon = R.drawable.internet,
@@ -732,87 +694,70 @@ fun StaticProfileScreen(
                         listType = 'l',
                         errorMessage = uiState.errorMessages["socialMedia"]
                     )
-
                 }
 
-                item {
-                    Spacer(modifier = Modifier.height(25.dp))
-                }
+                item { Spacer(modifier = Modifier.height(25.dp)) }
 
                 item {
                     if (!uiState.editable[0] && uiState.editable[1]) {
-                        AppearanceToggle(mainViewModel, isDarkMode = isDarkMode)
+                        // AppearanceToggle is stateless except for the MainViewModel
+                        // For now just wrap the callbacks
+                        Column(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
+                            Text(
+                                text = "APPEARANCE",
+                                modifier = Modifier.fillMaxWidth().padding(start = 36.dp),
+                                color = if (isDarkMode) Color.White else Color.Black,
+                                fontSize = 20.sp, fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(27.dp))
+                            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                                ModeButton(label = "Light Mode", iconRes = R.drawable.ic_light_mode, selected = !isDarkMode, onClick = { onThemeToggle(false) })
+                                ModeButton(label = "Dark Mode", iconRes = R.drawable.ic_dark_mode, selected = isDarkMode, onClick = { onThemeToggle(true) })
+                            }
+                        }
                     }
                 }
 
-                item {
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-
-                item {
-
-                    if (!uiState.editable[0] && uiState.editable[1]) {
-                        LogoutButton(
-
-                            onClick = {
-                                mainViewModel.logoutUser()
-
-                                navController.navigate(NavRoute.LOGIN)
-
-                            })
-                    }
-
-                }
+                item { Spacer(modifier = Modifier.height(20.dp)) }
 
                 item {
                     if (!uiState.editable[0] && uiState.editable[1]) {
-                        Spacer(modifier = Modifier.height(20.dp))
+                        LogoutButton(onClick = onLogoutClick)
                     }
                 }
 
-                item {
-
-                    if (!uiState.editable[0] && uiState.editable[1]) {
-                        DeleteAccountButton(profileViewModel, mainViewModel, navController)
-
-                    }
-                }
+                item { Spacer(modifier = Modifier.height(20.dp)) }
 
                 item {
                     if (!uiState.editable[0] && uiState.editable[1]) {
-                        Spacer(modifier = Modifier.height(20.dp))
-
+                        DeleteAccountButton(onDeleteConfirm = onDeleteAccountConfirm)
                     }
                 }
+
+                item { Spacer(modifier = Modifier.height(20.dp)) }
             }
         }
-
-
     }
 }
+
+
 
 @Composable
 fun ProfileImage(
     isDarkMode: Boolean,
     editable: List<Boolean>,
-    profileViewModel: ProfileViewModel,
+    photoBitmap: android.graphics.Bitmap?,
     onEditClick: () -> Unit = {}
 ) {
-    val uiState by profileViewModel.uiState.collectAsState()
-
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .size(116.dp)
+        modifier = Modifier.size(116.dp)
     ) {
-        // Main profile image
-        if (uiState.photoBitmap != null) {
+        if (photoBitmap != null) {
             Image(
-                bitmap = uiState.photoBitmap!!.asImageBitmap(),
+                bitmap = photoBitmap.asImageBitmap(),
                 contentDescription = "USER PROFILE PIC",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(CircleShape),
+                modifier = Modifier.fillMaxSize().clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
         } else {
@@ -827,30 +772,21 @@ fun ProfileImage(
         }
 
         if (editable[0] && !editable[1]) {
-            // Edit button overlay - positioned at top-right corner
-            // Make sure the boxes are clearly visible with correct z-order
             Box(
                 modifier = Modifier
                     .size(44.dp)
                     .align(Alignment.TopEnd)
                     .clickable { onEditClick() }
-                    .background(Color(0xFFD25917), CircleShape) // Set the orange background directly here
+                    .background(Color(0xFFD25917), CircleShape)
                     .padding(4.dp)
             ) {
-                // Middle gray circle (slightly smaller than parent)
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.LightGray, CircleShape)
-                        .padding(5.dp) // Add some padding for the icon
+                    modifier = Modifier.fillMaxSize().background(Color.LightGray, CircleShape).padding(5.dp)
                 ) {
-                    // File icon on top (sized to fit inside gray circle)
                     Image(
                         painter = painterResource(R.drawable.fileicon),
                         contentDescription = "Edit Profile Picture",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(1.dp)
+                        modifier = Modifier.fillMaxSize().padding(1.dp)
                     )
                 }
             }
@@ -862,88 +798,61 @@ fun ProfileImage(
 fun StaticProfilePageBackground(
     modifier: Modifier = Modifier,
     isDarkMode: Boolean,
-    name: String,
+    uiState: ProfileUiState,
     textColor: Color,
     containerColor: Color,
-    editable: List<Boolean>,
-    profileViewModel: ProfileViewModel,
-    navController: NavHostController
+    isAdmin: Boolean,
+    onSaveClick: () -> Unit,
+    onCancelClick: () -> Unit,
+    onEditClick: () -> Unit,
+    onAdminPanelClick: () -> Unit,
+    onImageSelected: (Uri) -> Unit
 ) {
-    val uiState by profileViewModel.uiState.collectAsState() // getting ui state
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp // getting screen height
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp // getting screen width
-    val imageSize = screenWidth * 0.3f // 30% of the screen width
-    val topPadding = screenWidth * 0.15f // 20% of the screen width
-    val orangeHeight = screenHeight * (1.01f / 4f) // Orange covers about a fourth of the screen
-    val blueHeight = screenHeight * (3.4f / 5f)  // Blue covers the remaining three-fourths
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val topPadding = screenWidth * 0.15f
+    val orangeHeight = screenHeight * (1.01f / 4f)
+    val blueHeight = screenHeight * (3.4f / 5f)
 
-    val context = LocalContext.current
-
-    //create image picker launcher using SAF
+    // Create image picker launcher using SAF
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let { profileViewModel.handleSelectedImage(context, it) }
+        uri?.let { onImageSelected(it) }
     }
 
-    val launchImagePicker = {imagePickerLauncher.launch("image/*")}
+    val launchImagePicker = { imagePickerLauncher.launch("image/*") }
 
     Box(modifier = modifier.fillMaxSize()) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(orangeHeight)
-                .background(Color(0xFFD25917))
+            modifier = Modifier.fillMaxWidth().height(orangeHeight).background(Color(0xFFD25917))
         )
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.TopStart) // Align centrally
-                .padding(top = 102.dp) // Adjust the padding to move the image
+            modifier = Modifier.fillMaxWidth().align(Alignment.TopStart).padding(top = 102.dp)
         ) {
             Image(
-                painter = painterResource(
-                    id = if (isDarkMode) R.drawable.gator_dark_mode
-                    else R.drawable.gator_light_mode
-                ),
+                painter = painterResource(id = if (isDarkMode) R.drawable.gator_dark_mode else R.drawable.gator_light_mode),
                 contentDescription = "SHPE GATOR",
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .width(90.dp) // Fixed width
-                    .height(90.dp) // Fixed height
+                modifier = Modifier.align(Alignment.TopStart).width(90.dp).height(90.dp)
             )
         }
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(blueHeight)
-                .align(Alignment.BottomCenter)
+            modifier = Modifier.fillMaxWidth().height(blueHeight).align(Alignment.BottomCenter)
                 .background(if (isDarkMode) ThemeColors.Night.background else ThemeColors.Day.background)
         )
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 86.dp) // Adjust the padding to move the image
+            modifier = Modifier.fillMaxWidth().padding(top = 86.dp)
         ) {
             Image(
-                painter = painterResource(
-                    id = if (isDarkMode) R.drawable.background_blue_circle
-                    else R.drawable.background_white_circle
-                ),
+                painter = painterResource(id = if (isDarkMode) R.drawable.background_blue_circle else R.drawable.background_white_circle),
                 contentDescription = "PROFILE CURVE",
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .width(450.dp) // Fixed width
-                    .height(450.dp) // Fixed height
+                modifier = Modifier.align(Alignment.Center).width(450.dp).height(450.dp)
             )
         }
-        //TODO: display user's profile picture when they upload it
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = topPadding), // Adjust the padding to move the image
-            contentAlignment = Alignment.Center
 
+        Box(
+            modifier = Modifier.fillMaxWidth().padding(top = topPadding),
+            contentAlignment = Alignment.Center
         ) {
             Column(
                 verticalArrangement = Arrangement.Center,
@@ -952,65 +861,53 @@ fun StaticProfilePageBackground(
             ) {
                 ProfileImage(
                     isDarkMode = isDarkMode,
-                    editable = editable,
-                    profileViewModel = profileViewModel,
+                    editable = uiState.editable,
+                    photoBitmap = uiState.photoBitmap,
                     onEditClick = { launchImagePicker() }
                 )
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = name, color = textColor, fontSize = 24.sp, fontWeight = FontWeight.Bold
+                    text = uiState.fullName, color = textColor, fontSize = 24.sp, fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(10.dp))
 
-                if (editable[0] && !editable[1]) {
+                if (uiState.editable[0] && !uiState.editable[1]) {
                     Row(
                         modifier = Modifier.width(IntrinsicSize.Min),
                         horizontalArrangement = Arrangement.Center
                     ) {
-
                         ProfileChangesButton(
-                            onClick = { profileViewModel.saveProfileChanges() },
+                            onClick = onSaveClick,
                             containerColor = containerColor,
                             title = "Save",
                             modifier = Modifier.weight(1f)
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         ProfileChangesButton(
-                            onClick = { profileViewModel.cancelProfileChanges() },
+                            onClick = onCancelClick,
                             containerColor = containerColor,
                             title = "Cancel",
                             modifier = Modifier.weight(1f)
                         )
                     }
-                } else if (!editable[0] && editable[1]) {
+                } else if (!uiState.editable[0] && uiState.editable[1]) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 40.dp),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        EditProfileButton(
-                            onClick = { profileViewModel.editProfile() }, profileViewModel
-                        )
+                        // Might need to change EditProfileButton to take just `onClick` rather than ViewModels
+                        EditProfileButton(onClick = onEditClick, profileViewModel = viewModel())
 
-                        if (profileViewModel.isUserAdmin()){
-                            AdminPanelButton(
-                                onClick = {
-                                    navController.navigate(NavRoute.ADMIN)
-                                }
-                            )
+                        if (isAdmin){
+                            AdminPanelButton(onClick = onAdminPanelClick)
                         }
-
                         Spacer(modifier = Modifier.height(50.dp))
                     }
-
                 }
-
                 Spacer(modifier = Modifier.height(25.dp))
             }
-
         }
     }
 }
@@ -1558,21 +1455,16 @@ private fun LogoutButton(
 }
 
 @Composable
-private fun DeleteAccountButton(profileViewModel: ProfileViewModel,
-                                shpeUFAppViewModel: SHPEUFAppViewModel,
-                                navController: NavHostController
+fun DeleteAccountButton(
+    onDeleteConfirm: () -> Unit
 ) {
-
     var showDialog by remember { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier
-            .fillMaxWidth() // Ensure the Box takes up the full width of the screen
+        modifier = Modifier.fillMaxWidth()
     ) {
         Button(
-            modifier = Modifier
-                .wrapContentSize(Alignment.Center)
-                .align(Alignment.Center),
+            modifier = Modifier.wrapContentSize(Alignment.Center).align(Alignment.Center),
             onClick = { showDialog = true },
             shape = RoundedCornerShape(20.dp),
             colors = ButtonDefaults.buttonColors(
@@ -1589,22 +1481,16 @@ private fun DeleteAccountButton(profileViewModel: ProfileViewModel,
         }
     }
 
-
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text(text = "Delete Account?",
-                    textAlign = TextAlign.Center
-            ) },
+            title = { Text(text = "Delete Account?", textAlign = TextAlign.Center) },
             text = { Text("Deleting your account will remove all your personal data forever. This cannot be undone.") },
             confirmButton = {
                 Button(
                     onClick = {
-                        val deleteUnsuccessful = profileViewModel.deleteProfile(shpeUFAppViewModel)
                         showDialog = false
-                        if (!deleteUnsuccessful) {
-                            navController.navigate(NavRoute.OPENING)
-                        }
+                        onDeleteConfirm()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
@@ -1612,13 +1498,10 @@ private fun DeleteAccountButton(profileViewModel: ProfileViewModel,
                 }
             },
             dismissButton = {
-                TextButton(
-                    onClick = { showDialog = false }
-                ) {
+                TextButton(onClick = { showDialog = false }) {
                     Text("Cancel")
                 }
             }
-            //commit to publish
         )
     }
 }
