@@ -33,6 +33,7 @@ import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.collectAsState
 import com.shpeuf.shpe_uf_mobile_kotlin.SHPEUFApp
+import com.shpeuf.shpe_uf_mobile_kotlin.apolloClient
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.guest.GuestPlaceholderPage
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
@@ -60,6 +61,9 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped.WrappedViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.stats.AdminStatsScreen
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.stats.StatsViewModel
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.stats.StatsViewModelFactory
 
 
 data class BottomNavigationItem(
@@ -255,6 +259,9 @@ fun NavHostContainer(
                 },
                 onNavigateToEvents = {
                     navHostController.navigate(NavRoute.CREATE_EVENTS)
+                },
+                onNavigateToStats = {
+                    navHostController.navigate(NavRoute.ADMINSTATS)
                 }
             )
         }
@@ -289,6 +296,19 @@ fun NavHostContainer(
         }
         composable(NavRoute.WRAPPED) {
             WrappedScreen(onExit = { navHostController.popBackStack() }, shpeufAppViewModel = mainViewModel)
+        }
+        composable(NavRoute.ADMINSTATS) {
+            val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
+            val statsViewModel: StatsViewModel = viewModel(
+                factory = StatsViewModelFactory(apolloClient)
+            )
+
+            AdminStatsScreen(
+                onBack = { navHostController.popBackStack() },
+                mainViewModel = mainViewModel,
+                viewModel = statsViewModel,
+                isDarkMode = isDarkMode
+            )
         }
     }
 }
