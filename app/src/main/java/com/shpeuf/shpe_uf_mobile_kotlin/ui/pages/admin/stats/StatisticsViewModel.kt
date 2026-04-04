@@ -30,10 +30,10 @@ class StatsViewModel(private val apolloClient: ApolloClient) : ViewModel() {
                         it.copy(
                             isLoading = false,
                             stats = Stat(
-                                years       = processGenericData(data.getYearStat) { it._id to it.value },
-                                majors      = processGenericData(data.getMajorStat) { it._id to it.value },
-                                countries   = processGenericData(data.getCountryStat) { it._id to it.value },
-                                genders     = processGenericData(data.getSexStat) { it._id to it.value },
+                                years = processGenericData(data.getYearStat) { it._id to it.value },
+                                majors = processGenericData(data.getMajorStat) { it._id to it.value },
+                                countries = processGenericData(data.getCountryStat) { it._id to it.value },
+                                genders = processGenericData(data.getSexStat) { it._id to it.value },
                                 ethnicities = processGenericData(data.getEthnicityStat) { it._id to it.value }
                             )
                         )

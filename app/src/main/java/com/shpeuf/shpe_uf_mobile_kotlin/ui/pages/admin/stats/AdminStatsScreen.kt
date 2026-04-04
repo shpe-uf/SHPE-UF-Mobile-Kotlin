@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shpeuf.shpe_uf_mobile_kotlin.R
 import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
-import androidx.compose.foundation.lazy.LazyRow
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,12 +34,12 @@ fun AdminStatsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val orangeHeight   = 150.dp
-    val bgSection      = if (isDarkMode) Color(0xFF002139) else Color(0xFFF5F5F5)
-    val textColor      = if (isDarkMode) Color.White else Color.Black
-    val cardBg         = if (isDarkMode) Color(0xFF0F3048) else Color(0xFFFFFFFF)
-    val secondaryText  = if (isDarkMode) Color.White.copy(alpha = 0.7f) else Color.Gray
-    val orangeAccent   = Color(0xFFD25917)
+    val orangeHeight = 150.dp
+    val bgSection = if (isDarkMode) Color(0xFF002139) else Color(0xFFF5F5F5)
+    val textColor = if (isDarkMode) Color.White else Color.Black
+    val cardBg = if (isDarkMode) Color(0xFF0F3048) else Color(0xFFFFFFFF)
+    val secondaryText = if (isDarkMode) Color.White.copy(alpha = 0.7f) else Color.Gray
+    val orangeAccent = Color(0xFFD25917)
 
     val tabs = listOf("Year", "Sex", "Major", "Ethnicity", "Country")
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -61,37 +61,37 @@ fun AdminStatsScreen(
                 .padding(top = 28.dp)
         ) {
             IconButton(
-                onClick  = onBack,
+                onClick = onBack,
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(start = 16.dp, top = 8.dp)
                     .offset(x = (-8).dp, y = (-10).dp)
             ) {
                 Icon(
-                    painter            = painterResource(id = R.drawable.back),
+                    painter = painterResource(id = R.drawable.back),
                     contentDescription = "Back",
-                    tint               = Color.White,
-                    modifier           = Modifier.size(26.dp)
+                    tint = Color.White,
+                    modifier = Modifier.size(26.dp)
                 )
             }
 
             Text(
-                text       = "Statistics",
-                color      = Color.White,
-                fontSize   = 32.sp,
+                text = "Statistics",
+                color = Color.White,
+                fontSize = 32.sp,
                 fontFamily = FontFamily(Font(R.font.viga)),
-                modifier   = Modifier
+                modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = 24.dp)
             )
 
             Image(
-                painter            = painterResource(
+                painter = painterResource(
                     id = if (isDarkMode) R.drawable.gator_dark_mode
                     else R.drawable.gator_light_mode
                 ),
                 contentDescription = null,
-                modifier           = Modifier
+                modifier = Modifier
                     .align(Alignment.TopStart)
                     .offset(y = 80.dp)
                     .width(90.dp)
@@ -115,7 +115,7 @@ fun AdminStatsScreen(
         ) {
             Spacer(Modifier.height(16.dp))
 
-            // ── Tab buttons (matching leaderboard pill style) ─────────────────
+            // Tab Buttons
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -125,9 +125,9 @@ fun AdminStatsScreen(
             ) {
                 tabs.forEachIndexed { index, title ->
                     StatTabPill(
-                        label    = tabs[index],
+                        label = tabs[index],
                         selected = selectedTab == index,
-                        onClick  = { selectedTab = index }
+                        onClick = { selectedTab = index }
                     )
                     if (index < tabs.lastIndex) Spacer(Modifier.width(10.dp))
                 }
@@ -135,11 +135,11 @@ fun AdminStatsScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            // ── Body ──────────────────────────────────────────────────────────
+            // Body
             when {
                 uiState.isLoading -> {
                     Box(
-                        modifier        = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(color = orangeAccent)
@@ -148,19 +148,19 @@ fun AdminStatsScreen(
 
                 uiState.error != null -> {
                     Box(
-                        modifier        = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text     = "Error: ${uiState.error}",
-                                color    = orangeAccent,
+                                text = "Error: ${uiState.error}",
+                                color = orangeAccent,
                                 fontSize = 14.sp
                             )
                             Spacer(Modifier.height(12.dp))
                             Button(
                                 onClick = { viewModel.fetchAdminStats() },
-                                colors  = ButtonDefaults.buttonColors(
+                                colors = ButtonDefaults.buttonColors(
                                     containerColor = orangeAccent
                                 )
                             ) {
@@ -172,11 +172,11 @@ fun AdminStatsScreen(
 
                 else -> {
                     val entries: Map<String, Pair<Int, Float>> = when (selectedTab) {
-                        0    -> uiState.stats.years
-                        1    -> uiState.stats.genders
-                        2    -> uiState.stats.majors
-                        3    -> uiState.stats.ethnicities
-                        4    -> uiState.stats.countries
+                        0 -> uiState.stats.years
+                        1 -> uiState.stats.genders
+                        2 -> uiState.stats.majors
+                        3 -> uiState.stats.ethnicities
+                        4 -> uiState.stats.countries
                         else -> emptyMap()
                     }
                     key (selectedTab) {
@@ -191,53 +191,53 @@ fun AdminStatsScreen(
     }
 }
 
-// StatTabPill — exact copy of SemesterPill from leaderboard
+// StatTabPill
 @Composable
 private fun StatTabPill(
-    label    : String,
+    label : String,
     selected : Boolean,
-    onClick  : () -> Unit,
+    onClick : () -> Unit,
 ) {
     val orange = Color(0xFFD25917)
-    val bg     = if (selected) orange else orange.copy(alpha = 0.75f)
+    val bg = if (selected) orange else orange.copy(alpha = 0.75f)
 
     Button(
-        onClick        = onClick,
-        modifier       = Modifier.height(44.dp),
-        shape          = RoundedCornerShape(10.dp),
-        colors         = ButtonDefaults.buttonColors(containerColor = bg),
+        onClick = onClick,
+        modifier = Modifier.height(44.dp),
+        shape = RoundedCornerShape(10.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = bg),
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         Text(
-            text       = label,
+            text = label,
             fontFamily = FontFamily(Font(R.font.viga)),
-            fontSize   = 14.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
-            maxLines   = 1,
-            overflow   = TextOverflow.Ellipsis,
-            style      = MaterialTheme.typography.labelLarge,
-            color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface  // ← exact copy from leaderboard
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.labelLarge,
+            color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface
         )
     }
 }
 
-// ── Stat list ─────────────────────────────────────────────────────────────────
+// stat list
 @Composable
 private fun StatsList(
-    entries       : Map<String, Pair<Int, Float>>,
-    isDarkMode    : Boolean
+    entries : Map<String, Pair<Int, Float>>,
+    isDarkMode : Boolean
 ) {
     val sorted = entries.entries.sortedByDescending { it.value.first }
 
-    val primaryText   = if (isDarkMode) Color.White else Color.Black
+    val primaryText = if (isDarkMode) Color.White else Color.Black
     val secondaryText = if (isDarkMode) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
-    val tableBg       = if (isDarkMode) Color(0xFF0F3048) else Color(0xFFFFFFFF)
-    val headerBg      = if (isDarkMode) Color(0xFF0A2A40) else Color(0xFFE6E8ED)
+    val tableBg = if (isDarkMode) Color(0xFF0F3048) else Color(0xFFFFFFFF)
+    val headerBg = if (isDarkMode) Color(0xFF0A2A40) else Color(0xFFE6E8ED)
     val headerTextColor = if (isDarkMode) Color.White else Color(0xFF4F5D75)
 
     if (entries.isEmpty()) {
         Box(
-            modifier         = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             Text("No data available.", color = primaryText.copy(alpha = 0.6f))
@@ -245,7 +245,7 @@ private fun StatsList(
         return
     }
 
-    // Table header — exactly from leaderboard TableHeaderRow
+    // Table header
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -259,31 +259,31 @@ private fun StatsList(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text       = "CATEGORY",
+                text = "CATEGORY",
                 fontFamily = FontFamily(Font(R.font.viga)),
-                fontSize   = 14.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color      = headerTextColor,
-                modifier   = Modifier.weight(2.6f)
+                color = headerTextColor,
+                modifier = Modifier.weight(2.6f)
             )
             Row(
-                modifier              = Modifier.weight(1f),
-                verticalAlignment     = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
             ) {
                 Text(
-                    text       = "MEMBERS",
+                    text = "MEMBERS",
                     fontFamily = FontFamily(Font(R.font.viga)),
-                    fontSize   = 14.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color      = headerTextColor
+                    color = headerTextColor
                 )
             }
         }
         HorizontalDivider(thickness = 1.dp)
     }
 
-    // Table data — exactly from leaderboard LazyColumn + TableDataRow
+    // Table data
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -294,40 +294,40 @@ private fun StatsList(
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
             ) {
-                // Exactly TableDataRow from leaderboard
+                // Table Data Row
                 Row(
-                    modifier          = Modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .background(tableBg)
                         .padding(horizontal = 12.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Label — matches Name column
+                    // Label
                     Column(
-                        modifier            = Modifier.weight(2.6f),
+                        modifier = Modifier.weight(2.6f),
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
                         Text(
-                            text     = label,
-                            color    = primaryText,
-                            style    = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                            text = label,
+                            color = primaryText,
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text  = "${"%.1f".format(percentage)}%",
+                            text = "${"%.1f".format(percentage)}%",
                             style = MaterialTheme.typography.bodySmall,
                             color = secondaryText
                         )
                     }
 
-                    // Count — matches Points column
+                    // Count
                     Box(
-                        modifier         = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f),
                         contentAlignment = Alignment.CenterEnd
                     ) {
                         Text(
-                            text  = count.toString(),
+                            text = count.toString(),
                             color = primaryText,
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                         )
