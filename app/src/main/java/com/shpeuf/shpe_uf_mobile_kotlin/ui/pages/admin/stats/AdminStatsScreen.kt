@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shpeuf.shpe_uf_mobile_kotlin.R
 import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import androidx.compose.foundation.lazy.LazyRow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +46,7 @@ fun AdminStatsScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // ── Orange top band ───────────────────────────────────────────────────
+        // Orange top banner
         Box(
             Modifier
                 .fillMaxWidth()
@@ -53,7 +54,7 @@ fun AdminStatsScreen(
                 .background(orangeAccent)
         )
 
-        // ── Header: back button + title + gator ───────────────────────────────
+        // Header: back button, title, gator
         Box(
             Modifier
                 .fillMaxWidth()
@@ -98,7 +99,7 @@ fun AdminStatsScreen(
             )
         }
 
-        // ── Background under header ───────────────────────────────────────────
+        // Background under header
         Box(
             Modifier
                 .fillMaxSize()
@@ -106,7 +107,7 @@ fun AdminStatsScreen(
                 .background(bgSection)
         )
 
-        // ── Content ───────────────────────────────────────────────────────────
+        // content
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -116,19 +117,19 @@ fun AdminStatsScreen(
 
             // ── Tab buttons (matching leaderboard pill style) ─────────────────
             Row(
-                modifier              = Modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment     = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 tabs.forEachIndexed { index, title ->
                     StatTabPill(
-                        label    = title,
+                        label    = tabs[index],
                         selected = selectedTab == index,
-                        onClick  = { selectedTab = index },
-                        modifier = Modifier.weight(1f)
+                        onClick  = { selectedTab = index }
                     )
+                    if (index < tabs.lastIndex) Spacer(Modifier.width(10.dp))
                 }
             }
 
@@ -178,45 +179,44 @@ fun AdminStatsScreen(
                         4    -> uiState.stats.countries
                         else -> emptyMap()
                     }
-
-                    StatsList(
-                        entries       = entries,
-                        cardBg        = cardBg,
-                        primaryText   = textColor,
-                        secondaryText = secondaryText
-                    )
+                    key (selectedTab) {
+                        StatsList(
+                            entries = entries,
+                            isDarkMode = isDarkMode
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-// ── Tab pill button (matches leaderboard SemesterPill) ────────────────────────
+// StatTabPill — exact copy of SemesterPill from leaderboard
 @Composable
 private fun StatTabPill(
     label    : String,
     selected : Boolean,
     onClick  : () -> Unit,
-    modifier : Modifier = Modifier
 ) {
     val orange = Color(0xFFD25917)
     val bg     = if (selected) orange else orange.copy(alpha = 0.75f)
 
     Button(
-        onClick         = onClick,
-        modifier        = modifier.height(44.dp),
-        shape           = RoundedCornerShape(10.dp),
-        colors          = ButtonDefaults.buttonColors(containerColor = bg),
-        contentPadding  = PaddingValues(horizontal = 4.dp)
+        onClick        = onClick,
+        modifier       = Modifier.height(44.dp),
+        shape          = RoundedCornerShape(10.dp),
+        colors         = ButtonDefaults.buttonColors(containerColor = bg),
+        contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         Text(
             text       = label,
             fontFamily = FontFamily(Font(R.font.viga)),
-            fontSize   = 13.sp,
+            fontSize   = 14.sp,
             fontWeight = FontWeight.Bold,
-            color      = Color.White,
             maxLines   = 1,
-            overflow   = TextOverflow.Ellipsis
+            overflow   = TextOverflow.Ellipsis,
+            style      = MaterialTheme.typography.labelLarge,
+            color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface  // ← exact copy from leaderboard
         )
     }
 }
@@ -225,97 +225,118 @@ private fun StatTabPill(
 @Composable
 private fun StatsList(
     entries       : Map<String, Pair<Int, Float>>,
-    cardBg        : Color,
-    primaryText   : Color,
-    secondaryText : Color
+    isDarkMode    : Boolean
 ) {
+    val sorted = entries.entries.sortedByDescending { it.value.first }
+
+    val primaryText   = if (isDarkMode) Color.White else Color.Black
+    val secondaryText = if (isDarkMode) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
+    val tableBg       = if (isDarkMode) Color(0xFF0F3048) else Color(0xFFFFFFFF)
+    val headerBg      = if (isDarkMode) Color(0xFF0A2A40) else Color(0xFFE6E8ED)
+    val headerTextColor = if (isDarkMode) Color.White else Color(0xFF4F5D75)
+
     if (entries.isEmpty()) {
         Box(
-            modifier        = Modifier.fillMaxSize(),
+            modifier         = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text  = "No data available.",
-                color = primaryText.copy(alpha = 0.6f)
-            )
+            Text("No data available.", color = primaryText.copy(alpha = 0.6f))
         }
         return
     }
 
-    val sorted = entries.entries.sortedByDescending { it.value.first }
-
-    LazyColumn(
-        modifier            = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        contentPadding      = PaddingValues(vertical = 8.dp)
-    ) {
-        items(sorted) { (label, pair) ->
-            val (count, percentage) = pair
-            StatRow(
-                label         = label,
-                count         = count,
-                percentage    = percentage,
-                cardBg        = cardBg,
-                primaryText   = primaryText,
-                secondaryText = secondaryText
-            )
-        }
-    }
-}
-
-// ── Single stat row ───────────────────────────────────────────────────────────
-@Composable
-private fun StatRow(
-    label         : String,
-    count         : Int,
-    percentage    : Float,
-    cardBg        : Color,
-    primaryText   : Color,
-    secondaryText : Color
-) {
-    Card(
-        shape     = RoundedCornerShape(10.dp),
-        colors    = CardDefaults.cardColors(containerColor = cardBg),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        modifier  = Modifier.fillMaxWidth()
+    // Table header — exactly from leaderboard TableHeaderRow
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
     ) {
         Row(
-            modifier              = Modifier
+            modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment     = Alignment.CenterVertically
+                .background(headerBg)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Label — left
             Text(
-                text       = label,
-                color      = primaryText,
-                fontSize   = 15.sp,
-                fontFamily = FontFamily(Font(R.font.universltstd)),
-                fontWeight = FontWeight.Medium,
-                modifier   = Modifier.weight(1f),
-                maxLines   = 1,
-                overflow   = TextOverflow.Ellipsis
+                text       = "CATEGORY",
+                fontFamily = FontFamily(Font(R.font.viga)),
+                fontSize   = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color      = headerTextColor,
+                modifier   = Modifier.weight(2.6f)
             )
-
-            // Count + percentage — right
-            Column(horizontalAlignment = Alignment.End) {
+            Row(
+                modifier              = Modifier.weight(1f),
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+            ) {
                 Text(
-                    text       = "$count members",
-                    color      = primaryText,
-                    fontSize   = 13.sp,
-                    fontFamily = FontFamily(Font(R.font.universltstd)),
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text       = "${"%.1f".format(percentage)}%",
-                    color      = secondaryText,
-                    fontSize   = 12.sp,
-                    fontFamily = FontFamily(Font(R.font.universltstd))
+                    text       = "MEMBERS",
+                    fontFamily = FontFamily(Font(R.font.viga)),
+                    fontSize   = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color      = headerTextColor
                 )
             }
         }
+        HorizontalDivider(thickness = 1.dp)
+    }
+
+    // Table data — exactly from leaderboard LazyColumn + TableDataRow
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(sorted) { (label, pair) ->
+            val (count, percentage) = pair
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+            ) {
+                // Exactly TableDataRow from leaderboard
+                Row(
+                    modifier          = Modifier
+                        .fillMaxWidth()
+                        .background(tableBg)
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Label — matches Name column
+                    Column(
+                        modifier            = Modifier.weight(2.6f),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Text(
+                            text     = label,
+                            color    = primaryText,
+                            style    = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text  = "${"%.1f".format(percentage)}%",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = secondaryText
+                        )
+                    }
+
+                    // Count — matches Points column
+                    Box(
+                        modifier         = Modifier.weight(1f),
+                        contentAlignment = Alignment.CenterEnd
+                    ) {
+                        Text(
+                            text  = count.toString(),
+                            color = primaryText,
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
+                }
+                HorizontalDivider(thickness = 0.5.dp)
+            }
+        }
+
+        item { Spacer(Modifier.height(40.dp)) }
     }
 }
