@@ -15,6 +15,9 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
     <application
         android:name=".SHPEUFApp"
         android:allowBackup="true"
@@ -27,6 +30,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SHPEUFMobileKotlin"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${GOOGLE_MAPS_API_KEY}"  />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -45,7 +51,8 @@
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
             tools:replace="android:screenOrientation"
-            android:stateNotNeeded="true"/>
+            android:stateNotNeeded="true"
+            tools:ignore="MissingClass" />
 
         <activity
             android:name=".ui.customscanner.MyCustomScannerActivity"
