@@ -33,6 +33,7 @@ import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.collectAsState
 import com.shpeuf.shpe_uf_mobile_kotlin.SHPEUFApp
+import com.shpeuf.shpe_uf_mobile_kotlin.apolloClient
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.guest.GuestPlaceholderPage
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
@@ -43,6 +44,8 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.ProfilePagePreview
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.ProfileViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.profile.StaticProfilePagePreview
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.AdminPanelScreen
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.leaderboard.AdminLeaderboard
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.leaderboard.AdminLeaderboardViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.events.CreateEventsScreen
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.events.CreateEventViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
@@ -60,7 +63,9 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.wrapped.WrappedViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.OrangeSHPE
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
-
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.stats.AdminStatsScreen
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.stats.StatsViewModel
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.admin.stats.StatsViewModelFactory
 
 data class BottomNavigationItem(
     val title: String,
@@ -244,6 +249,7 @@ fun NavHostContainer(
         {
             ProfilePagePreview(viewModel = profileViewModel, navController = navHostController, mainViewModel = mainViewModel)
         }
+
         composable(NavRoute.ADMIN) {
             val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
 
@@ -255,7 +261,24 @@ fun NavHostContainer(
                 },
                 onNavigateToEvents = {
                     navHostController.navigate(NavRoute.CREATE_EVENTS)
+                },
+                onNavigateToLeaderboard = {
+                    navHostController.navigate(NavRoute.ADMIN_LEADERBOARD)
+                },
+                onNavigateToStats = {
+                    navHostController.navigate(NavRoute.ADMINSTATS)
                 }
+            )
+        }
+
+        composable(NavRoute.ADMIN_LEADERBOARD) {
+            val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
+            val vm: AdminLeaderboardViewModel = viewModel()
+
+            AdminLeaderboard(
+                isDarkMode = isDarkMode,
+                onBack = { navHostController.popBackStack() },
+                viewModel = vm
             )
         }
 
@@ -289,6 +312,19 @@ fun NavHostContainer(
         }
         composable(NavRoute.WRAPPED) {
             WrappedScreen(onExit = { navHostController.popBackStack() }, shpeufAppViewModel = mainViewModel)
+        }
+        composable(NavRoute.ADMINSTATS) {
+            val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
+            val statsViewModel: StatsViewModel = viewModel(
+                factory = StatsViewModelFactory(apolloClient)
+            )
+
+            AdminStatsScreen(
+                onBack = { navHostController.popBackStack() },
+                mainViewModel = mainViewModel,
+                viewModel = statsViewModel,
+                isDarkMode = isDarkMode
+            )
         }
     }
 }
