@@ -28,6 +28,7 @@ fun AdminPanelScreen(
     isDarkMode: Boolean,
     onBack: () -> Unit = {},
     onNavigateToEvents: () -> Unit = {},
+    onNavigateToStats: () -> Unit = {}
     onNavigateToLeaderboard: () -> Unit = {}
 ) {
     // Define colors based on dark mode - matching app's color scheme
@@ -159,7 +160,7 @@ fun AdminPanelScreen(
                     backgroundColor = cardLightBlue,
                     iconTint = iconTint,
                     modifier = Modifier.weight(1f),
-                    onClick = { }
+                    onClick = onNavigateToStats
                 )
 
                 AdminCard(
