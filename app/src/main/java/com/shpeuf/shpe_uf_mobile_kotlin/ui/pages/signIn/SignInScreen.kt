@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -93,8 +94,16 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
 
     val signInViewModel = remember { SignInViewModel() }
     val uiState by signInViewModel.uiState.collectAsState()
+    val appState by shpeUFAppViewModel.uiState.collectAsState()
     val shpeLogo = R.drawable.shpe_logo_full_color
     val context = LocalContext.current
+
+    // React to async login completion — navigate to HOME when isLoggedIn flips to true
+    LaunchedEffect(appState.isLoggedIn) {
+        if (appState.isLoggedIn) {
+            navController.navigate(NavRoute.HOME)
+        }
+    }
 
     // Dark mode support
     val background = if (isSystemInDarkTheme()) {
@@ -153,7 +162,7 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
             //Spacer(modifier = Modifier.height(85.dp))
             Row(modifier = Modifier.padding(top = 85.dp)) {
                 SignInButton(
-                    onClick = { OnSignInClick(navController,signInViewModel, shpeUFAppViewModel) }
+                    onClick = { OnSignInClick(signInViewModel, shpeUFAppViewModel) }
                 )
             }
             Row(modifier = Modifier.padding(top = 1.dp)) {
@@ -177,11 +186,8 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
 
 }
 
-fun OnSignInClick(navController: NavHostController, signInViewModel: SignInViewModel, shpeUFAppViewModel: SHPEUFAppViewModel){
+fun OnSignInClick(signInViewModel: SignInViewModel, shpeUFAppViewModel: SHPEUFAppViewModel){
     signInViewModel.validateAndLoginUser(shpeUFAppViewModel)
-    val success = shpeUFAppViewModel.uiState.value
-    if(success.isLoggedIn){ navController.navigate(NavRoute.HOME) }
-    if(success.isLoggedIn){ navController.navigate(NavRoute.POINTS) }
 }
 
 fun onSignUpClick(navController: NavHostController){
