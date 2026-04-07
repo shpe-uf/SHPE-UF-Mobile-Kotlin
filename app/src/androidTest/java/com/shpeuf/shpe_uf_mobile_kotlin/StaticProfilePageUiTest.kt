@@ -17,6 +17,9 @@ import androidx.compose.ui.test.performScrollToNode
 
 class StaticProfilePageUiTest {
 
+    // TODO: If not using MongoDB for GitHub testing, this test file can be reformatted to be completely stateless (test only UI)
+    // TODO: Otherwise, it will probably need to be rewritten once we figure out how to test the server connection
+
     // Set up the Compose testing environment
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()

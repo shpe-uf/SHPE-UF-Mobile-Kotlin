@@ -16,6 +16,9 @@
       <SelectionState runConfigName="staticProfileContent_rendersSafely_withoutNetworkCalls()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="staticProfileScreen_rendersCoreCategoriesAndButtons()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>
