@@ -188,7 +188,7 @@ class HomeViewModel(
         )
         Log.d("HomeViewModel", "Toggled all notifications")
 
-        // all starts as false
+
         val allNotificationOn = homeState.value.notificationSettings.allNotificationSelection
 
         _homeUIState.update { currentState ->
