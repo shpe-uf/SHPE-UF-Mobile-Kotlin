@@ -1,8 +1,0 @@
-query GetUsersFallPoints {
-  getUsers {
-    firstName
-    lastName
-    email
-    fallPoints
-  }
-}

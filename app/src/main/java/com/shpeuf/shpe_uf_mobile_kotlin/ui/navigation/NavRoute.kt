@@ -15,6 +15,5 @@ object NavRoute {
     const val REGISTER_3 = "register_3"
     const val SPONSORS = "sponsors"
     const val GUEST_PLACEHOLDER = "guest_placeholder"
-    const val ADMIN_LEADERBOARD = "admin_leaderboard"
     const val WRAPPED = "wrapped"
 }

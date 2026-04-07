@@ -1,8 +1,0 @@
-query GetUsersSpringPoints {
-  getUsers {
-    firstName
-    lastName
-    email
-    springPoints
-  }
-}

@@ -110,8 +110,7 @@ class MainActivity() : ComponentActivity() {
                                     NavRoute.REGISTER_2,
                                     NavRoute.REGISTER_3,
                                     NavRoute.ADMIN,
-                                    NavRoute.CREATE_EVENTS,
-                                    NavRoute.ADMIN_LEADERBOARD
+                                    NavRoute.CREATE_EVENTS
                                 ) ||
                                 ((!UserState.isLoggedIn && UserState.isLoggedOut) && !UserState.isGuest)
                             ) {
