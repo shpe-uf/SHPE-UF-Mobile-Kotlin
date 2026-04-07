@@ -13,10 +13,7 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="loginPage_rendersRoot_byTag_ifProvided()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="LoginPageUiTest">
+      <SelectionState runConfigName="staticProfileContent_rendersSafely_withoutNetworkCalls()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

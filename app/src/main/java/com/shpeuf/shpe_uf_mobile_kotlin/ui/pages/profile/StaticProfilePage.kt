@@ -75,6 +75,7 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 //TODO: add bottom bar functionality
@@ -100,6 +101,16 @@ fun StaticProfileScreen(
     val mainState by mainViewModel.uiState.collectAsState()
     val context = LocalContext.current
 
+    // rememberSaveable caches this value so it survives theme toggles
+    var isAdmin by rememberSaveable { mutableStateOf(profileViewModel.isUserAdmin()) }
+
+    // Whenever the UI state updates (when the profile finishes loading from the network), we check the admin status. If it's true, we lock it in
+    LaunchedEffect(uiState) {
+        if (profileViewModel.isUserAdmin()) {
+            isAdmin = true
+        }
+    }
+
     // This ensures loadProfile only runs ONCE when the screen opens or the ID changes rather than running on every single keystroke
     LaunchedEffect(mainState.id) {
         profileViewModel.loadProfile(mainState.id)
@@ -109,7 +120,7 @@ fun StaticProfileScreen(
     StaticProfileContent(
         uiState = uiState,
         isDarkMode = mainState.isDarkMode,
-        isAdmin = profileViewModel.isUserAdmin(),
+        isAdmin = isAdmin,
         onFullNameChanged = profileViewModel::onFullNameChanged,
         onUserNameChanged = profileViewModel::onUserNameChanged,
         onEmailChanged = profileViewModel::onEmailChanged,
