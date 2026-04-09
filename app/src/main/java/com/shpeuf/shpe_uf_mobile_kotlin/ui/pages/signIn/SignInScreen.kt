@@ -56,6 +56,12 @@ fun SignIn(navController: NavHostController, shpeUFAppViewModel: SHPEUFAppViewMo
     SignInScreen(navController, shpeUFAppViewModel)
 }
 
+/**
+ * @author Gabriel Munoz
+ * @date April 6th, 2025
+ *
+ * UI background
+ * */
 @Composable
 fun SignInBackground() {
 
@@ -87,6 +93,14 @@ fun SignInScreenPreview() {
     val mockViewModel = initializeViewModel()
     SignInScreen(rememberNavController(), mockViewModel)
 }
+
+/**
+ * @author Gabriel Munoz
+ * @date April 6th, 2025
+ *
+ * Screen containf visible parts: logo, text, and organization for below composables
+ * but also displays error messages given failed logins
+ */
 @Composable
 fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFAppViewModel) {
 
@@ -187,6 +201,12 @@ fun onSignUpClick(navController: NavHostController){
     navController.navigate(NavRoute.REGISTER)
 }
 
+/**
+ * @author Gabriel Munoz
+ * @date April 6th, 2025
+ *
+ * custom text field (see superior text field) that is used to enter the username
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserNameInput(
@@ -205,6 +225,12 @@ fun UserNameInput(
 
 }
 
+/**
+ * @author Gabriel Munoz
+ * @date April 6th, 2025
+ *
+ * custom text field (see superior text field) that is used to enter the password
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordInput(
@@ -240,6 +266,12 @@ fun PasswordInput(
     )
 }
 
+/**
+ * @author Gabriel Munoz
+ * @date April 6th, 2025
+ *
+ * Button triggering the logic to perform login operation
+ */
 @Composable
 fun SignInButton(onClick: () -> Unit) {
     Button(
@@ -266,6 +298,13 @@ fun SignInButton(onClick: () -> Unit) {
     }
 }
 
+/**
+ * @author Gabriel Munoz
+ * @date April 6th, 2025
+ *
+ * Button triggering navcontroller logic to reroute
+ * the user to sign up page if they don't have an account
+ */
 @Composable
 fun SignUp(navController: NavHostController) {
     // Dark mode support
