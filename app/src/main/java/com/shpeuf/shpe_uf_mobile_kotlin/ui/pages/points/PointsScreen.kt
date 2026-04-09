@@ -447,19 +447,21 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
     }
 }
 
-/*
-******************************************************
-FUNCTION: RedeemPoints()
-* Displays a slide-up screen when "Redeem Code" is pressed.
-* Functionality includes:
-* - Textbox for event code input.
-* - Ability to add up to 5 guests using plus/minus buttons.
-* - "Redeem" button submits the request via a GraphQL mutation.
-* - Now includes a QR scanning feature with a camera icon
-*   that launches a custom scanner.
-* - Automatically redeems points if a valid QR code is scanned.
-* - Uses custom toast messages to provide feedback.
-******************************************************
+/**
+ * @author Daniel Dovale and Jake West
+ * @date March 16, 2025
+ *
+ * Displays a slide-up screen when "Redeem Code" is pressed, allowing the user to input an event code or scan a QR code.
+ *
+ * Functionality includes:
+ * - Textbox for event code input.
+ * - Ability to add up to 5 guests using plus/minus buttons.
+ * - "Redeem" button submits the request via a GraphQL mutation.
+ * - Camera icon that launches [MyCustomScannerActivity] for QR scanning.
+ *
+ * @param pointsPageViewModel The view model handling the redemption logic and UI state.
+ * @param username The username of the currently logged-in user.
+ * @param onCloseBottomSheet Callback invoked to close the sheet after redemption completes.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
