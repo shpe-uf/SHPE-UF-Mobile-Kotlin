@@ -10,27 +10,29 @@ plugins {
 
 android {
 
-    namespace = "com.example.shpe_uf_mobile_kotlin"
-    compileSdk = 34
+    namespace = "com.shpeuf.shpe_uf_mobile_kotlin"
+    compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.shpe_uf_mobile_kotlin"
+        applicationId = "com.shpeuf.shpe_uf_mobile_kotlin"
         minSdk = 30
-        targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 35
+        versionCode = 9
+        versionName = "1.1"
 
-        val localPropertiesFile = rootProject.file("local.properties")
         val localProperties = Properties()
-
+        val localPropertiesFile = rootProject.file("local.properties")
         if (localPropertiesFile.exists()) {
             localProperties.load(FileInputStream(localPropertiesFile))
         }
 
-
         buildConfigField("String", "CALENDAR_ID", "\"${localProperties["calendar_id"]}\"")
         buildConfigField("String", "CALENDAR_API_KEY", "\"${localProperties["CALENDAR_API_KEY"]}\"")
         buildConfigField("String", "SERVER_URL", "\"${localProperties["SERVER_URL"]}\"")
+        buildConfigField("String", "GOOGLEMAPS_API_KEY", "\"${localProperties["GOOGLEMAPS_API_KEY"]}\"")
+
+        val mapsApiKey = localProperties.getProperty("GOOGLEMAPS_API_KEY") ?: ""
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = mapsApiKey
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -73,21 +75,27 @@ dependencies {
     implementation("androidx.datastore:datastore-core-android:1.1.1")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("androidx.datastore:datastore-preferences-core-jvm:1.1.1")
+    implementation("androidx.compose.foundation:foundation-android:1.6.8")
+    implementation("junit:junit:4.12")
     val nav_version = "2.8.0"
     implementation("androidx.navigation:navigation-compose:$nav_version")
     ksp( "androidx.room:room-compiler:2.5.0")
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
 
-    val camerax_version = "1.3.0"
+    val camerax_version = "1.4.0"
     implementation("androidx.camera:camera-camera2:$camerax_version")
     implementation("androidx.camera:camera-core:$camerax_version")
     implementation("androidx.camera:camera-lifecycle:$camerax_version")
     implementation("androidx.camera:camera-view:$camerax_version")
 
+    // Renders image URLs for the Sponsor Logos
+
+    implementation("io.coil-kt:coil-compose:2.2.2")
+
     // ML Kit Barcode Scanning
-    implementation("com.google.mlkit:barcode-scanning:17.2.0")
-    implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.0.2")
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+    implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1")
 
 
 
@@ -155,11 +163,29 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
 
-}
+    // Maps SDK for Android
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
 
+    // Maps Compose Library
+    implementation("com.google.maps.android:maps-compose:4.3.3")
+    implementation("com.google.maps.android:maps-compose-utils:4.3.3") // For utilities like clustering
+    implementation("com.google.maps.android:maps-compose-widgets:4.3.3") // For widgets like ScaleBar
+
+
+    // Needed for location services
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.0")
+
+    // Retrofit for HTTP requests
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
+    // Google Maps Utils (for PolyUtil)
+    implementation("com.google.maps.android:android-maps-utils:3.8.0")
+}
 
 apollo {
     service("service") {
-        packageName.set("com.example.shpe_uf_mobile_kotlin")
+        packageName.set("com.shpeuf.shpe_uf_mobile_kotlin")
     }
 }

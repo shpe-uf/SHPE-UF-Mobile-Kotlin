@@ -1,0 +1,2723 @@
+package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.home
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.Application
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.shpeuf.shpe_uf_mobile_kotlin.R
+import com.shpeuf.shpe_uf_mobile_kotlin.repository.EventRepository
+import com.shpeuf.shpe_uf_mobile_kotlin.repository.NotificationRepository
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.SHPEUFMobileKotlinTheme
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.Universltstd
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.Viga
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.blueDarkModeBackground
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.headerOrange
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.IntOffset
+import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.TextColor
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.WhiteSHPE
+import com.shpeuf.shpe_uf_mobile_kotlin.util.*
+import kotlinx.coroutines.delay
+import androidx.compose.material3.CircularProgressIndicator
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.*
+import android.content.pm.PackageManager
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material.icons.filled.DesktopAccessDisabled
+import androidx.compose.material.icons.filled.Directions
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.navy_bg
+import com.shpeuf.shpe_uf_mobile_kotlin.data.models.MapsDirections.DirectionsRepository
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.MapStyleOptions
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+
+// Sample Card Items that are used for previews
+val sampleCardItems = listOf(
+    HomeViewModel.Event(
+        id = "1",
+        summary = "Event 1",
+        description = "This is event 1",
+        location = "Location 1",
+        start = HomeViewModel.EventDateTime(
+            dateTime = "2024-06-25T10:00:00-04:00",
+            date = null,
+            timeZone = "America/New_York"
+        ),
+        end = HomeViewModel.EventDateTime(
+            dateTime = "2024-06-25T11:00:00-04:00",
+            date = null,
+            timeZone = "America/New_York"
+        ),
+        colorResId = blueDarkModeBackground,
+        eventType = HomeViewModel.EventType.GBM
+    ),
+    HomeViewModel.Event(
+        id = "2",
+        summary = "Event 2",
+        description = "This is event 2",
+        location = "Location 2",
+        start = HomeViewModel.EventDateTime(
+            dateTime = null,
+            date = "2024-06-26",
+            timeZone = "America/New_York"
+        ),
+        end = HomeViewModel.EventDateTime(
+            dateTime = null,
+            date = "2024-06-26",
+            timeZone = "America/New_York"
+        ),
+        colorResId = Color.Red,
+        eventType = HomeViewModel.EventType.GBM
+    ),
+    HomeViewModel.Event(
+        id = "3",
+        summary = "Event 3",
+        description = "This is event 3",
+        location = "Location 3",
+        start = HomeViewModel.EventDateTime(
+            dateTime = "2024-06-30T10:00:00-04:00",
+            date = null,
+            timeZone = "America/New_York"
+        ),
+        end = HomeViewModel.EventDateTime(
+            dateTime = "2024-06-30T11:00:00-04:00",
+            date = null,
+            timeZone = "America/New_York"
+        ),
+        colorResId = Color.Blue,
+        eventType = HomeViewModel.EventType.GBM
+    )
+)
+
+/** Used with AnchoredDraggableState to define start and end anchors. These are here because we must
+ * define them outside as anchored draggable state doesn't define them itself. These are given a
+ * value when we initialize the AnchoredDraggableState within the SlidingWindow composable **/
+enum class DragAnchors {
+    Start, End
+}
+
+/**
+ * @description SlidingWindow is a reusable window meant to be activated outside of the function and
+ * is disabled within the sliding window. As of right now, is being used by the SlidingEventWindow and
+ * SlidingNotificationWindow. In theory could be used by itself to create a sliding window
+ *
+ * @author Josue Vicente & resources
+ * @date Created March 2025
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel was used to get a the functions to change state but may not be needed (TBD)
+ * @param isVisible state passed in to see if window is open. This comes from the viewModel or stateHolder
+ * @param content this function should contain everything that needs to be seen displayed in the window
+ * @param toggleOff This function is used to update isVisible within this window. Updates the viewModel
+ **/
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun SlidingWindow(modifier: Modifier, viewModel: HomeViewModel, isVisible: Boolean, content: @Composable () -> Unit, toggleOff: () -> Unit = {}) {
+    val screenWidth = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
+    val density = LocalDensity.current
+    val decay = rememberSplineBasedDecay<Float>()
+
+    // This is the anchored state that defines where we should start and how the animations should behave
+    // We also update anchors to define start and end positions
+    val state = remember {
+        AnchoredDraggableState(
+            initialValue = DragAnchors.End,
+            positionalThreshold = { distance: Float -> distance * 0.5f },
+            velocityThreshold = { with(density) { 32.dp.toPx() } },
+            snapAnimationSpec = tween(
+                durationMillis = 300,
+                easing = LinearEasing
+            ),
+            decayAnimationSpec = decay,
+            confirmValueChange = { true }
+        ).apply {
+            updateAnchors(
+                DraggableAnchors {
+                    DragAnchors.Start at 0f
+                    DragAnchors.End at screenWidth
+                }
+            )
+        }
+    }
+
+    // This is used to animate the window in and and out based on isVisible
+    LaunchedEffect(isVisible) {
+        if (isVisible) {
+            state.animateTo(DragAnchors.Start)
+        } else {
+            state.animateTo(DragAnchors.End)
+        }
+    }
+
+    // checks to see if the window is dragged closed and if so, reset the isVisible state in the viewModel
+    LaunchedEffect(state.offset) {
+        if (state.offset == screenWidth) {
+            toggleOff()
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .offset {
+                IntOffset(x = state.requireOffset().toInt(), y = 0)
+            }
+            .anchoredDraggable(state, orientation = Orientation.Horizontal),
+    ) {
+        content()
+    }
+}
+
+/**
+ * @description Top header is used to display current month and icon to display notification settings
+ *
+ * @author Josue Vicente & resources
+ * @date 2024
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel used to obtain the state to get the current month
+ **/
+@Composable
+fun TopHeader(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel(),isGuest: Boolean = false,
+              navController: NavHostController) {
+    val homeState by viewModel.homeState.collectAsState()
+
+    // Take the date from the current viewModel date and display the month
+    Row (
+        modifier = modifier
+            .fillMaxWidth()
+            .height(83.dp)
+            .background(color = headerOrange)
+            .padding(
+                top = WindowInsets.navigationBars
+                    .asPaddingValues(LocalDensity.current)
+                    .calculateTopPadding()
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // display month together "Month Year"
+        Text(
+            // I think we should add the year as well
+            text = homeState.monthDisplayedName.lowercase()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+            style = TextStyle(
+                color = White,
+                fontFamily = Viga,
+                fontSize = 24.sp,
+                fontWeight = FontWeight(400)
+            ),
+            color = White,
+            modifier = modifier
+                .weight(1f)
+                .align(Alignment.Bottom)
+                .padding(vertical = 15.dp, horizontal = 32.dp)
+        )
+
+        //Icon for socials will be available in guest view as well
+        Icon(
+            painter = painterResource(id = R.drawable.socials_icon),
+            contentDescription = "Socials",
+            modifier = modifier
+                .size(26.dp)
+                .align(Alignment.Bottom)
+                .offset(y = (-20).dp, x = (-38).dp)
+                .clickable { viewModel.openSocialWindow() },
+            tint = White
+        )
+
+        // Icon for bell
+        if (!isGuest){
+            Icon(
+                painter = painterResource(id = R.drawable.notifications_icon),
+                contentDescription = "Notifications",
+
+                modifier = modifier
+                    .size(33.dp)
+                    .align(Alignment.Bottom)
+                    .offset(y = (-16).dp, x = (-18).dp)
+                    .clickable { viewModel.openNotificationWindow() },
+                tint = White
+            )
+        }
+
+        if (isGuest) {//TODO: add Login / exit icon
+            TextButton(
+                onClick = { navController.navigate(NavRoute.LOGIN) },
+                modifier = modifier
+                    .align(Alignment.Bottom)
+                    .offset(y = (-10).dp, x = (-28).dp)
+            ) {
+                Text(
+                    text = "Login",
+                    color = White,
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight(400)
+                    )
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.guestloginicon),
+                    contentDescription = "Login Icon",
+                    tint = White,
+                    modifier = Modifier
+                        .size(21.dp)
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TopHeaderPreview() {
+    TopHeader(
+        viewModel = HomeViewModel(
+            application = Application(), // dummy instance for Preview only!
+            notificationRepo = NotificationRepository(context = LocalContext.current),
+            eventRepo = EventRepository(context = LocalContext.current),
+            directionsRepository = DirectionsRepository("gqowgqwj"),
+        ),
+        isGuest = true,
+        navController = rememberNavController()
+    )
+}
+
+
+/**
+ * @description SlidingEventWindow is used in the calendar screen to display the event a user selects
+ * to display event details. This is the outer function that wraps the SlidingWindow and passes in
+ * the content to be displayed (EventDetails).
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024 - Modified March 2025
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel gets state if window open and the event it would display
+ * @param isDarkMode updates color of background
+ **/
+@SuppressLint("UnusedBoxWithConstraintsScope")
+@Composable
+fun SlidingEventWindow(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel,
+    isDarkMode: Boolean
+) {
+    val homeState by viewModel.homeState.collectAsState()
+    val isVisible = homeState.isEventDetailsVisible
+    val isEventMapVisible = viewModel.isEventMapVisible
+    val event = homeState.selectedEvent
+
+    CheckLocationPermission();
+
+    if (isVisible) {
+        BackHandler {
+            viewModel.hideEventDetails()
+        }
+    }
+    SlidingWindow(
+        modifier = modifier,
+        viewModel = viewModel,
+        isVisible = isVisible,
+        content = {
+            EventDetails(
+                modifier = Modifier,
+                event = event,
+                viewModel = viewModel,
+                isDarkMode = isDarkMode
+            )
+        },
+        toggleOff = { viewModel.hideEventDetails() }
+    )
+
+    var animationFinished by remember { mutableStateOf(false) }
+    var hasMapBeenOpened by remember { mutableStateOf(false) }
+    if (isEventMapVisible) hasMapBeenOpened = true
+
+    LaunchedEffect(isEventMapVisible) {
+        when {
+            !isEventMapVisible -> animationFinished = false
+            hasMapBeenOpened -> animationFinished = true
+        }
+    }
+
+    val offsetX by animateFloatAsState(
+        targetValue = if (isEventMapVisible) 0f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        finishedListener = { animationFinished = true },
+        label = "mapSlide"
+    )
+
+    if (hasMapBeenOpened) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    translationX = offsetX * size.width
+                }
+        ) {
+            if (animationFinished) {
+                EventLocationMap(
+                    homeState = homeState,
+                    viewModel = viewModel,
+                    isDarkMode = isDarkMode,
+                    context = LocalContext.current
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(if (isDarkMode) navy_bg else White),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+        }
+    }
+}
+
+
+/**
+ * @description EventDetails is used by the SlidingEventWindow to be passed to the slidingWindow
+ * composable as it is the actual content of the SlidingEventWindow
+ *
+ * @author Josue Vicente & resources
+ * @date Created 2024 - Modified March 2025
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param event this is the event we are to display the details for
+ * @param viewModel this viewModer is used get the event types and to update the state by using some functions
+ * @param isDarkMode updates the color of the background
+ **/
+@Composable
+fun EventDetails(
+    modifier: Modifier = Modifier,
+    event: HomeViewModel.Event?,
+    viewModel: HomeViewModel = viewModel(),
+    isDarkMode: Boolean
+) {
+    if (event == null) return
+
+    val homeState by viewModel.homeState.collectAsState()
+
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .background(if (isDarkMode) blueDarkModeBackground else WhiteSHPE),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Top image and back button
+            Box(
+                contentAlignment = Alignment.TopStart,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(
+                        id = when (event.eventType) {
+                            HomeViewModel.EventType.GBM -> R.drawable.gbm_background
+                            HomeViewModel.EventType.InfoSession -> R.drawable.info_session_background
+                            HomeViewModel.EventType.Workshop -> R.drawable.workshop_background
+                            HomeViewModel.EventType.Social -> R.drawable.social_background
+                            HomeViewModel.EventType.Volunteering -> R.drawable.volunteering_background
+                            HomeViewModel.EventType.Default -> R.drawable.social_background
+                        }
+                    ),
+                    contentDescription = "Event Image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.height(240.dp)
+                )
+
+                IconButton(
+                    onClick = { viewModel.hideEventDetails() },
+                    modifier = Modifier
+                        .offset(y = 10.dp, x = 10.dp)
+                        .background(Color.Black.copy(alpha = 0.3f), shape = CircleShape)
+                ) {
+                    Icon(
+                        Icons.Default.ArrowBackIosNew,
+                        contentDescription = "Dismiss",
+                        tint = White
+                    )
+                }
+            }
+
+            // Event details card
+            Card(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset(y = (-23).dp),
+                shape = RoundedCornerShape(size = 25.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isDarkMode) blueDarkModeBackground else WhiteSHPE
+                ),
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                ) {
+                    // Title Row
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = Modifier.weight(0.9f),
+                                text = event.summary,
+                                style = TextStyle(
+                                    fontFamily = Viga,
+                                    fontSize = 32.sp,
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFD25917),
+                                )
+                            )
+                            Image(
+                                painter = painterResource(
+                                    id = when (event.eventType) {
+                                        HomeViewModel.EventType.GBM -> R.drawable.gbm_icon
+                                        HomeViewModel.EventType.InfoSession -> R.drawable.infosession_icon
+                                        HomeViewModel.EventType.Workshop -> R.drawable.workshop_icon
+                                        HomeViewModel.EventType.Social -> R.drawable.social_icon
+                                        HomeViewModel.EventType.Volunteering -> R.drawable.volunteering_icon
+                                        HomeViewModel.EventType.Default -> R.drawable.social_icon
+                                    }
+                                ),
+                                contentDescription = "Event type icon",
+                                modifier = Modifier.size(37.dp)
+                            )
+                        }
+                    }
+
+                    item { Spacer(modifier = Modifier.height(24.dp)) }
+
+                    // Event Date
+                    item {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painterResource(R.drawable.calendar_ui_icon),
+                                contentDescription = "Calendar",
+                                modifier = Modifier.size(37.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = formatDate(event.start),
+                                style = TextStyle(
+                                    fontSize = 18.sp,
+                                    fontFamily = Universltstd,
+                                    fontWeight = FontWeight.Normal,
+                                    color = if (isDarkMode) White else Color.Black
+                                )
+                            )
+                        }
+                    }
+
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
+
+                    // Event Time
+                    item {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(R.drawable.timer_ui_icon),
+                                contentDescription = "Clock",
+                                modifier = Modifier.size(37.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = formatEventTime(event),
+                                style = TextStyle(
+                                    fontSize = 18.sp,
+                                    fontFamily = Universltstd,
+                                    fontWeight = FontWeight.Normal,
+                                    color = if (isDarkMode) White else Color.Black
+                                )
+                            )
+                        }
+                    }
+
+                    item { Spacer(modifier = Modifier.height(10.dp)) }
+
+                    // Event Location (clickable)
+                    item {
+                        if (!event.location.isNullOrBlank()) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.location_ui_icon),
+                                    contentDescription = "Location",
+                                    modifier = Modifier.size(37.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = event.location,
+                                    color = Color(0xFF1E88E5), // hyperlink style
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.clickable {
+                                        viewModel.onEventAddressClicked(event)
+                                        viewModel.toggleEventMapVisibility()
+                                    }
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // Show map only when user clicked location
+                        } else {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.location_ui_icon),
+                                    contentDescription = "Location",
+                                    modifier = Modifier.size(37.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = "TBD",
+                                    style = TextStyle(
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = if (isDarkMode) White else Color.Black
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    item { Spacer(modifier = Modifier.height(24.dp)) }
+
+                    // Event Description
+                    item {
+                        Text(
+                            text = "Description:",
+                            style = TextStyle(
+                                fontSize = 18.sp,
+                                fontFamily = Universltstd,
+                                fontWeight = FontWeight.Normal,
+                                color = if (isDarkMode) White else Color.Black
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = event.description ?: "Join us!",
+                            style = TextStyle(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = if (isDarkMode) White else Color.Black
+                            )
+                        )
+                    }
+
+                    item { Spacer(modifier = Modifier.height(50.dp)) }
+                }
+            }
+        }
+    }
+}
+
+
+
+@Preview(showBackground = true)
+@Composable
+fun EventDetailsPreview() {
+    val mockEvent = HomeViewModel.Event(
+        id = "1",
+        summary = "SHPE GBM #1",
+        description = "Join us for our first GBM of the semester! We will be introducing our new E-Board and going over our plans for the semester. We will also be playing some games and giving away prizes!",
+        location = "https://ufl.zoom.us/j/95895737986",
+        start = HomeViewModel.EventDateTime(
+            dateTime = "2023-12-19T18:00:00-04:00",
+            date = null,
+            timeZone = "America/New_York"
+        ),
+        end = HomeViewModel.EventDateTime(
+            dateTime = "2023-12-19T19:00:00-04:00",
+            date = null,
+            timeZone = "America/New_York"
+        ),
+        colorResId = White,
+        eventType = HomeViewModel.EventType.GBM
+    )
+
+    EventDetails(
+        modifier = Modifier,
+        event = mockEvent,
+        viewModel = viewModel(), // default ViewModel instance
+        isDarkMode = true
+    )
+}
+
+
+
+/**
+ * @description This is the wrapper function for the notifications settings window. This will be
+ * displayed in the home screen when the user clicks on the notification settings icon. This function
+ * calls the reusable SlidingWindow and passes in the content to be displayed (NotificationSettingsContent).
+ *
+ * @author Josue Vicente & resources
+ * @date Created 2024 - Modified March 2025
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel this viewModel is used to verify if the window is open (state)
+ * @param darkMode updates the color of the background
+ **/
+@Composable
+fun SlidingNotificationWindow(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolean) {
+    val homeState = viewModel.homeState.collectAsState()
+    val isVisible = homeState.value.isNotificationWindowVisible
+
+    if (isVisible) {
+        BackHandler {
+            viewModel.hideNotificationWindow()
+        }
+    }
+
+    SlidingWindow(
+        modifier = modifier,
+        viewModel = viewModel,
+        isVisible = isVisible,
+        content = {
+            NotificationSettingsContent(modifier = Modifier, viewModel = viewModel, darkMode)
+        },
+        toggleOff = { viewModel.hideNotificationWindow() }
+    )
+}
+
+/**
+ * @description NotificationSettingsContent is part of the sliding notification window and is the
+ * actual content that is passed to the reusable SlidingWindow.
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024
+ *
+ * @param modifier the modifier passed in by the parent composable
+ * @param viewModel this viewModel is used get the event types and to update the state by using some functions
+ * @param darkMode updates the color of the background
+ **/
+@Composable
+fun NotificationSettingsContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolean) {
+    val context = LocalContext.current
+    val homeState by viewModel.homeState.collectAsState()
+
+    // Notification Details
+    Surface (
+        modifier = Modifier
+            .fillMaxWidth(1f)
+            .fillMaxHeight(),
+        color = if(darkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    ) {
+        // Permissions and Dialogs
+        PermissionsAndDialogs(viewModel, context)
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // image and close button container, could be made into own composable to be used later
+            Box(contentAlignment = Alignment.TopStart) {
+                // Header for notification window
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(83.dp)
+                        .background(color = headerOrange)
+                        .padding(15.dp),
+                ) {
+                    // Used to Exit the notification window
+                    IconButton(
+                        onClick = { viewModel.hideNotificationWindow() },
+                        modifier = Modifier
+                            .align(Alignment.Bottom)
+                            .height(35.dp)
+                            .width(35.dp),
+                    ) {
+                        Icon(
+                            Icons.Default.ArrowBackIosNew,
+                            contentDescription = "Dismiss",
+                            tint = White
+                        )
+                    }
+                    Text(
+                        text = "Notifications Settings",
+                        style = TextStyle(
+                            color = White,
+                            fontFamily = Viga,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight(400)
+                        ),
+                        color = White,
+                        modifier = Modifier
+                            .weight(1f)
+                            .align(Alignment.Bottom)
+                            .width(107.dp)
+                            .height(31.dp)
+                    )
+                }
+            }
+
+            // Box for instructions text
+            Box(
+                modifier = Modifier
+                    .weight(0.3f),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    modifier = Modifier,
+                    text = "Tap which type of event you want" +
+                            "\nnotifications for",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontFamily = Viga,
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFFB7B7B7),
+                        textAlign = TextAlign.Center,
+                    ),
+                    color = if (darkMode) Color(0xFFB7B7B7) else Color(0xFF011F35),
+                )
+            }
+
+            // Box the options for notifications
+            Box(
+                modifier = Modifier
+                    .weight(0.5f),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .padding(start = 20.dp, end = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Row{
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            if (homeState.notificationSettings.gbmNotification) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.gbmselected),
+                                    contentDescription = "GBM Notifications ON",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.GBM,
+                                                !viewModel.homeState.value.notificationSettings.gbmNotification
+                                            )
+                                        }
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.gbmdefault),
+                                    contentDescription = "GBM Notifications ON",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.GBM,
+                                                !viewModel.homeState.value.notificationSettings.gbmNotification
+                                            )
+                                        }
+                                )
+                            }
+                            Text(
+                                text = "GBMs",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            if (homeState.notificationSettings.infoSessionNotification) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.infoselected),
+                                    contentDescription = "Info Session Notifications ON",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.InfoSession,
+                                                !viewModel.homeState.value.notificationSettings.infoSessionNotification
+                                            )
+                                        }
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.infodefault),
+                                    contentDescription = "Info Session Notifications OFF",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.InfoSession,
+                                                !viewModel.homeState.value.notificationSettings.infoSessionNotification
+                                            )
+                                        }
+                                )
+                            }
+                            Text(
+                                text = "Info\nSessions",
+                                style =  getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            if (homeState.notificationSettings.workshopNotification) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.workshopselected),
+                                    contentDescription = "Info Session Notifications ON",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.Workshop,
+                                                !viewModel.homeState.value.notificationSettings.workshopNotification
+                                            )
+                                        }
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.workshopdefault),
+                                    contentDescription = "Workshop Notifications OFF",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.Workshop,
+                                                !viewModel.homeState.value.notificationSettings.workshopNotification
+                                            )
+                                        }
+                                )
+                            }
+                            Text(
+                                text = "Workshops",
+                                style =  getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+                        }
+                    }
+                    Row {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            if (homeState.notificationSettings.volunteeringNotification) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.volunteerselected),
+                                    contentDescription = "Volunteer Notifications ON",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.Volunteering,
+                                                !viewModel.homeState.value.notificationSettings.volunteeringNotification
+                                            )
+                                        }
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.volunteerdefault),
+                                    contentDescription = "Volunteer Notifications OFF",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.Volunteering,
+                                                !viewModel.homeState.value.notificationSettings.volunteeringNotification
+                                            )
+                                        }
+                                )
+                            }
+                            Text(
+                                text = "Volunteering",
+                                style =  getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            if (homeState.notificationSettings.socialNotification) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.socialselected),
+                                    contentDescription = "Social Notifications ON",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.Social,
+                                                !viewModel.homeState.value.notificationSettings.socialNotification
+                                            )
+                                        }
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.socialdefault),
+                                    contentDescription = "Social Notifications OFF",
+                                    modifier = Modifier
+                                        .width(92.dp)
+                                        .height(90.dp)
+                                        .clickable {
+                                            viewModel.toggleNotificationSettings(
+                                                context,
+                                                HomeViewModel.EventType.Social,
+                                                !viewModel.homeState.value.notificationSettings.socialNotification
+                                            )
+                                        }
+                                )
+                            }
+                            Text(
+                                text = "Socials",
+                                style =  getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // This is now the button for all notifications
+            Box(
+                modifier = Modifier
+                    .weight(0.2f),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(
+                    modifier = Modifier
+                        .width(254.dp)
+                        .height(41.dp),
+                    onClick = { viewModel.toggleAllNotifications(context) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = homeState.allNotificationCurrentColor
+                    )
+                ) {
+                    Text(
+                        text = "Allow for all",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            fontFamily = Universltstd,
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFFFFFFF),
+                            textAlign = TextAlign.Center,
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NotificationSettingsPreview() {
+    NotificationSettingsContent(
+        modifier = Modifier,
+        viewModel = previewHomeViewModel(),
+        darkMode = true
+    )
+}
+
+@Composable
+fun SlidingSocialWindow(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolean) {
+    val homeState = viewModel.homeState.collectAsState()
+    val isVisible = homeState.value.isSocialWindowVisible
+
+    if (isVisible) {
+        BackHandler {
+            viewModel.hideSocialWindow()
+        }
+    }
+
+    SlidingWindow(
+        modifier = modifier,
+        viewModel = viewModel,
+        isVisible = isVisible,
+        content = {
+            SocialContent(modifier = Modifier, viewModel = viewModel, darkMode)
+        },
+        toggleOff = {viewModel.hideSocialWindow() }
+    )
+}
+
+@Composable
+fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolean) {
+    val context = LocalContext.current
+    val homeState by viewModel.homeState.collectAsState()
+
+    Surface (
+        modifier = Modifier
+            .fillMaxWidth(1f)
+            .fillMaxHeight(),
+        color = if(darkMode) ThemeColors.Night.background else ThemeColors.Day.background
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // image and close button container, could be made into own composable to be used later
+            Box(contentAlignment = Alignment.TopStart) {
+                // Header for notification window
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(83.dp)
+                        .background(color = headerOrange)
+                        .padding(15.dp),
+                ) {
+                    // Used to Exit the notification window
+                    IconButton(
+                        onClick = { viewModel.hideSocialWindow() },
+                        modifier = Modifier
+                            .align(Alignment.Bottom)
+                            .height(35.dp)
+                            .width(35.dp),
+                    ) {
+                        Icon(
+                            Icons.Default.ArrowBackIosNew,
+                            contentDescription = "Dismiss",
+                            tint = White
+                        )
+                    }
+                    Text(
+                        text = "Our Socials",
+                        style = TextStyle(
+                            color = White,
+                            fontFamily = Viga,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight(400)
+                        ),
+                        color = White,
+                        modifier = Modifier
+                            .weight(1f)
+                            .align(Alignment.Bottom)
+                            .width(107.dp)
+                            .height(31.dp)
+                    )
+                }
+            }
+
+            // Box the options for text and social media icons
+            Box(
+                modifier = Modifier
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .padding(start = 10.dp, end = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+//                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Spacer(modifier = Modifier.weight(0.3f))
+
+                    Row{
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Text(
+                                modifier = Modifier,
+                                text = "Tap an icon to visit out social media",
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    fontFamily = Viga,
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFB7B7B7),
+                                    textAlign = TextAlign.Center,
+                                ),
+                                color = if (darkMode) Color(0xFFB7B7B7) else Color(0xFF011F35),
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.weight(0.1f))
+
+                    Row{
+                        // SHPE-UF Main Instagram Page
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.shpe_main_icon),
+                                contentDescription = "Visit SHPE-UF's Main Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openInstagram(context, "shpeuf")
+                                    }
+                            )
+                            Text(
+                                text = "SHPE UF",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 20.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+
+                            Image(
+                                painter = painterResource(id = R.drawable.fylp_icon),
+                                contentDescription = "Visit SHPE-UF FYLP Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openInstagram(context, "fylp.shpeuf")
+                                    }
+                            )
+                            Text(
+                                text = "FYLP",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 20.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.mentorshpe_icon),
+                                contentDescription = "Visit SHPE-UF MentorSHPE Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openInstagram(context, "ufmentorshpe")
+                                    }
+                            )
+                            Text(
+                                text = "MentorSHPE",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 20.dp)
+                            )
+
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.weight(0.1f))
+
+                    Row {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.gradshpe_icon),
+                                contentDescription = "Visit SHPE-UF GradSHPE Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openInstagram(context, "gradshpeuf")
+                                    }
+                            )
+                            Text(
+                                text = "GradSHPE",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 20.dp)
+                            )
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.pkyoung_shpe_icon),
+                                contentDescription = "Visit SHPE-UF PKY Instagram",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openInstagram(context, "pky.shpe")
+                                    }
+                            )
+                            Text(
+                                text = "PKY SHPE",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 20.dp)
+                            )
+                        }
+
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.linktree_icon),
+                                contentDescription = "Visit SHPE-UF Linktree",
+                                modifier = Modifier
+                                    .width(92.dp)
+                                    .height(90.dp)
+                                    .clickable {
+                                        openWebsite(context, "https://linktr.ee/shpeuf?fbclid=PAZXh0bgNhZW0CMTEAAaf52SOeeRNZhBP3AviG3UFfAOyHqGRyhwQg3e2fsKAFpUf1UBI-v3WCYJiaVg_aem_2dpt3QkzNqD13zLK9RSsOg")
+                                    }
+                            )
+                            Text(
+                                text = "Linktree",
+                                style = getTextStyle(darkMode),
+                                modifier = Modifier
+                                    .padding(top = 20.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.weight(0.4f))
+                }
+            }
+
+
+        }
+    }
+}
+
+/**
+ * @description openWebsite is used to send a request to the Android OS system that the SHPE-UF app
+ * would like to open a link on the internet. It makes this request known and is able to be
+ * processed by using an Intent (a message to the system saying "I want to do something")
+ * This function will also give a toast message if there is something wrong with opening the link.
+ *
+ * @author Anthony Zurita
+ * @date Created September 2025
+ *
+ * @param context used to request to open up the browser based on the app's link information
+ * @param url the specific link in a form of a string that you would like to be opened
+ **/
+fun openWebsite(context: Context, url: String) {
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        // handle error if something is wrong with the link
+        Toast.makeText(context, "Unable to open link", Toast.LENGTH_SHORT).show()
+    }
+}
+
+/**
+ * @description openInstagram is used to send a request to the Android OS system that the SHPE-UF
+ * app would like to open a link on the Instagram app. It makes this request known and is able to be
+ * processed by using an Intent (a message to the system saying "I want to do something")
+ * This function will also give a toast message if there is something wrong with opening the link.
+ *
+ * @author Anthony Zurita
+ * @date Created September 2025
+ *
+ * @param context used to request to open up the browser based on the app's link information
+ * @param url the specific link in a form of a string that you would like to be opened
+ **/
+fun openInstagram(context: Context, username: String) {
+    try{
+        val instagramAppUri = Uri.parse("http://instagram.com/_u/$username")
+        val instagramIntent = Intent(Intent.ACTION_VIEW, instagramAppUri)
+
+        instagramIntent.setPackage("com.instagram.android")
+
+        context.startActivity(instagramIntent)
+    } catch (e: Exception) {
+        openWebsite(context, "http://instagram.com/$username")
+    }
+}
+
+@Preview (showBackground = true)
+@Composable
+fun SocialPreview() {
+    SocialContent(
+        modifier = Modifier,
+        viewModel = HomeViewModel(
+            application = Application(),
+            notificationRepo = NotificationRepository(
+                context = LocalContext.current
+            ),
+            eventRepo = EventRepository(
+                context = LocalContext.current
+            ),
+            directionsRepository = DirectionsRepository("FAKE")
+        ),
+        darkMode = true
+    )
+}
+
+/* This is the thingy that appears when it is wrapped accessible is true and the popup
+* has not been shown yet in this session */
+@Composable
+fun SlidingWrappedPrompt(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel,
+    isDarkMode: Boolean
+) {
+    val homeState by viewModel.homeState.collectAsState()
+    val visible = homeState.isWrappedPromptVisible
+
+    if (!visible) return
+
+    // Optional: intercept back press to hide the prompt
+    BackHandler(enabled = true) { viewModel.onWrappedMaybeLater() }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.35f)), // scrim
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFF7A2F)),
+            modifier = Modifier
+                .padding(20.dp)
+                .fillMaxWidth(0.9f)
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Your SHPE\nWrapped is\nhere.",
+                    style = TextStyle(
+                        fontFamily = Viga,
+                        fontWeight = FontWeight.W400,
+                        fontSize = 32.sp,
+                        color = White,
+                        lineHeight = 36.sp,
+                        textAlign = TextAlign.Center
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp)
+                )
+
+                Button(
+                    onClick = { viewModel.onWrappedLetsGo() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF0B70BA),
+                        contentColor = White
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                ) {
+                    Text("LET’S GO!", style = TextStyle(fontSize = 18.sp, fontFamily = Universltstd))
+                }
+
+                Text(
+                    text = "Maybe later",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontFamily = Universltstd,
+                        fontWeight = FontWeight.W400,
+                        color = White.copy(alpha = 0.85f),
+                        textAlign = TextAlign.Center
+                    ),
+                    modifier = Modifier
+                        .padding(top = 12.dp)
+                        .clickable { viewModel.onWrappedMaybeLater() }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * @description This allows for easier formatting of text used in the notification settings content
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ * @author Josue Vicente & Resources
+ * @date Created February 2025
+ *
+ * @param darkMode updates the color of the text based on dark mode for the notification settings
+ ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
+@Composable
+fun getTextStyle(darkMode: Boolean): TextStyle {
+    return TextStyle(
+        fontSize = 16.sp,
+        fontFamily = Universltstd,
+        fontWeight = FontWeight(400),
+        color = if (darkMode) ThemeColors.Night.text else ThemeColors.Day.text,
+        textAlign = TextAlign.Center,
+        )
+}
+
+/**
+ * @description PermissionsAndDialogs is used to request permissions for the notification settings.
+ * This function will also call to the app's settings depending on user input.
+ *
+ * @author Josue Vicente & Resources - Philipp Lackner YouTube
+ * @date Created 2024 - Modified March 2025
+ *
+ * @param viewModel used to maintain the state of the dialog queue
+ * @param context used to be able to open up the app settings based on the application information
+ **/
+@Composable
+fun PermissionsAndDialogs(viewModel: HomeViewModel, context: Context) {
+    val dialogQueue = viewModel.visiblePermissionDialogQueue
+
+    val multiplePermissionResultLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            permissions.forEach { (permission, isGranted) ->
+                if (isGranted) {
+                    Log.d("HomeViewModel", "Permission Granted: $permission")
+                    if (dialogQueue.contains(permission)) {
+                        viewModel.dismissDialog()
+                    }
+                }
+                else {
+                    viewModel.dismissDialog()
+                    viewModel.onPermissionResult(permission, false)
+                    Log.d("HomeViewModel", "Permission Denied: $permission")
+                }
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            multiplePermissionResultLauncher.launch(permissionsToRequest)
+        }
+    }
+
+    val activity = context as Activity
+    dialogQueue
+        .forEach { permission ->
+            PermissionDialog(
+                permissionTextProvider = when (permission) {
+                    Manifest.permission.POST_NOTIFICATIONS -> NotificationsPermissionProvider()
+                    Manifest.permission.USE_EXACT_ALARM -> NotificationsPermissionProvider()
+                    else -> return@forEach
+                },
+                isPermanentlyDeclined = !shouldShowRequestPermissionRationale(activity, permission),
+                onDismiss = { viewModel.dismissDialog() },
+                onOkayClick = {
+                    viewModel.dismissDialog()
+                    Log.d("HomeViewModel", "Restarting to ask again: $permission")
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        multiplePermissionResultLauncher.launch(permissionsToRequest)
+                    }
+                },
+                onGoToAppSettingsClick = {
+                    viewModel.dismissDialog()
+                    openAppSettings(context)
+                }
+            )
+        }
+}
+
+/**
+ * @description Permission Dialog is used to let users open app settings and remind them we need
+ * notification permissions
+ *
+ * @author Josue Vicente & Resources - Philipp Lackner YouTube
+ * @date Created 2024
+ *
+ * @param permissionTextProvider used to provide text based on permission type needed
+ * @param isPermanentlyDeclined tells functions if permission was permanently denied (denied twice)
+ * @param onDismiss function that is called when the dialog is dismissed
+ * @param onOkayClick function that is called when the okay button is clicked
+ * @param onGoToAppSettingsClick function called that
+ **/
+@Composable
+fun PermissionDialog (
+    permissionTextProvider: PermissionTextProvider,
+    isPermanentlyDeclined: Boolean,
+    onDismiss: () -> Unit,
+    onOkayClick: () -> Unit,
+    onGoToAppSettingsClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = "Permission Required")
+        },
+        text = {
+            Column {
+                Text(
+                    text = permissionTextProvider.getDesiredPermissionText(isPermanentlyDeclined,
+                        Manifest.permission.CAMERA),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+        },
+        confirmButton = {
+            if (!isPermanentlyDeclined) {
+                Button(onClick = onOkayClick) {
+                    Text("Okay")
+                }
+            }
+            else {
+                Button(onClick = onGoToAppSettingsClick) {
+                    Text("Go to App Settings")
+                }
+            }
+        },
+        dismissButton = {
+            if (!isPermanentlyDeclined) {
+                Button(onClick = onDismiss) {
+                    Text("Dismiss")
+                }
+            }
+        },
+        modifier = modifier
+    )
+}
+
+/**
+ * @description This is used to track the permissions we need to request at runtime
+ * when requesting notifications permission. This is used to remind users why we need this permission
+ *
+ * @author Josue Vicente & Resources - Philipp Lackner YouTube
+ * @date Created 2024
+ **/
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+private val permissionsToRequest = arrayOf(
+    Manifest.permission.USE_EXACT_ALARM,
+    Manifest.permission.POST_NOTIFICATIONS,
+    Manifest.permission.WAKE_LOCK
+)
+
+/**
+ * @description Interface that obtains desired permission text based on the permission type
+ *
+ * @author Josue Vicente & Resources - Philipp Lackner YouTube
+ * @date Created 2024
+ **/
+interface PermissionTextProvider{
+    fun getDesiredPermissionText(isPermanentlyDeclined: Boolean, permission: String): String
+}
+
+/**
+ * @description NotificationsPermissionProvider is used to provide text for the permission dialog
+ * when requesting notifications permission. Will remind users why we need the permission
+ *
+ * @author Josue Vicente & Resources - Philipp Lackner YouTube
+ * @date Created 2024
+ **/
+class NotificationsPermissionProvider : PermissionTextProvider {
+    override fun getDesiredPermissionText(isPermanentlyDeclined: Boolean, permission: String): String {
+        return if (isPermanentlyDeclined) {
+            "You have permanently denied notifications permission. Please go to app settings and enable it."
+        } else {
+            "This app requires the notifications permission to function properly."
+        }
+    }
+}
+
+/**
+ * @description EventCard is used to display quick event details on the main calendar such time, day
+ * and the name and the type of event that it is. It is also responsible highlighting current events
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024 - Modified March 2025
+ *
+ * @param modifier used to maintain the state of the dialog queue
+ * @param event is the event we obtain the information to display
+ * @param viewModel used to compare what the current event type is to determine color and icon. It
+ * helps update the home screen state when to update the current event selected
+ **/
+@Composable
+fun EventCard(modifier: Modifier, event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()) {
+    // Have to have a mutable state of for recomposition, otherwise when the event started, there would
+    // be no highlight unless changing page or updating the viewModel
+    val currentTime = remember { mutableStateOf(ZonedDateTime.now(ZoneId.of("America/New_York"))) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(1000)
+            currentTime.value = ZonedDateTime.now(ZoneId.of("America/New_York"))
+        }
+    }
+
+    val eventStartTime = event.start.dateTime?.let { ZonedDateTime.parse(it) }
+        ?: event.start.date?.let { LocalDate.parse(it).atStartOfDay(ZoneId.of("America/New_York")) }
+    val eventEndTime = event.end.dateTime?.let { ZonedDateTime.parse(it) }
+        ?: event.end.date?.let { LocalDate.parse(it).atStartOfDay(ZoneId.of("America/New_York")) }
+
+    // checking to see if within the right window, rn 15 minutes
+    val isOngoing = currentTime.value.isAfter(eventStartTime!!.minusMinutes(15)) &&
+            (eventEndTime != null && currentTime.value.isBefore(eventEndTime))
+
+    // starting animation and a new thread to run it.
+    val animatedBorderWidth = remember { Animatable(0f) }
+    LaunchedEffect(isOngoing) {
+        if (isOngoing) {
+            while (true) {
+                animatedBorderWidth.animateTo(4f, animationSpec = tween(durationMillis = 1000, easing = LinearEasing))
+                animatedBorderWidth.animateTo(0f, animationSpec = tween(durationMillis = 1000, easing = LinearEasing))
+            }
+        }
+    }
+
+    // a border width of -1 used as with 0 it would still be faintly around the event
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 10.dp, top = 5.dp, end = 5.dp, bottom = 5.dp)
+            .clickable { viewModel.selectEvent(event) }
+            .border(
+                width = if (isOngoing) animatedBorderWidth.value.dp else (-1).dp,
+                brush = SolidColor(Color(0xFFFD9837)),
+                shape = RoundedCornerShape(size = 25.dp)
+            ),
+        colors = CardDefaults.cardColors(containerColor = event.colorResId),
+        shape = RoundedCornerShape(size = 25.dp),
+    ) {
+        Column(modifier = Modifier
+            .padding(start = 25.dp, end = 20.dp, top = 10.dp, bottom = 10.dp)
+        ) {
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = event.summary,
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontFamily = Universltstd,
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFFFFFFFF),
+                    ),
+                    modifier = Modifier
+                        .padding(end = 10.dp, top = 5.dp)
+                        .weight(0.90f)
+                )
+
+                // we need to change this based on the event type
+                Icon(
+                    painter = painterResource(id = when (event.eventType) {
+                        HomeViewModel.EventType.GBM -> R.drawable.gbm_icon
+                        HomeViewModel.EventType.InfoSession -> R.drawable.infosession_icon
+                        HomeViewModel.EventType.Workshop -> R.drawable.workshop_icon
+                        HomeViewModel.EventType.Social -> R.drawable.social_icon
+                        HomeViewModel.EventType.Volunteering -> R.drawable.volunteering_icon
+                        HomeViewModel.EventType.Default -> R.drawable.social_icon
+                    }),
+                    contentDescription = "Event Type",
+                    modifier = Modifier
+                        .size(20.dp)
+                        .weight(0.1f),
+                    tint = White
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon (
+                        painter = painterResource(id = R.drawable.calendar_ui_icon),
+                        contentDescription = "Calendar",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(end = 5.dp),
+                        tint = Color.Unspecified
+                    )
+
+                    Text(
+                        text = formatDate(event.start),
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontFamily = Universltstd,
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFFFFFFF)
+                        ),
+                        modifier = Modifier
+                            .padding(top = 2.dp)
+                    )
+                }
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon (
+                        painter = painterResource(id = R.drawable.timer_ui_icon),
+                        contentDescription = "Clock",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(end = 5.dp),
+                        tint = Color.Unspecified
+                    )
+                    Text(text = formatEventTime(event),
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontFamily = Universltstd,
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFFFFFFF)
+                        ),
+                        modifier = Modifier
+                            .padding(top = 2.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EventCardPreview() {
+    SHPEUFMobileKotlinTheme {
+        EventCard(
+            modifier = Modifier,
+            sampleCardItems[0],
+            viewModel = previewHomeViewModel()
+        )
+    }
+}
+
+/**
+ * @description EventCardFeed displays DayContainer cards in a LazyColumn for the calendar page. This
+ * displays all of the events held in the viewModel in order of date. The DayContainers containing events
+ * are displayed in a PullToRefreshLazyColumn.
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024
+ *
+ * @param modifier used to maintain the state of the dialog queue
+ * @param viewModel is used to get all of the events being stored
+ * @param isDarkMode Used to determine color of the background when in dark mode
+ **/
+@Composable
+fun EventCardFeed(modifier: Modifier, viewModel: HomeViewModel, isDarkMode : Boolean) {
+    val state by viewModel.homeState.collectAsState()
+    val events = state.events
+    val listState = rememberLazyListState()
+    val today = LocalDate.now()
+    val isRefreshing = state.isRefreshing
+    val scope = rememberCoroutineScope()
+
+    // Updated to handle events spanning multiple days
+    val groupedEvents = remember(events) {
+        mutableMapOf<LocalDate, MutableList<HomeViewModel.Event>>().apply {
+            events.forEach { event ->
+                val startDate: LocalDate
+                val endDate: LocalDate
+
+                // not all have date time, some have date
+                if (event.start.dateTime == null) {
+                    startDate = LocalDate.parse(event.start.date)
+                    endDate = LocalDate.parse(event.end.date)
+                }
+                else {
+                    startDate = LocalDate.parse(event.start.dateTime.substring(0, 10))
+                    endDate = LocalDate.parse(event.end.dateTime?.substring(0, 10))
+                }
+                var currentDate = startDate
+                while (!currentDate.isAfter(endDate)) {
+                    // Only consider dates from today onwards
+                    if (!currentDate.isBefore(today)) {
+                        this.getOrPut(currentDate) { mutableListOf() }.add(event)
+                    }
+                    currentDate = currentDate.plusDays(1)
+                }
+            }
+        }.toSortedMap()
+    }
+val datesList = remember(groupedEvents){ groupedEvents.keys.toList() }
+
+    Box (
+        modifier = Modifier
+            .fillMaxSize()
+            .background(if(isDarkMode) blueDarkModeBackground else WhiteSHPE)
+            .padding(top = 83.dp)
+    ) {
+        PullToRefreshLazyColumn(
+            items = groupedEvents.keys.toList(),
+            content = { date ->
+                DayContainer(modifier = Modifier, date = date, events = groupedEvents[date]!!, viewModel = viewModel,
+                    isDarkMode = isDarkMode)
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                if (date != groupedEvents.keys.last()) {
+                    Row {
+                        Spacer(modifier = Modifier.fillMaxWidth(0.15f))
+
+                        Image(
+                            painter = painterResource(id =
+                            if(isDarkMode) R.drawable.dashed_line_spacer_white
+                            else R.drawable.dashed_line_spacer_black),
+                            contentDescription = "Dotted Line",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(Color.Transparent)
+                        )
+                    }
+                }
+            },
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                scope.launch {
+                    viewModel.pullToRefresh()
+                }
+            },
+            state = listState
+        )
+        /**
+         * @description Observes the scroll state of the event list and updates the
+         * header month based on the first visible event currently on screen.
+         *
+         * @author Luisa Almeida Quintella
+         * @date October 2025
+         *
+         * @param listState state of the event list used to detect scroll position
+         * @param datesList ordered list of LocalDate values corresponding to event days
+         * @param viewModel used to update the displayed month in the header
+         */
+        LaunchedEffect(listState, datesList) {
+            snapshotFlow { listState.layoutInfo.visibleItemsInfo }
+                .map { visible ->
+                    visible.firstOrNull { info ->
+                        info.index in 0 until datesList.size
+                    }?.index
+                }
+                .distinctUntilChanged()
+                .collect { idx: Int? ->
+                    if (idx != null) {
+                        val dateAtTop = datesList[idx]
+                        Log.d("MonthHeader", "topIdx=$idx date=$dateAtTop month=${dateAtTop.month}")
+                        viewModel.updateMonthName(dateAtTop.month.name)  // month-only, your existing API
+                    } else {
+                        Log.d("MonthHeader", "No matching top date in visible items")
+                    }
+                }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EventCardFeedPreview() {
+    SHPEUFMobileKotlinTheme {
+        EventCardFeed(
+            modifier = Modifier,
+            viewModel = previewHomeViewModel(),
+            isDarkMode = true
+        )
+    }
+}
+
+/**
+ * @description PullToRefreshLazyColumn is a reusable component to display any list of items in a
+ * lazy column with a pull to refresh feature. In the HomeScreen it is used to display events in a
+ * for the calendar for the forseable future and the refresh updates the events
+ *
+ * @author Josue Vicente & Resources - Philipp Lackner YouTube
+ * @date Created 2024
+ *
+ * @param modifier used to maintain the state of the dialog queue
+ * @param content The things that are placed inside the lazy column
+ * @param isRefreshing used for state on whether or not the screen is refreshing
+ * @param onRefresh a function passed in that will do something when the user refreshes
+ * @param state the current state of the lazy column, essentially at what spot are the current items at
+ **/
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun <T> PullToRefreshLazyColumn(
+    items: List<T>,
+    content: @Composable (T) -> Unit,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState()
+) {
+    val pullToRefreshState = rememberPullToRefreshState()
+    Box(
+        modifier = modifier
+            .nestedScroll(pullToRefreshState.nestedScrollConnection)
+    ) {
+        LazyColumn(
+            state = state,
+            contentPadding = PaddingValues(8.dp),
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(items) {
+                content(it)
+            }
+        }
+
+        if(pullToRefreshState.isRefreshing) {
+            LaunchedEffect(true) {
+                Log.d("PullToRefresh", "Refreshing")
+                onRefresh()
+            }
+        }
+
+        LaunchedEffect(isRefreshing) {
+            if(isRefreshing) {
+                pullToRefreshState.startRefresh()
+            } else {
+                pullToRefreshState.endRefresh()
+            }
+        }
+
+        PullToRefreshContainer(
+            state = pullToRefreshState,
+            modifier = Modifier
+                .align(Alignment.TopCenter),
+            containerColor = if(isSystemInDarkTheme()) ThemeColors.Night.background else ThemeColors.Day.background,
+        )
+    }
+}
+
+/**
+ * @description DayContainer uses events passed in to create a list of event cards for that date passed in
+ * it will display them in one card. These day containers utilized in the event card feed to display all the events
+ *
+ * @author Josue Vicente & Resources
+ * @date Created2024
+ *
+ * @param modifier used to maintain the state of the dialog queue
+ * @param date The date events are displayed for in that DayContainer. Used to get the date to display
+ * @param events a list of events that occur at the date passed in
+ * @param viewModel used to compare what the current event type is to determine color and icon. It
+ * helps update the home screen state when to update the current event selected
+ * @param isDarkMode changes the color of the DayContainers based on dark mode
+ **/
+@Composable
+fun DayContainer(
+    modifier: Modifier,
+    date: LocalDate,
+    events: List<HomeViewModel.Event>,
+    viewModel: HomeViewModel,
+    isDarkMode: Boolean
+) {
+    val dayOfWeek = DateTimeFormatter.ofPattern("EEE").format(date)
+
+    // Display the day of the month on the left and then all the events of that day on the right in a column
+    Row {
+        // This is used to show the date
+        Column(
+            modifier = Modifier
+                .weight(0.1f)
+                .padding(top = 15.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        )
+        {
+            Text(
+                text = dayOfWeek,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = Universltstd,
+                    fontWeight = FontWeight(400),
+                    color = if(isDarkMode) TextColor else Color.Black,
+                    textAlign = TextAlign.Center,
+                ),
+            )
+            Text(
+                text = date.dayOfMonth.toString(),
+                style = TextStyle(
+                    fontSize = 20.sp,
+                    fontFamily = Universltstd,
+                    fontWeight = FontWeight(400),
+                    color = if(isDarkMode) White else Color.Black,
+                    textAlign = TextAlign.Center,
+                ),
+            )
+        }
+
+        // This is used to show the events
+        Column (
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            events.forEach { event ->
+                EventCard(modifier = Modifier, event, viewModel = viewModel)
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DayContainerPreview() {
+    SHPEUFMobileKotlinTheme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            DayContainer(
+                modifier = Modifier,
+                date = LocalDate.now(),
+                events = sampleCardItems,
+                viewModel = previewHomeViewModel(),
+                isDarkMode = true
+            )
+        }
+    }
+}
+
+/**
+ * @description Helper function to format time for display of events
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024
+ *
+ * @param event used to get the time event occurs to return a formatted time
+ **/
+fun formatEventTime(event: HomeViewModel.Event): String {
+    // Future Update Here: check system to see if in 24 hour time
+    val inputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+    val outputFormatter = DateTimeFormatter.ofPattern("h:mm a")
+    val zoneId = ZoneId.of("America/New_York")
+
+    return try {
+        val startZonedDateTime = ZonedDateTime.parse(event.start.dateTime, inputFormatter).withZoneSameInstant(zoneId)
+        val endZonedDateTime = ZonedDateTime.parse(event.end.dateTime, inputFormatter).withZoneSameInstant(zoneId)
+        val startTime = startZonedDateTime.format(outputFormatter)
+        val endTime = endZonedDateTime.format(outputFormatter)
+        "$startTime - $endTime"
+    } catch (e: Exception) {
+        if (event.eventType == HomeViewModel.EventType.Default) {
+            "All Day"
+        } else {
+            "TBD"
+        }
+    }
+}
+
+/**
+ * @description formatDate is a helper function to format the date an event occurs for display on calendar
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024
+ *
+ * @param eventDateTime holds the date and time information for the date being formatted
+ **/
+fun formatDate(eventDateTime: HomeViewModel.EventDateTime): String {
+    val inputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+    val outputFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH)
+    val zoneId = ZoneId.systemDefault()
+
+    return try {
+        val zonedDateTime = ZonedDateTime.parse(eventDateTime.dateTime, inputFormatter).withZoneSameInstant(zoneId)
+        val dayOfMonth = zonedDateTime.dayOfMonth
+        val dayOfMonthWithOrdinal = "$dayOfMonth${getOrdinalIndicator(dayOfMonth)}"
+        zonedDateTime.format(outputFormatter).replaceFirst(Regex("\\d+"), dayOfMonthWithOrdinal)
+    } catch (e: Exception) {
+        // if all day, say all day, if no date time, it basically means all day.
+        "All Day"
+    }
+}
+
+/**
+ * @description getOrdinalIndicator is a helper function that gets whether the date should be 1st, 2nd, 3rd, 4th, etc.
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024
+ *
+ * @param dayOfMonth is an integer that represents the day of the month to get formatting for
+ **/
+fun getOrdinalIndicator(dayOfMonth: Int): String {
+    return when {
+        dayOfMonth in 11..13 -> "th"
+        dayOfMonth % 10 == 1 -> "st"
+        dayOfMonth % 10 == 2 -> "nd"
+        dayOfMonth % 10 == 3 -> "rd"
+        else -> "th"
+    }
+}
+
+@Composable
+private fun CheckLocationPermission(context: Context = LocalContext.current): Boolean {
+    when {
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED -> {
+            // Permission already granted
+            return true
+        }
+        else -> {
+            // Request permission
+            RequestLocationPermission()
+            return false
+        }
+    }
+}
+
+@Composable
+private fun RequestLocationPermission(context: Context = LocalContext.current) {
+    ActivityCompat.requestPermissions(
+        context as Activity,
+        arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ),
+        0
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EventLocationMap(
+    homeState: HomeScreenState,
+    viewModel: HomeViewModel,
+    isDarkMode: Boolean,
+    context: Context = LocalContext.current
+) {
+    when {
+        homeState.mapError != null -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(homeState.mapError)
+            }
+        }
+
+        homeState.mapDestinationLatLng != null -> {
+            val isPermissionGranted = CheckLocationPermission()
+            val validLatLng = homeState.mapDestinationLatLng
+
+            // Google Map
+            var mapLoaded by remember { mutableStateOf(false) }
+            val cameraPositionState = rememberCameraPositionState {
+                position = CameraPosition.fromLatLngZoom(validLatLng, 15f)
+            }
+
+            LaunchedEffect(homeState) {
+                if (homeState.isRouteShown && isPermissionGranted) {
+                    val bounds = calculateBounds(homeState.routes[0].polylineOptions.points)
+                    cameraPositionState.animate(
+                        update = CameraUpdateFactory.newLatLngBounds(bounds, 100),
+                        durationMs = 1000
+                    )
+                }
+            }
+
+            val sheetState = rememberBottomSheetScaffoldState(
+                bottomSheetState = SheetState(
+                    skipPartiallyExpanded = false,
+                    skipHiddenState = true,
+                    initialValue = if (homeState.isRouteShown) SheetValue.PartiallyExpanded else SheetValue.Expanded,
+                    confirmValueChange = { sheetValue -> sheetValue != SheetValue.Hidden },
+                )
+            )
+
+            BottomSheetScaffold(
+                scaffoldState = sheetState,
+                sheetContent = {
+                    RouteInfoCard(
+                        viewModel, homeState, isDarkMode, modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                },
+                sheetPeekHeight = 160.dp,
+                sheetContainerColor = if (isDarkMode) navy_bg else White,
+                sheetSwipeEnabled = true,
+                topBar = { RouteTopBar(viewModel, isDarkMode = isDarkMode) },
+                sheetDragHandle = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .width(48.dp)
+                                .height(4.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(if (isDarkMode) White else Color.Black)
+                        )
+                    }
+                }
+            ) { innerPadding ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = innerPadding.calculateTopPadding())
+                ) {
+
+                    GoogleMap(
+                        modifier = Modifier.fillMaxWidth().height(575.dp),
+                        cameraPositionState = cameraPositionState,
+                        uiSettings = MapUiSettings(myLocationButtonEnabled = false,
+                            zoomControlsEnabled = false,
+                            mapToolbarEnabled = false,
+                            compassEnabled = false),
+                        onMapLoaded = { mapLoaded = true },
+                        properties = MapProperties(
+                            isMyLocationEnabled = isPermissionGranted,
+                            isBuildingEnabled = true,
+                            mapStyleOptions = if (isDarkMode) MapStyleOptions.loadRawResourceStyle(
+                                context,
+                                R.raw.map_dark_style
+                            ) else null
+                        )
+                    ) {
+                        if (homeState.isRouteShown && isPermissionGranted) {
+                            val routes = homeState.routes
+                            routes.forEachIndexed { index, route ->
+                                Polyline(
+                                    points = route.polylineOptions.points,
+                                    color = if (index == 0) {
+                                        Color(0xFF2196F3) // Blue for primary route
+                                    } else {
+                                        Color(0xFF9E9E9E) // Gray for alternatives
+                                    },
+                                    width = if (index == 0) 12f else 8f
+                                )
+                            }
+                        }
+                        Marker(
+                            state = MarkerState(position = validLatLng),
+                            title = homeState.selectedEvent?.summary ?: "Event Location",
+                        )
+                    }
+                    if (!mapLoaded) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.align(Alignment.Center).offset(y = (-150).dp)
+                            )
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun calculateBounds(points: List<LatLng>): LatLngBounds {
+    val builder = LatLngBounds.Builder()
+    points.forEach { point ->
+        builder.include(point)
+    }
+    return builder.build()
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RouteTopBar(viewModel: HomeViewModel, isDarkMode: Boolean) {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = "Route Preview",
+                color = if (isDarkMode) White else Color.Black,
+                fontSize = 22.sp,
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = { viewModel.toggleEventMapVisibility() },
+            ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBackIosNew,
+                        contentDescription = "Back",
+                        tint = if (isDarkMode) White else Color.Black
+                    )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = if (isDarkMode) navy_bg else White,
+        ),
+        windowInsets = WindowInsets(0,0,0,0),
+    )
+}
+
+@Composable
+fun RouteInfoCard(viewModel: HomeViewModel, homeState: HomeScreenState, isDarkMode: Boolean, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDarkMode) navy_bg else White,
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = homeState.selectedEvent?.summary ?: "Event Name",
+                fontSize = 20.sp,
+                color = if (isDarkMode) White else Color.Black,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = homeState.selectedEvent?.location ?: "N/A",
+                color = Color(0xFF777777),
+                fontSize = 12.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            val duration = homeState.routes.firstOrNull()?.durationValue
+            val durationText = duration?.let { parseDuration(it, homeState.mapSelectedTravelMode) } ?: "Loading..."
+
+            Row(horizontalArrangement = Arrangement.spacedBy(1.dp),verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.DirectionsCar,
+                    contentDescription = null,
+                    tint = if (homeState.mapSelectedTravelMode == TravelMode.DRIVING) Color(0xFF3399FF) else Color.LightGray,
+                    modifier = Modifier.clickable { viewModel.onMapTravelModeSelected(TravelMode.DRIVING) }
+                )
+
+                Icon(
+                    imageVector = Icons.Default.DirectionsWalk,
+                    contentDescription = null,
+                    tint = if (homeState.mapSelectedTravelMode == TravelMode.WALKING) Color(0xFF3399FF) else Color.LightGray,
+                    modifier = Modifier.clickable { viewModel.onMapTravelModeSelected(TravelMode.WALKING) }
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = durationText,
+                    modifier = Modifier.weight(1f),
+                    color = Color(0xFF777777),
+                    fontSize = 12.sp
+                )
+            }
+            Spacer(modifier = Modifier.height(44.dp))
+            Box() {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DesktopAccessDisabled,
+                        contentDescription = null,
+                        modifier = Modifier.size(50.dp),
+                        tint = Color.LightGray
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "No preview available",
+                        fontSize = 24.sp,
+                        color = Color.LightGray
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Row(horizontalArrangement = Arrangement.Center) {
+                        Button(
+                            onClick = { viewModel.toggleRouteVisibility() },
+                            enabled = homeState.mapUserLocationLatLng != null,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isDarkMode) Color(0xFF163550) else Color(
+                                    0xFFF9F9FA
+                                ),
+                                contentColor = Color(0xFF3399FF),
+                            ),
+                            shape = RoundedCornerShape(25),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Navigation,
+                                contentDescription = "Show Route",
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Show Route",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Light
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(
+                            onClick = { openInMaps(context = context, address = homeState.selectedEvent?.location ?: "", validLatLng = homeState.mapDestinationLatLng!!) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isDarkMode) Color(0xFF163550) else Color(
+                                    0xFFF9F9FA
+                                ),
+                                contentColor = Color(0xFF3399FF),
+                            ),
+                            shape = RoundedCornerShape(25),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Directions,
+                                contentDescription = "Open in maps",
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Open in maps",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Light
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun openInMaps(context: Context, address: String, validLatLng: LatLng) {
+    val mapUri = Uri.parse(
+        "geo:${validLatLng.latitude},${validLatLng.longitude}?q=${Uri.encode(address)}"
+    )
+    val intent = Intent(Intent.ACTION_VIEW, mapUri).apply {
+        setPackage("com.google.android.apps.maps")
+    }
+    if (intent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(intent)
+    } else {
+        // fallback to browser
+        val webUri = Uri.parse("https://maps.google.com/maps?q=${Uri.encode(address)}")
+        context.startActivity(Intent(Intent.ACTION_VIEW, webUri))
+    }
+}
+fun parseDuration(duration: Int, mode: TravelMode): String {
+    var hour = 0
+    var minute = 0
+    if (duration > 0) {
+        hour = duration / 3600
+        minute = duration / 60 - hour * 60
+    }
+
+    var durationString = "";
+    if (mode == TravelMode.WALKING) {
+        durationString += "Walking time: "
+    } else {
+        durationString += "Driving time: "
+    }
+    if (hour > 0) {
+        durationString += "${hour}h ${minute}m"
+    } else {
+        durationString += "${minute}m"
+    }
+    return durationString
+}
+
+fun previewHomeViewModel(): HomeViewModel {
+    return HomeViewModel(
+        application = Application(), // This is safe for previews
+        notificationRepo = NotificationRepository(null), // Pass null, or use a mock/fake
+        eventRepo = EventRepository(null),
+        directionsRepository = DirectionsRepository("fake"),
+    )
+}
+
+/**
+ * @description HomeScreen displays the event calendar and allows users to change notifications settings
+ * as well as being able to open up event details to explore more about the event.
+ *
+ * @author Josue Vicente & Resources
+ * @date Created 2024
+ *
+ * @param viewModel a HomeViewModel used to pass events and state of feeds and windows to see if they are displayed
+ * @param shpeufAppViewModel used to obtain the state of dark mode from the app settings
+ **/
+@Composable
+fun HomeScreen(viewModel: HomeViewModel, shpeufAppViewModel: SHPEUFAppViewModel, navController: NavHostController) {
+    val userState by shpeufAppViewModel.uiState.collectAsState()
+    val homeState by viewModel.homeState.collectAsState()
+    val isDarkMode = userState.isDarkMode
+    val isGuest = userState.isGuest
+
+    LaunchedEffect(Unit) { viewModel.maybeCheckWrappedPrompt() }
+
+    LaunchedEffect(Unit) {
+        viewModel.navEvents.collect { event ->
+            when (event) {
+                HomeViewModel.NavEvent.ToWrapped -> navController.navigate(NavRoute.WRAPPED)
+            }
+        }
+    }
+
+    Surface (
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(),
+        color = if(isDarkMode) Color.Black else White
+    ) {
+        Box { // the new box is so that the background can be blurred when showing the wrapped popup
+            Box(modifier = Modifier.then(
+                if (homeState.isWrappedPromptVisible) Modifier.blur(10.dp) else Modifier)
+            ){
+                EventCardFeed(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
+                TopHeader(modifier = Modifier, viewModel = viewModel, navController = navController, isGuest = isGuest)
+            }
+
+            SlidingEventWindow(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
+            SlidingNotificationWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
+            SlidingSocialWindow(modifier = Modifier, viewModel = viewModel, darkMode = isDarkMode)
+            SlidingWrappedPrompt(modifier = Modifier, viewModel = viewModel, isDarkMode = isDarkMode)
+        }
+    }
+}

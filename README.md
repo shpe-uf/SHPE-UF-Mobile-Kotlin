@@ -1,5 +1,5 @@
 # SHPE-UF-Mobile-Kotlin 
-### Design team 2023-2024 - SHPE UF Android Mobile App
+### Design team 2023-2026 - SHPE UF Android Mobile App
 
 [![SHPE](https://i.ibb.co/1QWQZcJ/shpe-logo.png)](https://shpe.org/)
 

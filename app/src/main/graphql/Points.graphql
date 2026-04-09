@@ -33,3 +33,8 @@ query GetUserNameQuery($userId: ID!){
         username
     }
 }
+
+
+query GetWrappedAvailable {
+    lastMontOfYear
+}
