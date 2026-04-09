@@ -218,7 +218,7 @@ class MyCustomScannerActivity : AppCompatActivity() {
     }
 
     /**
-     * @author Author Name
+     * @author Daniel Dovale
      * @date March 15, 2025
      *
      * Displays a custom-styled toast message with possible HTML bolding, placed near the top of the screen.

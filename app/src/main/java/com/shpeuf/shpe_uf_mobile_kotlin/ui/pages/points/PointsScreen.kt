@@ -448,7 +448,7 @@ fun PointsPercentile(pointsPageViewModel: PointsPageViewModel, id: String, usern
 }
 
 /**
- * @author Daniel Dovale and Jake West
+ * @author Daniel Dovale & Jake West
  * @date March 16, 2025
  *
  * Displays a slide-up screen when "Redeem Code" is pressed, allowing the user to input an event code or scan a QR code.
