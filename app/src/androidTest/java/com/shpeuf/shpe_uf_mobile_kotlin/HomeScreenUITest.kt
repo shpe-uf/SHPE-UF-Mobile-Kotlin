@@ -67,4 +67,12 @@ class HomeScreenUITest {
 
         composeRule.onNodeWithText(expectedMonth).assertIsDisplayed()
     }
+
+    @Test
+    fun homeScreen_topHeader_displaysNotificationIconForLoggedInUser() {
+        setUpHomeScreen(isGuest = false)
+
+        // The bell icon is only rendered when isGuest == false
+        composeRule.onNodeWithContentDescription("Notifications").assertIsDisplayed()
+    }
 }
