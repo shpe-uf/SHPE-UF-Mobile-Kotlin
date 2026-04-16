@@ -121,4 +121,13 @@ class HomeScreenUITest {
         composeRule.onNodeWithText("Volunteering").assertIsDisplayed()
         composeRule.onNodeWithText("Socials").assertIsDisplayed()
     }
+
+    @Test
+    fun homeScreen_notificationWindow_displaysAllowForAllButton() {
+        setUpHomeScreen(isGuest = false)
+
+        composeRule.onNodeWithContentDescription("Notifications").performClick()
+
+        composeRule.onNodeWithText("Allow for all").assertIsDisplayed()
+    }
 }
