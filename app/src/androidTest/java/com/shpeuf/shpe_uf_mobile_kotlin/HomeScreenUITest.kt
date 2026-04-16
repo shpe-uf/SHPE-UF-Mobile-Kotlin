@@ -107,4 +107,18 @@ class HomeScreenUITest {
         // The window header should now be visible
         composeRule.onNodeWithText("Notifications Settings").assertIsDisplayed()
     }
+
+    @Test
+    fun homeScreen_notificationWindow_displaysAllEventTypeLabels() {
+        setUpHomeScreen(isGuest = false)
+
+        composeRule.onNodeWithContentDescription("Notifications").performClick()
+
+        // Each event-type label rendered inside NotificationSettingsContent
+        composeRule.onNodeWithText("GBMs").assertIsDisplayed()
+        composeRule.onNodeWithText("Info\nSessions").assertIsDisplayed()
+        composeRule.onNodeWithText("Workshops").assertIsDisplayed()
+        composeRule.onNodeWithText("Volunteering").assertIsDisplayed()
+        composeRule.onNodeWithText("Socials").assertIsDisplayed()
+    }
 }
