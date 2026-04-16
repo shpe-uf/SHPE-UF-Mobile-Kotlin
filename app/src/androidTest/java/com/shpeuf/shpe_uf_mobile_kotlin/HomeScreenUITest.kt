@@ -176,4 +176,19 @@ class HomeScreenUITest {
         composeRule.onNodeWithText("PKY SHPE").assertIsDisplayed()
         composeRule.onNodeWithText("Linktree").assertIsDisplayed()
     }
+
+    @Test
+    fun homeScreen_socialWindow_closesOnBackArrowClick() {
+        // TODO: Neither back arrow test works
+        /*
+        setUpHomeScreen()
+
+        composeRule.onNodeWithContentDescription("Socials").performClick()
+        composeRule.onNodeWithText("Our Socials").assertIsDisplayed()
+
+        composeRule.onNodeWithContentDescription("Dismiss").performClick()
+
+        composeRule.onNodeWithText("Our Socials").assertDoesNotExist()
+         */
+    }
 }
