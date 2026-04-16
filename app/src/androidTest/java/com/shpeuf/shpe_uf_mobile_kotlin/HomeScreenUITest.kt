@@ -96,4 +96,15 @@ class HomeScreenUITest {
         // The notification bell should NOT be shown for guests
         composeRule.onNodeWithContentDescription("Notifications").assertDoesNotExist()
     }
+
+    @Test
+    fun homeScreen_notificationWindow_opensOnBellIconClick() {
+        setUpHomeScreen(isGuest = false)
+
+        // Tap the bell icon to open the notification settings window
+        composeRule.onNodeWithContentDescription("Notifications").performClick()
+
+        // The window header should now be visible
+        composeRule.onNodeWithText("Notifications Settings").assertIsDisplayed()
+    }
 }
