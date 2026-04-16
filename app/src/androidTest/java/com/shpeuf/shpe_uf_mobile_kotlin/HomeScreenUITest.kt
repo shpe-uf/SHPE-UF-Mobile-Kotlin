@@ -162,4 +162,18 @@ class HomeScreenUITest {
 
         composeRule.onNodeWithText("Our Socials").assertIsDisplayed()
     }
+
+    @Test
+    fun homeScreen_socialWindow_displaysAllSocialAccountLabels() {
+        setUpHomeScreen()
+
+        composeRule.onNodeWithContentDescription("Socials").performClick()
+
+        composeRule.onNodeWithText("SHPE UF").assertIsDisplayed()
+        composeRule.onNodeWithText("FYLP").assertIsDisplayed()
+        composeRule.onNodeWithText("MentorSHPE").assertIsDisplayed()
+        composeRule.onNodeWithText("GradSHPE").assertIsDisplayed()
+        composeRule.onNodeWithText("PKY SHPE").assertIsDisplayed()
+        composeRule.onNodeWithText("Linktree").assertIsDisplayed()
+    }
 }

@@ -13,12 +13,6 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="homeScreen_notificationWindow_opensOnBellIconClick()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="homeScreen_notificationWindow_displaysAllEventTypeLabels()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="homeScreen_notificationWindow_displaysAllowForAllButton()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
@@ -26,6 +20,12 @@
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="homeScreen_debugSemantics_notificationWindowOpen()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="homeScreen_socialWindow_opensOnSocialsIconClick()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="homeScreen_socialWindow_displaysAllSocialAccountLabels()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
