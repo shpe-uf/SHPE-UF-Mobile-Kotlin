@@ -75,4 +75,12 @@ class HomeScreenUITest {
         // The bell icon is only rendered when isGuest == false
         composeRule.onNodeWithContentDescription("Notifications").assertIsDisplayed()
     }
+
+    @Test
+    fun homeScreen_topHeader_displaysSocialsIcon() {
+        setUpHomeScreen()
+
+        // The socials icon is always visible (both guest and logged-in)
+        composeRule.onNodeWithContentDescription("Socials").assertIsDisplayed()
+    }
 }
