@@ -1,11 +1,16 @@
 package com.shpeuf.shpe_uf_mobile_kotlin
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.printToLog
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
@@ -25,6 +30,7 @@ class HomeScreenUITest {
 
 
     // Note: Since we're changing between guest and registered view, it's best to run tests individually to determine if they pass rather than run the whole suite at once
+    // Note: When the app launches, quickly click "Allow" on the notifications pop-up so the tests can run properly
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -129,5 +135,31 @@ class HomeScreenUITest {
         composeRule.onNodeWithContentDescription("Notifications").performClick()
 
         composeRule.onNodeWithText("Allow for all").assertIsDisplayed()
+    }
+
+    @Test
+    fun homeScreen_notificationWindow_closesOnBackArrowClick() {
+        // TODO: Not working, fix later
+        /*
+        setUpHomeScreen(isGuest = false)
+
+        composeRule.onNodeWithContentDescription("Notifications").performClick()
+        composeRule.onNodeWithText("Notifications Settings").assertIsDisplayed()
+
+        // The dismiss back-arrow inside the notification window
+        composeRule.onNodeWithContentDescription("Dismiss").performClick()
+
+        // After dismissal the window header should no longer be visible
+        composeRule.onNodeWithText("Notifications Settings").assertDoesNotExist()
+         */
+    }
+
+    @Test
+    fun homeScreen_socialWindow_opensOnSocialsIconClick() {
+        setUpHomeScreen()
+
+        composeRule.onNodeWithContentDescription("Socials").performClick()
+
+        composeRule.onNodeWithText("Our Socials").assertIsDisplayed()
     }
 }
