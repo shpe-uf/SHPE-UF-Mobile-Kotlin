@@ -54,4 +54,17 @@ class HomeScreenUITest {
             )
         }
     }
+
+    @Test
+    fun homeScreen_topHeader_displaysCurrentMonth() {
+        setUpHomeScreen()
+
+        // The header shows the current month name (e.g. "April")
+        // HomeScreenState.monthDisplayedName defaults to LocalDate.now().month.name title-cased
+        val expectedMonth = java.time.LocalDate.now().month.name
+            .lowercase()
+            .replaceFirstChar { it.titlecase() }
+
+        composeRule.onNodeWithText(expectedMonth).assertIsDisplayed()
+    }
 }
