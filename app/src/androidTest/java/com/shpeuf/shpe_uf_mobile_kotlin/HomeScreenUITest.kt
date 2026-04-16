@@ -23,6 +23,8 @@ class HomeScreenUITest {
     //  These tests cover only static UI structure and local state-driven interactions.
     //  If a test environment with server access is set up in the future, add tests that verify event cards appear after a successful fetch.
 
+
+    // Note: Since we're changing between guest and registered view, it's best to run tests individually to determine if they pass rather than run the whole suite at once
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -82,5 +84,16 @@ class HomeScreenUITest {
 
         // The socials icon is always visible (both guest and logged-in)
         composeRule.onNodeWithContentDescription("Socials").assertIsDisplayed()
+    }
+
+    @Test
+    fun homeScreen_topHeader_displaysLoginButtonForGuest() {
+        setUpHomeScreen(isGuest = true)
+
+        // Guests see a "Login" text button instead of the bell icon
+        composeRule.onNodeWithText("Login").assertIsDisplayed()
+
+        // The notification bell should NOT be shown for guests
+        composeRule.onNodeWithContentDescription("Notifications").assertDoesNotExist()
     }
 }

@@ -13,9 +13,6 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="staticProfileContent_rendersSafely_withoutNetworkCalls()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="staticProfileScreen_rendersCoreCategoriesAndButtons()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
@@ -31,6 +28,12 @@
         <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="HomeScreenUITest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="homeScreen_topHeader_displaysLoginButtonForGuest()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="homeScreen_topHeader_displaysNotificationIconForLoggedInUser()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
