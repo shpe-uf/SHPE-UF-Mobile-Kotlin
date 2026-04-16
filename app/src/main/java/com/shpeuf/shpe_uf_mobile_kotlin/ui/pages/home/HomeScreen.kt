@@ -1284,7 +1284,7 @@ fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolea
                         ) {
                             Text(
                                 modifier = Modifier,
-                                text = "Tap an icon to visit out social media",
+                                text = "Tap an icon to visit our social media",
                                 style = TextStyle(
                                     fontSize = 20.sp,
                                     fontFamily = Viga,
