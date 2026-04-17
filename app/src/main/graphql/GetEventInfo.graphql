@@ -1,0 +1,12 @@
+query EventInfo {
+  getEvents {
+    name
+    code
+    users {
+      lastName
+      firstName
+      username
+      email
+    }
+  }
+}
