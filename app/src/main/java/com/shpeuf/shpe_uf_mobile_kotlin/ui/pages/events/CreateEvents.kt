@@ -26,6 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
+import android.content.Context
+import android.view.LayoutInflater
 import android.text.Html
 import com.shpeuf.shpe_uf_mobile_kotlin.R
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
@@ -287,19 +289,42 @@ fun CreateEventsScreen(
 }
 
 // Custom toast function matching QR scanner pattern
-private fun showCustomToast(context: android.content.Context, message: String, isError: Boolean = false) {
-    val layoutInflater = android.view.LayoutInflater.from(context)
-    val view = layoutInflater.inflate(R.layout.custom_toast, null)
+//private fun showCustomToast(context: android.content.Context, message: String, isError: Boolean = false) {
+//    val layoutInflater = android.view.LayoutInflater.from(context)
+//    val view = layoutInflater.inflate(R.layout.custom_toast, null)
+//
+//    val textView = view.findViewById<TextView>(R.id.toast_message)
+//    val boldedText = Html.fromHtml(message, Html.FROM_HTML_MODE_LEGACY)
+//    textView.text = boldedText
+//
+//    val toast = Toast(context)
+//    // Error messages stay longer (LONG ~3.5 seconds), success messages shorter (SHORT ~2 seconds)
+//    toast.duration = if (isError) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
+//    toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 100)
+//    toast.view = view
+//    toast.show()
+//}
+private fun showCustomToast(
+    context: Context,
+    message: String,
+    isError: Boolean = false
+) {
+    val view = LayoutInflater.from(context)
+        .inflate(R.layout.custom_toast, null)
 
     val textView = view.findViewById<TextView>(R.id.toast_message)
-    val boldedText = Html.fromHtml(message, Html.FROM_HTML_MODE_LEGACY)
-    textView.text = boldedText
 
-    val toast = Toast(context)
-    // Error messages stay longer (LONG ~3.5 seconds), success messages shorter (SHORT ~2 seconds)
+    // ❗ REMOVE HTML parsing (important fix)
+    textView.text = message
+
+    textView.setTextColor(android.graphics.Color.WHITE)
+
+    val toast = Toast(context.applicationContext)
     toast.duration = if (isError) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
     toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 100)
+
     toast.view = view
+
     toast.show()
 }
 
