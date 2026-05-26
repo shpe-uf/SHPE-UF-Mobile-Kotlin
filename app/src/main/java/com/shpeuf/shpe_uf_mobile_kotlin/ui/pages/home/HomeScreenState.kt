@@ -1,6 +1,8 @@
 package com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.home
 
 import androidx.compose.ui.graphics.Color
+import com.shpeuf.shpe_uf_mobile_kotlin.data.models.MapsDirections.RouteDetails
+import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -25,15 +27,29 @@ data class HomeScreenState(
     val allNotificationCurrentColor: Color = Color(0xFF933815),
     // -------------------
 
+    val selectedEventLocation: LatLng? = null,
+    val isMapLoading: Boolean = false,
+    val mapError: String? = null,
+    val isRouteShown: Boolean = false,
+
+    val appScreenMode: AppScreenMode = AppScreenMode.HOME_FEED,
+    val mapDestinationLatLng: LatLng? = null,
+    val mapUserLocationLatLng: LatLng? = null,
+    val mapSelectedTravelMode: TravelMode = TravelMode.DRIVING,
+    val routes: List<RouteDetails> = emptyList(),
+    val duration: String? = null,
+    val isMapDataLoading: Boolean = false,
+    val mapErrorMessage: String? = null
+
 )
 
 data class NotificationSelection (
-    var gbmNotification: Boolean = false,
-    var socialNotification: Boolean = false,
-    var workshopNotification: Boolean = false,
-    var infoSessionNotification: Boolean = false,
-    var volunteeringNotification: Boolean = false,
-    var allNotificationSelection: Boolean = false
+    var gbmNotification: Boolean = true,
+    var socialNotification: Boolean = true,
+    var workshopNotification: Boolean = true,
+    var infoSessionNotification: Boolean = true,
+    var volunteeringNotification: Boolean = true,
+    var allNotificationSelection: Boolean = true
 )
 
 

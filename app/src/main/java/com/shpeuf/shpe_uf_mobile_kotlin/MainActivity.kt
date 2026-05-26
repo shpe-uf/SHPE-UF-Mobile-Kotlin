@@ -63,8 +63,10 @@ class MainActivity() : ComponentActivity() {
 //                Log.d("User Id", UserState.id)
 
                 val viewModelFactory = HomeViewModelFactory(
+                    application, // <-- THIS is of type Application, REQUIRED as the first parameter
                     NotificationRepository(applicationContext),
-                    EventRepository(applicationContext)
+                    EventRepository(applicationContext),
+                    BuildConfig.GOOGLEMAPS_API_KEY // Pass API key
                 )
                 val navController = rememberNavController()
 
@@ -108,7 +110,8 @@ class MainActivity() : ComponentActivity() {
                                     NavRoute.REGISTER_2,
                                     NavRoute.REGISTER_3,
                                     NavRoute.ADMIN,
-                                    NavRoute.CREATE_EVENTS
+                                    NavRoute.CREATE_EVENTS,
+                                    NavRoute.ADMIN_LEADERBOARD
                                 ) ||
                                 ((!UserState.isLoggedIn && UserState.isLoggedOut) && !UserState.isGuest)
                             ) {
