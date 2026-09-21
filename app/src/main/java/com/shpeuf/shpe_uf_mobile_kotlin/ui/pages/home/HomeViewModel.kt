@@ -586,6 +586,16 @@ class HomeViewModel(
         loadDataForMapDirections(event)
     }
 
+    /**
+     * @description loadDataForMapDirections retrieves the destination coordinates from the given
+     * event's location, fetches the user's current location, and requests directions between the
+     * two points.
+     *
+     * @author Ben Shung
+     * @date Created 2026
+     *
+     * @param event the Event whose location is used as the map destination
+     **/
     private fun loadDataForMapDirections(event: Event) {
         viewModelScope.launch {
             val appContext = getApplication<Application>().applicationContext;
@@ -608,6 +618,17 @@ class HomeViewModel(
         }
     }
 
+    /**
+     * @description getCurrentUserLocation retrieves the user's last known location using the
+     * fused location client. Verifies that location permissions are granted before attempting
+     * to fetch the location.
+     *
+     * @author Ben Shung
+     * @date Created 2026
+     *
+     * @return LatLng the user's last known location as a LatLng, or null if permission is
+     * denied or the location could not be retrieved
+     **/
     @SuppressLint("MissingPermission")
     private suspend fun getCurrentUserLocation(): LatLng? {
         // Permission check required before calling this function.
@@ -626,6 +647,20 @@ class HomeViewModel(
             null
         }
     }
+
+    /**
+     * @description getLatLngFromAddress converts an address string into LatLng
+     * coordinates using the Android Geocoder.
+     *
+     * @author Ben Shung
+     * @date Created 2026
+     *
+     * @param context the Context used to initialize the Geocoder
+     * @param addressString the address string to be converted into coordinates
+     *
+     * @return LatLng the coordinates corresponding to the given address, or null if the
+     * address could not be resolved
+     **/
     private suspend fun getLatLngFromAddress(context: Context, addressString: String): LatLng? {
         return withContext(Dispatchers.IO) {
             try {
@@ -643,6 +678,18 @@ class HomeViewModel(
     }
 
 
+    /**
+     * @description fetchDirections requests route data from the directions repository using the
+     * provided origin, destination, and travel mode. Updates the UI state with the retrieved
+     * routes on success.
+     *
+     * @author Ben Shung
+     * @date Created 2026
+     *
+     * @param origin the LatLng coordinates representing the starting point of the route
+     * @param destination the LatLng coordinates representing the endpoint of the route
+     * @param mode the TravelMode used to determine the type of directions to fetch
+     **/
     fun fetchDirections(origin: LatLng, destination: LatLng, mode: TravelMode) {
         viewModelScope.launch {
 
