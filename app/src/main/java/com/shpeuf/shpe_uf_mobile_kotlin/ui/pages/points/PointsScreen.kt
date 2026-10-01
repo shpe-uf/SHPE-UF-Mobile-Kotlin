@@ -83,7 +83,10 @@ import java.time.Month
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.customscanner.MyCustomScannerActivity
-
+import android.text.Html
+import android.view.Gravity
+import android.widget.TextView
+import android.widget.Toast
 /*
 ******************************************************
 FUNCTION: PointsView()
@@ -477,25 +480,8 @@ fun RedeemPoints(
 
     val context = LocalContext.current
 
-    // --- 1. ADD THE DIALOG COMPOSABLE HERE ---
-    if (uiState.showDialog) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = { pointsPageViewModel.dismissDialog() },
-            confirmButton = {
-                androidx.compose.material3.TextButton(onClick = {
-                    pointsPageViewModel.dismissDialog()
-                    // If it was a success, close the sheet after they click OK
-                    if (uiState.dialogMessage.contains("Success", ignoreCase = true)) {
-                        onCloseBottomSheet()
-                    }
-                }) {
-                    Text("OK", color = Color(0xFF011F35))
-                }
-            },
-            title = { Text(if (uiState.dialogMessage.contains("Success", ignoreCase = true)) "Success!" else "Error") },
-            text = { Text(uiState.dialogMessage) }
-        )
-    }
+
+
     // Used to show messages to the user
 
     // 1. Launcher to handle the result from your local qr code scanner
@@ -512,9 +498,10 @@ fun RedeemPoints(
                 coroutineScope.launch {
                     val error = pointsPageViewModel.redeemEvent(username)
                     if (error == null) {
-                        pointsPageViewModel.showResponseDialog("Successfully redeemed SHPoints!")
+                        showCustomToast(context, "Successfully redeemed SHPoints!")
+                        onCloseBottomSheet()
                     } else {
-                        pointsPageViewModel.showResponseDialog(error)
+                        showCustomToast(context, error, isError = true)
                     }
                 }
             }
@@ -531,8 +518,7 @@ fun RedeemPoints(
             intent.putExtra("SCAN_MODE", "QR_CODE_MODE")
             qrScannerLauncher.launch(intent)
         } else {
-            errorMessage = "Camera permissions denied.";
-        }
+            showCustomToast(context, "Camera permissions denied.", isError = true)        }
     }
 
     Column(
@@ -747,14 +733,14 @@ fun RedeemPoints(
             Button(
                 onClick = {
                     coroutineScope.launch {
-                        // 1. Call the function and get the result
                         val error = pointsPageViewModel.redeemEvent(username)
 
-                        // 2. Trigger the Pop-up Dialog based on the result
+                        // Show the custom SHPE toast based on the result
                         if (error == null) {
-                            pointsPageViewModel.showResponseDialog("Successfully redeemed SHPoints!")
+                            showCustomToast(context, "Successfully redeemed SHPoints!")
+                            onCloseBottomSheet()
                         } else {
-                            pointsPageViewModel.showResponseDialog(error)
+                            showCustomToast(context, error, isError = true)
                         }
                     }
                 },
@@ -1703,3 +1689,19 @@ fun getSemester(): String {
     }
 }
 
+// Custom toast function matching QR scanner pattern (same as CreateEvents.kt)
+private fun showCustomToast(context: android.content.Context, message: String, isError: Boolean = false) {
+    val layoutInflater = android.view.LayoutInflater.from(context)
+    val view = layoutInflater.inflate(R.layout.custom_toast, null)
+
+    val textView = view.findViewById<TextView>(R.id.toast_message)
+    val boldedText = Html.fromHtml(message, Html.FROM_HTML_MODE_LEGACY)
+    textView.text = boldedText
+
+    val toast = Toast(context)
+    // Error messages stay longer (LONG ~3.5 seconds), success messages shorter (SHORT ~2 seconds)
+    toast.duration = if (isError) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
+    toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 100)
+    toast.view = view
+    toast.show()
+}
