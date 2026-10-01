@@ -56,7 +56,7 @@ fun CreateEventsScreen(
     LaunchedEffect(createEventState) {
         when (val state = createEventState) {
             is CreateEventState.Success -> {
-                showCustomToast(context, "Event <b>${title.trim()}</b> created successfully!", isError = false)
+                showCustomToast(context, "Event ${title.trim()} created successfully!", isError = false)
                 viewModel.resetState()
                 onSuccess()
             }
@@ -340,8 +340,7 @@ data class EventDraft(
 private fun FieldBlock(
     bg: Color,
     label: String,
-    icon: Int,
-    textColor: Color,
+    icon: Int,    textColor: Color,
     iconSize: Dp = 26.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
