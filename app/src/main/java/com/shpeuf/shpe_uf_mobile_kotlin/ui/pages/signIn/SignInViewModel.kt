@@ -52,11 +52,19 @@ class SignInViewModel : ViewModel() {
             // Calls a function to perform login.
             performLogin(username.toString(), password.toString(), shpeUFAppViewModel)
         } else {
-            _toastMessage.value = "Username and password is required."
-            Log.w(
-                "Validation",
-                "${currentState.usernameErrorMessage} | ${currentState.passwordErrorMessage}"
-            )
+            when {
+                !isValidUsername && !isValidPassword -> {
+                    updateErrorMessage("Username and password are required.")
+                }
+
+                !isValidUsername -> {
+                    updateErrorMessage("Username is required.")
+                }
+
+                !isValidPassword -> {
+                    updateErrorMessage("Password is required.")
+                }
+            }
         }
     }
 
