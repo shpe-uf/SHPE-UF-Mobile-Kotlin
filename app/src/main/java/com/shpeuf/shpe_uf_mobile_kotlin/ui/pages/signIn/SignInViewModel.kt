@@ -72,7 +72,7 @@ class SignInViewModel : ViewModel() {
 
         // Login user if validations passed.
         if (isValidUsername && isValidPassword) {
-            Log.d("Validating", "$username | $password")
+
 
             // Calls a function to perform login.
             performLogin(username.toString(), password.toString(), shpeUFAppViewModel)
@@ -126,6 +126,7 @@ class SignInViewModel : ViewModel() {
         }
     }
 
+
     /**
      * @author Gabriel Munoz
      * @date April 6, 2025
@@ -141,6 +142,7 @@ class SignInViewModel : ViewModel() {
      *
      */
     // It's defined as a suspend function b/c it uses a network request which could take some time, and we don't want to pause the UI while the mutation is run.
+
     private suspend fun loginUser(
         username: String,
         password: String

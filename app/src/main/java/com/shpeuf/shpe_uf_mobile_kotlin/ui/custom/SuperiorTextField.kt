@@ -69,13 +69,11 @@ fun SuperiorTextField(
     isError: Boolean = false,
     errorMessage: String? = null,
     leadingIconModifier: Modifier = Modifier,
-    trailingIconTint: Color = Color.Unspecified
+    trailingIconTint: Color = Color.Unspecified ,
+    isDarkMode: Boolean = isSystemInDarkTheme()
 ) {
-    val labelColor = if (isSystemInDarkTheme()) {
-        Color.White
-    } else {
-        Color.Black
-    }
+
+    val labelColor = if (isDarkMode) Color.White else Color.Black
 
     Column(
         modifier = Modifier

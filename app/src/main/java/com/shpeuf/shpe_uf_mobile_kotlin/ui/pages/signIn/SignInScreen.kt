@@ -52,8 +52,15 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
 @Composable
 fun SignIn(navController: NavHostController, shpeUFAppViewModel: SHPEUFAppViewModel) {
-    SignInBackground()
-    SignInScreen(navController, shpeUFAppViewModel)
+    val appState by shpeUFAppViewModel.uiState.collectAsState()
+    // DARK MODE FIX: use the app's saved preference instead of
+    // isSystemInDarkTheme(), which only reads the device's theme.
+    // The saved preference remains available after the user logs out.
+    val isDarkMode = appState.isDarkMode
+
+    //we pass to both layers so they stay consistent
+    SignInBackground(isDarkMode)
+    SignInScreen(navController, shpeUFAppViewModel, isDarkMode)
 }
 
 /**
@@ -63,15 +70,13 @@ fun SignIn(navController: NavHostController, shpeUFAppViewModel: SHPEUFAppViewMo
  * UI background
  * */
 @Composable
-fun SignInBackground() {
-
-    // Dark mode support
-    val gator = if (isSystemInDarkTheme()) {
+fun SignInBackground(isDarkMode: Boolean) {
+    // DARK MODE FIX: select the artwork using the app's theme preference.
+    val gator = if (isDarkMode) {
         painterResource(R.drawable.gator)
     } else {
         painterResource(R.drawable.light_gator)
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -87,12 +92,16 @@ fun SignInBackground() {
         )
     }
 }
+
+// Displays the form in Android Studio's preview without running the app.
 @Preview(showBackground = true)
 @Composable
 fun SignInScreenPreview() {
     val mockViewModel = initializeViewModel()
-    SignInScreen(rememberNavController(), mockViewModel)
+    //change false to true if you want to see the dark mode preview
+    SignInScreen(rememberNavController(), mockViewModel, isDarkMode = false)
 }
+
 
 /**
  * @author Gabriel Munoz
@@ -101,16 +110,25 @@ fun SignInScreenPreview() {
  * Screen containf visible parts: logo, text, and organization for below composables
  * but also displays error messages given failed logins
  */
-@Composable
-fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFAppViewModel) {
 
+
+// Draws the logo, input fields, sign-in button, and sign-up link.
+// isDarkMode comes from SignIn so the form uses the shared app preference.
+@Composable
+fun SignInScreen(
+    navController: NavHostController,
+    shpeUFAppViewModel: SHPEUFAppViewModel,
+    isDarkMode: Boolean
+) {
+    // Keep this SignInViewModel instance across recompositions.
+    // It manages the form values, password visibility, and login errors.
     val signInViewModel = remember { SignInViewModel() }
     val uiState by signInViewModel.uiState.collectAsState()
     val shpeLogo = R.drawable.shpe_logo_full_color
     val context = LocalContext.current
 
-    // Dark mode support
-    val background = if (isSystemInDarkTheme()) {
+    // DARK MODE FIX: choose the form background from the app preference.
+    val background = if (isDarkMode) {
         ThemeColors.Night.background
     } else {
         ThemeColors.Day.background
@@ -149,7 +167,9 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
             Row(modifier = Modifier.padding(top = 88.dp)) {
                 UserNameInput(
                     value = uiState.username ?: "",
-                    onValueChange = { signInViewModel.onUsernameChanged(it) }
+                    onValueChange = { signInViewModel.onUsernameChanged(it) },
+                    // DARK MODE FIX: use the same theme as the rest of the page.
+                    isDarkMode = isDarkMode
                 )
             }
 
@@ -159,21 +179,25 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
                     value = uiState.password ?: "",
                     onValueChange = { signInViewModel.onPasswordChanged(it) },
                     isPasswordVisible = uiState.isPasswordVisible,
-                    viewModel = signInViewModel
+                    viewModel = signInViewModel,
+                    isDarkMode = isDarkMode
                 )
             }
 
             //Spacer(modifier = Modifier.height(85.dp))
             Row(modifier = Modifier.padding(top = 85.dp)) {
                 SignInButton(
-                    onClick = { OnSignInClick(navController,signInViewModel, shpeUFAppViewModel) }
+                    onClick = {
+                        OnSignInClick(navController, signInViewModel, shpeUFAppViewModel)
+                    }
                 )
             }
             Row(modifier = Modifier.padding(top = 1.dp)) {
-                SignUp(navController)
+                // DARK MODE FIX: the sign-up text also follows the app theme.
+                SignUp(navController, isDarkMode)
             }
 
-            // display toast if the login fails
+            // Display toast if the login fails.
             if (uiState.loginErrorMessage != null) {
                 uiState.loginErrorMessage?.let { it ->
                     val text = it
@@ -187,9 +211,9 @@ fun SignInScreen(navController: NavHostController, shpeUFAppViewModel: SHPEUFApp
             }
         }
     }
-
 }
 
+// Validates the input and starts the login request.
 fun OnSignInClick(navController: NavHostController, signInViewModel: SignInViewModel, shpeUFAppViewModel: SHPEUFAppViewModel){
     signInViewModel.validateAndLoginUser(shpeUFAppViewModel)
     val success = shpeUFAppViewModel.uiState.value
@@ -212,6 +236,7 @@ fun onSignUpClick(navController: NavHostController){
 fun UserNameInput(
     value: String,
     onValueChange: (String) -> Unit,
+    isDarkMode: Boolean,
 ) {
     SuperiorTextField(
         label = "Username or Email",
@@ -220,10 +245,11 @@ fun UserNameInput(
         onValueChange = onValueChange,
         leadingIcon = R.drawable.profile_circle,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-        leadingIconModifier = Modifier.size(28.dp).padding(start = 12.dp)
+        leadingIconModifier = Modifier.size(28.dp).padding(start = 12.dp),
+        isDarkMode = isDarkMode
     )
-
 }
+
 
 /**
  * @author Gabriel Munoz
@@ -231,6 +257,7 @@ fun UserNameInput(
  *
  * custom text field (see superior text field) that is used to enter the password
  */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordInput(
@@ -238,20 +265,13 @@ fun PasswordInput(
     onValueChange: (String) -> Unit,
     isPasswordVisible: Boolean,
     viewModel: SignInViewModel,
+    isDarkMode: Boolean,
 ) {
-
-    val labelColor = if (isSystemInDarkTheme()) {
-        Color.White
-    } else {
-        Color.Black
-    }
-
     val image = if (isPasswordVisible)
         R.drawable.state_selected
     else
         R.drawable.state_default
 
-    // Custom built text field that matches figma design.
     SuperiorTextField(
         label = "Password",
         labelModifier = Modifier.padding(horizontal = 9.22.dp, vertical = 5.53.dp),
@@ -259,10 +279,14 @@ fun PasswordInput(
         onValueChange = onValueChange,
         leadingIcon = R.drawable.lock_3,
         trailingIcon = image,
-        visualTransformation = { if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation() },
+        visualTransformation = {
+            if (isPasswordVisible) VisualTransformation.None
+            else PasswordVisualTransformation()
+        },
         trailingIconOnClick = { viewModel.togglePasswordVisibility() },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        leadingIconModifier = Modifier.size(28.dp).padding(start = 12.dp)
+        leadingIconModifier = Modifier.size(28.dp).padding(start = 12.dp),
+        isDarkMode = isDarkMode
     )
 }
 
@@ -306,15 +330,10 @@ fun SignInButton(onClick: () -> Unit) {
  * the user to sign up page if they don't have an account
  */
 @Composable
-fun SignUp(navController: NavHostController) {
-    // Dark mode support
-    val labelColor = if (isSystemInDarkTheme()) {
-        Color.White
-    } else {
-        Color.Black
-    }
+fun SignUp(navController: NavHostController, isDarkMode: Boolean) {
+    val labelColor = if (isDarkMode) Color.White else Color.Black
 
-    val signUpColor = if (isSystemInDarkTheme()) {
+    val signUpColor = if (isDarkMode) {
         Color(0xFF93E1FF)
     } else {
         Color(0xFF0B70BA)
@@ -349,8 +368,4 @@ fun SignUp(navController: NavHostController) {
             )
         }
     }
-
-
-
 }
-
