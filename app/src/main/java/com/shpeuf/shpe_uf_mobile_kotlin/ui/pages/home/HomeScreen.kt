@@ -235,14 +235,25 @@ enum class DragAnchors {
  **/
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SlidingWindow(modifier: Modifier, viewModel: HomeViewModel, isVisible: Boolean, content: @Composable () -> Unit, toggleOff: () -> Unit = {}) {
-    val screenWidth = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
+fun SlidingWindow(modifier: Modifier, viewModel: HomeViewModel, isVisible: Boolean, orientation: Orientation = Orientation.Horizontal, content: @Composable () -> Unit, toggleOff: () -> Unit = {}) {
+//    val screenWidth = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
+    val configuration = LocalConfiguration.current
     val density = LocalDensity.current
     val decay = rememberSplineBasedDecay<Float>()
 
+    // Determines how far off-screen the window should start.
+    // Horizontal windows start off-screen to the right, vertical windows start off-screen at the bottom.
+    val screenSize = with(density) {
+        if (orientation == Orientation.Vertical) {
+            configuration.screenHeightDp.dp.toPx()
+        } else {
+            configuration.screenWidthDp.dp.toPx()
+        }
+    }
+
     // This is the anchored state that defines where we should start and how the animations should behave
     // We also update anchors to define start and end positions
-    val state = remember {
+    val state = remember(orientation, screenSize) {
         AnchoredDraggableState(
             initialValue = DragAnchors.End,
             positionalThreshold = { distance: Float -> distance * 0.5f },
@@ -256,8 +267,8 @@ fun SlidingWindow(modifier: Modifier, viewModel: HomeViewModel, isVisible: Boole
         ).apply {
             updateAnchors(
                 DraggableAnchors {
-                    DragAnchors.Start at 0f
-                    DragAnchors.End at screenWidth
+                    DragAnchors.Start at 0f // fully visible
+                    DragAnchors.End at screenSize // hidden off-screen
                 }
             )
         }
@@ -274,7 +285,7 @@ fun SlidingWindow(modifier: Modifier, viewModel: HomeViewModel, isVisible: Boole
 
     // checks to see if the window is dragged closed and if so, reset the isVisible state in the viewModel
     LaunchedEffect(state.offset) {
-        if (state.offset == screenWidth) {
+        if (state.offset == screenSize) {
             toggleOff()
         }
     }
@@ -282,9 +293,13 @@ fun SlidingWindow(modifier: Modifier, viewModel: HomeViewModel, isVisible: Boole
     Box(
         modifier = modifier
             .offset {
-                IntOffset(x = state.requireOffset().toInt(), y = 0)
+                if (orientation == Orientation.Vertical) { //bottom -> up
+                    IntOffset(x = 0, y = state.requireOffset().toInt())
+                } else { // right -> left
+                    IntOffset(x = state.requireOffset().toInt(), y = 0)
+                }
             }
-            .anchoredDraggable(state, orientation = Orientation.Horizontal),
+            .anchoredDraggable(state, orientation = orientation),
     ) {
         content()
     }
@@ -440,6 +455,7 @@ fun SlidingEventWindow(
         modifier = modifier,
         viewModel = viewModel,
         isVisible = isVisible,
+        orientation = Orientation.Vertical,
         content = {
             EventDetails(
                 modifier = Modifier,
