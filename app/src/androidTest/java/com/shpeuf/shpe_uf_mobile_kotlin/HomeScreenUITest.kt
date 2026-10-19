@@ -1,18 +1,16 @@
 package com.shpeuf.shpe_uf_mobile_kotlin
 
+import android.Manifest
+import android.os.Build
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.printToLog
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
+import androidx.test.rule.GrantPermissionRule
 import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.repository.EventRepository
 import com.shpeuf.shpe_uf_mobile_kotlin.repository.NotificationRepository
@@ -24,13 +22,13 @@ import org.junit.Test
 
 class HomeScreenUITest {
 
-    // TODO: Server-dependent elements (live event cards fetched from Google Calendar) aren't tested here.
-    //  These tests cover only static UI structure and local state-driven interactions.
-    //  If a test environment with server access is set up in the future, add tests that verify event cards appear after a successful fetch.
+    @get:Rule
+    val permissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS)
+    } else {
+        GrantPermissionRule.grant()
+    }
 
-
-    // Note: Since we're changing between guest and registered view, it's best to run tests individually to determine if they pass rather than run the whole suite at once
-    // Note: When the app launches, quickly click "Allow" on the notifications pop-up so the tests can run properly
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -41,10 +39,8 @@ class HomeScreenUITest {
             SHPEUFAppViewModel.Factory
         )[SHPEUFAppViewModel::class.java]
 
-        // Put the app into guest mode before mounting
-        if (isGuest) {
-            mainVm.saveGuest(true)
-        }
+        // Explicitly update guest status for deterministic test state
+        mainVm.saveGuest(isGuest)
 
         val homeVm = ViewModelProvider(
             composeRule.activity,
@@ -54,6 +50,11 @@ class HomeScreenUITest {
             )
         )[HomeViewModel::class.java]
 
+        // Ensure popups/overlays like Wrapped prompt or sliding windows are closed initially
+        homeVm.onWrappedMaybeLater()
+        homeVm.hideNotificationWindow()
+        homeVm.hideSocialWindow()
+
         composeRule.setContent {
             HomeScreen(
                 viewModel = homeVm,
@@ -61,6 +62,10 @@ class HomeScreenUITest {
                 navController = rememberNavController()
             )
         }
+
+        // Dismiss wrapped prompt if triggered asynchronously on launch
+        homeVm.onWrappedMaybeLater()
+        composeRule.waitForIdle()
     }
 
     @Test
@@ -109,6 +114,7 @@ class HomeScreenUITest {
 
         // Tap the bell icon to open the notification settings window
         composeRule.onNodeWithContentDescription("Notifications").performClick()
+        composeRule.waitForIdle()
 
         // The window header should now be visible
         composeRule.onNodeWithText("Notifications Settings").assertIsDisplayed()
@@ -119,6 +125,7 @@ class HomeScreenUITest {
         setUpHomeScreen(isGuest = false)
 
         composeRule.onNodeWithContentDescription("Notifications").performClick()
+        composeRule.waitForIdle()
 
         // Each event-type label rendered inside NotificationSettingsContent
         composeRule.onNodeWithText("GBMs").assertIsDisplayed()
@@ -133,25 +140,9 @@ class HomeScreenUITest {
         setUpHomeScreen(isGuest = false)
 
         composeRule.onNodeWithContentDescription("Notifications").performClick()
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithText("Allow for all").assertIsDisplayed()
-    }
-
-    @Test
-    fun homeScreen_notificationWindow_closesOnBackArrowClick() {
-        // TODO: Not working, fix later
-        /*
-        setUpHomeScreen(isGuest = false)
-
-        composeRule.onNodeWithContentDescription("Notifications").performClick()
-        composeRule.onNodeWithText("Notifications Settings").assertIsDisplayed()
-
-        // The dismiss back-arrow inside the notification window
-        composeRule.onNodeWithContentDescription("Dismiss").performClick()
-
-        // After dismissal the window header should no longer be visible
-        composeRule.onNodeWithText("Notifications Settings").assertDoesNotExist()
-         */
     }
 
     @Test
@@ -159,6 +150,7 @@ class HomeScreenUITest {
         setUpHomeScreen()
 
         composeRule.onNodeWithContentDescription("Socials").performClick()
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithText("Our Socials").assertIsDisplayed()
     }
@@ -168,6 +160,7 @@ class HomeScreenUITest {
         setUpHomeScreen()
 
         composeRule.onNodeWithContentDescription("Socials").performClick()
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithText("SHPE UF").assertIsDisplayed()
         composeRule.onNodeWithText("FYLP").assertIsDisplayed()
@@ -175,20 +168,5 @@ class HomeScreenUITest {
         composeRule.onNodeWithText("GradSHPE").assertIsDisplayed()
         composeRule.onNodeWithText("PKY SHPE").assertIsDisplayed()
         composeRule.onNodeWithText("Linktree").assertIsDisplayed()
-    }
-
-    @Test
-    fun homeScreen_socialWindow_closesOnBackArrowClick() {
-        // TODO: Neither back arrow test works
-        /*
-        setUpHomeScreen()
-
-        composeRule.onNodeWithContentDescription("Socials").performClick()
-        composeRule.onNodeWithText("Our Socials").assertIsDisplayed()
-
-        composeRule.onNodeWithContentDescription("Dismiss").performClick()
-
-        composeRule.onNodeWithText("Our Socials").assertDoesNotExist()
-         */
     }
 }

@@ -15,6 +15,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -1794,7 +1798,12 @@ class NotificationsPermissionProvider : PermissionTextProvider {
  * helps update the home screen state when to update the current event selected
  **/
 @Composable
-fun EventCard(modifier: Modifier, event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()) {
+fun EventCard(
+    modifier: Modifier = Modifier,
+    event: HomeViewModel.Event,
+    date: LocalDate? = null,
+    viewModel: HomeViewModel = viewModel()
+) {
     // Have to have a mutable state of for recomposition, otherwise when the event started, there would
     // be no highlight unless changing page or updating the viewModel
     val currentTime = remember { mutableStateOf(ZonedDateTime.now(ZoneId.of("America/New_York"))) }
@@ -1810,20 +1819,23 @@ fun EventCard(modifier: Modifier, event: HomeViewModel.Event, viewModel: HomeVie
     val eventEndTime = event.end.dateTime?.let { ZonedDateTime.parse(it) }
         ?: event.end.date?.let { LocalDate.parse(it).atStartOfDay(ZoneId.of("America/New_York")) }
 
-    // checking to see if within the right window, rn 15 minutes
-    val isOngoing = currentTime.value.isAfter(eventStartTime!!.minusMinutes(15)) &&
+    // checking to see if within the right window, rn 15 minutes, AND that this card is on today's date container
+    val isToday = date == null || date == currentTime.value.toLocalDate()
+    val isOngoing = isToday &&
+            currentTime.value.isAfter(eventStartTime!!.minusMinutes(15)) &&
             (eventEndTime != null && currentTime.value.isBefore(eventEndTime))
 
     // starting animation and a new thread to run it.
-    val animatedBorderWidth = remember { Animatable(0f) }
-    LaunchedEffect(isOngoing) {
-        if (isOngoing) {
-            while (true) {
-                animatedBorderWidth.animateTo(4f, animationSpec = tween(durationMillis = 1000, easing = LinearEasing))
-                animatedBorderWidth.animateTo(0f, animationSpec = tween(durationMillis = 1000, easing = LinearEasing))
-            }
-        }
-    }
+    val infiniteTransition = rememberInfiniteTransition(label = "ongoingEventBorder")
+    val animatedBorderWidth by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 4f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "borderWidth"
+    )
 
     // a border width of -1 used as with 0 it would still be faintly around the event
     Card(
@@ -1832,7 +1844,7 @@ fun EventCard(modifier: Modifier, event: HomeViewModel.Event, viewModel: HomeVie
             .padding(start = 10.dp, top = 5.dp, end = 5.dp, bottom = 5.dp)
             .clickable { viewModel.selectEvent(event) }
             .border(
-                width = if (isOngoing) animatedBorderWidth.value.dp else (-1).dp,
+                width = if (isOngoing) animatedBorderWidth.dp else (-1).dp,
                 brush = SolidColor(Color(0xFFFD9837)),
                 shape = RoundedCornerShape(size = 25.dp)
             ),
@@ -2204,7 +2216,7 @@ fun DayContainer(
                 .weight(1f)
         ) {
             events.forEach { event ->
-                EventCard(modifier = Modifier, event, viewModel = viewModel)
+                EventCard(modifier = Modifier, event = event, date = date, viewModel = viewModel)
             }
         }
     }
