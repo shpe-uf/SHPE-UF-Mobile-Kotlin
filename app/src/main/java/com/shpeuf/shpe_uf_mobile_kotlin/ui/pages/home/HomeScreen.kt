@@ -279,7 +279,7 @@ fun SlidingWindow(modifier: Modifier, viewModel: HomeViewModel, isVisible: Boole
         if (state.offset == screenWidth) {
             toggleOff()
         }
-    }git
+    }
 
     Box(
         modifier = modifier
