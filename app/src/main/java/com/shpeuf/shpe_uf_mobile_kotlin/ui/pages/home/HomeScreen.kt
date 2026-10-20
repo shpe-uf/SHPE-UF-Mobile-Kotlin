@@ -251,6 +251,8 @@ fun SlidingWindow(modifier: Modifier, viewModel: HomeViewModel, isVisible: Boole
                 durationMillis = 300,
                 easing = LinearEasing
             ),
+
+
             decayAnimationSpec = decay,
             confirmValueChange = { true }
         ).apply {
@@ -277,7 +279,7 @@ fun SlidingWindow(modifier: Modifier, viewModel: HomeViewModel, isVisible: Boole
         if (state.offset == screenWidth) {
             toggleOff()
         }
-    }
+    }git
 
     Box(
         modifier = modifier
