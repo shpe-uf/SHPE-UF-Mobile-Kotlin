@@ -45,8 +45,10 @@ class HomeScreenUITest {
         val homeVm = ViewModelProvider(
             composeRule.activity,
             HomeViewModelFactory(
+                application = composeRule.activity.application,
                 notificationRepo = NotificationRepository(composeRule.activity),
-                eventRepo = EventRepository(composeRule.activity)
+                eventRepo = EventRepository(composeRule.activity),
+                directionsApiKey = BuildConfig.GOOGLEMAPS_API_KEY
             )
         )[HomeViewModel::class.java]
 
