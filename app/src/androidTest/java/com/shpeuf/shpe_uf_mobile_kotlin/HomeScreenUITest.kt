@@ -1,0 +1,174 @@
+package com.shpeuf.shpe_uf_mobile_kotlin
+
+import android.Manifest
+import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.compose.rememberNavController
+import androidx.test.rule.GrantPermissionRule
+import com.shpeuf.shpe_uf_mobile_kotlin.data.SHPEUFAppViewModel
+import com.shpeuf.shpe_uf_mobile_kotlin.repository.EventRepository
+import com.shpeuf.shpe_uf_mobile_kotlin.repository.NotificationRepository
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.home.HomeScreen
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModel
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.home.HomeViewModelFactory
+import org.junit.Rule
+import org.junit.Test
+
+class HomeScreenUITest {
+
+    @get:Rule
+    val permissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS)
+    } else {
+        GrantPermissionRule.grant()
+    }
+
+    @get:Rule
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
+
+    // Mounts HomeScreen with fresh ViewModels and a test NavController
+    private fun setUpHomeScreen(isGuest: Boolean = false) {
+        val mainVm = ViewModelProvider(
+            composeRule.activity,
+            SHPEUFAppViewModel.Factory
+        )[SHPEUFAppViewModel::class.java]
+
+        // Explicitly update guest status for deterministic test state
+        mainVm.saveGuest(isGuest)
+
+        val homeVm = ViewModelProvider(
+            composeRule.activity,
+            HomeViewModelFactory(
+                application = composeRule.activity.application,
+                notificationRepo = NotificationRepository(composeRule.activity),
+                eventRepo = EventRepository(composeRule.activity),
+                directionsApiKey = BuildConfig.GOOGLEMAPS_API_KEY
+            )
+        )[HomeViewModel::class.java]
+
+        // Ensure popups/overlays like Wrapped prompt or sliding windows are closed initially
+        homeVm.onWrappedMaybeLater()
+        homeVm.hideNotificationWindow()
+        homeVm.hideSocialWindow()
+
+        composeRule.setContent {
+            HomeScreen(
+                viewModel = homeVm,
+                shpeufAppViewModel = mainVm,
+                navController = rememberNavController()
+            )
+        }
+
+        // Dismiss wrapped prompt if triggered asynchronously on launch
+        homeVm.onWrappedMaybeLater()
+        composeRule.waitForIdle()
+    }
+
+    @Test
+    fun homeScreen_topHeader_displaysCurrentMonth() {
+        setUpHomeScreen()
+
+        // The header shows the current month name (e.g. "April")
+        // HomeScreenState.monthDisplayedName defaults to LocalDate.now().month.name title-cased
+        val expectedMonth = java.time.LocalDate.now().month.name
+            .lowercase()
+            .replaceFirstChar { it.titlecase() }
+
+        composeRule.onNodeWithText(expectedMonth).assertIsDisplayed()
+    }
+
+    @Test
+    fun homeScreen_topHeader_displaysNotificationIconForLoggedInUser() {
+        setUpHomeScreen(isGuest = false)
+
+        // The bell icon is only rendered when isGuest == false
+        composeRule.onNodeWithContentDescription("Notifications").assertIsDisplayed()
+    }
+
+    @Test
+    fun homeScreen_topHeader_displaysSocialsIcon() {
+        setUpHomeScreen()
+
+        // The socials icon is always visible (both guest and logged-in)
+        composeRule.onNodeWithContentDescription("Socials").assertIsDisplayed()
+    }
+
+    @Test
+    fun homeScreen_topHeader_displaysLoginButtonForGuest() {
+        setUpHomeScreen(isGuest = true)
+
+        // Guests see a "Login" text button instead of the bell icon
+        composeRule.onNodeWithText("Login").assertIsDisplayed()
+
+        // The notification bell should NOT be shown for guests
+        composeRule.onNodeWithContentDescription("Notifications").assertDoesNotExist()
+    }
+
+    @Test
+    fun homeScreen_notificationWindow_opensOnBellIconClick() {
+        setUpHomeScreen(isGuest = false)
+
+        // Tap the bell icon to open the notification settings window
+        composeRule.onNodeWithContentDescription("Notifications").performClick()
+        composeRule.waitForIdle()
+
+        // The window header should now be visible
+        composeRule.onNodeWithText("Notifications Settings").assertIsDisplayed()
+    }
+
+    @Test
+    fun homeScreen_notificationWindow_displaysAllEventTypeLabels() {
+        setUpHomeScreen(isGuest = false)
+
+        composeRule.onNodeWithContentDescription("Notifications").performClick()
+        composeRule.waitForIdle()
+
+        // Each event-type label rendered inside NotificationSettingsContent
+        composeRule.onNodeWithText("GBMs").assertIsDisplayed()
+        composeRule.onNodeWithText("Info\nSessions").assertIsDisplayed()
+        composeRule.onNodeWithText("Workshops").assertIsDisplayed()
+        composeRule.onNodeWithText("Volunteering").assertIsDisplayed()
+        composeRule.onNodeWithText("Socials").assertIsDisplayed()
+    }
+
+    @Test
+    fun homeScreen_notificationWindow_displaysAllowForAllButton() {
+        setUpHomeScreen(isGuest = false)
+
+        composeRule.onNodeWithContentDescription("Notifications").performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("Allow for all").assertIsDisplayed()
+    }
+
+    @Test
+    fun homeScreen_socialWindow_opensOnSocialsIconClick() {
+        setUpHomeScreen()
+
+        composeRule.onNodeWithContentDescription("Socials").performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("Our Socials").assertIsDisplayed()
+    }
+
+    @Test
+    fun homeScreen_socialWindow_displaysAllSocialAccountLabels() {
+        setUpHomeScreen()
+
+        composeRule.onNodeWithContentDescription("Socials").performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("SHPE UF").assertIsDisplayed()
+        composeRule.onNodeWithText("FYLP").assertIsDisplayed()
+        composeRule.onNodeWithText("MentorSHPE").assertIsDisplayed()
+        composeRule.onNodeWithText("GradSHPE").assertIsDisplayed()
+        composeRule.onNodeWithText("PKY SHPE").assertIsDisplayed()
+        composeRule.onNodeWithText("Linktree").assertIsDisplayed()
+    }
+}

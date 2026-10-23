@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -124,9 +126,16 @@ fun SignInScreen(
     // It manages the form values, password visibility, and login errors.
     val signInViewModel = remember { SignInViewModel() }
     val uiState by signInViewModel.uiState.collectAsState()
+    val appState by shpeUFAppViewModel.uiState.collectAsState()
     val shpeLogo = R.drawable.shpe_logo_full_color
     val context = LocalContext.current
 
+    // React to async login completion — navigate to HOME when isLoggedIn flips to true
+    LaunchedEffect(appState.isLoggedIn) {
+        if (appState.isLoggedIn) {
+            navController.navigate(NavRoute.HOME)
+        }
+    }
     // DARK MODE FIX: choose the form background from the app preference.
     val background = if (isDarkMode) {
         ThemeColors.Night.background
@@ -216,9 +225,6 @@ fun SignInScreen(
 // Validates the input and starts the login request.
 fun OnSignInClick(navController: NavHostController, signInViewModel: SignInViewModel, shpeUFAppViewModel: SHPEUFAppViewModel){
     signInViewModel.validateAndLoginUser(shpeUFAppViewModel)
-    val success = shpeUFAppViewModel.uiState.value
-    if(success.isLoggedIn){ navController.navigate(NavRoute.HOME) }
-    if(success.isLoggedIn){ navController.navigate(NavRoute.POINTS) }
 }
 
 fun onSignUpClick(navController: NavHostController){
@@ -301,7 +307,8 @@ fun SignInButton(onClick: () -> Unit) {
     Button(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 65.dp, vertical = 16.dp),
+            .padding(horizontal = 65.dp, vertical = 16.dp)
+            .testTag("Sign in button"),
         shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFFD25917),
