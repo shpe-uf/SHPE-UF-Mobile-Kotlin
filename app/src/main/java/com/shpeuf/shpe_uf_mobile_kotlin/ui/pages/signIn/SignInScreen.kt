@@ -51,6 +51,32 @@ import com.shpeuf.shpe_uf_mobile_kotlin.initializeViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.custom.SuperiorTextField
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.navigation.NavRoute
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
+import android.content.Context
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.widget.TextView
+import androidx.compose.runtime.LaunchedEffect
+
+private fun showCustomToast(
+    context: Context,
+    message: String,
+    isError: Boolean = false
+) {
+    val view = LayoutInflater.from(context)
+        .inflate(R.layout.custom_toast, null)
+
+    val textView = view.findViewById<TextView>(R.id.toast_message)
+
+    textView.text = message
+    textView.setTextColor(android.graphics.Color.WHITE)
+
+    val toast = Toast(context.applicationContext)
+    toast.duration = if (isError) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
+    toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 100)
+
+    toast.view = view
+    toast.show()
+}
 
 @Composable
 fun SignIn(navController: NavHostController, shpeUFAppViewModel: SHPEUFAppViewModel) {
@@ -206,6 +232,14 @@ fun SignInScreen(
                 SignUp(navController, isDarkMode)
             }
 
+            // display toast if the login fails
+            LaunchedEffect(uiState.loginErrorMessage) {
+                uiState.loginErrorMessage?.let { message ->
+                    showCustomToast(
+                        context = context,
+                        message = message,
+                        isError = true
+                    )
             // Display toast if the login fails.
             if (uiState.loginErrorMessage != null) {
                 uiState.loginErrorMessage?.let { it ->

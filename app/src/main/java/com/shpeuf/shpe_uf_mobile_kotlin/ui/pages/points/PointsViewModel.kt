@@ -42,6 +42,18 @@ class PointsPageViewModel : ViewModel() {
         return validateEventRedeem(Optional.presentIfNotNull(pointsInput))
     }
 
+    // Inside PointsPageViewModel class
+    fun dismissDialog() {
+        _uiState.value = _uiState.value.copy(showDialog = false)
+    }
+
+    fun showResponseDialog(message: String) {
+        _uiState.value = _uiState.value.copy(
+            showDialog = true,
+            dialogMessage = message
+        )
+    }
+
     //Function to ensure that event code is valid, and to return appropriate error
     //messages for when it is not.
     suspend fun validateEventRedeem(pointsInput: Optional<RedeemPointsInput>): String? {
