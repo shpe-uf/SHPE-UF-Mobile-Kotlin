@@ -26,18 +26,17 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import androidx.camera.core.ExperimentalGetImage
 
-/*
-******************************************************
-CLASS: MyCustomScannerActivity()
-* Custom QR code scanner activity using CameraX and
-* Google ML Kit for scanning SHPE Points QR codes.
-* - Implements CameraX for real-time scanning.
-* - Uses Google ML Kit to process QR codes.
-* - Displays a zoom bar to adjust scan precision.
-* - Includes a back button for user exit.
-* - Displays instructional text for scanning.
-* - Custom toast messages provide scan feedback.
-******************************************************
+/**
+ * @author Daniel Dovale
+ * @date March 10, 2025
+ *
+ * A custom QR code scanner `Activity` using CameraX and Google ML Kit for scanning SHPE Points QR codes.
+ * - Implements CameraX for real-time scanning.
+ * - Uses Google ML Kit to process QR codes.
+ * - Displays a zoom `SeekBar` to adjust scan precision.
+ * - Includes a back button for user exit.
+ * - Displays instructional text for scanning.
+ * - Custom toast messages provide scan feedback.
  */
 @OptIn(ExperimentalGetImage::class)
 class MyCustomScannerActivity : AppCompatActivity() {
@@ -81,13 +80,12 @@ class MyCustomScannerActivity : AppCompatActivity() {
         checkCameraPermission()
     }
 
-    /*
-    ******************************************************
-    FUNCTION: checkCameraPermission()
-    * Checks for camera permissions and requests access
-    * if not granted. If permission is granted, it
-    * initializes the camera.
-    ******************************************************
+    /**
+     * @author Daniel Dovale
+     * @date March 11, 2025
+     *
+     * Checks for camera permissions and requests access if not granted.
+     * If permission is granted, it initializes the camera.
     */
     private fun checkCameraPermission() {
         val requestPermissionLauncher =
@@ -109,11 +107,11 @@ class MyCustomScannerActivity : AppCompatActivity() {
         }
     }
 
-    /*
-    ******************************************************
-    FUNCTION: startCamera()
-    * Initializes the CameraX preview and binds use cases.
-    ******************************************************
+    /**
+     * @author Daniel Dovale
+     * @date March 12, 2025
+     *
+     * Initializes the CameraX preview and binds camera use cases.
     */
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -123,12 +121,13 @@ class MyCustomScannerActivity : AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
-    /*
-    ******************************************************
-    FUNCTION: bindCameraUseCases()
-    * Binds CameraX preview and ML Kit barcode analysis
-    * to process QR codes in real-time.
-    ******************************************************
+    /**
+     * @author Daniel Dovale
+     * @date March 13, 2025
+     *
+     * Binds CameraX preview and ML Kit barcode analysis to process QR codes in real-time.
+     *
+     * @param cameraProvider The [ProcessCameraProvider] that handles camera lifecycles.
     */
     private fun bindCameraUseCases(cameraProvider: ProcessCameraProvider) {
         val preview = Preview.Builder()
@@ -159,13 +158,14 @@ class MyCustomScannerActivity : AppCompatActivity() {
         }
     }
 
-    /*
-    ******************************************************
-    FUNCTION: processImageProxy()
-    * Processes camera frames to detect QR codes.
-    * Uses Google ML Kit barcode scanner.
-    * Stops scanning after the first successful scan.
-    ******************************************************
+    /**
+     * @author Daniel Dovale
+     * @date March 14, 2025
+     *
+     * Processes camera frames to detect QR codes using Google ML Kit's barcode scanner.
+     * Stops scanning after the first successful scan and returns the result via `Intent`.
+     *
+     * @param imageProxy The captured image frame from the camera for analysis.
     */
     @OptIn(ExperimentalGetImage::class)
     private fun processImageProxy(imageProxy: ImageProxy) {
@@ -217,11 +217,13 @@ class MyCustomScannerActivity : AppCompatActivity() {
         cameraExecutor.shutdown()
     }
 
-    /*
-    ******************************************************
-    FUNCTION: showCustomToast()
-    * Displays a custom-styled toast message with bold text.
-    ******************************************************
+    /**
+     * @author Daniel Dovale
+     * @date March 15, 2025
+     *
+     * Displays a custom-styled toast message with possible HTML bolding, placed near the top of the screen.
+     *
+     * @param message The string message to display (may contain HTML for bolding).
     */
     private fun showCustomToast(message: String) {
         val layoutInflater = layoutInflater

@@ -18,3 +18,5 @@ app/build
 .idea/modules
 /.idea/.name
 /.idea/render.experimental.xml
+app/release/*.aab
+app/release/*.apk

@@ -44,12 +44,12 @@ data class HomeScreenState(
 )
 
 data class NotificationSelection (
-    var gbmNotification: Boolean = false,
-    var socialNotification: Boolean = false,
-    var workshopNotification: Boolean = false,
-    var infoSessionNotification: Boolean = false,
-    var volunteeringNotification: Boolean = false,
-    var allNotificationSelection: Boolean = false
+    var gbmNotification: Boolean = true,
+    var socialNotification: Boolean = true,
+    var workshopNotification: Boolean = true,
+    var infoSessionNotification: Boolean = true,
+    var volunteeringNotification: Boolean = true,
+    var allNotificationSelection: Boolean = true
 )
 
 

@@ -15,6 +15,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -1284,7 +1288,7 @@ fun SocialContent(modifier: Modifier, viewModel: HomeViewModel, darkMode: Boolea
                         ) {
                             Text(
                                 modifier = Modifier,
-                                text = "Tap an icon to visit out social media",
+                                text = "Tap an icon to visit our social media",
                                 style = TextStyle(
                                     fontSize = 20.sp,
                                     fontFamily = Viga,
@@ -1794,7 +1798,12 @@ class NotificationsPermissionProvider : PermissionTextProvider {
  * helps update the home screen state when to update the current event selected
  **/
 @Composable
-fun EventCard(modifier: Modifier, event: HomeViewModel.Event, viewModel: HomeViewModel = viewModel()) {
+fun EventCard(
+    modifier: Modifier = Modifier,
+    event: HomeViewModel.Event,
+    date: LocalDate? = null,
+    viewModel: HomeViewModel = viewModel()
+) {
     // Have to have a mutable state of for recomposition, otherwise when the event started, there would
     // be no highlight unless changing page or updating the viewModel
     val currentTime = remember { mutableStateOf(ZonedDateTime.now(ZoneId.of("America/New_York"))) }
@@ -1810,20 +1819,23 @@ fun EventCard(modifier: Modifier, event: HomeViewModel.Event, viewModel: HomeVie
     val eventEndTime = event.end.dateTime?.let { ZonedDateTime.parse(it) }
         ?: event.end.date?.let { LocalDate.parse(it).atStartOfDay(ZoneId.of("America/New_York")) }
 
-    // checking to see if within the right window, rn 15 minutes
-    val isOngoing = currentTime.value.isAfter(eventStartTime!!.minusMinutes(15)) &&
+    // checking to see if within the right window, rn 15 minutes, AND that this card is on today's date container
+    val isToday = date == null || date == currentTime.value.toLocalDate()
+    val isOngoing = isToday &&
+            currentTime.value.isAfter(eventStartTime!!.minusMinutes(15)) &&
             (eventEndTime != null && currentTime.value.isBefore(eventEndTime))
 
     // starting animation and a new thread to run it.
-    val animatedBorderWidth = remember { Animatable(0f) }
-    LaunchedEffect(isOngoing) {
-        if (isOngoing) {
-            while (true) {
-                animatedBorderWidth.animateTo(4f, animationSpec = tween(durationMillis = 1000, easing = LinearEasing))
-                animatedBorderWidth.animateTo(0f, animationSpec = tween(durationMillis = 1000, easing = LinearEasing))
-            }
-        }
-    }
+    val infiniteTransition = rememberInfiniteTransition(label = "ongoingEventBorder")
+    val animatedBorderWidth by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 4f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "borderWidth"
+    )
 
     // a border width of -1 used as with 0 it would still be faintly around the event
     Card(
@@ -1832,7 +1844,7 @@ fun EventCard(modifier: Modifier, event: HomeViewModel.Event, viewModel: HomeVie
             .padding(start = 10.dp, top = 5.dp, end = 5.dp, bottom = 5.dp)
             .clickable { viewModel.selectEvent(event) }
             .border(
-                width = if (isOngoing) animatedBorderWidth.value.dp else (-1).dp,
+                width = if (isOngoing) animatedBorderWidth.dp else (-1).dp,
                 brush = SolidColor(Color(0xFFFD9837)),
                 shape = RoundedCornerShape(size = 25.dp)
             ),
@@ -2204,7 +2216,7 @@ fun DayContainer(
                 .weight(1f)
         ) {
             events.forEach { event ->
-                EventCard(modifier = Modifier, event, viewModel = viewModel)
+                EventCard(modifier = Modifier, event = event, date = date, viewModel = viewModel)
             }
         }
     }
@@ -2297,6 +2309,18 @@ fun getOrdinalIndicator(dayOfMonth: Int): String {
     }
 }
 
+/**
+ * @description CheckLocationPermission  checks whether the app has been granted fine location
+ * permission. If permission is not yet granted, it triggers a permission request. Returns true if
+ * permission is granted, false otherwise.
+ *
+ * @author Ben Shung
+ * @date Created 2026
+ *
+ * @param context the Context used to check the permission, defaults to the current LocalContext
+ *
+ * @return Boolean true if ACCESS_FINE_LOCATION permission is granted, false if not
+ **/
 @Composable
 private fun CheckLocationPermission(context: Context = LocalContext.current): Boolean {
     when {
@@ -2315,6 +2339,16 @@ private fun CheckLocationPermission(context: Context = LocalContext.current): Bo
     }
 }
 
+/**
+ * @description RequestLocationPermission is a Composable function that requests both fine
+ * and coarse location permissions from the user by invoking the system permission dialog.
+ *
+ * @author Ben Shung
+ * @date Created 2026
+ *
+ * @param context the Context used to request the permission, defaults to the current LocalContext.
+ * The Context is cast to an Activity to call requestPermissions.
+ **/
 @Composable
 private fun RequestLocationPermission(context: Context = LocalContext.current) {
     ActivityCompat.requestPermissions(
@@ -2327,6 +2361,20 @@ private fun RequestLocationPermission(context: Context = LocalContext.current) {
     )
 }
 
+/**
+ * @description EventLocationMap displays an interactive Google Map with the event's destination
+ * location. It handles map error states, location permission checks, route polyline rendering,
+ * camera animation, and a bottom sheet scaffold containing route info. Shows a loading indicator
+ * while the map is loading, and supports both light and dark map styles.
+ *
+ * @author Ben Shung
+ * @date Created 2026
+ *
+ * @param homeState the current state of the Home Screen, containing map data, routes, and event info
+ * @param viewModel the HomeViewModel used to manage and update the Home Screen state
+ * @param isDarkMode a Boolean indicating whether the app is in dark mode, used to apply dark map styling
+ * @param context the Context used for loading map style resources, defaults to the current LocalContext
+ **/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventLocationMap(
@@ -2458,6 +2506,18 @@ fun EventLocationMap(
     }
 }
 
+/**
+ * @description calculateBounds computes the smallest LatLngBounds that encompasses
+ * all the provided LatLng points by including each point in a LatLngBounds Builder. Used to zoom
+ * out and show the entire route.
+ *
+ * @author Ben Shung
+ * @date Created 2026
+ *
+ * @param points a list of LatLng coordinates to be included in the bounds
+ *
+ * @return LatLngBounds the smallest bounding box that contains all provided points
+ **/
 fun calculateBounds(points: List<LatLng>): LatLngBounds {
     val builder = LatLngBounds.Builder()
     points.forEach { point ->
@@ -2466,6 +2526,17 @@ fun calculateBounds(points: List<LatLng>): LatLngBounds {
     return builder.build()
 }
 
+/**
+ * @description RouteTopBar displays a centered top app bar with a "Route Preview" title
+ * and a back navigation icon that toggles the event map visibility. Supports both
+ * light and dark mode styling.
+ *
+ * @author Ben Shung
+ * @date Created 2026
+ *
+ * @param viewModel the HomeViewModel used to trigger toggleEventMapVisibility on back navigation
+ * @param isDarkMode a Boolean indicating whether the app is in dark mode, used to apply dark styling
+ **/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RouteTopBar(viewModel: HomeViewModel, isDarkMode: Boolean) {
@@ -2496,6 +2567,19 @@ fun RouteTopBar(viewModel: HomeViewModel, isDarkMode: Boolean) {
     )
 }
 
+/**
+ * @description RouteInfoCard displays a card containing the selected event's name, location,
+ * travel mode selector, and estimated route duration. Provides buttons to show the route
+ * on the map or open the destination in an external maps application.
+ *
+ * @author Ben Shung
+ * @date Created 2026
+ *
+ * @param viewModel the HomeViewModel used to handle travel mode selection and route visibility toggling
+ * @param homeState the current state of the Home Screen, containing event info, routes, and map state
+ * @param isDarkMode a Boolean indicating whether the app is in dark mode, used to apply dark styling
+ * @param modifier a Modifier for adjusting the layout and appearance of the card, defaults to Modifier
+ **/
 @Composable
 fun RouteInfoCard(viewModel: HomeViewModel, homeState: HomeScreenState, isDarkMode: Boolean, modifier: Modifier = Modifier) {
     val context = LocalContext.current
@@ -2627,6 +2711,17 @@ fun RouteInfoCard(viewModel: HomeViewModel, homeState: HomeScreenState, isDarkMo
     }
 }
 
+/**
+ * @description openInMaps launches Google Maps with the provided address and coordinates.
+ * If Google Maps is not installed, it falls back to opening the location in a web browser.
+ *
+ * @author Ben Shung
+ * @date Created 2026
+ *
+ * @param context the Context used to start the map or browser activity
+ * @param address the address string to search for in Google Maps
+ * @param validLatLng the LatLng coordinates used to pinpoint the destination on the map
+ **/
 fun openInMaps(context: Context, address: String, validLatLng: LatLng) {
     val mapUri = Uri.parse(
         "geo:${validLatLng.latitude},${validLatLng.longitude}?q=${Uri.encode(address)}"
@@ -2642,6 +2737,18 @@ fun openInMaps(context: Context, address: String, validLatLng: LatLng) {
         context.startActivity(Intent(Intent.ACTION_VIEW, webUri))
     }
 }
+
+/**
+ * @description parseDuration converts a duration in seconds into a readable string
+ *
+ * @author Ben Shung
+ * @date Created 2026
+ *
+ * @param duration an Int representing the duration in seconds to be parsed
+ * @param mode the TravelMode used to determine the prefix label of the returned string
+ *
+ * @return String the formatted duration string (e.g. "Driving time: 1h 30m" or "Walking time: 45m")
+ **/
 fun parseDuration(duration: Int, mode: TravelMode): String {
     var hour = 0
     var minute = 0

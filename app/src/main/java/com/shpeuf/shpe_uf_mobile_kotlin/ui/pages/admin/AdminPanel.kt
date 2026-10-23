@@ -27,7 +27,9 @@ fun AdminPanelScreen(
     isUserAdmin: Boolean,
     isDarkMode: Boolean,
     onBack: () -> Unit = {},
-    onNavigateToEvents: () -> Unit = {}
+    onNavigateToEvents: () -> Unit = {},
+    onNavigateToLeaderboard: () -> Unit = {},
+    onNavigateToStats: () -> Unit = {}
 ) {
     // Define colors based on dark mode - matching app's color scheme
     val backgroundColor = if (isDarkMode) Color(0xFF011F35) else Color(0xFFF5F5F5)
@@ -110,12 +112,12 @@ fun AdminPanelScreen(
                 )
 
                 AdminCard(
-                    title = "Members",
+                    title = "Leaderboard",
                     iconRes = R.drawable.profile,
                     backgroundColor = cardLightBlue,
                     iconTint = iconTint,
                     modifier = Modifier.weight(1f),
-                    onClick = { /* Handle Members click */ }
+                    onClick =  onNavigateToLeaderboard
                 )
             }
 
@@ -158,7 +160,7 @@ fun AdminPanelScreen(
                     backgroundColor = cardLightBlue,
                     iconTint = iconTint,
                     modifier = Modifier.weight(1f),
-                    onClick = { /* Handle Statistics click */ }
+                    onClick = onNavigateToStats
                 )
 
                 AdminCard(
