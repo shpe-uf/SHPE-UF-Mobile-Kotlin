@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.example.shpe_uf_mobile_kotlin", appContext.packageName)
+        assertEquals("com.shpeuf.shpe_uf_mobile_kotlin", appContext.packageName)
     }
 }
