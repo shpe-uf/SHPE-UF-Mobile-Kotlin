@@ -43,7 +43,7 @@ Go through our [User Onboarding] document
 Go through our [Development Process] guide
 
 ## What now?
-Now that you are all set up and familiar with the project, you are finally ready to start coding. Last thing you will need is to head over to Asana and start working on some tasks!
+Now that you are all set up and familiar with the project, you are finally ready to start coding. Last thing you will need is to head over to ClickUp and start working on some tasks!
 
 
 ## Resources
