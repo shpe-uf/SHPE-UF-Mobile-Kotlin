@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.guest.AboutUsTopBar
 import org.junit.Rule
 import org.junit.Test
 
@@ -22,8 +23,7 @@ class AboutUsTopBarUiTest {
     @Test
     fun aboutTopBar_showsTitle_byTag_ifProvided() {
         composeRule.setContent {
-            // TODO: replace with your actual composable call
-            // AboutUsTopBar(isDarkMode = false)
+            AboutUsTopBar(isDarkMode = false)
         }
 
         // If you added Modifier.testTag("guest_about_title") on the title:
@@ -34,8 +34,7 @@ class AboutUsTopBarUiTest {
     @Test
     fun aboutTopBar_showsTitle_byText_fallback() {
         composeRule.setContent {
-            // TODO: replace with your actual composable call
-            // AboutUsTopBar(isDarkMode = false)
+            AboutUsTopBar(isDarkMode = false)
         }
 
         // Fallback if you did not add test tags:
