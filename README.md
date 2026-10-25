@@ -23,11 +23,11 @@ SHPE, also known as the Society of Hispanic Professional Engineers, is a Hispani
 - ✨Points✨    
 
 ## Getting Started
-**Getting access to the project**  We need our dev team to have access to our repo and all of our files. Send your Design Team Director a message with your GitHub username, UF email, and Discord username so they can add you to the repo, Asana, and Discord.
+**Getting access to the project**  We need our dev team to have access to our repo and all of our files. Send your Design Team Director a message with your GitHub username, UF email, and Discord username so they can add you to the repo, ClickUp, and Discord.
 
 #### Checklist ✅
 - [ ] Get GitHub repo access
-- [ ] Create Asana account (must use UF email)
+- [ ] Create ClickUp account (must use UF email)
 - [ ] Join Discord server
 - [ ] Download [Android Studio]
 
@@ -37,7 +37,7 @@ SHPE, also known as the Society of Hispanic Professional Engineers, is a Hispani
 git clone https://github.com/shpe-uf/SHPE-UF-Mobile-Kotlin.git
 ```
 ### Development
-Once you have gained access to the codebase and joined the Discord server and  the Asana project. You are all set start your **onboarding**.
+Once you have gained access to the codebase and joined the Discord server and the ClickUp project. You are all set start your **onboarding**.
 
 Go through our [User Onboarding] document
 Go through our [Development Process] guide
@@ -51,13 +51,13 @@ Now that you are all set up and familiar with the project, you are finally ready
 - [SHPE UF E-Board] - SHPE UF's E-Board
 - [Android Developer] - Includes tutorials and training courses on Android Development
 - [Android Studio] - Latest Android Studio version
-- [Asana] - Project Management
+- [ClickUp] - Project Management
 
 [//]: # (These are reference links used in the body of this note)
  [SHPE UF Website]: <https://www.shpeuf.com/>
  [SHPE UF E-Board]: <https://www.shpeuf.com/eboard>
  [Android Developer]: <https://developer.android.com/>
  [Android Studio]: <https://developer.android.com/studio>
- [Asana]: <https://asana.com/>
+ [ClickUp]: <https://ClickUp.com/>
  [User Onboarding]: <https://docs.google.com/document/d/19SCFvO2Me06oc179T5fXW4aLrpFQa-pPyzjBEP8UR5g/edit>
  [Development Process]: <https://docs.google.com/document/d/1vojNhvCJHWI_xff321BoiirCZa3ZFyrKSDcxOoZUbL8/edit>
