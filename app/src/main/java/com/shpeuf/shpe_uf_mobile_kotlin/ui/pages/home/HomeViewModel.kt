@@ -336,19 +336,11 @@ class HomeViewModel(
         Log.d("HomeViewModel", "Loading events")
 
         viewModelScope.launch {
-            if (_homeUIState.value.events.isEmpty()) {
-                val events = eventRepo.getALlEvents()
-                Log.d("HomeViewModel", "Events fetched from database")
+            val cachedEvents = eventRepo.getALlEvents()
+            Log.d("HomeViewModel", "Events fetched from database: ${cachedEvents.size}")
 
-                _homeUIState.update { it.copy(events = events) }
-
-                // Only fetch for the current month if the initial fetch is empty
-                if (events.isEmpty()) {
-                    Log.d("HomeViewModel", "Fetching events from server")
-                    fetchEventsMonths(localDate = LocalDate.now(), 4) // Fetch 4 months ahead
-                }
-            } else {
-                Log.d("HomeViewModel", "Using cached events")
+            if (cachedEvents.isNotEmpty() && _homeUIState.value.events.isEmpty()) {
+                _homeUIState.update { it.copy(events = cachedEvents) }
             }
         }
     }
@@ -393,12 +385,23 @@ class HomeViewModel(
                 // Create an instance of the API service
                 val service = retrofit.create(GoogleCalendarService::class.java)
                 // Make the network call
-                val response = service.getCalendarEvents(calendarId, timeMin, timeMax, apiKey)
+                val response = service.getCalendarEvents(
+                    calendarId = calendarId,
+                    timeMin = timeMin,
+                    timeMax = timeMax,
+                    apiKey = apiKey,
+                    singleEvents = true,
+                    orderBy = "startTime",
+                    maxResults = 2500
+                )
 
                 if (response.isSuccessful) {
                     // Go through all the steps to determine event details
-                    val events = response.body()?.items?.map { calendarEvent ->
-                        val eventTypeDetermined = determineEventType(calendarEvent.summary)
+                    val events = response.body()?.items?.mapNotNull { calendarEvent ->
+                        val summary = calendarEvent.summary ?: return@mapNotNull null
+                        val start = calendarEvent.start ?: return@mapNotNull null
+                        val end = calendarEvent.end ?: return@mapNotNull null
+                        val eventTypeDetermined = determineEventType(summary)
                         val determinedColor = when (eventTypeDetermined) {
                             EventType.GBM -> GBMColor
                             EventType.Social -> SocialColor
@@ -410,11 +413,11 @@ class HomeViewModel(
 
                         Event(
                             id = calendarEvent.id,
-                            summary = calendarEvent.summary,
+                            summary = summary,
                             description = calendarEvent.description,
                             location = calendarEvent.location,
-                            start = calendarEvent.start,
-                            end = calendarEvent.end,
+                            start = start,
+                            end = end,
                             eventType = eventTypeDetermined,
                             colorResId = determinedColor,
                         )
@@ -453,40 +456,43 @@ class HomeViewModel(
 
     private fun determineEventType(summary: String): EventType {
         return when {
-            summary.contains(
-                "GBM",
-                ignoreCase = true
-            ) -> EventType.GBM
+            summary.contains("GBM", ignoreCase = true) ||
+            summary.contains("General Body", ignoreCase = true) -> EventType.GBM
 
-            summary.contains(
-                "Social",
-                ignoreCase = true
-            ) -> EventType.Social
+            summary.contains("Social", ignoreCase = true) ||
+            summary.contains("BBQ", ignoreCase = true) ||
+            summary.contains("Banquet", ignoreCase = true) ||
+            summary.contains("Gala", ignoreCase = true) ||
+            summary.contains("Tailgate", ignoreCase = true) ||
+            summary.contains("Party", ignoreCase = true) ||
+            summary.contains("Game", ignoreCase = true) ||
+            summary.contains("Sports", ignoreCase = true) ||
+            summary.contains("Hangout", ignoreCase = true) ||
+            summary.contains("Picnic", ignoreCase = true) -> EventType.Social
 
-            summary.contains(
-                "Bootcamp",
-                ignoreCase = true
-            ) -> EventType.Workshop
+            summary.contains("Bootcamp", ignoreCase = true) ||
+            summary.contains("Workshop", ignoreCase = true) ||
+            summary.contains("Work", ignoreCase = true) ||
+            summary.contains("Study", ignoreCase = true) ||
+            summary.contains("Technical", ignoreCase = true) ||
+            summary.contains("Dev", ignoreCase = true) ||
+            summary.contains("Review", ignoreCase = true) ||
+            summary.contains("Resume", ignoreCase = true) ||
+            summary.contains("Interview", ignoreCase = true) -> EventType.Workshop
 
-            summary.contains(
-                "Work",
-                ignoreCase = true
-            ) -> EventType.Workshop
+            summary.contains("Info", ignoreCase = true) ||
+            summary.contains("Session", ignoreCase = true) ||
+            summary.contains("Company", ignoreCase = true) ||
+            summary.contains("Corporate", ignoreCase = true) ||
+            summary.contains("Sponsor", ignoreCase = true) ||
+            summary.contains("Tech Talk", ignoreCase = true) ||
+            summary.contains("Panel", ignoreCase = true) -> EventType.InfoSession
 
-            summary.contains(
-                "Study Session",
-                ignoreCase = true
-            ) -> EventType.Workshop
-
-            summary.contains(
-                "Info",
-                ignoreCase = true
-            ) -> EventType.InfoSession
-
-            summary.contains(
-                "Volunteer",
-                ignoreCase = true
-            ) -> EventType.Volunteering
+            summary.contains("Volunteer", ignoreCase = true) ||
+            summary.contains("Volunteering", ignoreCase = true) ||
+            summary.contains("Service", ignoreCase = true) ||
+            summary.contains("Community", ignoreCase = true) ||
+            summary.contains("Clean", ignoreCase = true) -> EventType.Volunteering
 
             // Return default event type if no keywords matched
             else -> EventType.Social
@@ -504,6 +510,16 @@ class HomeViewModel(
         val colorResId: Color,
         val eventType: EventType,
         val notificationEnabled: Boolean = false
+    )
+
+    // DTO for raw Google Calendar API event item
+    data class GoogleCalendarEvent(
+        val id: String?,
+        val summary: String?,
+        val description: String?,
+        val location: String?,
+        val start: EventDateTime?,
+        val end: EventDateTime?
     )
 
     // update to handle all day events, needs to look for date in addition to dateTime
@@ -565,10 +581,13 @@ class HomeViewModel(
             @Query("timeMin") timeMin: String,
             @Query("timeMax") timeMax: String,
             @Query("key") apiKey: String,
+            @Query("singleEvents") singleEvents: Boolean = true,
+            @Query("orderBy") orderBy: String = "startTime",
+            @Query("maxResults") maxResults: Int = 2500,
         ): Response<CalendarEventsResponse>
     }
     data class CalendarEventsResponse(
-        val items: List<Event>
+        val items: List<GoogleCalendarEvent>?
     )
 
     var isEventMapVisible by mutableStateOf(false)
