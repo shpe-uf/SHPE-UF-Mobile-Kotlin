@@ -86,6 +86,9 @@ android {
 }
 
 dependencies {
+    // QR code generation for Event Information popup
+    implementation("com.google.zxing:core:3.5.3")
+
     implementation("androidx.datastore:datastore-core-android:1.1.1")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("androidx.datastore:datastore-preferences-core-jvm:1.1.1")
