@@ -124,7 +124,7 @@ fun AdminPanelScreen(
                 )
             }
 
-            // Event Info: full-width card under Events, same blue as the Events row
+            // Event Info gets its own full-width row right under Events since they're related
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -223,6 +223,7 @@ fun AdminPanelScreen(
     }
 }
 
+// One tile in the admin grid. Pass either iconRes (a drawable) or iconVector (a Material icon).
 @Composable
 fun AdminCard(
     title: String,

@@ -36,11 +36,33 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.R
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 
-// Column widths. The table is wider than a phone screen, so it scrolls horizontally.
+/*
+ * Event Info page (Admin Panel -> Event Info)
+ *
+ * Shows every event for the selected semester in a table, similar to the Events page
+ * on the website. Data comes from EventInfoViewModel.
+ *
+ * How the composables in this file fit together:
+ *
+ *   EventInfoScreen        hooks up the ViewModel, toasts, and the delete popup
+ *    ├─ EventInfoContent   the page layout (header, tabs, table card)
+ *    │   ├─ SemesterTabs   Fall / Spring / Summer tabs
+ *    │   └─ EventTable     column headers + list of rows, scrolls sideways
+ *    │       ├─ HeaderCell one column title
+ *    │       └─ EventRow   one event
+ *    │           ├─ BodyCell        text cell
+ *    │           └─ TableIconButton the Manual Input / Info / Delete buttons
+ *    └─ DeleteEventDialog  "are you sure?" popup before deleting
+ *
+ * EventInfoContent doesn't touch the ViewModel directly, so the previews at the bottom
+ * can render it with fake data.
+ */
+
+// Column widths. Together they're wider than a phone screen, which is why the table
+// scrolls sideways. The last few were bumped up so the bold header words don't wrap.
 private val NameWidth = 160.dp
 private val CategoryWidth = 110.dp
 private val ExpirationWidth = 100.dp
-// Sized so each header word fits on one line in the bold header font.
 private val RequestWidth = 96.dp
 private val AttendanceWidth = 124.dp
 private val PointsWidth = 86.dp
@@ -53,14 +75,11 @@ private val TableWidth = NameWidth + CategoryWidth + ExpirationWidth + RequestWi
 private val ShpeOrange = Color(0xFFD25917)
 private val DeleteRed = Color(0xFFD32F2F)
 
-/**
- * Admin "Event Info" page: a per-semester table of every event.
- *
- * [onManualInputClick] and [onInfoClick] are intentionally left as hooks for the
- * Manual Input and Event Information popups. Each receives the row's [EventInfoItem]
- * (id, name, attendee list, etc.). After a popup changes data, call
- * [EventInfoViewModel.loadEvents] to refresh the table.
- */
+// Entry point for the page, called from the nav graph.
+// onManualInputClick and onInfoClick are left open on purpose so the Manual Input and
+// Event Information popups can be plugged in. Both get the clicked row's EventInfoItem,
+// which has the event id, name, attendee list, etc. If a popup changes anything,
+// call viewModel.loadEvents() afterwards so the table picks up the new data.
 @Composable
 fun EventInfoScreen(
     isDarkMode: Boolean,
@@ -72,9 +91,11 @@ fun EventInfoScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // Event the admin tapped Delete on; non-null while the confirmation popup is open.
+    // The event whose Delete button was tapped. While this isn't null the popup is showing.
     var pendingDelete by remember { mutableStateOf<EventInfoItem?>(null) }
 
+    // Show a toast whenever the ViewModel has something to say (e.g. "Event deleted"),
+    // then clear it so it doesn't show again on recomposition.
     LaunchedEffect(uiState.message) {
         uiState.message?.let {
             showCustomToast(context, it.text, isError = it.isError)
@@ -93,6 +114,7 @@ fun EventInfoScreen(
         onDeleteClick = { pendingDelete = it }
     )
 
+    // Nothing gets deleted until the admin confirms here.
     pendingDelete?.let { event ->
         DeleteEventDialog(
             eventName = event.name,
@@ -106,6 +128,8 @@ fun EventInfoScreen(
     }
 }
 
+// Confirmation popup for deleting an event. "Yes, delete" calls onConfirm,
+// tapping Cancel or outside the popup calls onDismiss.
 @Composable
 private fun DeleteEventDialog(
     eventName: String,
@@ -149,6 +173,9 @@ private fun DeleteEventDialog(
     )
 }
 
+// The actual page layout: orange header, semester tabs, then a card holding the table.
+// The card shows a spinner on first load, an error + Retry if loading failed,
+// and the EventTable otherwise. All clicks are passed back up to EventInfoScreen.
 @Composable
 fun EventInfoContent(
     uiState: EventInfoUiState,
@@ -172,7 +199,7 @@ fun EventInfoContent(
             .fillMaxSize()
             .background(pageBackground)
     ) {
-        // Orange header, matching Create Events
+        // Orange header like the Create Events page: back on the left, refresh on the right
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -224,7 +251,7 @@ fun EventInfoContent(
             dividerColor = textColor.copy(alpha = 0.2f)
         )
 
-        // Table card
+        // Card that holds the table (or the loading / error state)
         Card(
             modifier = Modifier
                 .fillMaxSize()
@@ -279,6 +306,7 @@ fun EventInfoContent(
     }
 }
 
+// Fall / Spring / Summer tabs above the table. The selected one is orange and underlined.
 @Composable
 private fun SemesterTabs(
     selected: Semester,
@@ -323,6 +351,8 @@ private fun SemesterTabs(
     }
 }
 
+// The table itself: a header row of HeaderCells, then one EventRow per event.
+// deletingEventId is the row that's currently being deleted so it can show a spinner.
 @Composable
 private fun EventTable(
     events: List<EventInfoItem>,
@@ -341,7 +371,8 @@ private fun EventTable(
     val stripeColor = if (isDarkMode) Color(0xFF012843) else Color(0xFFF8F9FB)
     val dividerColor = textColor.copy(alpha = 0.12f)
 
-    // Header and rows share one horizontal scroll so columns stay aligned.
+    // The header and the rows live inside the same horizontal scroll,
+    // so the column titles always stay lined up with the data underneath.
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -368,7 +399,6 @@ private fun EventTable(
             HorizontalDivider(color = dividerColor)
 
             if (events.isEmpty()) {
-                // Keep the empty message on screen even when the table is scrolled sideways.
                 Text(
                     text = "No events for $semesterLabel",
                     color = textColor.copy(alpha = 0.7f),
@@ -377,6 +407,7 @@ private fun EventTable(
                     modifier = Modifier.padding(start = 16.dp, top = 24.dp)
                 )
             } else {
+                // Every other row gets a light stripe to make it easier to read across
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     itemsIndexed(events, key = { _, event -> event.id }) { index, event ->
                         EventRow(
@@ -397,6 +428,7 @@ private fun EventTable(
     }
 }
 
+// One column title in the header row.
 @Composable
 private fun HeaderCell(
     text: String,
@@ -412,7 +444,8 @@ private fun HeaderCell(
         fontWeight = FontWeight.Bold,
         fontFamily = FontFamily(Font(R.font.universltstd)),
         textAlign = textAlign,
-        // Never break a header word across lines; MANUAL INPUT keeps its explicit line break.
+        // Don't let a word get split onto two lines. "MANUAL\nINPUT" still breaks
+        // because of the \n.
         softWrap = false,
         maxLines = 2,
         modifier = Modifier
@@ -421,6 +454,8 @@ private fun HeaderCell(
     )
 }
 
+// One event in the table. Cells go in the same order (and widths) as the header row.
+// While isDeleting is true the Delete button is swapped for a small spinner.
 @Composable
 private fun EventRow(
     event: EventInfoItem,
@@ -444,6 +479,7 @@ private fun EventRow(
         BodyCell(event.category, CategoryWidth, textColor)
         BodyCell(event.formattedExpiration, ExpirationWidth, textColor, fontSize = 11.sp)
 
+        // Request column: green check if it's a request event, red X if not
         Box(modifier = Modifier.width(RequestWidth), contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = if (event.request) Icons.Filled.Check else Icons.Filled.Close,
@@ -456,6 +492,7 @@ private fun EventRow(
         BodyCell(event.attendance.toString(), AttendanceWidth, textColor)
         BodyCell(event.points.toString(), PointsWidth, textColor)
 
+        // Manual Input / Info / Delete buttons
         Box(modifier = Modifier.width(ManualInputWidth), contentAlignment = Alignment.Center) {
             TableIconButton(
                 icon = Icons.Filled.PersonAdd,
@@ -491,6 +528,7 @@ private fun EventRow(
     }
 }
 
+// A plain text cell in a row. Long text gets cut off with "..." after maxLines.
 @Composable
 private fun BodyCell(
     text: String,
@@ -515,6 +553,7 @@ private fun BodyCell(
     )
 }
 
+// Small square button with a white icon, used for Manual Input, Info, and Delete.
 @Composable
 private fun TableIconButton(
     icon: ImageVector,
@@ -539,6 +578,7 @@ private fun TableIconButton(
     }
 }
 
+// Fills the card and centers whatever is inside (used for the spinner and error message).
 @Composable
 private fun CenteredBox(content: @Composable BoxScope.() -> Unit) {
     Box(
@@ -548,6 +588,9 @@ private fun CenteredBox(content: @Composable BoxScope.() -> Unit) {
     )
 }
 
+// ---------- Previews ----------
+// Fake events so the page can be checked in Android Studio's preview pane
+// without logging in or hitting the backend.
 private val previewEvents = listOf(
     EventInfoItem("1", "GBM 8 Volunteers", "gbm8", "Volunteering", 4, 6,
         "Wed Jan 21 2026 21:25:00 GMT+0000 (Coordinated Universal Time)", false,

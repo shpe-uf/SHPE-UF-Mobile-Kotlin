@@ -16,14 +16,24 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
-/** Semesters as the backend names them in Event.semester. */
+/*
+ * Data + backend calls for the Event Info page (EventInfo.kt).
+ *
+ * - Pulls every event with the EventInfoTable query and keeps them newest first
+ * - Keeps track of which semester tab is selected
+ * - Deletes events with the DeleteEvent mutation
+ *
+ * The screen just reads uiState and calls the functions in EventInfoViewModel.
+ */
+
+// The three semester tabs. backendValue has to match what the backend puts in Event.semester.
 enum class Semester(val label: String, val backendValue: String) {
     FALL("Fall Semester", "Fall Semester"),
     SPRING("Spring Semester", "Spring Semester"),
     SUMMER("Summer Semester", "Summer Semester");
 
     companion object {
-        /** Spring = Jan–Apr, Summer = May–Jul, Fall = Aug–Dec. */
+        // Which tab to open on: Jan-Apr is Spring, May-Jul is Summer, Aug-Dec is Fall
         fun current(): Semester = when (Calendar.getInstance().get(Calendar.MONTH)) {
             in Calendar.JANUARY..Calendar.APRIL -> SPRING
             in Calendar.MAY..Calendar.JULY -> SUMMER
@@ -32,13 +42,15 @@ enum class Semester(val label: String, val backendValue: String) {
     }
 }
 
+// Someone who's checked in to an event
 data class EventAttendee(
     val username: String,
     val firstName: String,
     val lastName: String
 )
 
-/** One row of the Event Info table. Holds everything the Manual Input / Info popups may need. */
+// One row in the table. It also carries the code and attendee list,
+// which the Manual Input and Info popups will probably want.
 data class EventInfoItem(
     val id: String,
     val name: String,
@@ -52,23 +64,25 @@ data class EventInfoItem(
     val createdAt: String,
     val users: List<EventAttendee>
 ) {
-    /** Expiration formatted like the website: "01/21/2026\n@ 04:25 PM" in the device's time zone. */
+    // Expiration the way the website shows it, e.g. 01/21/2026 @ 04:25 PM (phone's time zone)
     val formattedExpiration: String
         get() = formatExpiration(expiration)
 }
 
-/** One-off message shown as a toast, then cleared with [EventInfoViewModel.messageShown]. */
+// A message the screen should show once as a toast (cleared with messageShown())
 data class EventInfoMessage(val text: String, val isError: Boolean)
 
+// Everything the Event Info screen needs to draw itself
 data class EventInfoUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val events: List<EventInfoItem> = emptyList(),
     val selectedSemester: Semester = Semester.current(),
-    /** Id of the event whose delete request is in flight, if any. */
+    // Id of the event that's in the middle of being deleted (null if none)
     val deletingEventId: String? = null,
     val message: EventInfoMessage? = null
 ) {
+    // Only the events for the selected semester tab
     val visibleEvents: List<EventInfoItem>
         get() = events.filter { it.semester.equals(selectedSemester.backendValue, ignoreCase = true) }
 }
@@ -78,6 +92,7 @@ class EventInfoViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(EventInfoUiState())
     val uiState: StateFlow<EventInfoUiState> = _uiState.asStateFlow()
 
+    // Load the table as soon as the page opens
     init {
         loadEvents()
     }
@@ -90,10 +105,9 @@ class EventInfoViewModel : ViewModel() {
         _uiState.update { it.copy(message = null) }
     }
 
-    /**
-     * Deletes an event with the deleteEvent mutation, then reloads the table.
-     * Note: the backend deletes by event name, not id.
-     */
+    // Deletes an event, then reloads the table. Only one delete runs at a time.
+    // Heads up: the backend's deleteEvent finds the event by NAME, not id,
+    // so two events with the same name could be a problem.
     fun deleteEvent(event: EventInfoItem) {
         if (_uiState.value.deletingEventId != null) return
         viewModelScope.launch {
@@ -137,7 +151,8 @@ class EventInfoViewModel : ViewModel() {
         }
     }
 
-    /** Re-fetches events. Call after a popup changes data (e.g. a manual input). */
+    // Fetches all events again. Also worth calling after a popup changes something
+    // (like a manual input) so the attendance numbers update.
     fun loadEvents() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
@@ -175,7 +190,8 @@ class EventInfoViewModel : ViewModel() {
                             }
                         )
                     }
-                    // Newest first, like the website. createdAt is ISO-8601 so it sorts as a string.
+                    // Newest first like the website. createdAt is an ISO date string,
+                    // so sorting it as plain text works.
                     .sortedByDescending { it.createdAt }
 
                 _uiState.update { it.copy(isLoading = false, events = events) }
@@ -189,11 +205,10 @@ class EventInfoViewModel : ViewModel() {
     }
 }
 
-/**
- * The backend sends expiration as a JS Date string, e.g.
- * "Mon Aug 24 2026 18:09:31 GMT+0000 (Coordinated Universal Time)".
- * Falls back to the raw string if it can't be parsed.
- */
+// The backend sends expiration as a JavaScript date string like
+// "Mon Aug 24 2026 18:09:31 GMT+0000 (Coordinated Universal Time)".
+// This turns it into two lines: "08/24/2026" and "@ 02:09 PM".
+// If parsing fails we just show the raw string instead of crashing.
 internal fun formatExpiration(raw: String): String {
     return try {
         val trimmed = raw.substringBefore(" (").trim()

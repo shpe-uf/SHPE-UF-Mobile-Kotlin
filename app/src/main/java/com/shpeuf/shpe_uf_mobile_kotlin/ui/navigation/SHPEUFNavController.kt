@@ -282,10 +282,10 @@ fun NavHostContainer(
                 isDarkMode = isDarkMode,
                 onBack = { navHostController.popBackStack() },
                 onManualInputClick = { event ->
-                    // TODO: open the Manual Input popup for this event
+                    // TODO: show the Manual Input popup for this event
                 },
                 onInfoClick = { event ->
-                    // TODO: open the Event Information popup for this event
+                    // TODO: show the Event Information popup for this event
                 }
             )
         }
