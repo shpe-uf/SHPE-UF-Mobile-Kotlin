@@ -1,0 +1,6 @@
+mutation DeleteEvent($eventName: String!) {
+    deleteEvent(eventName: $eventName) {
+        id
+        name
+    }
+}

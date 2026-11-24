@@ -1,4 +1,4 @@
-query Events {
+query GetEvents {
   getEvents {
     semester
     name

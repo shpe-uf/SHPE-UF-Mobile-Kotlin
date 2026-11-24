@@ -1,0 +1,19 @@
+query EventInfoTable {
+    getEvents {
+        id
+        name
+        code
+        category
+        points
+        attendance
+        expiration
+        request
+        semester
+        createdAt
+        users {
+            username
+            firstName
+            lastName
+        }
+    }
+}

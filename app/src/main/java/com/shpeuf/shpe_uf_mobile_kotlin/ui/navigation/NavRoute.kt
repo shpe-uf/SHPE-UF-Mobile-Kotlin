@@ -8,6 +8,7 @@ object NavRoute {
     const val ADMIN = "admin"
     const val ADMINSTATS = "admin_stats"
     const val CREATE_EVENTS = "create_events"
+    const val EVENT_INFO = "event_info"
     const val LOGIN = "login"
     const val OPENING = "opening"
     const val REGISTER = "register"

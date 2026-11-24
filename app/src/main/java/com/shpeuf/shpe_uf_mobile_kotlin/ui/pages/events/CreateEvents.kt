@@ -304,7 +304,7 @@ fun CreateEventsScreen(
 //    toast.view = view
 //    toast.show()
 //}
-private fun showCustomToast(
+internal fun showCustomToast(
     context: Context,
     message: String,
     isError: Boolean = false

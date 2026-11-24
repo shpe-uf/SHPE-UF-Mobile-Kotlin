@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -29,7 +31,8 @@ fun AdminPanelScreen(
     onBack: () -> Unit = {},
     onNavigateToEvents: () -> Unit = {},
     onNavigateToLeaderboard: () -> Unit = {},
-    onNavigateToStats: () -> Unit = {}
+    onNavigateToStats: () -> Unit = {},
+    onNavigateToEventInfo: () -> Unit = {}
 ) {
     // Define colors based on dark mode - matching app's color scheme
     val backgroundColor = if (isDarkMode) Color(0xFF011F35) else Color(0xFFF5F5F5)
@@ -121,6 +124,22 @@ fun AdminPanelScreen(
                 )
             }
 
+            // Event Info: full-width card under Events, same blue as the Events row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                AdminCard(
+                    title = "Event Info",
+                    iconVector = Icons.Outlined.Info,
+                    backgroundColor = cardLightBlue,
+                    iconTint = iconTint,
+                    modifier = Modifier.weight(1f),
+                    onClick = onNavigateToEventInfo
+                )
+            }
+
             // Second row: Resources and Requests
             Row(
                 modifier = Modifier
@@ -207,7 +226,8 @@ fun AdminPanelScreen(
 @Composable
 fun AdminCard(
     title: String,
-    iconRes: Int,
+    iconRes: Int? = null,
+    iconVector: ImageVector? = null,
     backgroundColor: Color,
     iconTint: Color = Color.White,
     modifier: Modifier = Modifier,
@@ -228,12 +248,21 @@ fun AdminCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                painter = painterResource(id = iconRes),
-                contentDescription = title,
-                tint = iconTint,
-                modifier = Modifier.size(30.dp)
-            )
+            if (iconVector != null) {
+                Icon(
+                    imageVector = iconVector,
+                    contentDescription = title,
+                    tint = iconTint,
+                    modifier = Modifier.size(30.dp)
+                )
+            } else if (iconRes != null) {
+                Icon(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = title,
+                    tint = iconTint,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(6.dp))
 

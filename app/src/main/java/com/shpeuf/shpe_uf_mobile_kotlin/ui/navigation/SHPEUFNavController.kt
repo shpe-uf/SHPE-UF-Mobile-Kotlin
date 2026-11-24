@@ -48,6 +48,7 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.leaderboard.AdminLeaderboard
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.leaderboard.AdminLeaderboardViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.events.CreateEventsScreen
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.events.CreateEventViewModel
+import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.events.EventInfoScreen
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegisterPage1ViewModel
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegisterRoutes
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.pages.register.RegistrationPage1
@@ -267,6 +268,24 @@ fun NavHostContainer(
                 },
                 onNavigateToStats = {
                     navHostController.navigate(NavRoute.ADMINSTATS)
+                },
+                onNavigateToEventInfo = {
+                    navHostController.navigate(NavRoute.EVENT_INFO)
+                }
+            )
+        }
+
+        composable(NavRoute.EVENT_INFO) {
+            val isDarkMode = mainViewModel.uiState.collectAsState().value.isDarkMode
+
+            EventInfoScreen(
+                isDarkMode = isDarkMode,
+                onBack = { navHostController.popBackStack() },
+                onManualInputClick = { event ->
+                    // TODO: open the Manual Input popup for this event
+                },
+                onInfoClick = { event ->
+                    // TODO: open the Event Information popup for this event
                 }
             )
         }
