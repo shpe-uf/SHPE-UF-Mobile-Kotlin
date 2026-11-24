@@ -40,12 +40,13 @@ import com.shpeuf.shpe_uf_mobile_kotlin.ui.theme.ThemeColors
 private val NameWidth = 160.dp
 private val CategoryWidth = 110.dp
 private val ExpirationWidth = 100.dp
-private val RequestWidth = 72.dp
-private val AttendanceWidth = 96.dp
-private val PointsWidth = 64.dp
-private val ManualInputWidth = 76.dp
-private val InfoWidth = 64.dp
-private val DeleteWidth = 68.dp
+// Sized so each header word fits on one line in the bold header font.
+private val RequestWidth = 96.dp
+private val AttendanceWidth = 124.dp
+private val PointsWidth = 86.dp
+private val ManualInputWidth = 96.dp
+private val InfoWidth = 72.dp
+private val DeleteWidth = 86.dp
 private val TableWidth = NameWidth + CategoryWidth + ExpirationWidth + RequestWidth +
         AttendanceWidth + PointsWidth + ManualInputWidth + InfoWidth + DeleteWidth
 
@@ -411,9 +412,12 @@ private fun HeaderCell(
         fontWeight = FontWeight.Bold,
         fontFamily = FontFamily(Font(R.font.universltstd)),
         textAlign = textAlign,
+        // Never break a header word across lines; MANUAL INPUT keeps its explicit line break.
+        softWrap = false,
+        maxLines = 2,
         modifier = Modifier
             .width(width)
-            .padding(horizontal = 12.dp)
+            .padding(horizontal = 8.dp)
     )
 }
 
