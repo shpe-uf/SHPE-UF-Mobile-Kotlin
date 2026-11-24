@@ -51,7 +51,7 @@ fun HomeViewModel.Event.toEventEntity(): Event {
 
 fun Event.toHomeViewModelEvent(): HomeViewModel.Event {
     return HomeViewModel.Event(
-        id = this.id.toString(),
+        id = this.calendarID ?: this.id.toString(),
         summary = this.summary,
         description = this.description,
         location = this.location,

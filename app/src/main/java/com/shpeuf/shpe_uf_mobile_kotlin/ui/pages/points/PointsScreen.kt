@@ -83,7 +83,10 @@ import java.time.Month
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import com.shpeuf.shpe_uf_mobile_kotlin.ui.customscanner.MyCustomScannerActivity
-
+import android.text.Html
+import android.view.Gravity
+import android.widget.TextView
+import android.widget.Toast
 /*
 ******************************************************
 FUNCTION: PointsView()
@@ -477,8 +480,11 @@ fun RedeemPoints(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
-    // Used to show messages to the user
     val context = LocalContext.current
+
+
+
+    // Used to show messages to the user
 
     // 1. Launcher to handle the result from your local qr code scanner
     val qrScannerLauncher = rememberLauncherForActivityResult(
@@ -488,18 +494,16 @@ fun RedeemPoints(
             val contents = result.data?.getStringExtra("SCAN_RESULT")
             if (contents != null) {
                 val scannedCode = contents.removePrefix("[SHPEUF]:")
-
-                // Update the ViewModel with the scanned code
                 pointsPageViewModel.updateEventCode(scannedCode)
                 pointsPageViewModel.updateGuestsCount(1)
 
-                // Immediately redeem and close the bottom sheet if successful
                 coroutineScope.launch {
                     val error = pointsPageViewModel.redeemEvent(username)
                     if (error == null) {
+                        showCustomToast(context, "Successfully redeemed SHPoints!")
                         onCloseBottomSheet()
                     } else {
-                        errorMessage = error
+                        showCustomToast(context, error, isError = true)
                     }
                 }
             }
@@ -516,8 +520,7 @@ fun RedeemPoints(
             intent.putExtra("SCAN_MODE", "QR_CODE_MODE")
             qrScannerLauncher.launch(intent)
         } else {
-            errorMessage = "Camera permissions denied.";
-        }
+            showCustomToast(context, "Camera permissions denied.", isError = true)        }
     }
 
     Column(
@@ -542,6 +545,7 @@ fun RedeemPoints(
                 )
         ) {
             //Box for Text of "Redeem Points"
+
             Spacer(modifier = Modifier.height(30.dp))
             Box(
                 modifier = Modifier
@@ -622,19 +626,7 @@ fun RedeemPoints(
             )
             //This is what returns when there is no error message i.e. a successful event code
             //redeem, so the window auto closes.
-            if (errorMessage == "null") {
-                onCloseBottomSheet()
-                //else, display error message and keep window open
-            } else {
-                errorMessage?.let {
-                    Text(
-                        text = it,
-                        color = Color.White,
-                        fontSize = 20.sp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-            }
+
             Spacer(modifier = Modifier.height(50.dp))
 
             Text(
@@ -743,8 +735,15 @@ fun RedeemPoints(
             Button(
                 onClick = {
                     coroutineScope.launch {
-                        // Call to viewmodel function to validate the event code
-                        errorMessage = pointsPageViewModel.redeemEvent(username).toString()
+                        val error = pointsPageViewModel.redeemEvent(username)
+
+                        // Show the custom SHPE toast based on the result
+                        if (error == null) {
+                            showCustomToast(context, "Successfully redeemed SHPoints!")
+                            onCloseBottomSheet()
+                        } else {
+                            showCustomToast(context, error, isError = true)
+                        }
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -755,16 +754,14 @@ fun RedeemPoints(
                 modifier = Modifier
                     .width(290.dp)
                     .height(60.dp)
-            )
-            {
+            ) {
                 Text(
                     text = "Redeem",
                     style = TextStyle(
                         fontSize = 25.sp,
                         color = Color(0xFFFFFFFF),
                         textAlign = TextAlign.Center,
-                    ),
-                    modifier = Modifier
+                    )
                 )
             }
 
@@ -1694,3 +1691,19 @@ fun getSemester(): String {
     }
 }
 
+// Custom toast function matching QR scanner pattern (same as CreateEvents.kt)
+private fun showCustomToast(context: android.content.Context, message: String, isError: Boolean = false) {
+    val layoutInflater = android.view.LayoutInflater.from(context)
+    val view = layoutInflater.inflate(R.layout.custom_toast, null)
+
+    val textView = view.findViewById<TextView>(R.id.toast_message)
+    val boldedText = Html.fromHtml(message, Html.FROM_HTML_MODE_LEGACY)
+    textView.text = boldedText
+
+    val toast = Toast(context)
+    // Error messages stay longer (LONG ~3.5 seconds), success messages shorter (SHORT ~2 seconds)
+    toast.duration = if (isError) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
+    toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 100)
+    toast.view = view
+    toast.show()
+}
